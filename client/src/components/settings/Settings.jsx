@@ -35,7 +35,7 @@ function Settings() {
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:3000/api/local/get/${activeShop}`);
-        const data = response.data[0];
+        const data = response.data;
         console.log(data);
         setShopData({
           id: data.id,
@@ -43,6 +43,7 @@ function Settings() {
           phone: data.phone,
           address: data.address,
           image: `http://localhost:3000/${data.img}`,
+          category: data.locals_categories_id || ""
         });
   
         // Activa la solicitud de coordenadas

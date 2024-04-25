@@ -1,50 +1,56 @@
-import getConnection from "../database.js";
+import Category from '../models/category.js';
 
 export const getByLocalId = async (req, res) => {
-    const { id } = req.params; 
-    const connection = await getConnection();
+  const { id } = req.params;
 
-    try {
-        const result = await connection.query(`SELECT * FROM categories WHERE categories.local_id = ${id} AND state = 1`);
+  try {
+    const categories = await Category.findAll({ where: { local_id: id, state: 1 } });
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error al consultar categorías:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 
-        res.status(200).json(result); 
-    } catch (error) {
-        console.error("Error al consultar categorías:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
-    }
-}
+export const addCategory = async (req, res) => {
+  const { local_id, name } = req.body;
 
-
-export const addCategory = async (req,res) => {
-    const {local_id, name} = req.body
-    const connection = await getConnection();
-
-    try {
-        const result = await connection.query(`
-        INSERT INTO app_base.categories
-        (name, local_id, state)
-        VALUES
-        ('${name}', ${local_id}, 1)`); 
-
-        res.status(200).json(result); 
-    } catch (error) {
-        console.error("Error al consultar categorías:", error);
-        res.status(500).json({ error: "Error interno del servidor" })
-    }
-}
-
+  try {
+    const newCategory = await Category.create({ name, local_id, state: 1 });
+    res.status(200).json(newCategory);
+  } catch (error) {
+    console.error("Error al agregar categoría:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
 
 export const hideById = async (req, res) => {
-    const { id } = req.params;
-    const connection = await getConnection();
+  const { id } = req.params;
 
-    try {
-        await connection.query('UPDATE categories SET state = 0 WHERE id = ?', [id]);
-
-        console.log("Estado de la categoría actualizado a 0");
-        res.status(200).json("Estado de la categoría actualizado correctamente");
-    } catch (error) {
-        console.error("Error al actualizar el estado de la categoría:", error);
-        res.status(500).json({ error: "Error interno del servidor" });
+  try {
+    const category = await Category.findByPk(id);
+    
+    if (!category) {
+      return res.status(404).json({ error: "Categoría no encontrada" });
     }
+
+    category.state = 0;
+    await category.save();
+
+    console.log("Estado de la categoría actualizado a 0");
+    res.status(200).json("Estado de la categoría actualizado correctamente");
+  } catch (error) {
+    console.error("Error al actualizar el estado de la categoría:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+};
+
+export const getAllCategories = async (req, res) => {
+  try {
+    const categories = await Category.findAll();
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error("Error al obtener todas las categorías:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
 };

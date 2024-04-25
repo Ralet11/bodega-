@@ -4,6 +4,9 @@ export const ADD_NEW_ORDER = 'ADD_NEW_ORDER'
 export const SET_NEW_ORDER = 'SET_NEW_ORDER'
 export const ADD_PAY_METHODS = "UPDATE_PAY_METHODS"
 export const REMOVE_PAY_METHODS = "REMOVE_PAY_METHODS"
+export const GET_CATEGORIES = "GET_CATEGORIES"
+
+import axios from "axios";
 
 export const loginSuccess = (user) => {
   
@@ -73,3 +76,22 @@ export const removePayMethods = (methods) => {
     payload: methods
   }
 }
+
+export const getCategories = () => {
+  return async (dispatch) => {
+    try {
+     
+      const response = await axios.get('http://localhost:3000/api/locals_categories/getAll');
+      console.log(response, "action categories")
+
+    
+      dispatch({
+        type: GET_CATEGORIES,
+        payload: response.data,
+      });
+    } catch (error) {
+     
+      console.error('Error al obtener categorías:', error);
+    }
+  };
+};

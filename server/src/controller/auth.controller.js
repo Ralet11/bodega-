@@ -1,209 +1,139 @@
-import getConnection from "../database.js"
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt"
+import Client from '../models/client.js';
+import Local from '../models/local.js';
+import User from '../models/user.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
-const registerClient = async (req, res) => {
-    try {
-        const { name, email, password, adress, phone } = req.body;
+export const registerClient = async (req, res) => {
+  try {
+    const { name, email, password, address, phone } = req.body;
 
-        if (!name || !email || !password || !adress || !phone) {
-            return res.status(400).json({ message: "Bad Request. Please fill all fields." });
-        }
-
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const data = {
-            name,
-            email,
-            password: hashedPassword,
-            adress,
-            phone
-        }
-
-        const connection = await getConnection();
-        await connection.query("INSERT INTO clients SET ?", data);
-
-        const response = {
-            error: false,
-            data: {
-                result: data,
-                message: "Client added successfully"
-            }
-        }
-
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: true, message: error.message });
+    if (!name || !email || !password || !address || !phone) {
+      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
-}
 
-const loginClient = async (req, res) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-        const { email, password } = req.body;
-        console.log(email, password)
+    const newClient = await Client.create({ name, email, password: hashedPassword, address, phone });
 
-        if (email == undefined || password == undefined) {
-            return res.status(400).json({ message: "Bad Request. Please fill all field." });
-        }
-
-        const connection = await getConnection();
-
-        const result = await connection.query("SELECT * FROM clients WHERE email = ?", email);
-        console.log(result)
-
-        if (result == 0 || !(await bcrypt.compare(password, result[0].password))) {
-            const response = {
-                error: true,
-                data: {
-                    message: 'Incorrect user or password'
-                }
-            }
-            res.json(response);
-
-        } else {
-
-            const payMethod = JSON.parse(result[0].pay_methods)
-            console.log(payMethod, "pay method")
-            const id = result[0].id;
-            console.log(id)
-            const client = {
-                name: result[0].name,
-                address: result[0].adress,
-                payMethod: payMethod,
-                id: result[0].id
-            }
-
-            const locals = await connection.query("SELECT * FROM local WHERE local.clients_id = ?", id)
-           
-            const token = jwt.sign({ clientId: id }, "secret_key", { expiresIn: "1h" });
-
-            console.log(client, "cliente")
-
-            const response = {
-                error: false,
-                data: {
-                    token: token,
-                    client: client,
-                    locals: locals
-                }
-            }
-        
-            res.json(response)
-        }
-
-    } catch (error) {
-        res.status(500);
-        res.send(error.message);
-    }
+    res.json({
+      error: false,
+      data: {
+        result: newClient,
+        message: "Client added successfully"
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
 };
 
+export const loginClient = async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-const logout = (req, res) => {
-    res.clearCookie('jwt');
-    res.json({ message: "JWT Clear" });
-}
-
-
-const registerUser = async (req, res) => {
-    try {
-        const { name, email, password, phone } = req.body.clientData;
-        console.log(name, email, password, phone)
-
-        if (!name || !email || !password || !phone) {
-            return res.status(400).json({ message: "Bad Request. Please fill all fields." });
-        }
-
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const data = {
-            name,
-            email,
-            password: hashedPassword,
-            phone
-        }
-
-        const connection = await getConnection();
-        await connection.query("INSERT INTO users SET ?", data);
-
-        const response = {
-            error: false,
-            data: {
-                result: data,
-                message: "Client added successfully"
-            }
-        }
-
-        res.json(response);
-    } catch (error) {
-        res.status(500).json({ error: true, message: error.message });
-        console.log(error.message)
+    if (!email || !password) {
+      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
-}
 
-const loginUser = async (req, res) => {
+    const client = await Client.findOne({ where: { email } });
 
-    try {
-        const { email, password } = req.body.clientData;
-        console.log(email, password)
-
-        if (email == undefined || password == undefined) {
-            return res.status(400).json({ message: "Bad Request. Please fill all field." });
-        }
-
-        const connection = await getConnection();
-
-        const result = await connection.query("SELECT * FROM users WHERE email = ?", email);
-        console.log(result)
-
-        if (result == 0 || !(await bcrypt.compare(password, result[0].password))) {
-            const response = {
-                error: true,
-                data: {
-                    message: 'Incorrect user or password'
-                }
-            }
-            res.json(response);
-
-        } else {
-            const id = result[0].id;
-            console.log(id)
-            const client = {
-                name: result[0].name,
-                email: result[0].email,
-                phone: result[0].phone,
-                birthDate: result[0].birthDate
-
-            }
-           
-            const token = jwt.sign({ clientId: id }, "secret_key", { expiresIn: "1h" });
-
-            const response = {
-                error: false,
-                data: {
-                    token: token,
-                    client: client,
-                    
-                }
-            }
-        
-            res.json(response)
-        }
-
-    } catch (error) {
-        res.status(500);
-        res.send(error.message);
+    if (!client || !(await bcrypt.compare(password, client.password))) {
+      return res.json({ error: true, data: { message: 'Incorrect user or password' } });
     }
+
+    const payMethod = JSON.parse(client.pay_methods);
+    const clientData = {
+      name: client.name,
+      address: client.address,
+      payMethod,
+      id: client.id
+    };
+
+    const locals = await Local.findAll({
+      where: {
+        clients_id: client.id
+      }
+    });
+
+    console.log(locals)
+
+    const token = jwt.sign({ clientId: client.id }, "secret_key", { expiresIn: "1h" });
+
+    res.json({
+      error: false,
+      data: {
+        token,
+        client: clientData,
+        locals
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
 };
 
+export const logout = (req, res) => {
+  res.clearCookie('jwt');
+  res.json({ message: "JWT Clear" });
+};
 
-export const methods = {
-    registerClient,
-    loginClient,
-    logout,
-    registerUser,
-    loginUser
+export const registerUser = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body.clientData;
 
-}
+    if (!name || !email || !password || !phone) {
+      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({ name, email, password: hashedPassword, phone });
+
+    res.json({
+      error: false,
+      data: {
+        result: newUser,
+        message: "User added successfully"
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body.clientData;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
+    }
+
+    const user = await User.findOne({ where: { email } });
+
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.json({ error: true, data: { message: 'Incorrect user or password' } });
+    }
+
+    const userData = {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      birthDate: user.birthDate,
+      id: user.id
+    };
+
+    const token = jwt.sign({ userId: user.id }, "secret_key", { expiresIn: "1h" });
+
+    res.json({
+      error: false,
+      data: {
+        token,
+        client: userData
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};

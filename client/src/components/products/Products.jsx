@@ -41,6 +41,8 @@ function Products() {
 });
   const [showNewProductModal, setShowNewProductModal] = useState(false);
 
+  console.log(selectedCategory, "cagtegoria")
+  console.log(newProduct)
   dispatch(changeShop(activeShop));
 
   useEffect(() => {
@@ -80,6 +82,7 @@ function Products() {
   }, [selectedCategory]);
 
   const handleIconClick = (categoryId) => {
+    console.log(categoryId, "id categoria")
     setSelectedProduct(null);
     setSelectedCategory(categoryId);
   };
@@ -215,6 +218,7 @@ function Products() {
   };
 
   const handleCreateProduct = async () => {
+    console.log("papapa")
     // Actualiza el category_id en newProduct con el valor seleccionado
     const updatedNewProduct = {
       ...newProduct,
@@ -234,7 +238,7 @@ function Products() {
         `http://localhost:3000/api/products/get/${selectedCategory}`
       );
 
-      handleImageUpload(response.data.insertId)
+      handleImageUpload(response.data.id)
       
 
       setNewProduct({
@@ -255,8 +259,10 @@ function Products() {
   
 
   return (
+    <>
+
     <div className="dashborder ml-4 flex gap-[30px]">
-      <div className="bg-transparent-cloud p-4 rounded-lg shadow-md w-[200px] h-[360px] mt-5">
+      <div className="bg-transparent-cloud p-4 rounded-lg shadow-md w-[200px] h-[360px] mt-5 ml-20">
         <h2 className="text-base font-semibold mt-2">All Categories</h2>
         <ul className="mt-4">
           {categories &&
@@ -395,8 +401,10 @@ function Products() {
                     }}
                     category_id={selectedCategory}
                     setNewProduct={setNewProduct}
+                    selectedCategory={selectedCategory}
                 />
     </div>
+     </>
   );
 }
 

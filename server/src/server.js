@@ -11,6 +11,9 @@ import http from "http";
 import routerImages from "./routes/images.routes.js";
 import usersRouter from './routes/users.routes.js'
 import paymentRouter from './routes/payment.routes.js'
+import localsCategories from './routes/locals_catogories.routes.js'
+import addresesRouter from './routes/addresses.routes.js'
+import discountRouter from './routes/discounts.routes.js'
 
 const app = express();
 const server = http.createServer(app);
@@ -32,7 +35,9 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/up-image", routerImages);
 app.use("/api/users", usersRouter);
 app.use("/api/payment", paymentRouter);
-
+app.use("/api/locals_categories", localsCategories);
+app.use("/api/addresses", addresesRouter);
+app.use("/api/discounts", discountRouter);
 
 
 const io = new Server(server, {

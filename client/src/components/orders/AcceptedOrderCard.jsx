@@ -94,7 +94,7 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
           <span className="ml-[80px]">Address: {userData.address}</span>
         </p>
         <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "8px" }}>
-          <span>Total: {order.total_price}</span>
+        <span>Total: { Number(order.total_price).toFixed(2)}</span>
           <span className="ml-[95px]">Payment Method: Credit Card</span>
         </p>
       </div>

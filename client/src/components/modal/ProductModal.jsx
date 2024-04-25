@@ -10,8 +10,10 @@ export default function ProductModal({
   handleInputChange,
   newProduct,
   setNewProduct,
+  selectedCategory
 }) {
 
+  console.log(selectedCategory, "categoria en modal")
   const [image, setimage] = useState(null);
 
   const onSubmit = (e) => {

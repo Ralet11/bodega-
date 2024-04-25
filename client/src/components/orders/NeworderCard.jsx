@@ -15,6 +15,8 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
     setIsModalOpen(true);
   };
 
+  console.log(order)
+
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -48,12 +50,12 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
   };
 
   const statusStyles = {
-    backgroundColor: "#FF6666",
+    backgroundColor: order.type === "pick up" ? "#66CCFF" : "#FF6666",
     color: "#ffffff",
     borderRadius: "4px",
     padding: "4px 8px",
     fontSize: "0.875rem",
-  };
+  }
 
   const iconStyles = {
     color: "#ffffff", // Color del icono
@@ -107,7 +109,8 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
     <div style={cardStyles}>
       <div style={headerStyles}>
         <h3 style={orderNumberStyles}>Order N°: {order.id}</h3>
-        <span style={statusStyles}>{order.status}</span>
+        <span style={statusStyles}>{order.type}</span>
+        
       </div>
       <div style={{ flex: 1 }}>
         <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "8px" }}>
@@ -115,7 +118,7 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
           <span className="ml-[80px]">Address: {userData.address}</span>
         </p>
         <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "8px" }}>
-          <span>Total: {order.total_price}</span>
+          <span>Total: { Number(order.total_price).toFixed(2)}</span>
           <span className="ml-[95px]">Payment Method: Credit Card</span>
         </p>
       </div>

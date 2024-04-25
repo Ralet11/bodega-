@@ -1,129 +1,155 @@
-import getConnection from "../database.js";
+import { Op } from 'sequelize';
+import Order from '../models/order.js';
+import User from '../models/user.js';
 import { io } from "../server.js";
- 
-export const getByLocalId = async (req,res) => {
-    const { id } = req.params
-    const connection = await getConnection()
+import Local from '../models/local.js';
 
-    try {
-        const result = await connection.query('SELECT * FROM orders WHERE orders.local_id = ?', [id])
-        //si la variable orderStatus es true
-        orderStatus(result);
-
-        console.log(result)
-        res.status(200).json(result)
-    } catch (error) {
-        res.status(500).json({ message: 'Error interno del servidor.' });
-    }
-}
-
-const orderStatus = async (req,res) => {
-  
-}
-
-
-export const acceptOrder = async (req, res) => {
-    const { id } = req.params;
-    const connection = await getConnection();
-    try {
-   
-        await connection.query('UPDATE orders SET status = ? WHERE id = ?', ["accepted", id]);
-        
-
-        const updatedOrder = await connection.query('SELECT * FROM orders WHERE id = ?', [id]);
-        
-        // Devuelve los detalles actualizados de la orden
-        res.status(200).json(updatedOrder[0]);
-    } catch (error) {
-        console.error("Error al aceptar la orden:", error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
-    }
-}
-
-export const sendOrder = async (req, res) => {
-    const { id } = req.params;
-    const connection = await getConnection();
-    try {
-       
-        await connection.query('UPDATE orders SET status = ? WHERE id = ?', ["sending", id]);
-        
-        
-        const updatedOrder = await connection.query('SELECT * FROM orders WHERE id = ?', [id]);
-        
-        
-        res.status(200).json(updatedOrder[0]);
-    } catch (error) {
-        console.error("Error al aceptar la orden:", error);
-        res.status(500).json({ message: 'Error interno del servidor.' });
-    }
-}
-
-export const createOrder = async (req, res) => {
-  const { delivery_fee, total_price, oder_details, local_id, users_id, status, date_time } = req.body;
-  console.log(oder_details)
+export const getByLocalId = async (req, res) => {
+  const { id } = req.params;
 
   try {
-   
-    if (!delivery_fee || !total_price || !oder_details || !local_id || !users_id || !status || !date_time) {
-      return res.status(400).json({ message: "Todos los campos son obligatorios" });
-    }
+    const orders = await Order.findAll({
+      where: {
+        local_id: id
+      }
+    });
 
-    console.log("papa")
-    const connection = await getConnection();
-    const result = await connection.query(
-      'INSERT INTO orders (delivery_fee, total_price, oder_details, local_id, users_id, status, date_time) VALUES (?, ?, ?, ?, ?, ?,?)',
-      [delivery_fee, total_price, JSON.stringify(oder_details), local_id, users_id, status, date_time]
-    );
-
-    // Verifica si la inserción fue exitosa
-    if (result.affectedRows === 1) {
-      // Notifica a los clientes a través de Socket.IO
-      io.emit('newOrder', { oder_details, local_id, users_id, status, date_time });
-
-      res.status(201).json({ message: "Orden creada exitosamente" });
-    } else {
-      res.status(500).json({ message: "Error al crear la orden en la base de datos" });
-    }
+    res.status(200).json(orders);
   } catch (error) {
-    console.error("Error al crear la orden:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error('Error al obtener pedidos:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
+
+export const acceptOrder = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    await order.update({ status: 'accepted' });
+
+    // Emitir evento de cambio de estado del pedido a través de Socket.IO
+    io.emit('changeOrderState', { status: 'accepted' });
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error al aceptar el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
+
+export const sendOrder = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    await order.update({ status: 'sending' });
+
+    // Emitir evento de cambio de estado del pedido a través de Socket.IO
+    io.emit('changeOrderState', { status: 'sending' });
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error al enviar el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
+
+export const createOrder = async (req, res) => {
+  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type } = req.body;
+  const {userId} = req.user
+
+  const users_id = userId
+
+  console.log(oder_details, "order details")
+
+  try {
+    const newOrder = await Order.create({
+      delivery_fee,
+      total_price,
+      order_details: oder_details,
+      local_id: 1,
+      users_id,
+      status,
+      date_time,
+      type
+    });
+
+    // Emitir evento de nuevo pedido a través de Socket.IO
+    io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
+
+    res.status(201).json({ message: 'Pedido creado exitosamente' });
+  } catch (error) {
+    console.error('Error al crear el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 
 export const getOrderUser = async (req, res) => {
   const { id } = req.params;
-  const connection = await getConnection();
-  
-  try {
-    const result = await connection.query('SELECT * FROM users WHERE id = ?', [id]);
-    console.log(result)
 
-    if (result.length > 0) {
-      const user = result[0]; // Suponemos que solo se espera un usuario con ese ID
-      res.status(200).json(user);
-    } else {
-      res.status(404).json({ message: "Usuario no encontrado" });
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
     }
+
+    res.status(200).json(user);
   } catch (error) {
-    console.error("Error al obtener el usuario:", error);
-    res.status(500).json({ message: "Error interno del servidor" });
+    console.error('Error al obtener el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
 
 export const finishOrder = async (req, res) => {
   const { id } = req.params;
-  const connection = await getConnection();
+
   try {
-     
-    await connection.query('UPDATE orders SET status = ? WHERE id = ?', ["finished", id]);
-        
-        
-    const updatedOrder = await connection.query('SELECT * FROM orders WHERE id = ?', [id]);
-      
-      
-      res.status(200).json(updatedOrder[0]);
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    await order.update({ status: 'finished' });
+
+    // Emitir evento de finalización de pedido a través de Socket.IO
+    io.emit('finishOrder', { id });
+
+    res.status(200).json(order);
   } catch (error) {
-      console.error("Error al aceptar la orden:", error);
-      res.status(500).json({ message: 'Error interno del servidor.' });
+    console.error('Error al finalizar el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
   }
-}
+};
+
+export const getOrdersByUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const orders = await Order.findAll({
+      where: {
+        users_id: id
+      },
+      include: [
+        { model: Local, as: 'local', attributes: ['id', 'name', 'img', 'address'] }
+      ]
+    });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error al obtener pedidos:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};

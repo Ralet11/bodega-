@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 
 function InfoCard({ shopData, setShopData }) {
   const [newShop, setNewShop] = useState({
@@ -11,7 +12,14 @@ function InfoCard({ shopData, setShopData }) {
     img: null,
   });
 
+  console.log(shopData)
+
   const [selectedImage, setSelectedImage] = useState({ img: shopData.image });
+  const cat = useSelector((state) => state)
+
+  
+
+  const categories = cat.categories
 
   useEffect(() => {
     setSelectedImage({ img: shopData.image });
@@ -24,8 +32,11 @@ function InfoCard({ shopData, setShopData }) {
       name: shopData.name,
       phone: shopData.phone,
       img: shopData.img,
+      category: shopData.category || ""
     });
   }, [shopData]);
+
+
 
   // Handle changes in the input fields
   const handleInputChange = (e) => {
@@ -93,6 +104,9 @@ function InfoCard({ shopData, setShopData }) {
       console.error('Error updating shop:', error);
     }
   };
+
+  console.log(newShop)
+
   return (
     <div className="w-full min-h-[430px] pt-[30px] rounded-lg bg-white text-black">
       <div className="flex flex-row min-h-[200px]">
@@ -158,6 +172,25 @@ function InfoCard({ shopData, setShopData }) {
                   onChange={handleInputChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
+              </div>
+              <div>
+                <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">
+                  Category:
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  value={newShop.category}
+                  onChange={handleInputChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                >
+                  <option value="" disabled>Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
             <button

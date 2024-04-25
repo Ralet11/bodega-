@@ -60,7 +60,7 @@ const HistorialVentas = () => {
     };
 
     return (
-        <div className="flex flex-col mt-[80px] ml-[160px] max-w-[80%]">
+        <div className="flex flex-col mt-[80px] ml-[160px] max-w-[80%] max-h-[800px]">
             <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
                     <div className="overflow-hidden">

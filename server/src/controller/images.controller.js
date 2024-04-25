@@ -1,4 +1,6 @@
-import getConnection from "../database.js";
+import { where } from 'sequelize';
+import Local from '../models/local.js';
+import Product from '../models/product.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -6,7 +8,8 @@ export const updateImage = async (req, res) => {
   try {
     const { id, action } = req.body;
     const image = req.file;
-    console.log(id)
+
+    console.log(req.body)
 
     if (!image) {
       res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
@@ -16,41 +19,37 @@ export const updateImage = async (req, res) => {
     let targetPath;
 
     switch (action) {
-      
       case 'shop':
-        const connection = await getConnection();
-        const shopResult = await connection.query('SELECT * FROM local WHERE local.id = ?', [id]);
+        const local = await Local.findByPk(id);
 
-        if (shopResult.length === 0) {
+        if (!local) {
           res.status(404).json({ error: 'Local no encontrado' });
           return;
         }
 
-        const localName = shopResult[0].name;
+        const localName = local.name;
         const ext = path.extname(image.originalname);
         targetPath = `uploads/${localName}${ext}`;
         break;
 
       case 'product':
-        console.log("papa")
-        const prod_connection = await getConnection()
-        const prodResult = await prod_connection.query('SELECT * FROM products WHERE id = ?', [id]);
-        console.log(prodResult)
+        const product = await Product.findOne({
+          where: {
+            id: id
+          }
+        });
 
-        if (prodResult.length === 0) {
-          res.status(404).json({ error: 'producto no encontrado' });
+        if (!product) {
+          res.status(404).json({ error: 'Producto no encontrado' });
           return;
         }
 
-        const productName = prodResult[0].name;
+        const productName = product.name;
         const prodext = path.extname(image.originalname);
         targetPath = `uploads/${productName}${prodext}`;
         break;
 
-
-      case 'otraAccion':
-        // ... Lógica para 'otraAccion'
-        break;
+      // Agrega casos adicionales para otras acciones si es necesario
 
       default:
         res.status(400).json({ error: 'Acción no válida' });
@@ -67,30 +66,25 @@ export const updateImage = async (req, res) => {
         res.status(500).json({ error: 'Error al guardar la imagen' });
       } else {
         try {
-          const connection = await getConnection();
-          let tableToUpdate;
+          let modelToUpdate;
 
           switch (action) {
             case 'shop':
-              tableToUpdate = 'local';
+              modelToUpdate = Local;
               break;
 
             case 'product':
-              tableToUpdate = 'products';
+              modelToUpdate = Product;
               break;
 
-            case 'otraAccion':
-              // Define la tabla correspondiente para 'otraAccion'
-              tableToUpdate = 'nombre_de_la_tabla';
-              break;
+            // Agrega casos adicionales para otras acciones si es necesario
 
             default:
-              // En caso de una acción no válida, no deberías llegar a este punto
               res.status(400).json({ error: 'Acción no válida' });
               return;
           }
 
-          await connection.query(`UPDATE ${tableToUpdate} SET img=? WHERE id = ?`, [targetPath, id]);
+          await modelToUpdate.update({ img: targetPath }, { where: { id } });
 
           res.status(200).json({ message: 'Imagen guardada con éxito' });
         } catch (dbError) {
@@ -103,4 +97,5 @@ export const updateImage = async (req, res) => {
     console.error('Error en la función updateImage:', err);
     res.status(500).json({ error: 'Error en el servidor' });
   }
+  console.log("papa")
 };

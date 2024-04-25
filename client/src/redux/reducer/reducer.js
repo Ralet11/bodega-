@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS } from "../actions/actions";
+import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES } from "../actions/actions";
 
 
 const initialState = {
@@ -10,7 +10,8 @@ const initialState = {
     sending: [],
     finished: [],
   },
-  newOrder: false
+  newOrder: false,
+  categories: {}
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -57,6 +58,12 @@ const rootReducer = (state = initialState, action) => {
               payMethod: action.payload
             }
           }
+        };
+        case GET_CATEGORIES:
+        console.log(state.categories,"reducer")
+        return {
+          ...state,
+          categories: action.payload
         };
     default:
       return state;

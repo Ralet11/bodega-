@@ -4,7 +4,7 @@ import axios from "axios";
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyB0N8k7ZUu4XHMeMzhMICRQ8O8pwynokR8", // Replace with your API key
+    googleMapsApiKey: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU", // Replace with your API key
     libraries: ["places"]
   });
 
@@ -19,10 +19,11 @@ function Map({ shopData, latLong }) {
   const [selected, setSelected] = useState(null);
   const [address, setAddress] = useState(shopData.address);
   const searchResult = useRef(null);
+  
 
   useEffect(() => {
     if (latLong) {
-      setSelected({ lat: latLong.lat, lng: latLong.lng });
+      setSelected({ lat: latLong.lat || 25.8, lng: latLong.lng || -80.2 });
     }
   }, [latLong]);
 
@@ -32,6 +33,7 @@ function Map({ shopData, latLong }) {
       const location = place.geometry.location;
       const lat = location.lat();
       const lng = location.lng();
+      
       setAddress(place.formatted_address);
 
       setSelected({ lat, lng });
@@ -46,8 +48,14 @@ function Map({ shopData, latLong }) {
       return;
     }
 
+    const data = {
+      address,
+      lat: selected.lat,
+      lng: selected.lng
+    }
+
     try {
-      const response = await axios.post(`http://localhost:3000/api/local/update/address/${shopData.id}`, { address });
+      const response = await axios.post(`http://localhost:3000/api/local/update/address/${shopData.id}`, data);
       console.log(response.data);
       if (response.status === 200) {
         window.alert("Dirección actualizada con éxito");
@@ -59,6 +67,8 @@ function Map({ shopData, latLong }) {
       window.alert("Ocurrió un error al actualizar la dirección de la tienda.");
     }
   };
+
+
 
   return (
     <>
