@@ -145,7 +145,7 @@ export default function UpDateProductModal({
                   <div className="bg-gray-100 p-4 rounded-lg shadow-md">
                     <div className="mt-[-10px] w-[300px] h-[300px] rounded overflow-hidden shadow-lg mt-5 bg-white">
                       <img
-                        src={editedProduct.img || `${API_URL_BASE}${selectedProduct.img}`} // Use editedProduct.img
+                        src={editedProduct.img || `${API_URL_BASE}/${selectedProduct.img}`} // Use editedProduct.img
                         alt={selectedProduct.name || 'Product Preview'}
                         className="w-full h-[100px] rounded-lg object-cover mb-2"
                       />
