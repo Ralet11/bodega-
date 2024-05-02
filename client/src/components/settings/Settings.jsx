@@ -45,7 +45,7 @@ function Settings() {
           name: data.name,
           phone: data.phone,
           address: data.address,
-          image: `http://localhost:80/${data.img}`,
+          image: `${API_URL_BASE}/${data.img}`,
           category: data.locals_categories_id || ""
         });
   

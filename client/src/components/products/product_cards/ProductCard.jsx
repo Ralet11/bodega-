@@ -1,6 +1,9 @@
 // ProductCard.js
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import { getParamsEnv } from '../../../functions/getParamsEnv';
+
+const {API_URL_BASE} = getParamsEnv();
 
 const ProductCard = ({ product, isSelected, handleClick }) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -18,7 +21,7 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
     >
       <div className="mb-2" onClick={toggleDetails}>
         <img
-          src={`http://localhost:80/${product.img}`}
+          src={`${API_URL_BASE}/${product.img}`}
           alt={product.name}
           className="w-20 h-20 object-cover rounded-full"
         />

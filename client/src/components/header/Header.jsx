@@ -90,7 +90,7 @@ const Header = () => {
             {shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
-                src={`http://localhost:80/${shop.img}`}
+                src={`${API_URL_BASE}/${shop.img}`}
                 alt={`Thumbnail of ${shop.name}`}
               />
             )}

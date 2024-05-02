@@ -4,6 +4,9 @@ import axios from 'axios';
 import {
     DocumentTextIcon
 } from "@heroicons/react/24/solid";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 const HistorialVentas = () => {
     const activeShop = useSelector((state) => state.activeShop);
@@ -19,7 +22,7 @@ const HistorialVentas = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:80/api/orders/get/${activeShop}`
+                    `${API_URL_BASE}/api/orders/get/${activeShop}`
                 );
 
                 const ordersByStatus = {

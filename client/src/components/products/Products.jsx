@@ -10,6 +10,9 @@ import { PencilIcon } from 'lucide-react';
 import CategoryModal from '../modal/CategoryModal';
 import UpDateProductModal from '../modal/UpdateProdModal';
 import ProductModal from '../modal/ProductModal'
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function Products() {
   const activeShop = useSelector((state) => state.activeShop);
@@ -49,7 +52,7 @@ function Products() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:80/api/categories/get/${activeShop}`
+          `${API_URL_BASE}/api/categories/get/${activeShop}`
         );
         setCategories(response.data);
         setSelectedCategory(response.data[0].id);
@@ -64,7 +67,7 @@ function Products() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:80/api/products/get/${selectedCategory}`
+          `${API_URL_BASE}/api/products/get/${selectedCategory}`
         );
         setProducts(response.data);
 
@@ -99,7 +102,7 @@ function Products() {
 
   const handleCreateCategory = () => {
     axios
-      .post('http://localhost:80/api/categories/add', newCategory)
+      .post(`${API_URL_BASE}/api/categories/add`, newCategory)
       .then((response) => {
         setNewCategory({
           name: '',
@@ -108,7 +111,7 @@ function Products() {
         setshowAddCategory(false);
 
         axios
-          .get(`http://localhost:80/api/categories/get/${activeShop}`)
+          .get(`${API_URL_BASE}/api/categories/get/${activeShop}`)
           .then((response) => {
             setCategories(response.data);
           })
@@ -133,10 +136,10 @@ function Products() {
 
     if (userConfirmed) {
       axios
-        .delete(`http://localhost:80/api/products/delete/${id}`)
+        .delete(`${API_URL_BASE}/api/products/delete/${id}`)
         .then((response) => {
           axios
-            .get(`http://localhost:80/api/products/get/${selectedCategory}`)
+            .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`)
             .then((response) => {
               setProducts(response.data);
             })
@@ -171,7 +174,7 @@ function Products() {
 
     axios
       .put(
-        `http://localhost:80/api/products/update/${selectedProduct.id}`,
+        `${API_URL_BASE}/api/products/update/${selectedProduct.id}`,
         updatedFields
       )
       .then((response) => {
@@ -181,7 +184,7 @@ function Products() {
         }));
 
         axios
-          .get(`http://localhost:80/api/products/get/${selectedCategory}`)
+          .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`)
           .then((response) => {
             setProducts(response.data);
           })
@@ -204,7 +207,7 @@ function Products() {
       console.log(formData)
 
       try {
-        const response = await axios.post('http://localhost:80/api/up-image/', formData);
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData);
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {
@@ -228,14 +231,14 @@ function Products() {
     console.log(newProduct)
     try {
       const response = await axios.post(
-        'http://localhost:80/api/products/add',
+        `${API_URL_BASE}/api/products/add`,
         updatedNewProduct // Utiliza updatedNewProduct en lugar de newProduct
       );
       console.log('Producto creado:', response.data);
   
       // Actualiza la lista de productos después de crear uno nuevo
       const updatedProductsResponse = await axios.get(
-        `http://localhost:80/api/products/get/${selectedCategory}`
+        `${API_URL_BASE}/api/products/get/${selectedCategory}`
       );
 
       handleImageUpload(response.data.id)
@@ -312,7 +315,7 @@ function Products() {
       {selectedProduct && (
         <div className="w-[300px] h-[350px] rounded overflow-hidden shadow-lg mt-5 bg-white">
           <img
-            src={`http://localhost:80/${selectedProduct.img}`}
+            src={`${API_URL_BASE}/${selectedProduct.img}`}
             alt={selectedProduct.name}
             className="w-full h-[100px] rounded-lg object-cover mb-2"
           />

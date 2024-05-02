@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { addPayMethods, removePayMethods } from '../../redux/actions/actions';
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function PayMethods() {
   const [selectedPayments, setSelectedPayments] = useState({});
@@ -13,7 +16,7 @@ function PayMethods() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get("http://localhost:3000/api/payment/getPayMethods");
+      const response = await axios.get(`${API_URL_BASE}/api/payment/getPayMethods`);
       setPayMethods(response.data);
       console.log(response.data);
     };
@@ -48,7 +51,7 @@ function PayMethods() {
 
     try {
       if (isSelected) {
-        const response = await axios.post("http://localhost:3000/api/payment/disablePayment", {
+        const response = await axios.post(`${API_URL_BASE}/api/payment/disablePayment`, {
           data: {
             methodId,
             client: client.client.id
@@ -70,7 +73,7 @@ function PayMethods() {
         console.log(methods);
         console.log("haciendo la peti");
         console.log(client.client.id);
-        await axios.post("http://localhost:3000/api/payment/enablePayment", {
+        await axios.post(`${API_URL_BASE}/api/payment/enablePayment`, {
           data: {
             methods,
             client: client.client.id,
@@ -123,7 +126,7 @@ function PayMethods() {
     console.log(data)
 
     try {
-      const response = await axios.post("http://localhost:3000/api/payment/addKeys", data);
+      const response = await axios.post(`${API_URL_BASE}/api/payment/addKeys`, data);
       console.log(response.data, "Keys fetched successfully");
     } catch (error) {
       console.error("Error fetching keys:", error);

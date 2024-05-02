@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { PhotoIcon } from "@heroicons/react/24/solid";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function InfoCard({ shopData, setShopData }) {
   const [newShop, setNewShop] = useState({
@@ -80,7 +83,7 @@ function InfoCard({ shopData, setShopData }) {
       formData.append('image', imageFile);
 
       try {
-        const response = await axios.post('http://localhost:80/api/up-image/', formData);
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData);
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {
@@ -97,7 +100,7 @@ function InfoCard({ shopData, setShopData }) {
   // Handle shop update
   const handleChangeShop = async () => {
     try {
-      const response = await axios.put(`http://localhost:80/api/local/update/${shopData.id}`, newShop);
+      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, newShop);
       console.log(response.data);
       window.alert("Info updated")
     } catch (error) {

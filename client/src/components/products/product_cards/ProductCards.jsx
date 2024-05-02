@@ -4,6 +4,9 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import ProductCard from './ProductCard';
 import { PlusCircle, Trash } from 'lucide-react';
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function ProductCards({
     selectedCategory,
@@ -38,7 +41,7 @@ function ProductCards({
 
         if (confirmDeleteCategory) {
             axios
-                .delete(`http://localhost:80/api/categories/hide/${category_id}`)
+                .delete(`${API_URL_BASE}/api/categories/hide/${category_id}`)
                 .then((response) => {
                     console.log('Categoría eliminada:', response.data);
                     // Actualiza las categorías en el estado después de eliminar

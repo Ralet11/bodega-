@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function OrderModal({ order, closeModal }) {
     const [userInfo, setUserInfo] = useState(null);
@@ -30,7 +33,7 @@ function OrderModal({ order, closeModal }) {
 
         const fetchData = async () => {
             try {
-                const response = await axios.get(`http://localhost:80/api/users/get/${id}`);
+                const response = await axios.get(`${API_URL_BASE}/api/users/get/${id}`);
                 setUserInfo(response.data);
             } catch (error) {
                 console.error(error);
@@ -53,7 +56,7 @@ function OrderModal({ order, closeModal }) {
                             <div>
                                 {resultadoFinal.map((product, index) => (
                                     <div key={index} className="mb-4 flex items-center">
-                                        <img className="w-12 h-12 mr-4 rounded-full" src={`http://localhost:80/${product.imagen}`} alt={`Product ${index}`} />
+                                        <img className="w-12 h-12 mr-4 rounded-full" src={`${API_URL_BASE}/${product.imagen}`} alt={`Product ${index}`} />
                                         <div>
                                             <p className="text-lg">{`${product.cantidad} X ${product.nombre}`}</p>
                                             <p className="text-gray-500">{`$ ${product.preciotodal}`}</p>
