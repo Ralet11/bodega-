@@ -6,7 +6,9 @@ import {
 } from "@heroicons/react/24/solid";
 import OrderModal from "../modal/OrderModal";
 import axios from "axios";
+import { getParamsEnv } from "../../functions/getParamsEnv";
 
+const {API_URL_BASE} = getParamsEnv(); 
 
 const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,7 +68,7 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
     // Realiza la solicitud para 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:80/api/orders/user/${order.users_id}`);
+        const response = await axios.get(`${API_URL_BASE}/api/orders/user/${order.users_id}`);
         setUserData(response.data); // Almacena los datos del usuario en el estado
         console.log(response.data)
       } catch (error) {

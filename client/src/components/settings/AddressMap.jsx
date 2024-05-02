@@ -1,6 +1,9 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, Autocomplete } from "@react-google-maps/api";
 import axios from "axios";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
@@ -55,7 +58,7 @@ function Map({ shopData, latLong }) {
     }
 
     try {
-      const response = await axios.post(`http://localhost:3000/api/local/update/address/${shopData.id}`, data);
+      const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data);
       console.log(response.data);
       if (response.status === 200) {
         window.alert("Dirección actualizada con éxito");

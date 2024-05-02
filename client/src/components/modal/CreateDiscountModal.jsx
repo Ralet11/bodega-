@@ -4,6 +4,9 @@ import axios from "axios";
 import Loader from "../Loader";
 import { UploadWidget } from "./widgetUpload";
 import { XCircleIcon } from "@heroicons/react/24/solid";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv()
 
 const CreateDiscountModal = ({
     aux,
@@ -74,7 +77,7 @@ const CreateDiscountModal = ({
 
             console.log(data)
             const response = await axios.post(
-                `http://localhost:80/api/discounts/add`,
+                `${API_URL_BASE}/api/discounts/add`,
                 data
             );
             if (response.data.created === "ok") {

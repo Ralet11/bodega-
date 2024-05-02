@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import CreateDiscountModal from '../modal/CreateDiscountModal';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { getParamsEnv } from '../../functions/getParamsEnv';
+
+const { API_URL_BASE } = getParamsEnv();
 
 const Discounts = () => {
 
@@ -16,7 +19,8 @@ const Discounts = () => {
     useEffect(() => {
         const fetchDiscounts = async () => {
             try {
-                const response = await axios.get("http://localhost:80/api/discounts/getAll");
+                const response = await axios.get(`${API_URL_BASE}/api/discounts/getAll`);
+                
                 console.log(response.data);
                 setDiscounts(response.data);
             } catch (error) {
@@ -31,7 +35,7 @@ const Discounts = () => {
 
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`http://localhost:80/api/products/getByLocalId/${shop}`);
+                const response = await axios.get(`${API_URL_BASE}/api/products/getByLocalId/${shop}`);
                 setProducts(response.data);
                 console.log(response);
             } catch (error) {

@@ -81,7 +81,7 @@ export const getCategories = () => {
   return async (dispatch) => {
     try {
      
-      const response = await axios.get('http://localhost:3000/api/locals_categories/getAll');
+      const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
       console.log(response, "action categories")
 
     

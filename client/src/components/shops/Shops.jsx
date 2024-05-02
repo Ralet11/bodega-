@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import {
     PlusCircleIcon
 } from '@heroicons/react/24/solid';
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv(); 
 
 function Shops() {
     const client = useSelector((state) => state.client);
@@ -25,7 +28,7 @@ function Shops() {
                         className="bg-localCard max-w-sm rounded-lg overflow-hidden shadow-lg border border-gray-300 hover:shadow-xl cursor-pointer"
                     >
                         <img
-                            src={`http://localhost:3000/${local.img}`}
+                            src={`${API_URL_BASE}/${local.img}`}
                             alt={local.name}
                             className="w-full h-36 object-cover"
                         />
