@@ -10,7 +10,7 @@ export const getByCategoryId = async (req, res) => {
     const products = await Product.findAll({
       where: {
         categories_id: categoryId,
-        state: 1 // Considera solo productos activos
+        state: "1" // Considera solo productos activos
       }
     });
 

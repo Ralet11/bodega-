@@ -20,13 +20,13 @@ const Orders = () => {
         finished: [],
     });
 
-    const socket = socketIOClient("http://localhost:3000");
+    const socket = socketIOClient("http://localhost:80");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/orders/get/${activeShop}`
+                    `http://localhost:80/api/orders/get/${activeShop}`
                 );
 
                 const ordersByStatus = {
@@ -74,7 +74,7 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`http://localhost:3000/api/orders/accept/${orderId}`);
+            await axios.put(`http://localhost:80/api/orders/accept/${orderId}`);
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {
@@ -99,7 +99,7 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`http://localhost:3000/api/orders/send/${orderId}`);
+            await axios.put(`http://localhost:80/api/orders/send/${orderId}`);
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {
@@ -124,7 +124,7 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`http://localhost:3000/api/orders/finished/${orderId}`);
+            await axios.put(`http://localhost:80/api/orders/finished/${orderId}`);
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {

@@ -16,7 +16,7 @@ const Discounts = () => {
     useEffect(() => {
         const fetchDiscounts = async () => {
             try {
-                const response = await axios.get("http://localhost:3000/api/discounts/getAll");
+                const response = await axios.get("http://localhost:80/api/discounts/getAll");
                 console.log(response.data);
                 setDiscounts(response.data);
             } catch (error) {
@@ -31,7 +31,7 @@ const Discounts = () => {
 
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`http://localhost:3000/api/products/getByLocalId/${shop}`);
+                const response = await axios.get(`http://localhost:80/api/products/getByLocalId/${shop}`);
                 setProducts(response.data);
                 console.log(response);
             } catch (error) {

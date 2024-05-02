@@ -66,7 +66,7 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
     // Realiza la solicitud para 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/orders/user/${order.users_id}`);
+        const response = await axios.get(`http://localhost:80/api/orders/user/${order.users_id}`);
         setUserData(response.data); // Almacena los datos del usuario en el estado
         console.log(response.data)
       } catch (error) {

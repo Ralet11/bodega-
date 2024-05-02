@@ -19,7 +19,7 @@ const HistorialVentas = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/orders/get/${activeShop}`
+                    `http://localhost:80/api/orders/get/${activeShop}`
                 );
 
                 const ordersByStatus = {

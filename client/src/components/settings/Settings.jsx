@@ -17,6 +17,9 @@ import AdressMap from "./AddressMap";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import PayMethods from "./PayMethods";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv()
 
 function Settings() {
   const activeShop = useSelector((state) => state.activeShop);
@@ -34,7 +37,7 @@ function Settings() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/local/get/${activeShop}`);
+        const response = await axios.get(`${API_URL_BASE}/api/local/get/${activeShop}`);
         const data = response.data;
         console.log(data);
         setShopData({
@@ -42,7 +45,7 @@ function Settings() {
           name: data.name,
           phone: data.phone,
           address: data.address,
-          image: `http://localhost:3000/${data.img}`,
+          image: `http://localhost:80/${data.img}`,
           category: data.locals_categories_id || ""
         });
   

@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
 import "./App.css"
-import { ShoppingCartIcon, BellAlertIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon } from '@heroicons/react/24/solid';
+import { ShoppingCartIcon, BellAlertIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
 import Login from './components/login/login';
 import { Link } from 'react-router-dom';
 import Products from './components/products/Products';
@@ -17,6 +17,7 @@ import { setNewOrder } from './redux/actions/actions';
 import { useDispatch } from 'react-redux';
 import Landing from './components/Landing/Landing';
 import Discounts from './components/Discounts/Discounts';
+import DistributorComerce from './components/DistributorComerce/DistributorComerce';
 
 function App() {
   const location = useLocation();
@@ -25,7 +26,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://localhost:3000");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -75,6 +76,9 @@ function App() {
             <Link to="/contact">
               <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" />
             </Link>
+            <Link to="/distributorsCommerce">
+              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Distributors Offers" />
+            </Link>
           </Sidebar>
           {/* Header */}
           <Header className="header" />
@@ -90,6 +94,7 @@ function App() {
         <Route path='settings' element={<Settings />}></Route>
         <Route path='/login' element={<Login />}></Route>
         <Route path='/discounts' element={<Discounts />}></Route>
+        <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
       </Routes>
     </div>
   );

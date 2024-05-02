@@ -2,9 +2,12 @@ import Category from '../models/category.js';
 
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
+  const idNumber = parseInt(id, 10); // or +id
+
+  console.log(id, "id")
 
   try {
-    const categories = await Category.findAll({ where: { local_id: id, state: 1 } });
+    const categories = await Category.findAll({ where: { local_id: idNumber, state: "1" } });
     res.status(200).json(categories);
   } catch (error) {
     console.error("Error al consultar categorías:", error);

@@ -41,7 +41,7 @@ const Header = () => {
           data-te-dropdown-ref
         >
           <Cog8ToothIcon
-            className='w-7 h-7 text-white mr-[-200px]'
+            className='w-7 h-7 text-white mr-2'
             onClick={toggleDropdown}
           />
           {open && (
@@ -82,7 +82,7 @@ const Header = () => {
         </div>
         {/* Fin del Dropdown de Tailwind Elements */}
         <ul
-          className={` ml-[-200px] md:flex md:items-center md:pb-0 pb-12 absolute md:static bg-blue-400 md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
+          className={` ml-[-350px] md:flex md:items-center md:pb-0 pb-12 absolute md:static bg-blue-400 md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
             open ? 'top-12' : 'top-[-490px]'
           }`}
         >
@@ -90,7 +90,7 @@ const Header = () => {
             {shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
-                src={`http://localhost:3000/${shop.img}`}
+                src={`http://localhost:80/${shop.img}`}
                 alt={`Thumbnail of ${shop.name}`}
               />
             )}

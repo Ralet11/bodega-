@@ -80,7 +80,7 @@ function InfoCard({ shopData, setShopData }) {
       formData.append('image', imageFile);
 
       try {
-        const response = await axios.post('http://localhost:3000/api/up-image/', formData);
+        const response = await axios.post('http://localhost:80/api/up-image/', formData);
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {
@@ -97,7 +97,7 @@ function InfoCard({ shopData, setShopData }) {
   // Handle shop update
   const handleChangeShop = async () => {
     try {
-      const response = await axios.put(`http://localhost:3000/api/local/update/${shopData.id}`, newShop);
+      const response = await axios.put(`http://localhost:80/api/local/update/${shopData.id}`, newShop);
       console.log(response.data);
       window.alert("Info updated")
     } catch (error) {

@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { changeShop, getCategories, loginSuccess } from "../../redux/actions/actions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
+import { getParamsEnv } from "../../functions/getParamsEnv";
+
+const {API_URL_BASE} = getParamsEnv()
 
 const Login = () => {
 
@@ -29,7 +32,7 @@ const Login = () => {
     console.log(password)
 
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', {
+      const response = await axios.post(`${API_URL_BASE}/api/auth/login`, {
         email,
         password,
         credentials: true,

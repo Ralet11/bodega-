@@ -74,7 +74,7 @@ const CreateDiscountModal = ({
 
             console.log(data)
             const response = await axios.post(
-                `http://localhost:3000/api/discounts/add`,
+                `http://localhost:80/api/discounts/add`,
                 data
             );
             if (response.data.created === "ok") {

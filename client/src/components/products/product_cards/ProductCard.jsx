@@ -18,7 +18,7 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
     >
       <div className="mb-2" onClick={toggleDetails}>
         <img
-          src={`http://localhost:3000/${product.img}`}
+          src={`http://localhost:80/${product.img}`}
           alt={product.name}
           className="w-20 h-20 object-cover rounded-full"
         />

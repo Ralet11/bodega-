@@ -38,7 +38,7 @@ function ProductCards({
 
         if (confirmDeleteCategory) {
             axios
-                .delete(`http://localhost:3000/api/categories/hide/${category_id}`)
+                .delete(`http://localhost:80/api/categories/hide/${category_id}`)
                 .then((response) => {
                     console.log('Categoría eliminada:', response.data);
                     // Actualiza las categorías en el estado después de eliminar
