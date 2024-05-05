@@ -4,7 +4,7 @@ import axios from 'axios';
 import PropTypes from 'prop-types';
 import ProductCard from './ProductCard';
 import { PlusCircle, Trash } from 'lucide-react';
-import { getParamsEnv } from "../../functions/getParamsEnv";
+import { getParamsEnv } from '../../../functions/getParamsEnv';
 
 const {API_URL_BASE} = getParamsEnv(); 
 

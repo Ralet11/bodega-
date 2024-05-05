@@ -18,9 +18,9 @@ import { useDispatch } from 'react-redux';
 import Landing from './components/Landing/Landing';
 import Discounts from './components/Discounts/Discounts';
 import DistributorComerce from './components/DistributorComerce/DistributorComerce';
-import { getParamsEnv } from "../../functions/getParamsEnv";
+import { getParamsEnv } from './functions/getParamsEnv';
 
-const {API_URL_BASE} = getParamsEnv(); 
+
 
 function App() {
   const location = useLocation();
@@ -29,7 +29,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient({API_URL_BASE});
+  const socket = socketIOClient("http://localhost:80 ");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
