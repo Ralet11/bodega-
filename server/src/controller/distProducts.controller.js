@@ -30,6 +30,8 @@ export const addDistProduct = async (req, res) => {
         });
 
         res.status(201).json(newProduct);
+        const email = 'ramiro.alet@hotmail.com'
+        sendEmailPaidPlan(email)
     } catch (error) {
         res.status(500).json({ error: "Error al guardar el producto" });
         console.log(error)
@@ -55,3 +57,59 @@ export const getDistProductById = async (req, res) => {
         res.status(500).json({ error: "Error al obtener el producto" });
     }
 }
+
+export const sendEmailPaidPlan = async (email) => {
+    const contentHTML = `
+    <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Welcome Email</title>
+  </head>
+  <body>
+      <table style="width: 100%; max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; border-collapse: collapse;">
+          <tr>
+              <td style="background-color: #4299e1; color: white; padding: 20px; text-align: center;">
+                  <h2>Congratulations</h2>
+                  <p>You buy a new product!</p>
+              </td>
+          </tr>
+          
+          <tr>
+              <td style="background-color: #f8fafc; padding: 20px; text-align: center;">
+                  <p>If you have any questions, feel free to contact us.</p>
+                  <p class="text-gray-700">Best regards,</p>
+                  <p class="text-gray-700">Bodega Team</p>
+              </td>
+          </tr>
+      </table>
+  </body>
+  </html>
+    `;
+  
+    let transporter = nodemailer.createTransport({
+      host: 'smtp-mail.outlook.com',
+      port: 587,
+      secure: false,
+        auth: {
+            user: 'ramiro.alet@hotmail.com',
+            pass: 'luciana.11'
+        }
+    });
+    
+    try {
+      let info = await transporter.sendMail({
+        from: 'ramiro.alet@hotmail.com',
+        to: email,
+        subject: 'This is your new Plan!',
+        html: contentHTML
+      });
+  
+      console.log('Message sent: %s', info.messageId);
+      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    } catch (error) {
+      console.log("Error sending email:", error);
+    }
+  }
+  
