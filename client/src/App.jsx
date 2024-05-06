@@ -3,10 +3,10 @@ import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
 import "./App.css"
 import { ShoppingCartIcon, BellAlertIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
-import Login from './components/login/login';
+import Login from './components/login/Login.jsx';
 import { Link } from 'react-router-dom';
 import Products from './components/products/Products';
-import Shops from './components/shops/shops';
+import Shops from './components/shops/Shops.jsx';
 import Orders from './components/orders/orders';
 import Dashboard1 from './components/Dashboard/dashboard1';
 import { useState, useEffect } from 'react';
@@ -21,6 +21,7 @@ import DistributorComerce from './components/DistributorComerce/DistributorComer
 import { getParamsEnv } from './functions/getParamsEnv';
 import DistProdCard from './components/card/CardBodega';
 import CartView from './components/cartView/CartView';
+import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 
 
 
@@ -102,6 +103,7 @@ function App() {
         <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
         <Route path='/distProduct-detail' element={<DistProdCard />}></Route>
         <Route path='/cartView' element={<CartView />}></Route>
+        <Route path='/succesPaymentDist' element={<SuccessPaymentDist />}></Route>
       </Routes>
     </div>
   );

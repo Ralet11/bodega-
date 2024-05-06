@@ -75,11 +75,17 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         cart: [...state.cart, action.payload]
       };
-    case REMOVE_FROM_CART:
-      return {
-        ...state,
-        cart: state.cart.filter(item => item.productId !== action.payload)
-      };
+      case REMOVE_FROM_CART:
+        console.log("remove3")
+        const newCart = [...state.cart];
+        const itemIndex = newCart.findIndex(item => item.id === action.payload);
+        if (itemIndex !== -1) {
+          newCart.splice(itemIndex, 1);
+        }
+        return {
+          ...state,
+          cart: newCart
+        };
     default:
       return state;
   }

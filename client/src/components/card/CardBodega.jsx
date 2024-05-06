@@ -9,6 +9,8 @@ import CheckIcon from '../../icons/checkIcon';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import { addToCart } from '../../redux/actions/actions';
+import CartIcon from '../CartIcon';
+import GoBackArrow from '../GobackArrow';
 
 
 const API_URL_BASE = 'http://127.0.0.1:8080';
@@ -30,6 +32,8 @@ const DistProdCard = () => {
 
     return (
         <>
+        <CartIcon />
+        <GoBackArrow />
             <div className='m-auto mt-[-1px] w-2/3 '>
                 <SearchBarCommerce />
             </div>

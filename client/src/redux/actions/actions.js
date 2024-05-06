@@ -118,6 +118,7 @@ export const addToCart = (prod) => {
 }
 
 export const removeFromCart = (prodId) => {
+  console.log("remove2")
   return {
     type: REMOVE_FROM_CART,
     payload: prodId
