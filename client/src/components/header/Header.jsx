@@ -32,11 +32,11 @@ const Header = () => {
 
   return (
     <div className='shadow-md w-full fixed top-0 left-0 z-[10]'>
-      <div className='md:flex items-center justify-between bg-blue-400 py-4 md:px-10 px-7'>
+      <div className='md:flex items-center justify-between bg-[#F2BB26] py-4 md:px-10 px-7'>
         {/* logo section */}
         <div className='font-bold text-2xl cursor-pointer flex items-center gap-1'>
-          <RocketLaunchIcon className='w-7 h-7 text-white' />
-          <span className='text-white'>Bodega+</span>
+          <RocketLaunchIcon className='w-7 h-7 text-black' />
+          <span className='text-black font-bold'>Bodega+</span>
         </div>
         {/* Dropdown de Tailwind Elements */}
         <div
@@ -44,7 +44,7 @@ const Header = () => {
           data-te-dropdown-ref
         >
           <Cog8ToothIcon
-            className='w-7 h-7 text-white mr-2'
+            className='w-7 h-7 text-black mr-2'
             onClick={toggleDropdown}
           />
           {open && (
@@ -85,11 +85,11 @@ const Header = () => {
         </div>
         {/* Fin del Dropdown de Tailwind Elements */}
         <ul
-          className={` ml-[-350px] md:flex md:items-center md:pb-0 pb-12 absolute md:static bg-blue-400 md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
+          className={` ml-[-350px] md:flex md:items-center md:pb-0 pb-12 absolute md:static bg-[#F2BB26] md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${
             open ? 'top-12' : 'top-[-490px]'
           }`}
         >
-          <span className='bg-blue-400'>
+          <span className='bg-[#F2BB26]'>
             {shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
@@ -100,7 +100,7 @@ const Header = () => {
           </span>
 
           {Links.map((link) => (
-            <li className='md:ml-3 md:my-0 my-7 font-bold bg-blue-400' key={link.name}>
+            <li className='md:ml-3 md:my-0 my-7 font-bold bg-[#F2BB26]' key={link.name}>
               {/* Use Link component instead of anchor tag */}
               <Link
                 to={link.link}

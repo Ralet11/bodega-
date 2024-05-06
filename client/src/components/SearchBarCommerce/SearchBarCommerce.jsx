@@ -23,7 +23,7 @@ const SearchBarCommerce = ({ onSearch }) => {
       />
       <button 
         type="submit" 
-        className="absolute right-0 top-0 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-r-md focus:outline-none focus:bg-blue-600"
+        className="absolute right-0 top-0 bg-[#F2BB26] text-black font-semibold py-3 px-6 rounded-r-md focus:outline-none focus:bg-blue-600"
       >
         Search
       </button>

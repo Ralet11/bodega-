@@ -19,6 +19,7 @@ import Landing from './components/Landing/Landing';
 import Discounts from './components/Discounts/Discounts';
 import DistributorComerce from './components/DistributorComerce/DistributorComerce';
 import { getParamsEnv } from './functions/getParamsEnv';
+import DistProdCard from './components/card/CardBodega';
 
 
 
@@ -29,7 +30,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://localhost:80 ");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -98,6 +99,7 @@ function App() {
         <Route path='/login' element={<Login />}></Route>
         <Route path='/discounts' element={<Discounts />}></Route>
         <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
+        <Route path='/distProduct-detail' element={<DistProdCard />}></Route>
       </Routes>
     </div>
   );
