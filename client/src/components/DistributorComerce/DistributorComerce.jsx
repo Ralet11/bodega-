@@ -29,19 +29,21 @@ const DistributorComerce = () => {
           <SearchBarCommerce />
         </div>
         <div className="flex flex-wrap justify-center mt-8 cursor-pointer">
-          {all_offers.map((offer, index) => (
-            <div onClick={() => handleClick(offer)} key={index} className="max-w-sm w-2/3 md:max-w-md bg-white shadow-md rounded-lg overflow-hidden m-4 hover:shadow-lg transition duration-300">
-              <img className="w-full h-20 object-cover object-center" src={offer.image} alt={offer.name} />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{offer.name}</h3>
-                <p className="mb-2">Price: ${offer.price}</p>
-                <p className="mb-2">Quantity: {offer.quantity}</p>
-                <p className="mb-2">Supplier: {offer.supplier}</p>
-                <p className="mb-2">Category: {offer.category}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className="flex flex-wrap justify-center mt-8 cursor-pointer">
+  {all_offers.map((offer, index) => (
+    <div onClick={() => handleClick(offer)} key={index} className="max-w-sm w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 bg-white shadow-md rounded-lg overflow-hidden m-4 hover:shadow-lg transition duration-300">
+      <img className="w-full h-40 object-cover object-center" src={offer.image} alt={offer.name} />
+      <div className="p-4">
+        <h3 className="text-lg font-semibold mb-2">{offer.name}</h3>
+        <p className="text-gray-600 mb-2">${offer.price}</p>
+        <p className="text-gray-600 mb-2">Quantity: {offer.quantity}</p>
+        <p className="text-gray-600 mb-2">Supplier: {offer.supplier}</p>
+        <p className="text-gray-600 mb-2">Category: {offer.category}</p>
+      </div>
+    </div>
+  ))}
+</div>
+</div>
       </div>
     </>
   );

@@ -5,8 +5,11 @@ export const SET_NEW_ORDER = 'SET_NEW_ORDER'
 export const ADD_PAY_METHODS = "UPDATE_PAY_METHODS"
 export const REMOVE_PAY_METHODS = "REMOVE_PAY_METHODS"
 export const GET_CATEGORIES = "GET_CATEGORIES"
+import { getParamsEnv } from "../../functions/getParamsEnv";
 
 import axios from "axios";
+
+const {API_URL_BASE} = getParamsEnv()
 
 export const loginSuccess = (user) => {
   

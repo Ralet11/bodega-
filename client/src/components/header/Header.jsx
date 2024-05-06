@@ -7,6 +7,9 @@ import {
   Cog8ToothIcon,
 } from '@heroicons/react/24/solid';
 import { useSelector } from 'react-redux';
+import { getParamsEnv } from '../../functions/getParamsEnv';
+
+const {API_URL_BASE} = getParamsEnv()
 
 // Importa los componentes de Tailwind Elements
 import { Dropdown, Ripple, initTE } from 'tw-elements';
