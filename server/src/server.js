@@ -15,6 +15,7 @@ import localsCategories from './routes/locals_catogories.routes.js'
 import addresesRouter from './routes/addresses.routes.js'
 import discountRouter from './routes/discounts.routes.js'
 import DistProductRouter from './routes/distProducts.routes.js'
+import { FRONTEND_URL } from "./config.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -24,7 +25,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb" }));
 
 const corsOptions = {
-  origin: ["http://127.0.0.1:5173", "exp://192.168.75.227:8081"],
+  origin: [`${FRONTEND_URL}`, "exp://192.168.75.227:8081"],
 };
 app.use(cors(corsOptions));
 app.use('/uploads', express.static('uploads'))
@@ -45,7 +46,7 @@ app.use("/api/distProducts", DistProductRouter);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://127.0.0.1:5173",
+    origin: `${FRONTEND_URL}`,
     methods: ["GET", "POST"],
   },
 });

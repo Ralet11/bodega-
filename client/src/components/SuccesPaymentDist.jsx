@@ -17,7 +17,7 @@ const SuccessPaymentDist = () => {
   }, []);
 
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 pt-20">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         <div className="px-6 py-8">
           <div className="flex items-center mb-6">
