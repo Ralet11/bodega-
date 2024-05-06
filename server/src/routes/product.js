@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../database.js';
+import sequelize from '../dbconnection.js';
 
 
-const DistProduct = sequelize.define('DistProduct', {
+const Product = sequelize.define('Product', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -11,9 +11,7 @@ const DistProduct = sequelize.define('DistProduct', {
   },
   id_proveedor: {
     type: DataTypes.INTEGER,
-    
     allowNull: true,
- 
   },
   name: {
     type: DataTypes.STRING,
@@ -28,52 +26,45 @@ const DistProduct = sequelize.define('DistProduct', {
     allowNull: false
   },
   description: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  feature_1: {
     type: DataTypes.STRING,
     allowNull: false
   },
-  
-
+  feature_2: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  feature_3: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  feature_4: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  feature_5: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  feature_6: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   image1: {
     type: DataTypes.STRING,
     allowNull: false
   },
   image2: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: false
   },
   image3: {
     type: DataTypes.STRING,
-    allowNull: true
-  },
-
-  feature_1: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  feature_2: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  feature_3: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  feature_4: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  feature_5: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-  feature_6: {
-    type: DataTypes.STRING,
-    allowNull: true
-  },
-
-
-
-  
+    allowNull: false
+  }
 });
 
-export default DistProduct;
+export default Product;

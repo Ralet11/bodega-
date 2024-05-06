@@ -8,6 +8,9 @@ import {
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from 'react-redux';
+import { setDistProd } from '../../redux/actions/actions';
+import CartIcon from '../CartIcon';
 
 const {API_URL_BASE} = getParamsEnv()
 
@@ -17,6 +20,7 @@ const DistributorComerce = () => {
   const [allProducts, setAllProducts] = useState()
   const [product, setProduct] = useState();
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -37,12 +41,14 @@ const DistributorComerce = () => {
   };
 
   const goToDetail = (distProduct) => {
-    navigate('/distProduct-detail', { state: { distProduct } });
+    dispatch(setDistProd(distProduct))
+    navigate('/distProduct-detail');
   }
 
   return (
     <>
       {/* <CommerceSidebar /> */}
+      <CartIcon />
       <div className="flex flex-col items-center w-full bg-gray-200">
         <div className='w-2/3'>
           <SearchBarCommerce />

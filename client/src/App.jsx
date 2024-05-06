@@ -20,6 +20,7 @@ import Discounts from './components/Discounts/Discounts';
 import DistributorComerce from './components/DistributorComerce/DistributorComerce';
 import { getParamsEnv } from './functions/getParamsEnv';
 import DistProdCard from './components/card/CardBodega';
+import CartView from './components/cartView/CartView';
 
 
 
@@ -100,6 +101,7 @@ function App() {
         <Route path='/discounts' element={<Discounts />}></Route>
         <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
         <Route path='/distProduct-detail' element={<DistProdCard />}></Route>
+        <Route path='/cartView' element={<CartView />}></Route>
       </Routes>
     </div>
   );

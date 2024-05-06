@@ -11,7 +11,7 @@ export const getAllDistProducts = async (req, res) => {
 }
 
 export const addDistProduct = async (req, res) => {
-    const { id_proveedor, name, category, price, description, image1, image2, image3 } = req.body
+    const { id_proveedor, name, category, price, description, image1, image2, image3,feature_1, feature_2, feature_3 } = req.body
 
     try {
         // Crear un nuevo producto distribuido
@@ -23,7 +23,10 @@ export const addDistProduct = async (req, res) => {
             description,
             image1,
             image2,
-            image3
+            image3,
+            feature_1,
+            feature_2,
+            feature_3
         });
 
         res.status(201).json(newProduct);

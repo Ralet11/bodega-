@@ -1,5 +1,4 @@
-import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES } from "../actions/actions";
-
+import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART } from "../actions/actions";
 
 const initialState = {
   client: {},
@@ -11,7 +10,8 @@ const initialState = {
     finished: [],
   },
   newOrder: false,
-  categories: {}
+  categories: {},
+  cart: []
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -36,7 +36,7 @@ const rootReducer = (state = initialState, action) => {
       }
     case ADD_PAY_METHODS:
       console.log(action.payload)
-      
+
       return {
         ...state,
         client: {
@@ -47,24 +47,39 @@ const rootReducer = (state = initialState, action) => {
           }
         }
       };
-      case REMOVE_PAY_METHODS:
-        console.log(state.client.client.payMethod,"reducer")
-        return {
-          ...state,
+    case REMOVE_PAY_METHODS:
+      console.log(state.client.client.payMethod, "reducer")
+      return {
+        ...state,
+        client: {
+          ...state.client,
           client: {
-            ...state.client,
-            client: {
-              ...state.client.client,
-              payMethod: action.payload
-            }
+            ...state.client.client,
+            payMethod: action.payload
           }
-        };
-        case GET_CATEGORIES:
-        console.log(state.categories,"reducer")
-        return {
-          ...state,
-          categories: action.payload
-        };
+        }
+      };
+    case GET_CATEGORIES:
+      return {
+        ...state,
+        categories: action.payload
+      };
+    case SET_DISTPROD:
+      return {
+        ...state,
+        selectedDistProd: action.payload
+      };
+    case ADD_TO_CART:
+      console.log(action.payload, "en reducer")
+      return {
+        ...state,
+        cart: [...state.cart, action.payload]
+      };
+    case REMOVE_FROM_CART:
+      return {
+        ...state,
+        cart: state.cart.filter(item => item.productId !== action.payload)
+      };
     default:
       return state;
   }

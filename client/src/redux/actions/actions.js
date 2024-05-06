@@ -5,6 +5,10 @@ export const SET_NEW_ORDER = 'SET_NEW_ORDER'
 export const ADD_PAY_METHODS = "UPDATE_PAY_METHODS"
 export const REMOVE_PAY_METHODS = "REMOVE_PAY_METHODS"
 export const GET_CATEGORIES = "GET_CATEGORIES"
+export const SET_DISTPROD = "SET_DISTPROD"
+export const ADD_TO_CART = "ADD_TO_CART"
+export const REMOVE_FROM_CART = "REMOVE_FROM_CART"
+
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
 import axios from "axios";
@@ -98,3 +102,24 @@ export const getCategories = () => {
     }
   };
 };
+
+export const setDistProd = (prod) => {
+  return {
+    type: SET_DISTPROD,
+    payload: prod
+  }
+}
+
+export const addToCart = (prod) => {
+  return {
+    type: ADD_TO_CART,
+    payload: prod
+  }
+}
+
+export const removeFromCart = (prodId) => {
+  return {
+    type: REMOVE_FROM_CART,
+    payload: prodId
+  }
+}
