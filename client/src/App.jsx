@@ -3,10 +3,10 @@ import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
 import "./App.css"
 import { ShoppingCartIcon, BellAlertIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
-import Login from './components/login/login';
+import Login from './components/login/Login.jsx';
 import { Link } from 'react-router-dom';
 import Products from './components/products/Products';
-import Shops from './components/shops/shops';
+import Shops from './components/shops/Shops.jsx';
 import Orders from './components/orders/orders';
 import Dashboard1 from './components/Dashboard/dashboard1';
 import { useState, useEffect } from 'react';
@@ -30,7 +30,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("http://127.0.0.1:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {

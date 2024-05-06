@@ -48,27 +48,27 @@ const DistProduct = sequelize.define('DistProduct', {
 
   feature_1: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   feature_2: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   feature_3: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   feature_4: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   feature_5: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
   feature_6: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: true
   },
 
 
