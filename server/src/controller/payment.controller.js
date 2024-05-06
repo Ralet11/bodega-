@@ -1,17 +1,20 @@
-import stripe from 'stripe';
+
 import { Op } from 'sequelize';
 import Client from '../models/client.js';
 import PayMethod from '../models/pay_method.js';
+import Stripe from 'stripe';
+import { FRONTEND_URL } from '../config.js';
+
+const stripe = new Stripe("sk_test_51OJV6vCtqRjqS5chtpxR0cKFJLK8jf3WRVchpsfCFZx3JdiyPV0xcHZgYbaJ70XYsmdkssJpHiwdCmEun6X7mThj00IB3NQI0C");
 
 export const tryIntent = async (req, res) => {
   const { finalPrice } = req.body;
   console.log(req.body);
 
-  const secretKey = 'sk_test_51OJV6vCtqRjqS5chtpxR0cKFJLK8jf3WRVchpsfCFZx3JdiyPV0xcHZgYbaJ70XYsmdkssJpHiwdCmEun6X7mThj00IB3NQI0C';
-  const stripeInstance = stripe(secretKey);
+
 
   try {
-    const paymentIntent = await stripeInstance.paymentIntents.create({
+    const paymentIntent = await stripe.paymentIntents.create({
       amount: finalPrice,
       currency: 'usd',
       automatic_payment_methods: {
@@ -89,3 +92,59 @@ export const removePayMethod = async (req, res) => {
     res.status(500).json({ success: false, message: 'Error interno del servidor' });
   }
 };
+
+export const checkoutDistPayment = async (req, res) => {
+  const { products, customerInfo } = req.body;
+  const { name, email, id } = customerInfo;
+
+
+  try {
+    let customer;
+
+    // Verificar si el cliente ya existe en Stripe
+    try {
+      customer = await stripe.customers.retrieve(id.toString()); // Convert id to string
+    } catch (error) {
+      // Si el cliente no existe, crearlo
+      if (error.raw && error.raw.code === 'resource_missing') {
+        customer = await stripe.customers.create({
+          name: name,
+          email: email,
+          id: id.toString() // Convert id to string
+        });
+      } else {
+        throw error; // Re-throw error if it's not "resource_missing"
+      }
+    }
+
+    // Crear la lista de artículos para el pago
+    const lineItems = products.map(product => ({
+      price_data: {
+        currency: 'usd', // Change to your currency
+        product_data: {
+          name: product.name
+        },
+        unit_amount: product.price * 100, // Convert to cents
+      },
+      quantity: product.quantity || 1 // Si no se especifica la cantidad, se asume 1
+    }));
+
+    // Crear la sesión de pago en Stripe
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      line_items: lineItems,
+      mode: 'payment',
+      payment_method_types: ['card'],
+      success_url: `${FRONTEND_URL}/succesPaymentDist`,
+      cancel_url: `${FRONTEND_URL}/payment/cancel`,
+      payment_intent_data: {
+        setup_future_usage: "off_session"
+      }
+    });
+
+    res.json(session);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al procesar el pago' });
+  }
+}
