@@ -14,6 +14,7 @@ import paymentRouter from './routes/payment.routes.js'
 import localsCategories from './routes/locals_catogories.routes.js'
 import addresesRouter from './routes/addresses.routes.js'
 import discountRouter from './routes/discounts.routes.js'
+import DistProductRouter from './routes/distProducts.routes.js'
 
 const app = express();
 const server = http.createServer(app);
@@ -38,6 +39,8 @@ app.use("/api/payment", paymentRouter);
 app.use("/api/locals_categories", localsCategories);
 app.use("/api/addresses", addresesRouter);
 app.use("/api/discounts", discountRouter);
+app.use("/api/distProducts", DistProductRouter);
+
 
 
 const io = new Server(server, {
