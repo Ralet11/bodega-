@@ -23,7 +23,7 @@ const CartIcon = () => {
 
     return (
         <div>
-            <div onClick={openModal} className='cursor-pointer mt-20 w-[100px] h-screen' style={{ position: 'fixed', top: '2%', left: '80%' }}>
+            <div onClick={openModal} className='cursor-pointer mt-20 w-[100px] h-screen' style={{ position: 'fixed', top: '2.5%', left: '80%' }}>
                 <div className='p-2 flex gap-6 rounded-lg bg-black'>
                     <ShoppingCartIcon className='w-8 h-8 text-yellow-600' />
                     <p className='text-xl text-yellow-600 font-bold mt-1'>{cartItems.length}</p>

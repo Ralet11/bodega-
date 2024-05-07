@@ -22,6 +22,7 @@ import { getParamsEnv } from './functions/getParamsEnv';
 import DistProdCard from './components/card/CardBodega';
 import CartView from './components/cartView/CartView';
 import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
+import SignUp from './components/SignUp.jsx';
 
 
 
@@ -32,7 +33,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://3.15.211.38");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -104,6 +105,7 @@ function App() {
         <Route path='/distProduct-detail' element={<DistProdCard />}></Route>
         <Route path='/cartView' element={<CartView />}></Route>
         <Route path='/succesPaymentDist' element={<SuccessPaymentDist />}></Route>
+        <Route path='/register' element={<SignUp />}></Route>
       </Routes>
     </div>
   );

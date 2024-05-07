@@ -47,12 +47,13 @@ const DistributorComerce = () => {
 
   return (
     <>
-      {/* <CommerceSidebar /> */}
       <CartIcon />
       <div className="flex flex-col items-center w-full bg-gray-200">
-        <div className='w-2/3'>
+        <div className='flex flex-col w-2/3'>
           <SearchBarCommerce />
+          <CommerceSidebar />
         </div>
+        
         <div className="flex flex-wrap justify-center mt-8 cursor-pointer">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-8">
             {allProducts && allProducts.map((offer, index) => (
@@ -73,7 +74,9 @@ const DistributorComerce = () => {
                   <h3 className="font-bold mb-2">{offer.name}</h3>
                   <p className="text-black font-bold text-2xl mb-2">${offer.price}</p>
                   
-                  <button className="mt-5 px-6 font-bold rounded-full bg-white text-yellow-600 hover:bg-yellow-600 border border-white hover:text-white">Add to cart</button>
+                  <div className="flex justify-center">
+                    <button className="px-6 font-bold rounded-full bg-white text-yellow-600 hover:bg-yellow-600 border border-white hover:text-white">Add to cart</button>
+                  </div>
                 </div>
               </div>
             ))}

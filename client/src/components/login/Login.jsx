@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import { changeShop, getCategories, loginSuccess } from "../../redux/actions/act
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
-const {API_URL_BASE} = getParamsEnv()
+const { API_URL_BASE } = getParamsEnv()
 
 const Login = () => {
 
@@ -42,12 +43,12 @@ const Login = () => {
         console.log('Inicio de sesión exitoso')
         console.log(response.data.data, "login info")
         const clientData = response.data.data
-        
+
         const shopId = clientData.locals[0].id
         dispatch(loginSuccess(clientData))
         dispatch(changeShop(shopId))
         dispatch(getCategories())
-         navigate(`/dashboard`)
+        navigate(`/dashboard`)
       } else {
         console.log('Error en la respuesta del servidor:', response.data)
         setError('Usuario o contraseña incorrectos')
@@ -58,6 +59,28 @@ const Login = () => {
     }
   }
 
+  const goRegister = async (e) => {
+    e.preventDefault()
+    console.log(email)
+    console.log(password)
+
+    try {
+      const response = await axios.post(`${API_URL_BASE}/api/auth/register`, {
+        name: "Cliente1",
+        email: 'usuario1@gmail.com',
+        address: "street 123456",
+        password: "123456",
+        credentials: true,
+        phone: "1545485855"
+      })
+
+      console.log(response)
+
+    } catch (error) {
+      console.error('Error:', error)
+      setError('Usuario o contraseña incorrectos')
+    }
+  }
   return (
     <div className="w-full h-full bg-black">
       <div className="flex justify-center items-center min-h-screen ml-10 bg-cover bg-center bg-black">
@@ -68,7 +91,7 @@ const Login = () => {
             </div>
             <div className="relative z-0 min-w-0 break-words  border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-[600px] filter brightness-75 contrast-125">
               <div className="p-6 mb-0 text-center  border-b-0 rounded-t-2xl">
-                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-yellow-400 p-12 filter brightness-110">Login with</h5>
+                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-yellow-600 p-12 filter brightness-110">Login with</h5>
 
               </div>
               <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
@@ -110,7 +133,7 @@ const Login = () => {
                   </a>
                 </div>
                 <div className="relative w-full max-w-full px-3 mt-2 text-center shrink-0">
-                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-yellow-400 ">or</p>
+                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-yellow-600 ">or</p>
                 </div>
               </div>
               <div className="flex-auto p-6">
@@ -121,11 +144,16 @@ const Login = () => {
                   <div className="mb-4">
                     <input onChange={handleInputChange} aria-describedby="password-addon" name="password" aria-label="Password" placeholder="Password" className="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" type="password" />
                   </div>
-  
-                  <div className="text-center">
-                    <button className="inline-block w-full px-6 py-3 mt-6 mb-2 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer  hover:scale-102 hover:shadow-soft-xs leading-pro text-m   ease-soft-in  shadow-soft-md bg-150 bg-x-25 bg-gradient-to-tl from-yellow-500 to-yellow-400 hover:border-slate-700 hover:bg-white hover:text-gray-700" type="submit">Log in</button>
+
+                  <div className="text-center relative">
+                    <button className="bg-yellow-600 w-full relative">
+                      <span className="hover:text-black">
+                        Log in
+                      </span>
+                      <span className="absolute top-0 left-0 w-full h-full bg-transparent border border-solid border-yellow-600 rounded-lg transition-all duration-300 transform -translate-x-2 -translate-y-2 pointer-events-none"></span>
+                    </button>
                   </div>
-                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold text-white hover:text-yellow-400" href="../pages/sign-in.html">Sign up</a></p>
+                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-yellow-400" onClick={goRegister}>Sign up</a></p>
                 </form>
               </div>
             </div>
@@ -134,7 +162,7 @@ const Login = () => {
       </div>
     </div>
   );
-  
+
 };
 
 

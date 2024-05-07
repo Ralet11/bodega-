@@ -8,53 +8,40 @@ const CommerceSidebar = () => {
   };
 
   return (
-    <div className="fixed top-20 right-0 w-72 bg-white border-l border-gray-200 shadow-lg overflow-y-auto">
-      {/* Header */}
-      <div className="bg-gray-900 text-white py-4 px-6">
-        <h2 className="text-xl font-semibold">Shop Filters</h2>
-      </div>
-
+    <div className="h-20 mt-5 bg-white w-2/3 m-auto border-l rounded-lg border-gray-200 shadow-lg overflow-y-auto flex flex-row">
       {/* Categories */}
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold mb-4">Categories</h3>
-        <label className="flex items-center mb-2">
+      <div className="px-6 py-1 border-r border-gray-200 flex-grow">
+        <h3 className=" font-semibold mb-4">Categories</h3>
+        <label className=" items-center mb-2">
           <input type="checkbox" className="mr-2" value="smokeShops" />
           <span>Smoke Shops</span>
         </label>
-        <label className="flex items-center mb-2">
+        <label className="ml-3 mb-2">
           <input type="checkbox" className="mr-2" value="drinks" />
           <span>Drinks</span>
         </label>
       </div>
       
       {/* Price Range */}
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-semibold mb-4">Price Range</h3>
-        <input 
-          type="range" 
-          className="w-full"
-          min="0" 
-          max="100" 
-          value={price}
-          onChange={handlePriceChange} 
-        />
-        <div className="flex justify-between text-sm text-gray-600">
-          <span>$0</span>
-          <span>${price}</span>
-          <span>$100</span>
-        </div>
-      </div>
+      <div className="px-6 py-1 border-r border-gray-200 flex-grow">
+  <h3 className="font-semibold mb-1">Price Range</h3>
+  <input 
+    type="range" 
+    className="w-full slider-yellow" // Cambia bg-yellow-300 para el color amarillo deseado
+    min="0" 
+    max="100" 
+    value={price}
+    onChange={handlePriceChange} 
+  />
+  <div className="flex justify-between text-sm text-gray-600">
+    <span>$0</span>
+    <span>${price}</span>
+    <span>$100</span>
+  </div>
+</div>
       
       {/* Product List */}
-      <div className="p-6">
-        <h3 className="text-lg font-semibold mb-4">Products</h3>
-        <ul className="list-none p-0">
-          <li className="mb-1">Product A (10 offers)</li>
-          <li className="mb-1">Product B (5 offers)</li>
-          <li className="mb-1">Product C (8 offers)</li>
-          {/* Add more products here */}
-        </ul>
-      </div>
+      
     </div>
   );
 };

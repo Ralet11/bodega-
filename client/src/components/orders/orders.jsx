@@ -24,7 +24,7 @@ const Orders = () => {
         finished: [],
     });
 
-    const socket = socketIOClient("http://3.15.211.38");
+    const socket = socketIOClient("http://localhost:80");
 
     useEffect(() => {
         const fetchData = async () => {

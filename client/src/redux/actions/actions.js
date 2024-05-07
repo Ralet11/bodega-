@@ -8,6 +8,8 @@ export const GET_CATEGORIES = "GET_CATEGORIES"
 export const SET_DISTPROD = "SET_DISTPROD"
 export const ADD_TO_CART = "ADD_TO_CART"
 export const REMOVE_FROM_CART = "REMOVE_FROM_CART"
+export const LOG_OUT = "LOG_OUT"
+export const EMPTY_CART = "EMPTY_CART"
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -118,9 +120,22 @@ export const addToCart = (prod) => {
 }
 
 export const removeFromCart = (prodId) => {
-  console.log("remove2")
+
   return {
     type: REMOVE_FROM_CART,
     payload: prodId
+  }
+}
+
+export const emptyCart = () => {
+  
+  return {
+    type: EMPTY_CART
+  }
+}
+
+export const logOutClient = () => {
+  return {
+    type: LOG_OUT,
   }
 }

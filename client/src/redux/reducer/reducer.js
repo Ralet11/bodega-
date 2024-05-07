@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART } from "../actions/actions";
+import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART } from "../actions/actions";
 
 const initialState = {
   client: {},
@@ -75,17 +75,27 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         cart: [...state.cart, action.payload]
       };
-      case REMOVE_FROM_CART:
-        console.log("remove3")
-        const newCart = [...state.cart];
-        const itemIndex = newCart.findIndex(item => item.id === action.payload);
-        if (itemIndex !== -1) {
-          newCart.splice(itemIndex, 1);
-        }
-        return {
-          ...state,
-          cart: newCart
-        };
+    case REMOVE_FROM_CART:
+      console.log("remove3")
+      const newCart = [...state.cart];
+      const itemIndex = newCart.findIndex(item => item.id === action.payload);
+      if (itemIndex !== -1) {
+        newCart.splice(itemIndex, 1);
+      }
+      return {
+        ...state,
+        cart: newCart
+      };
+    case LOG_OUT:
+      return {
+        ...state,
+        client: {}
+      }
+    case EMPTY_CART:
+      return {
+        ...state,
+        cart: []
+      }
     default:
       return state;
   }
