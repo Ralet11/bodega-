@@ -10,6 +10,7 @@ export const ADD_TO_CART = "ADD_TO_CART"
 export const REMOVE_FROM_CART = "REMOVE_FROM_CART"
 export const LOG_OUT = "LOG_OUT"
 export const EMPTY_CART = "EMPTY_CART"
+export const SET_DIST_ORDER = "SET_DIST_ORDER"
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -137,5 +138,12 @@ export const emptyCart = () => {
 export const logOutClient = () => {
   return {
     type: LOG_OUT,
+  }
+}
+
+export const setDistOrder = (order) => {
+  return {
+    type: SET_DIST_ORDER,
+    payload: order
   }
 }

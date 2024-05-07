@@ -20,7 +20,7 @@ const Local = sequelize.define('local', {
     allowNull: false
   },
   img: {
-    type: DataTypes.STRING(45),
+    type: DataTypes.STRING(255),
     defaultValue: null
   },
   status: {

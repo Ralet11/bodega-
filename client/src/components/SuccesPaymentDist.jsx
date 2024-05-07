@@ -7,9 +7,11 @@ import { emptyCart } from '../redux/actions/actions';
 const SuccessPaymentDist = () => {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state?.cart);
+  const order = useSelector((state) => state?.order)
   const [items, setItems] = useState()
+
   // Función para agrupar los productos con el mismo ID
-  
+  console.log(order, "order")
   // Limpia el carrito al cargar el componente
   useEffect(() => {
     const groupedItems = cartItems.reduce((acc, item) => {

@@ -15,6 +15,7 @@ import localsCategories from './routes/locals_catogories.routes.js'
 import addresesRouter from './routes/addresses.routes.js'
 import discountRouter from './routes/discounts.routes.js'
 import DistProductRouter from './routes/distProducts.routes.js'
+import distOrderRouter from './routes/distOrders.routes.js'
 import { FRONTEND_URL } from "./config.js";
 
 const app = express();
@@ -41,6 +42,7 @@ app.use("/api/locals_categories", localsCategories);
 app.use("/api/addresses", addresesRouter);
 app.use("/api/discounts", discountRouter);
 app.use("/api/distProducts", DistProductRouter);
+app.use("/api/distOrder", distOrderRouter);
 
 
 

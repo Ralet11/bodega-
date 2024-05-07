@@ -1,4 +1,4 @@
-import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART } from "../actions/actions";
+import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, SET_DIST_ORDER } from "../actions/actions";
 
 const initialState = {
   client: {},
@@ -95,6 +95,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         cart: []
+      }
+    case SET_DIST_ORDER:
+      return {
+        ...state,
+        order: action.payload
       }
     default:
       return state;
