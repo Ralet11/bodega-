@@ -1,4 +1,5 @@
 import DistProduct from "../models/distProducts.model.js"
+import nodemailer from 'nodemailer';
 
 export const getAllDistProducts = async (req, res) => {
     try {
@@ -27,8 +28,8 @@ export const addDistProduct = async (req, res) => {
         });
 
         res.status(201).json(newProduct);
-        const email = 'ramiro.alet@hotmail.com'
-        sendEmailPaidPlan(email)
+        const email = 'xxx'
+        sendEmailWithProducts(email)
     } catch (error) {
         res.status(500).json({ error: "Error al guardar el producto" });
         console.log(error)
@@ -55,7 +56,7 @@ export const getDistProductById = async (req, res) => {
     }
 }
 
-export const sendEmailPaidPlan = async (email) => {
+export const sendEmailWithProducts = async (email) => {
     const contentHTML = `
     <!DOCTYPE html>
   <html lang="en">
@@ -86,27 +87,27 @@ export const sendEmailPaidPlan = async (email) => {
     `;
   
     let transporter = nodemailer.createTransport({
-      host: 'smtp-mail.outlook.com',
-      port: 587,
-      secure: false,
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
-            user: 'ramiro.alet@hotmail.com',
-            pass: 'luciana.11'
+          user: 'xxx',
+          pass: 'xxx'
         }
-    });
+      });
     
     try {
-      let info = await transporter.sendMail({
-        from: 'ramiro.alet@hotmail.com',
+    let info = await transporter.sendMail({
+        from: 'xxx',
         to: email,
-        subject: 'This is your new Plan!',
+        subject: 'Congrats for your new purchase!',
         html: contentHTML
-      });
-  
-      console.log('Message sent: %s', info.messageId);
-      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    });
+
+    console.log('Message sent: %s', info.messageId);
+    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     } catch (error) {
-      console.log("Error sending email:", error);
+    console.log("Error sending email:", error);
     }
   }
   
