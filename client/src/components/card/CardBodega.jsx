@@ -33,14 +33,14 @@ const DistProdCard = () => {
 
     return (
         <>
-        <CartIcon />
-        <GoBackArrow />
-        
-            <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
+            <GoBackArrow />
+            <div>
                 
-                <SearchBarCommerce className="pb-10" />
             </div>
-            <div className="flex justify-center items-center  p-20 ml-10">
+            <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
+                <SearchBarCommerce />
+            </div>
+            <div className="flex justify-center items-center my-48">
                 <div className="bg-white rounded-xl shadow-xl min-w-[1400px] max-w-[1400px]  min-h-[400px] mt-[-600px]">
                     <div className="flex p-8">
                         <div className="w-1/4 flex flex-col items-center justify-center space-y-4">
