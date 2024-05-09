@@ -2,7 +2,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
 import "./App.css"
-import { ShoppingCartIcon, BellAlertIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
+import { ShoppingCartIcon, BellAlertIcon, RectangleStackIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
 import Login from './components/login/Login.jsx';
 import { Link } from 'react-router-dom';
 import Products from './components/products/Products';
@@ -23,6 +23,7 @@ import DistProdCard from './components/card/CardBodega';
 import CartView from './components/cartView/CartView';
 import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 import SignUp from './components/SignUp.jsx';
+import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
 
 
 
@@ -86,6 +87,9 @@ function App() {
             <Link to="/distributorsCommerce">
               <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Distributors Offers" />
             </Link>
+            <Link to="/distHistoryBuy">
+              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Purchase history" />
+            </Link>
           </Sidebar>
           {/* Header */}
           <Header className="header" />
@@ -106,6 +110,7 @@ function App() {
         <Route path='/cartView' element={<CartView />}></Route>
         <Route path='/succesPaymentDist' element={<SuccessPaymentDist />}></Route>
         <Route path='/register' element={<SignUp />}></Route>
+        <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
       </Routes>
     </div>
   );

@@ -55,6 +55,7 @@ const DistributorComerce = () => {
   }
 
   return (
+
     <div className="flex flex-col items-center w-full bg-gray-200">
       <div className='flex flex-col w-2/3'>
         <CommerceSidebar />
@@ -96,6 +97,7 @@ const DistributorComerce = () => {
                 <img className="w-full h-32 object-cover rounded-lg object-center transition-transform duration-300 transform-gpu" src={hoveredIndex === index ? offer.image2 : offer.image1} alt={offer.name} />
                 <div className="absolute top-0 right-0 p-2 bg-gray-800 text-white rounded-bl-lg">
                   <span>{offer.category}</span>
+
                 </div>
               </div>
               <div className="p-4">
