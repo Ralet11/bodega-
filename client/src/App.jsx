@@ -34,7 +34,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://127.0.0.1:80");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -85,10 +85,10 @@ function App() {
               <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" />
             </Link>
             <Link to="/distributorsCommerce">
-              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Distributors Offers" />
+              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Market" />
             </Link>
             <Link to="/distHistoryBuy">
-              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Purchase history" />
+              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Your buys" />
             </Link>
           </Sidebar>
           {/* Header */}

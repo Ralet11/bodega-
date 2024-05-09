@@ -33,7 +33,6 @@ const DistProdCard = () => {
 
     return (
         <>
-        <CartIcon />
         <GoBackArrow />
         
             <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
