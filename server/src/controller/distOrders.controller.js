@@ -104,3 +104,45 @@ export const updateOrderProduct = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 }
+
+export const getByLocalId = async (req, res) => {
+    const {local_id} = req.body
+    try {
+        const orders = await DistOrder.findAll({where: {local_id}})
+        console.log(orders)
+        let finalOrders = []
+
+        await Promise.all(orders.map(async (order) => {
+            try {
+                let orderProducts = await DistOrderProduct.findAll({where: {order_id: order.id},  include: [
+
+                    {
+                        model: DistProduct
+                    }
+                ]})
+
+                let finalTotal = 0
+                orderProducts.map((prod => {
+                    finalTotal = finalTotal + (prod.DistProduct.price * prod.quantity)
+                }))
+
+                let completeOrder = {
+                    id: order.id,
+                    date: order.order_date,
+                    status: order.status,
+                    products: orderProducts,
+                    total: finalTotal
+                }
+                finalOrders.push(completeOrder)
+            } catch (error) {
+                console.log(error)
+            }
+        }))
+
+        res.json(finalOrders)
+
+    } catch (error) {
+        console.log(error)
+        res.json(error)
+    }
+}

@@ -16,7 +16,7 @@ const SearchBarCommerce = ({ onSearch }) => {
     <form onSubmit={handleSubmit} className={`relative flex items-center mt-[100px] w-2/3 ml-[200px]`}>
       <input 
         type="text" 
-        className="w-full py-3 px-4 border border-gray-300 rounded-l-md focus:outline-none focus:border-blue-500 placeholder-gray-500 text-gray-800"
+        className="w-full py-3 px-4 border border-gray-300 rounded-l-md focus:outline-none  placeholder-gray-500 text-gray-800"
         placeholder="Search products..." 
         value={searchTerm} 
         onChange={handleChange} 

@@ -54,7 +54,7 @@ const DistributorComerce = () => {
           <CommerceSidebar />
         </div>
         
-        <div className="flex flex-wrap justify-center mt-8 cursor-pointer">
+        <div className="flex flex-wrap justify-center mt-8 cursor-pointer pb-20">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 mt-8">
             {allProducts && allProducts.map((offer, index) => (
               <div 
@@ -75,7 +75,7 @@ const DistributorComerce = () => {
                   <p className="text-black font-bold text-2xl mb-2">${offer.price}</p>
                   
                   <div className="flex justify-center">
-                    <button className="px-6 font-bold rounded-full bg-white text-yellow-600 hover:bg-yellow-600 border border-white hover:text-white">Add to cart</button>
+                    <button className="fixed-bottom px-6 font-bold rounded-full bg-white text-yellow-600 hover:bg-yellow-600 hover:text-white">Buy now</button>
                   </div>
                 </div>
               </div>
