@@ -150,12 +150,10 @@ const Orders = () => {
     };
 
    return (
-        <div className="'ml-20 mt-20">
-           <div className="pl-9 ml-16 pb-5">
-           <h3 className="text-lg font-semibold mt-2">Orders</h3>
+        <div className="ml-20 mt-20">
+            <h3 className="font-semibold">Orders</h3>
             <hr className="my-4 border-t border-gray-300" />
-           </div>
-            <div className="grid grid-cols-3 gap-4 ml-20 pl-10">
+            <div className="grid grid-cols-3 gap-4 mt-4">
                 {["new order", "accepted", "sending"].map((status, index) => (
                     <div key={status} className={`flex-1 ${index < 2 ? "border-r border-gray-300" : ""}`}>
                         <h3 className="text-base font-semibold mt-2">
