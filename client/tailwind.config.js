@@ -1,10 +1,17 @@
 /** @type {import('tailwindcss').Config} */
-import twElementsPlugin from 'tw-elements/dist/plugin.cjs';
+const flowbite = require("flowbite-react/tailwind");
 
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}', './node_modules/tw-elements/dist/js/**/*.js'],
+  content: [
+    './index.html',
+    './src/**/*.{js,jsx}',
+    flowbite.content()
+  ],
   theme: {
     extend: {},
   },
-  plugins: [twElementsPlugin]
+  plugins: [
+    flowbite.plugin()
+    
+  ]
 };
