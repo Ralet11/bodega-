@@ -42,7 +42,6 @@ const DistPurchaseHistory = () => {
         setShowModal(true);
     }
 
-    const total = 
 
     console.log(selectedProducts)
     return (
