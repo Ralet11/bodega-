@@ -13,6 +13,7 @@ import CartIcon from '../CartIcon';
 import GoBackArrow from '../GobackArrow';
 
 
+
 const API_URL_BASE = 'http://127.0.0.1:8080';
 
 const DistProdCard = () => {
@@ -32,10 +33,11 @@ const DistProdCard = () => {
 
     return (
         <>
-        <CartIcon />
         <GoBackArrow />
-            <div className='m-auto mt-[-1px] w-2/3 '>
-                <SearchBarCommerce />
+        
+            <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
+                
+                <SearchBarCommerce className="pb-10" />
             </div>
             <div className="flex justify-center items-center  p-20 ml-10">
                 <div className="bg-white rounded-xl shadow-xl min-w-[1400px] max-w-[1400px]  min-h-[400px] mt-[-600px]">

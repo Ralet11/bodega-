@@ -1,6 +1,8 @@
+import Input from '../../ui_bodega/Input';
+import ButtonBodega from '../../ui_bodega/ButtonBodega';
 import React, { useState } from 'react';
 
-const SearchBarCommerce = ({ onSearch }) => {
+const SearchBarCommerce = ({ onSearch, className }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const handleChange = (e) => {
@@ -13,20 +15,20 @@ const SearchBarCommerce = ({ onSearch }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className={`relative flex items-center mt-[100px] w-2/3 ml-[200px]`}>
-      <input 
-        type="text" 
-        className="w-full py-3 px-4 border border-gray-300 rounded-l-md focus:outline-none  placeholder-gray-500 text-gray-800"
-        placeholder="Search products..." 
-        value={searchTerm} 
-        onChange={handleChange} 
+
+    <form onSubmit={handleSubmit} className={`relative flex items-center mt-[100px] w-2/3 ml-[200px]  ${className}`}>
+      <Input
+        placeholder="Search product..."
+        type="text"
+        name="title"
+        onChange={handleChange}
+        className='mb-4 border-l rounded-lg border-gray-200 shadow-lg'
+
       />
-      <button 
-        type="submit" 
-        className="absolute right-0 top-0 bg-[#F2BB26] text-black font-semibold py-3 px-6 rounded-r-md focus:outline-none focus:bg-blue-600"
-      >
+      
+      <ButtonBodega className="ml-4 mb-4 font-bold text-1xl rounded-full text-yellow-600 bg-white hover:text-white hover:bg-yellow-600" type="submit">
         Search
-      </button>
+      </ButtonBodega>
     </form>
   );
 };

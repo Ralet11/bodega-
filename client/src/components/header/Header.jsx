@@ -9,6 +9,7 @@
   } from '@heroicons/react/24/solid';
   import { useDispatch, useSelector } from 'react-redux';
   import { getParamsEnv } from '../../functions/getParamsEnv';
+  import CartIcon from '../CartIcon';
 
   const {API_URL_BASE} = getParamsEnv()
 
@@ -125,6 +126,7 @@ import { emptyCart, logOutClient } from '../../redux/actions/actions';
             ))}
             <ArrowLeftOnRectangleIcon onClick={logOut} className='w-7 font-bold cursor-pointer h-7 ml-5'/>
           </ul>
+          <CartIcon />
           
         </div>
       </div>
