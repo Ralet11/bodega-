@@ -85,10 +85,10 @@ function App() {
               <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" />
             </Link>
             <Link to="/distributorsCommerce">
-              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Distributors Offers" />
+              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Market" />
             </Link>
             <Link to="/distHistoryBuy">
-              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Purchase history" />
+              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Your buys" />
             </Link>
           </Sidebar>
           {/* Header */}

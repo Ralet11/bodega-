@@ -33,8 +33,11 @@ const DistProdCard = () => {
 
     return (
         <>
-            <GoBackArrow />
-            <div>
+
+        <GoBackArrow />
+        
+            <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
+
                 
             </div>
             <div className='bg-white rounded-lg m-auto mt-[-1px] w-2/3 '>
