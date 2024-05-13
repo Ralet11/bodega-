@@ -62,29 +62,29 @@ const DistributorComerce = () => {
       </div>
 
       <div className="flex justify-evenly w-full mt-8 cursor-pointer">
-      <div className="h-full w-[300px] bg-white border-l rounded-lg border-gray-200 shadow-lg flex flex-col justify-between">
-  <div>
-  <div className="flex justify-center border-r border-gray-200">
-    <h3 className="pt-4 font-semibold text-yellow-600 mb-8 text-2xl">Filters</h3>
-  </div>
-    
-    <OrderFilter className="mb-4" />
-    <PriceFilter />
-    <CategoriesFilter />
-  </div>
-  
-  <div className="flex flex-col justify-center border-r border-gray-200">
-    <h3 className="pt-4 text-center font-semibold text-yellow-600 mb-8 text-2xl">Top products</h3>
-    <TopProducts />
-  </div>
-  
-  <div className="font-bold text-2xl bg-yellow-600 p-4 cursor-pointer flex items-center justify-center gap-1">
-    <RocketLaunchIcon className="w-7 h-7 text-black" />
-    <span className="text-black font-bold">Bodega+</span>
-  </div>
-</div>
+        <div className="h-full ml-16 w-[260px] bg-white border-l rounded-lg border-gray-200 shadow-lg flex flex-col justify-between">
+          <div>
+            <div className="flex justify-center border-r border-gray-200">
+              <h3 className="pt-4 font-semibold text-yellow-600 mb-8 text-2xl">Filters</h3>
+            </div>
+            
+            <OrderFilter className="mb-4" />
+            <PriceFilter />
+            <CategoriesFilter />
+          </div>
+          
+          <div className="flex flex-col justify-center border-r border-gray-200">
+            <h3 className="pt-4 text-center font-semibold text-yellow-600 mb-8 text-2xl">Top products</h3>
+            <TopProducts />
+          </div>
+          
+          <div className="font-bold text-2xl bg-yellow-600 p-4 cursor-pointer flex items-center justify-center gap-1">
+            <RocketLaunchIcon className="w-7 h-7 text-black" />
+            <span className="text-black font-bold">Bodega+</span>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-8">
+        <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 gap-8">
           {allProducts && allProducts.map((offer, index) => (
             <div 
               key={index} 
