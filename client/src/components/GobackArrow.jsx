@@ -12,7 +12,7 @@ const GoBackArrow = () => {
 
     return (
         <div onClick={goBack} className='cursor-pointer mt-20 h-screen' style={{ position: 'fixed', top: '2.4%', left: '12.5%' }}>
-            <div className='p-2 flex gap-6 rounded-lg bg-black'>
+            <div className='p-2 flex gap-6 rounded-lg'>
                 <ArrowLeftIcon className='w-8 h-8 text-yellow-600' />
                 
             </div>

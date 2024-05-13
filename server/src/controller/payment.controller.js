@@ -3,9 +3,9 @@ import { Op } from 'sequelize';
 import Client from '../models/client.js';
 import PayMethod from '../models/pay_method.js';
 import Stripe from 'stripe';
-import { FRONTEND_URL } from '../config.js';
+import { FRONTEND_URL, SSK } from '../config.js';
 
-const stripe = new Stripe("sk_test_51OJV6vCtqRjqS5chtpxR0cKFJLK8jf3WRVchpsfCFZx3JdiyPV0xcHZgYbaJ70XYsmdkssJpHiwdCmEun6X7mThj00IB3NQI0C");
+const stripe = new Stripe(SSK);
 
 export const tryIntent = async (req, res) => {
   const { finalPrice } = req.body;
