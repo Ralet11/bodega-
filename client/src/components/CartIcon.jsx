@@ -22,7 +22,7 @@ const CartIcon = () => {
     }
 
     return (
-        <div>
+        <div className='cursor-pointer'>
 
             <div onClick={openModal} >
 
