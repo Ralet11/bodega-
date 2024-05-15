@@ -72,4 +72,4 @@ io.on("connection", (socket) => {
 
 export { io };
 
-export default server;
+export default app;
