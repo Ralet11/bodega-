@@ -42,7 +42,7 @@ export const getById = async (req, res) => {
 
   try {
     const local = await Local.findOne({
-      where:{
+      where: {
         id: id
       }
     });
@@ -144,12 +144,44 @@ export const getActiveShops = async (req, res) => {
 export const getAllShops = async (req, res) => {
   console.log("hola")
   try {
-   
+
     const locals = await Local.findAll();
     console.log(locals)
     res.status(200).json(locals);
   } catch (error) {
     console.error('Error al obtener locales activos:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+
+export const addShop = async (req, res) => {
+  try {
+    const { name, address, phone, lat, lng, category, clientId } = req.body;
+
+    if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
+      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
+    }
+
+    const newShop = await Local.create({
+      name,
+      address,
+      phone,
+      lat,
+      lng,
+      category,
+      clients_id: clientId // Assuming the client ID is passed from the frontend
+    });
+
+    res.json({
+      error: false,
+      created: "ok",
+      result: newShop,
+      message: "Shop added successfully"
+
+    });
+  } catch (error) {
+    console.error('Error adding shop:', error);
+    res.status(500).json({ error: true, message: error.message });
   }
 };

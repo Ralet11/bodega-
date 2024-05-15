@@ -44,11 +44,21 @@ const Login = () => {
         console.log(response.data.data, "login info")
         const clientData = response.data.data
 
-        const shopId = clientData.locals[0].id
-        dispatch(loginSuccess(clientData))
-        dispatch(changeShop(shopId))
-        dispatch(getCategories())
-        navigate(`/dashboard`)
+        console.log(clientData.locals)
+
+        if(clientData.locals.length === 0) {
+          dispatch(loginSuccess(clientData))
+          dispatch(getCategories())
+          navigate(`/create-shop`)
+        } else {
+          const shopId = clientData.locals[0].id
+          dispatch(loginSuccess(clientData))
+          dispatch(changeShop(shopId))
+          dispatch(getCategories())
+          navigate(`/dashboard`)
+        }
+
+        
       } else {
         console.log('Error en la respuesta del servidor:', response.data)
         setError('Usuario o contraseña incorrectos')
@@ -61,10 +71,10 @@ const Login = () => {
 
   const goRegister = async (e) => {
     e.preventDefault()
-    console.log(email)
-    console.log(password)
+    
+    navigate("/register")
 
-    try {
+  /*   try {
       const response = await axios.post(`${API_URL_BASE}/api/auth/register`, {
         name: "Cliente1",
         email: 'usuario1@gmail.com',
@@ -79,7 +89,7 @@ const Login = () => {
     } catch (error) {
       console.error('Error:', error)
       setError('Usuario o contraseña incorrectos')
-    }
+    } */
   }
   return (
     <div className="w-full h-full bg-black">
@@ -91,7 +101,7 @@ const Login = () => {
             </div>
             <div className="relative z-0 min-w-0 break-words  border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-[600px] filter brightness-75 contrast-125">
               <div className="p-6 mb-0 text-center  border-b-0 rounded-t-2xl">
-                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-yellow-600 p-12 filter brightness-110">Login with</h5>
+                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-yellow-400 p-12 filter brightness-110">Login with</h5>
 
               </div>
               <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
@@ -133,7 +143,7 @@ const Login = () => {
                   </a>
                 </div>
                 <div className="relative w-full max-w-full px-3 mt-2 text-center shrink-0">
-                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-yellow-600 ">or</p>
+                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-yellow-400 ">or</p>
                 </div>
               </div>
               <div className="flex-auto p-6">
@@ -146,11 +156,11 @@ const Login = () => {
                   </div>
 
                   <div className="text-center relative">
-                    <button className="bg-yellow-600 w-full relative">
+                    <button className="bg-yellow-400 w-full relative">
                       <span className="hover:text-black">
                         Log in
                       </span>
-                      <span className="absolute top-0 left-0 w-full h-full bg-transparent border border-solid border-yellow-600 rounded-lg transition-all duration-300 transform -translate-x-2 -translate-y-2 pointer-events-none"></span>
+                      <span className="absolute top-0 left-0 w-full h-full bg-transparent border border-solid border-yellow-400 rounded-lg transition-all duration-300 transform -translate-x-2 -translate-y-2 pointer-events-none"></span>
                     </button>
                   </div>
                   <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-yellow-400" onClick={goRegister}>Sign up</a></p>
