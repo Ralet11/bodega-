@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { changeShop, getCategories, loginSuccess } from "../../redux/actions/actions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import Input from "../../ui_bodega/Input";
 
 const { API_URL_BASE } = getParamsEnv()
 
@@ -92,16 +93,18 @@ const Login = () => {
     } */
   }
   return (
-    <div className="w-full h-full bg-black">
-      <div className="flex justify-center items-center min-h-screen ml-10 bg-cover bg-center bg-black">
+    <div className="w-full h-full bg-yellow-400">
+      <div className="flex justify-center items-center min-h-screen ml-10 bg-cover bg-center bg-yellow-400">
         <div className="w-full max-w-full px-3 mx-auto mt-0 md:flex-0 shrink-0">
           <div className="flex flex-row gap-10 justify-center items-center px-3 mx-auto mt-0 md:flex-0 shrink-0">
-            <div className="relative z-0 min-w-0 break-words bg-black border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-400 overflow-hidden">
-              <img className="w-full h-auto filter contrast-120" src="https://s1.1zoom.me/b3555/953/Fast_food_Hamburger_Meat_products_Vegetables_Fire_542285_600x800.jpg" alt="Descripción de la imagen" />
+            <div className="relative  break-words bg-black border-0 shadow-soft-xl rounded-2xl bg-clip-border overflow-hidden bg-custom-img-login" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+              <img className="w-full h-auto filter contrast-120" src="https://images.pexels.com/photos/5025517/pexels-photo-5025517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }} alt="Descripción de la imagen" />
             </div>
-            <div className="relative z-0 min-w-0 break-words  border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-[600px] filter brightness-75 contrast-125">
+            <div className="relative bg-black bg-opacity-20 z-0 min-w-0 break-words  border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-[600px] filter brightness-75 contrast-125">
               <div className="p-6 mb-0 text-center  border-b-0 rounded-t-2xl">
-                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-yellow-400 p-12 filter brightness-110">Login with</h5>
+
+                <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-white p-12 filter brightness-110">Login with</h5>
+
 
               </div>
               <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
@@ -143,27 +146,35 @@ const Login = () => {
                   </a>
                 </div>
                 <div className="relative w-full max-w-full px-3 mt-2 text-center shrink-0">
-                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-yellow-400 ">or</p>
+
+                  <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-white ">or</p>
+
                 </div>
               </div>
               <div className="flex-auto p-6">
                 <form onSubmit={handleSubmit} role="form text-left">
-                  <div className="mb-4">
-                    <input onChange={handleInputChange} aria-describedby="email-addon" name="email" aria-label="Email" placeholder="Email" className="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" type="email" />
-                  </div>
-                  <div className="mb-4">
-                    <input onChange={handleInputChange} aria-describedby="password-addon" name="password" aria-label="Password" placeholder="Password" className="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" type="password" />
-                  </div>
+                <div className="w-full  px-3 mb-4">
+                  <label className="text-white" htmlFor="email">Email</label>
+                  <Input onChange={handleInputChange}  id="email" placeholder="Enter your email" type="email" name="email" />
+                  
+                </div>
+                <div className="w-full px-3 mb-4">
+                  <label className="text-white" htmlFor="password">Password</label>
+                  <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" />
+                  
+                </div>
 
                   <div className="text-center relative">
-                    <button className="bg-yellow-400 w-full relative">
+
+                    <button className="w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600">
                       <span className="hover:text-black">
                         Log in
                       </span>
-                      <span className="absolute top-0 left-0 w-full h-full bg-transparent border border-solid border-yellow-400 rounded-lg transition-all duration-300 transform -translate-x-2 -translate-y-2 pointer-events-none"></span>
+                      
+
                     </button>
                   </div>
-                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-yellow-400" onClick={goRegister}>Sign up</a></p>
+                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-indigo-600" onClick={goRegister}>Sign up</a></p>
                 </form>
               </div>
             </div>

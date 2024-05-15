@@ -33,36 +33,38 @@ const DistProdCard = () => {
                 <SearchBarCommerce />
             </div>
             <div className="flex justify-center items-center my-6">
-                <div className="bg-white rounded-xl shadow-xl max-w-screen-lg w-full p-8">
-                    <div className="flex">
-                        <div className="w-1/4 flex flex-col items-center justify-center space-y-4">
+
+                <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-12">
+                    <div className="flex flex-col md:flex-row">
+                        <div className="w-1/4 flex flex-col items-center space-y-4">
+
                             {[product.image1, product.image2, product.image3].map((image, index) => (
                                 <ThumbnailImage
                                     key={index}
                                     src={image}
                                     alt={`Product Thumbnail ${index + 1}`}
                                     onClick={() => handleThumbnailClick(image)}
+
+                                    className="cursor-pointer rounded-lg shadow-md hover:shadow-lg"
+
                                 />
                             ))}
                         </div>
-
-                        <div className="w-1/4 ml-20 flex justify-center items-center">
-                            <div className="w-full h-full overflow-hidden">
-                                <img
-                                    src={selectedImage || product.image1}
-                                    alt="Product"
-                                    className="object-contain w-full h-full"
-                                />
-                            </div>
+                        <div className="w-full md:w-1/2 flex justify-center items-center p-4">
+                            <img
+                                src={selectedImage || product.image1}
+                                alt="Product"
+                                className="object-contain w-full h-full rounded-lg shadow-lg"
+                            />
                         </div>
 
-                        <div className="w-2/4 flex flex-col justify-start space-y-4 ml-8">
-                            <div className="border-b border-gray-200 pb-4">
-                                <Title className="text-lg text-black ml-2 mt-0" text={product.name} />
-                            </div>
-
-                            <div className="p-2">
-                                <p className="ml-2 mt-2 text-sm">{product.description}</p>
+                        <div className="w-full md:w-1/2 flex flex-col justify-start space-y-6 md:ml-8 mt-8 md:mt-0">
+                            <div className="text-center">
+                                <h1 className="text-5xl font-bold text-gray-800 mb-4">{product.name}</h1>
+                                <div className="flex justify-center items-center">
+                                    <h2 className="text-4xl text-gray-800 font-bold">{`$${product.price}`}</h2> 
+                                    <span className="text-green-600 text-2xl font-semibold ml-4">10% discount</span>
+                                </div>
                             </div>
 
                             <div className="border-b border-gray-200 pb-4">
@@ -76,16 +78,15 @@ const DistProdCard = () => {
                                 </div>
                             </div>
 
-                            <div className="flex justify-between items-center p-2">
-                                <div>
-                                    <Title className="ml-2 text-xl" text={`$ ${product.price}`} />
-                                </div>
-                                <div onClick={itemToCart}>
-                                    <button className="text-yellow-600 bg-black font-bold hover:bg-yellow-600 hover:text-black w-42 h-12 rounded-lg focus:outline-none">
-                                        Add to Cart
-                                    </button>
-                                </div>
-                            </div>
+
+                            <div className="flex space-x-4">
+                                <button 
+                                    onClick={itemToCart} 
+                                    className="text-white bg-blue-600 font-bold hover:bg-blue-700 w-48 h-14 rounded-lg focus:outline-none"
+                                >
+                                   Add to cart
+                                </button>
+           </div>
                         </div>
                     </div>
                 </div>

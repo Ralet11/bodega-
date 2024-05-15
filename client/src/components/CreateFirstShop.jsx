@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeShop } from '../redux/actions/actions';
 import { useNavigate } from 'react-router-dom';
 
+import Input from "../ui_bodega/Input";
+
+
 const {API_URL_BASE} = getParamsEnv()
 
 const CreateFirstShop = () => {
@@ -60,27 +63,32 @@ const CreateFirstShop = () => {
   return (
     <>
       <Header />
-      <div className='flex justify-center items-center min-h-screen bg-gray-100'>
-        <div className='w-full max-w-md p-8 bg-white rounded-md shadow-md'>
-          <h1 className='text-2xl font-bold mb-6 text-center'>Create Your First Shop</h1>
+
+      <div className='flex justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-2' style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+        <div className='w-full max-w-md p-8 bg-black rounded-md shadow-md bg-black bg-opacity-20' >
+          <h1 className='text-2xl font-bold mb-6 text-center text-white'>Create Your First Shop</h1>
           <form onSubmit={handleSubmit}>
             <div className='mb-4'>
-              <label htmlFor='name' className='block text-gray-700'>Name:</label>
-              <input type='text' id='name' name='name' value={formData.name} onChange={handleChange} className='mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500' />
+              <label htmlFor='name' className='block  text-white'>Name:</label>
+              
+              <Input onChange={handleChange} id="name" placeholder="Enter your name" type="name" name="name" />
             </div>
             <div className='mb-4'>
-              <label htmlFor='address' className='block text-gray-700'>Address:</label>
-              <input type='text' id='address' name='address' value={formData.address} onChange={handleChange} className='mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500' />
+              <label htmlFor='address' className='text-white  '>Address:</label>
+              
+              <Input onChange={handleChange} id="address" placeholder="Enter your address" type="address" name="address" />
+              
             </div>
             <div className='mb-4'>
-              <label htmlFor='phone' className='block text-gray-700'>Phone:</label>
-              <input type='text' id='phone' name='phone' value={formData.phone} onChange={handleChange} className='mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500' />
+              <label htmlFor='phone' className='text-white '>Phone:</label>
+              <Input onChange={handleChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
+            
             </div>
             <div className='mb-6'>
-              <label htmlFor='category' className='block text-gray-700'>Category:</label>
-              <input type='text' id='category' name='category' value={formData.category} onChange={handleChange} className='mt-1 p-2 w-full border border-gray-300 rounded-md focus:outline-none focus:border-indigo-500' />
+              <label htmlFor='category' className='text-white  '>Category:</label>
+              <Input onChange={handleChange} id="category" placeholder="Enter your category" type="category" name="category" />
             </div>
-            <button type='submit' className='w-full bg-indigo-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600'>Create Shop</button>
+            <button type='submit' className='w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600'>Create Shop</button>
           </form>
         </div>
       </div>
