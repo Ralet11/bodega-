@@ -1,0 +1,82 @@
+.card-container {
+    background-color: #D1FFD5;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 300px;
+    min-height: 200px;
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  
+  .accepted {
+    background-color: #10b981;
+    color: #ffffff;
+  }
+  
+  .rejected {
+    background-color: #ef4444;
+    color: #ffffff;
+  }
+  
+  .order-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+  }
+  
+  .card-content {
+    flex: 1;
+    margin-bottom: 16px;
+  }
+  
+  .info {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .card-actions {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .action-button {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .action-button.success {
+    background-color: #10b981;
+  }
+  
+  .action-button.danger {
+    background-color: #ef4444;
+  }
+  
+  .icon {
+    height: 1rem;
+    width: 1rem;
+    margin-right: 0.25rem;
+  }
