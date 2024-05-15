@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops } from "../controller/local.controller.js"
+import { getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop } from "../controller/local.controller.js"
 
 const router = Router()
 
@@ -11,5 +11,6 @@ router.put('/update/:id', updateShop)
 router.post('/update/address/:id', updateAddress)
 router.get('/activeShops', getActiveShops)
 router.get('/getAllShops', getAllShops)
+router.post('/add', addShop)
 
 export default router

@@ -24,6 +24,7 @@ import CartView from './components/cartView/CartView';
 import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 import SignUp from './components/SignUp.jsx';
 import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
+import CreateFirstShop from './components/CreateFirstShop.jsx';
 
 
 
@@ -32,7 +33,7 @@ function App() {
   const dispatch = useDispatch()
 
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
-  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login';
+  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
   const socket = socketIOClient("http://localhost:80");
 
@@ -111,6 +112,7 @@ function App() {
         <Route path='/succesPaymentDist' element={<SuccessPaymentDist />}></Route>
         <Route path='/register' element={<SignUp />}></Route>
         <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
+        <Route path='/create-shop' element={<CreateFirstShop />}></Route>
       </Routes>
     </div>
   );

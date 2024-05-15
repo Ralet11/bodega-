@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { addToCart } from '../../redux/actions/actions';
 import Title from '../../ui_bodega/Title';
-import Subtitle from '../../ui_bodega/Subtitle';
-import ButtonBodega from '../../ui_bodega/ButtonBodega';
 import ThumbnailImage from '../../ui_bodega/ThumbnailImage';
 import CheckIcon from '../../icons/checkIcon';
-import { addToCart } from '../../redux/actions/actions';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import CartIcon from '../CartIcon';
 import GoBackArrow from '../GobackArrow';
-
-const API_URL_BASE = 'http://127.0.0.1:8080';
 
 const DistProdCard = () => {
     const dispatch = useDispatch();
@@ -42,9 +36,14 @@ const DistProdCard = () => {
                 <div className="bg-white rounded-xl shadow-xl max-w-screen-lg w-full p-8">
                     <div className="flex">
                         <div className="w-1/4 flex flex-col items-center justify-center space-y-4">
-                            <ThumbnailImage src={product.image1} alt="Product Thumbnail" onClick={() => handleThumbnailClick(product.image1)} />
-                            <ThumbnailImage src={product.image2} alt="Product Thumbnail" onClick={() => handleThumbnailClick(product.image2)} />
-                            <ThumbnailImage src={product.image3} alt="Product Thumbnail" onClick={() => handleThumbnailClick(product.image3)} />
+                            {[product.image1, product.image2, product.image3].map((image, index) => (
+                                <ThumbnailImage
+                                    key={index}
+                                    src={image}
+                                    alt={`Product Thumbnail ${index + 1}`}
+                                    onClick={() => handleThumbnailClick(image)}
+                                />
+                            ))}
                         </div>
 
                         <div className="w-1/4 ml-20 flex justify-center items-center">
@@ -82,7 +81,9 @@ const DistProdCard = () => {
                                     <Title className="ml-2 text-xl" text={`$ ${product.price}`} />
                                 </div>
                                 <div onClick={itemToCart}>
-                                    <ButtonBodega className="text-yellow-600 bg-black font-bold hover:bg-yellow-600 hover:text-black w-42 h-12">Add to cart</ButtonBodega>
+                                    <button className="text-yellow-600 bg-black font-bold hover:bg-yellow-600 hover:text-black w-42 h-12 rounded-lg focus:outline-none">
+                                        Add to Cart
+                                    </button>
                                 </div>
                             </div>
                         </div>

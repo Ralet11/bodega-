@@ -12,6 +12,18 @@ export const registerClient = async (req, res) => {
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
 
+    // Check if client with the same email already exists
+    const existingEmailClient = await Client.findOne({ where: {email: email} });
+    if (existingEmailClient) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // Check if client with the same phone number already exists
+    const existingPhoneClient = await Client.findOne({ where: {phone: phone} });
+    if (existingPhoneClient) {
+      return res.status(400).json({ message: "Phone number already in use" });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newClient = await Client.create({ name, email, password: hashedPassword, address, phone });
@@ -19,6 +31,7 @@ export const registerClient = async (req, res) => {
     res.json({
       error: false,
       data: {
+        created: "ok",
         result: newClient,
         message: "Client added successfully"
       }
