@@ -1,12 +1,11 @@
 import { Op } from 'sequelize';
 import Order from '../models/order.js';
 import User from '../models/user.js';
-import { io } from "../server.js";
+import { getIo } from '../socket.js';
 import Local from '../models/local.js';
 
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
-
   try {
     const orders = await Order.findAll({
       where: {
@@ -68,7 +67,7 @@ export const sendOrder = async (req, res) => {
 export const createOrder = async (req, res) => {
   const { delivery_fee, total_price, oder_details, local_id, status, date_time, type } = req.body;
   const {userId} = req.user
-
+  const io = getIo()
   const users_id = userId
 
   console.log(oder_details, "order details")
@@ -114,7 +113,7 @@ export const getOrderUser = async (req, res) => {
 
 export const finishOrder = async (req, res) => {
   const { id } = req.params;
-
+  const io = getIo()
   try {
     const order = await Order.findByPk(id);
 

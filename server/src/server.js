@@ -1,4 +1,4 @@
-import express from "express";
+/* import express from "express";
 import morgan from "morgan";
 import authRoutes from "./routes/auth.routes.js";
 import localRoutes from "./routes/local.routes.js";
@@ -72,8 +72,8 @@ io.on("connection", (socket) => {
 
 export { io };
 export default app;
+ */
 
-/* 
 
 import express from "express";
 import morgan from "morgan";
@@ -118,7 +118,7 @@ app.use("/api/discounts", discountRouter);
 app.use("/api/distProducts", DistProductRouter);
 app.use("/api/distOrder", distOrderRouter);
 
-export default app; */
+export default app; 
 
 
 
