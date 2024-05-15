@@ -56,6 +56,7 @@ const validateForm = () => {
       isValid = false;
   }
 
+
   if (!formData.email) {
       errors.email = 'Email is required';
       isValid = false;
@@ -73,6 +74,7 @@ const validateForm = () => {
       errors.phone = 'Phone is required';
       isValid = false;
   }
+
 
   if (!formData.address) {
     errors.address = 'Address is required';
@@ -132,17 +134,21 @@ const handleSubmit = async (e) => {
   }
 
   return (
+
     <div className="w-full h-full bg-yellow-400">
   <div className="flex justify-center items-center min-h-screen ml-10 bg-center bg-yellow-400 bg-custom-img" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
     <div className="w-full max-w-full px-3 mx-auto mt-0 md:flex-0 shrink-0">
+
           <div className="flex flex-col gap-3 justify-center items-center px-3 mx-auto mt-0 md:flex-0 shrink-0">
          {/*  <div className="relative z-0 min-w-0 break-words bg-black border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-400 overflow-hidden">
               <img className="w-full h-40 filter contrast-120" src="https://png.pngtree.com/background/20210709/original/pngtree-delivery-banner-poster-background-picture-image_921964.jpg" alt="Descripción de la imagen" />
             </div> */}
+
             <div className="relative z-0 flex flex-col min-w-0 break-words bg-black bg-opacity-20 border-0 shadow-soft-xl rounded-2xl bg-clip-border">
               <div className="p-6 mb-0 text-center border-b-0 rounded-t-2xl ">
                 <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-white p-12 filter brightness-110">Register</h5>
               </div>
+
 
               <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
                 <div className="w-full sm:w-1/2 md:w-1/2 lg:w-1/2 xl:w-1/2 px-3 mb-4">
@@ -183,12 +189,14 @@ const handleSubmit = async (e) => {
                 </div>
   
                 <div className="text-center relative w-full">
+
                   <button onClick={handleSubmit} type="submit" className="w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600">
                     <span className="text-white hover:text-black">Sign up</span>
                     
                   </button>
                 </div>
                 <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-indigo-600">Log in</a></p>
+
               </div>
             </div>
             

@@ -71,9 +71,7 @@ io.on("connection", (socket) => {
 });
 
 export { io };
-
-export default server;
-
+export default app;
 
 /* 
 
@@ -121,3 +119,6 @@ app.use("/api/distProducts", DistProductRouter);
 app.use("/api/distOrder", distOrderRouter);
 
 export default app; */
+
+
+

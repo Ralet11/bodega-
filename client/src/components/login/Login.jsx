@@ -102,7 +102,9 @@ const Login = () => {
             </div>
             <div className="relative bg-black bg-opacity-20 z-0 min-w-0 break-words  border-0 shadow-soft-xl rounded-2xl bg-clip-border w-4/12 h-[600px] filter brightness-75 contrast-125">
               <div className="p-6 mb-0 text-center  border-b-0 rounded-t-2xl">
+
                 <h5 className="text-center text-6xl font-bold leading-9 tracking-tight text-white p-12 filter brightness-110">Login with</h5>
+
 
               </div>
               <div className="flex flex-wrap px-3 -mx-3 sm:px-6 xl:px-12">
@@ -144,7 +146,9 @@ const Login = () => {
                   </a>
                 </div>
                 <div className="relative w-full max-w-full px-3 mt-2 text-center shrink-0">
+
                   <p className="text-center text-2xl font-bold leading-9 tracking-tight  text-white ">or</p>
+
                 </div>
               </div>
               <div className="flex-auto p-6">
@@ -161,11 +165,13 @@ const Login = () => {
                 </div>
 
                   <div className="text-center relative">
+
                     <button className="w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600">
                       <span className="hover:text-black">
                         Log in
                       </span>
                       
+
                     </button>
                   </div>
                   <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-indigo-600" onClick={goRegister}>Sign up</a></p>

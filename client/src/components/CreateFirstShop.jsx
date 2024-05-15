@@ -5,7 +5,9 @@ import { getParamsEnv } from '../functions/getParamsEnv';
 import { useDispatch, useSelector } from 'react-redux';
 import { changeShop } from '../redux/actions/actions';
 import { useNavigate } from 'react-router-dom';
+
 import Input from "../ui_bodega/Input";
+
 
 const {API_URL_BASE} = getParamsEnv()
 
@@ -61,6 +63,7 @@ const CreateFirstShop = () => {
   return (
     <>
       <Header />
+
       <div className='flex justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-2' style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
         <div className='w-full max-w-md p-8 bg-black rounded-md shadow-md bg-black bg-opacity-20' >
           <h1 className='text-2xl font-bold mb-6 text-center text-white'>Create Your First Shop</h1>

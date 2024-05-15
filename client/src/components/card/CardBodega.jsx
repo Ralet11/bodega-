@@ -33,16 +33,20 @@ const DistProdCard = () => {
                 <SearchBarCommerce />
             </div>
             <div className="flex justify-center items-center my-6">
+
                 <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-12">
                     <div className="flex flex-col md:flex-row">
                         <div className="w-1/4 flex flex-col items-center space-y-4">
+
                             {[product.image1, product.image2, product.image3].map((image, index) => (
                                 <ThumbnailImage
                                     key={index}
                                     src={image}
                                     alt={`Product Thumbnail ${index + 1}`}
                                     onClick={() => handleThumbnailClick(image)}
+
                                     className="cursor-pointer rounded-lg shadow-md hover:shadow-lg"
+
                                 />
                             ))}
                         </div>
@@ -74,6 +78,7 @@ const DistProdCard = () => {
                                 </div>
                             </div>
 
+
                             <div className="flex space-x-4">
                                 <button 
                                     onClick={itemToCart} 
@@ -81,7 +86,7 @@ const DistProdCard = () => {
                                 >
                                    Add to cart
                                 </button>
-                            </div>
+           </div>
                         </div>
                     </div>
                 </div>
