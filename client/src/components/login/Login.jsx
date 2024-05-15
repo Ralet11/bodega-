@@ -151,12 +151,12 @@ const Login = () => {
                 <form onSubmit={handleSubmit} role="form text-left">
                 <div className="w-full  px-3 mb-4">
                   <label className="text-white" htmlFor="email">Email</label>
-                  <Input  id="email" placeholder="Enter your email" type="email" name="email" />
+                  <Input onChange={handleInputChange}  id="email" placeholder="Enter your email" type="email" name="email" />
                   
                 </div>
                 <div className="w-full px-3 mb-4">
                   <label className="text-white" htmlFor="password">Password</label>
-                  <Input  id="password" placeholder="Enter your password" type="password" name="password" />
+                  <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" />
                   
                 </div>
 

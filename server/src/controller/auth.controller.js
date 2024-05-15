@@ -44,6 +44,7 @@ export const registerClient = async (req, res) => {
 export const loginClient = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log(req.body)
 
     if (!email || !password) {
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
