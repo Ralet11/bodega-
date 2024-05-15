@@ -26,8 +26,10 @@ const Header = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
+  const shopName = shop ? shop.name : ""
+
   let Links = [
-    { name: `${shop.name}`, link: '/about' },
+    { name: `${shopName}`, link: '/about' },
   ];
   let [open, setOpen] = useState(false);
 
@@ -101,7 +103,7 @@ const Header = () => {
         >
         <CartIcon />
           <span className='bg-[#F2BB26] ml-8'>
-            {shop.img && (
+            {shop && shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
                 src={`${API_URL_BASE}/${shop.img}`}
@@ -111,7 +113,7 @@ const Header = () => {
           </span>
 
 
-          {Links.map((link) => (
+          {shop && Links.map((link) => (
             <li onClick={toggleDropdown} className='flex gap-1 flex-row cursor-pointer md:ml-3 md:my-0 my-7 font-bold bg-[#F2BB26]' key={link.name}>
               {/* Use Link component instead of anchor tag */}
 
