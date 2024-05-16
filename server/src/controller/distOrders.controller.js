@@ -1,20 +1,21 @@
 import DistOrderProduct from "../models/distOrderProduct.model.js";
 import DistOrder from "../models/distOrders.model.js";
 import DistProduct from "../models/distProducts.model.js";
+import DistOrderStatus from "../models/distOrderStatus.model.js"; // Importar el modelo
 
 export const addToLocal = async (req, res) => {
     console.log(req.body);
     const { local_id, order_details, order_date } = req.body;
     try {
-        // Crear la orden
+        // Crear la orden con status_id por defecto 1
         const newOrder = await DistOrder.create({
             order_date,
-            local_id
+            local_id,
+            status_id: 1 // Establece el status_id a 1 por defecto
         });
 
         const orderId = newOrder.id;
-
-        console.log(orderId, "orderid")
+        console.log(orderId, "orderid");
 
         // Agrupar orderDetails por ID y contar la cantidad de cada uno
         const itemQuantities = order_details.reduce((acc, detail) => {
@@ -36,26 +37,35 @@ export const addToLocal = async (req, res) => {
                 ids.push(detail.id);
             }
         }
+
         // Buscar los detalles de los productos de la orden recién creada
         const orderProducts = await DistOrderProduct.findAll({
             where: { order_id: orderId },
             include: [
                 {
                     model: DistOrder,
-                    attributes: ['id', 'order_date', 'local_id'],
+                    attributes: ['id', 'order_date', 'local_id', 'status_id'],
+                    include: [
+                        {
+                            model: DistOrderStatus, // Incluir el modelo DistOrderStatus
+                            attributes: ['name'] // Solo obtener el campo 'name'
+                        }
+                    ]
                 },
                 {
                     model: DistProduct
                 }
             ]
         });
-        console.log(orderProducts, "respuesta")
+
+        console.log(orderProducts, "respuesta");
         res.status(201).json(orderProducts);
     } catch (error) {
         console.error("Error adding order:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
 
 export const updateOrder = async (req, res) => {
     const { id, order_date } = req.body;
@@ -104,45 +114,48 @@ export const updateOrderProduct = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 }
-
 export const getByLocalId = async (req, res) => {
-    const {local_id} = req.body
+    const { local_id } = req.body;
     try {
-        const orders = await DistOrder.findAll({where: {local_id}})
-        console.log(orders)
-        let finalOrders = []
-
-        await Promise.all(orders.map(async (order) => {
-            try {
-                let orderProducts = await DistOrderProduct.findAll({where: {order_id: order.id},  include: [
-
-                    {
-                        model: DistProduct
-                    }
-                ]})
-
-                let finalTotal = 0
-                orderProducts.map((prod => {
-                    finalTotal = finalTotal + (prod.DistProduct.price * prod.quantity)
-                }))
-
-                let completeOrder = {
-                    id: order.id,
-                    date: order.order_date,
-                    status: order.status,
-                    products: orderProducts,
-                    total: finalTotal
+        const orders = await DistOrder.findAll({
+            where: { local_id },
+            include: [
+                {
+                    model: DistOrderStatus,
+                    attributes: ['name']
+                },
+                {
+                    model: DistOrderProduct,
+                    include: [
+                        {
+                            model: DistProduct
+                        }
+                    ]
                 }
-                finalOrders.push(completeOrder)
-            } catch (error) {
-                console.log(error)
-            }
-        }))
+            ]
+        });
 
-        res.json(finalOrders)
+        // Procesar las órdenes para calcular el total
+        const finalOrders = await Promise.all(orders.map(async (order) => {
+            // Calcular el total de la orden
+            let finalTotal = 0;
+            await Promise.all(order.distOrderProducts.map(async (prod) => {
+                finalTotal += prod.DistProduct.price * prod.quantity;
+            }));
 
+            // Retornar los detalles de la orden
+            return {
+                id: order.id,
+                date: order.order_date,
+                status: order.distOrderStatus.name, // Usar el nombre del estado
+                products: order.distOrderProducts,
+                total: finalTotal
+            };
+        }));
+
+        res.json(finalOrders);
     } catch (error) {
-        console.log(error)
-        res.json(error)
+        console.error("Error fetching orders:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};

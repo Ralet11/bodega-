@@ -9,7 +9,7 @@ import http from 'http'
 
 
 
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ force: true }).then(() => {
   
   
 
