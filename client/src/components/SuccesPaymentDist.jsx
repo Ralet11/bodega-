@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { CheckCircle } from 'lucide-react';
 import { emptyCart } from '../redux/actions/actions';
+import axios from 'axios';
+import { getParamsEnv } from '../functions/getParamsEnv';
+
+const {API_URL_BASE} = getParamsEnv()
 
 
 const SuccessPaymentDist = () => {
@@ -27,6 +31,41 @@ const SuccessPaymentDist = () => {
     setItems(groupedItems)
     dispatch(emptyCart());
   }, [dispatch]);
+
+  const groupedBySupplier = order.reduce((acc, order) => {
+    const { id_proveedor } = order.DistProduct;
+    if (!acc[id_proveedor]) {
+      acc[id_proveedor] = {
+        supplierId: id_proveedor,
+        products: [],
+        totalQuantity: 0
+      };
+    }
+    acc[id_proveedor].products.push({
+      productId: order.product_id,
+      name: order.DistProduct.name,
+      quantity: order.quantity
+    });
+    acc[id_proveedor].totalQuantity += order.quantity;
+    return acc;
+  }, {});
+  
+  console.log(groupedBySupplier);
+
+  useEffect(() => {
+    const sendEmail = async () => {
+      const groupedBySupplier = {/* agrupa los datos aquí */};
+      try {
+        const response = await axios.post(`${API_URL_BASE}/api/distProducts/sendEmailWithOrder`, { orderData: groupedBySupplier });
+        console.log('Email sent:', response.data);
+      } catch (error) {
+        console.error('Error sending email:', error);
+      }
+    };
+    if (Object.keys(groupedBySupplier).length > 0) {
+      sendEmail();}
+  }, []);
+
 
   return (
     <div className="container mx-auto mt-8 pt-20">

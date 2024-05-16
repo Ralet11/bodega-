@@ -62,7 +62,7 @@ const DistProdCard = () => {
                             <div className="text-center">
                                 <h1 className="text-5xl font-bold text-gray-800 mb-4">{product.name}</h1>
                                 <div className="flex justify-center items-center">
-                                    <h2 className="text-4xl text-gray-800 font-bold">{`$${product.price}`}</h2> 
+                                    <Title className={`text-center text-5xl font-bold leading-9 tracking-tight text-gray-900`} text={`$${product.price}`}></Title>
                                     <span className="text-green-600 text-2xl font-semibold ml-4">10% discount</span>
                                 </div>
                             </div>
