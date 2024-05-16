@@ -126,15 +126,15 @@ export const sendEmailWithProducts = async (req, res) => {
     let transporter = nodemailer.createTransport({
       service: 'hotmail',
       auth: {
-        user: 'ramiro.alet@hotmail.com',  // Reemplaza con tu dirección de correo Hotmail
-        pass: 'Luciana.1129'   // Reemplaza con tu contraseña
+        user: 'xxx',  // Reemplaza con tu dirección de correo Hotmail
+        pass: 'xxx'   // Reemplaza con tu contraseña
       }
     });
   
     try {
       let info = await transporter.sendMail({
-        from: 'ramiro.alet@hotmail.com',  // Reemplaza con tu dirección de correo Hotmail
-        to: 'ramiro.alet@hotmail.com',  // Reemplaza con el destinatario real
+        from: 'xxx',  // Reemplaza con tu dirección de correo Hotmail
+        to: 'xxx',  // Reemplaza con el destinatario real
         subject: 'New Order ',
         html: contentHTML
       });

@@ -52,40 +52,41 @@ const DistPurchaseHistory = () => {
                     <hr className="my-4 border-t border-gray-300" />
                 </div>
                 <div className='m-auto w-4/5'>
-                    <div className="overflow-x-auto">
-                        <Table hoverable>
-                            <TableHead>
-                                <TableHeadCell>Order Id</TableHeadCell>
-                                <TableHeadCell>Details</TableHeadCell>
-                                <TableHeadCell>Date</TableHeadCell>
-                                <TableHeadCell>Status</TableHeadCell>
-                                <TableHeadCell>Payment</TableHeadCell>
-                                <TableHeadCell>
-                                    <span className="sr-only">Edit</span>
-                                </TableHeadCell>
-                            </TableHead>
-                            <TableBody className="divide-y">
-                                {orders.map(order => (
-                                    <TableRow key={order.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                            {order.id}
-                                        </TableCell>
-                                        <TableCell>
-                                            <button className='border border-black hover:text-black' onClick={() => handleDetailsClick(order.products)}>Details</button>
-                                        </TableCell>
-                                        <TableCell>{formatDate(order.date)}</TableCell>
-                                        <TableCell>{order.status}</TableCell>
-                                        <TableCell>${order.total}</TableCell>
-                                        <TableCell>
-                                            <a href="#" className="font-medium text-cyan-600 hover:underline dark:text-cyan-500">
-                                                Edit
-                                            </a>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
+                <div className="overflow-y-auto max-h-[680px]">
+                    <Table hoverable>
+                        <TableHead>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Order Id</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Details</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Date</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Status</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Payment</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">
+                                <span className="sr-only">Edit</span>
+                            </TableHeadCell>
+                        </TableHead>
+                        <TableBody className="divide-y">
+                            {orders.map(order => (
+                                <TableRow key={order.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                        {order.id}
+                                    </TableCell>
+                                    <TableCell>
+                                        <button className='border border-black hover:text-black' onClick={() => handleDetailsClick(order.products)}>Details</button>
+                                    </TableCell>
+                                    <TableCell>{formatDate(order.date)}</TableCell>
+                                    <TableCell>{order.status}</TableCell>
+                                    <TableCell>${order.total}</TableCell>
+                                    <TableCell>
+                                        <a href="#" className="font-medium text-cyan-600 hover:underline dark:text-cyan-500">
+                                            Edit
+                                        </a>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+
                 </div>
             </div>
             {showModal && (
