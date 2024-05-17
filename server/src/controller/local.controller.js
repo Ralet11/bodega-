@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import Local from '../models/local.js';
 import { Op } from 'sequelize';
+import Client from "../models/client.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -24,13 +25,15 @@ export const getByClientId = async (req, res) => {
 
     const clientId = decoded.clientId;
 
+    console.log(clientId, "id ")
+
     const locals = await Local.findAll({
       where: {
         clients_id: clientId
       }
     });
 
-    res.json(locals);
+    res.status(200).json({locals, finded: "ok"});
   } catch (error) {
     console.error('Error al obtener locales por cliente:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });
@@ -173,10 +176,20 @@ export const addShop = async (req, res) => {
       clients_id: clientId // Assuming the client ID is passed from the frontend
     });
 
+    const shop = await Local.findOne({
+      where: {
+        id: newShop.id
+      }
+      
+    
+    })
+
+    console.log(shop)
+
     res.json({
       error: false,
       created: "ok",
-      result: newShop,
+      result: shop,
       message: "Shop added successfully"
 
     });

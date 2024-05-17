@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from './header/Header';
 import axios from 'axios';
 import { getParamsEnv } from '../functions/getParamsEnv';
 import { useDispatch, useSelector } from 'react-redux';
-import { changeShop } from '../redux/actions/actions';
+import { changeShop, setClientLocals } from '../redux/actions/actions';
 import { useNavigate } from 'react-router-dom';
 
 import Input from "../ui_bodega/Input";
@@ -14,9 +14,13 @@ const {API_URL_BASE} = getParamsEnv()
 const CreateFirstShop = () => {
 
     const client = useSelector((state) => state?.client.client)
+    const token = useSelector((state) => state?.client.token)
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const [clientId, setClientId] = useState(null)
+    const [locals, setLocals] = useState(null)
+    const [aux, setAux] = useState(false)
+
     console.log(client)
   const [formData, setFormData] = useState({
     name: '',
@@ -34,25 +38,51 @@ const CreateFirstShop = () => {
     });
   };
 
+
+ 
+
+  console.log(locals)
+  console.log(client)
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await axios.post(`${API_URL_BASE}/api/local/add`, formData); // Assuming the endpoint to create a shop is '/api/shops'
       console.log(response.data)
+
       if (response.data.created === "ok") {
+
+        const fetchLocals = async () => {
+          try {
+           
+            if (!token) {
+              throw new Error('No token found');
+            }
+    
+            const response = await axios.get(`${API_URL_BASE}/api/local/getByClient`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+    
+            if (response.data.finded === "ok"){
+              console.log(response.data.locals)
+              dispatch(setClientLocals(response.data.locals))
+            }
+    
+           
+          } catch (error) {
+            console.error('Error fetching locals:', error);
+          }
+        };
+
+        fetchLocals()
       
         dispatch(changeShop(response.data.result.id))
         navigate("/dashboard")
 
-        /* try {
-            const response = await axios.get(`${API_URL_BASE}/api/clients/${clientID}`)
-            console.log(response)
-
-             dispatch(changeShop(response.data.result.id))
-            navigate("/dashboard") 
-        } catch (error) {
-            console.log(error)
-        } */
+        
       }
     } catch (error) {
       console.error('Error creating shop:', error);

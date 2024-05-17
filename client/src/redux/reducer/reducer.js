@@ -1,4 +1,8 @@
-import { LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, SET_DIST_ORDER } from "../actions/actions";
+import { 
+  LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, 
+  GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, 
+  SET_DIST_ORDER, SET_CLIENT_LOCALS 
+} from "../actions/actions";
 
 const initialState = {
   client: {},
@@ -36,7 +40,6 @@ const rootReducer = (state = initialState, action) => {
       }
     case ADD_PAY_METHODS:
       console.log(action.payload)
-
       return {
         ...state,
         client: {
@@ -87,10 +90,7 @@ const rootReducer = (state = initialState, action) => {
         cart: newCart
       };
     case LOG_OUT:
-      return {
-        ...state,
-        client: {}
-      }
+      return initialState;
     case EMPTY_CART:
       return {
         ...state,
@@ -100,6 +100,14 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         order: action.payload
+      }
+    case SET_CLIENT_LOCALS:
+      return {
+        ...state,
+        client: {
+          ...state.client,
+          locals: action.payload
+        }
       }
     default:
       return state;
