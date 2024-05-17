@@ -13,21 +13,28 @@ const SearchBarCommerce = ({ setFilters, filters, className }) => {
   }, [searchTerm, setFilters]);
 
   return (
-    <div className={`relative flex items-center w-full max-w-lg mx-auto bg-white rounded-lg shadow-lg overflow-hidden ${className}`}>
-      <Input
-        placeholder="Search product..."
-        type="text"
-        name="title"
-        value={searchTerm}
-        onChange={handleChange}
-        className='flex-1 p-4 border-0 focus:outline-none transition duration-300 ease-in-out'
-      />
-      <button 
-        className="p-4 bg-[#F2BB26] text-black font-bold hover:bg-yellow-700 transition duration-300 ease-in-out focus:outline-none"
-        type="button"
-      >
-        Search
-      </button>
+    <div className=" flex justify-evenly items-center w-full  bg-white rounded-lg shadow-lg">
+      <div className='p-2 rounded-lg'>
+        <Input
+            
+            placeholder="Search product..."
+            type="text"
+            name="title"
+            value={searchTerm}
+            onChange={handleChange}
+            className="w-[900px] p-4 border-0 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:rounded-lg rounded-lg transition duration-300 ease-in-out"
+          />
+      </div>
+        
+      <div>
+        <button 
+          className="w-auto  bg-yellow-400 text-white font-bold hover:bg-yellow-500 transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-yellow-600"
+          type="button"
+        >
+          Search
+        </button>
+      </div>
+      
     </div>
   );
 };
