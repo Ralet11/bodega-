@@ -12,5 +12,6 @@ router.post('/update/address/:id', updateAddress)
 router.get('/activeShops', getActiveShops)
 router.get('/getAllShops', getAllShops)
 router.post('/add', addShop)
+router.get('/getByClient', getByClientId)
 
 export default router

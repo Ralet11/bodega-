@@ -7,6 +7,9 @@ import CheckIcon from '../../icons/checkIcon';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import CartIcon from '../CartIcon';
 import GoBackArrow from '../GobackArrow';
+import ToasterConfig from '../../ui_bodega/Toaster';
+import toast from 'react-hot-toast';
+
 
 const DistProdCard = () => {
     const dispatch = useDispatch();
@@ -23,16 +26,22 @@ const DistProdCard = () => {
     };
 
     const itemToCart = () => {
-        dispatch(addToCart(product));
+        try {
+            dispatch(addToCart(product));
+            toast.success("Item added to cart")
+        } catch (error) {
+            console.log(error)
+            toast.error(error)
+        }
     };
 
     return (
         <>
             <GoBackArrow />
-            <div className='bg-white rounded-lg mx-auto mt-[-1px] w-2/3'>
+            {/* <div className='bg-white rounded-lg mx-auto mt-[-1px] w-2/3'>
                 <SearchBarCommerce />
-            </div>
-            <div className="flex justify-center items-center my-6">
+            </div> */}
+            <div className="flex mt-20 justify-center items-center my-6">
 
                 <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-12">
                     <div className="flex flex-col md:flex-row">
@@ -91,6 +100,7 @@ const DistProdCard = () => {
                     </div>
                 </div>
             </div>
+            <ToasterConfig />
         </>
     );
 }

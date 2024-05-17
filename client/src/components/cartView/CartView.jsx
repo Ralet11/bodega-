@@ -4,15 +4,15 @@ import { addToCart, removeFromCart, setDistOrder } from '../../redux/actions/act
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import axios from 'axios';
 
-const {API_URL_BASE} = getParamsEnv()
+const { API_URL_BASE } = getParamsEnv();
 
 const CartView = ({ onClose }) => {
     const cartItems = useSelector((state) => state?.cart);
     const user = useSelector((state) => state?.client.client);
-    const local_id = useSelector((state) => state?.activeShop)
+    const local_id = useSelector((state) => state?.activeShop);
     const [itemQuantities, setItemQuantities] = useState({});
     const dispatch = useDispatch();
-    const order_date = new Date()
+    const order_date = new Date();
     const [total, setTotal] = useState(0);
 
     // Actualizar el estado itemQuantities
@@ -35,8 +35,6 @@ const CartView = ({ onClose }) => {
         setTotal(totalPrice);
     }, [cartItems, itemQuantities]);
 
-    // Calcular la suma total final
-
     // Función para agregar un producto al carrito
     const addItemToCart = (item) => {
         dispatch(addToCart(item));
@@ -49,19 +47,18 @@ const CartView = ({ onClose }) => {
 
     // Función para manejar el pago
     const handlePayment = async () => {
-        const products = cartItems
+        const products = cartItems;
         const customerInfo = { name: user.name, mail: user.mail, id: user.id };
 
         try {
             const response = await axios.post(`${API_URL_BASE}/api/payment/distPayment`, { products, customerInfo });
             if (response.statusText === "OK") {
-
                 try {
-                    const response = await axios.post(`${API_URL_BASE}/api/distOrder/add`, {local_id, order_details: cartItems, order_date })
-                    console.log(response, "respuesta")
-                    dispatch(setDistOrder(response.data))
+                    const response = await axios.post(`${API_URL_BASE}/api/distOrder/add`, { local_id, order_details: cartItems, order_date });
+                    console.log(response, "respuesta");
+                    dispatch(setDistOrder(response.data));
                 } catch (error) {
-                    console.log(error)
+                    console.log(error);
                 }
 
                 window.location.href = response.data.url;
@@ -75,59 +72,51 @@ const CartView = ({ onClose }) => {
     const uniqueCartItems = Object.values(cartItems.reduce((acc, item) => {
         acc[item.id] = item;
         return acc;
-    }, {}))
+    }, {}));
 
-    
     return (
-        <div className="flex min-w-[500px] justify-center items-center">
-            <div className="max-w-lg w-full p-8 bg-white rounded-lg shadow-lg">
-                <h2 className="text-2xl font-bold mb-4">Your Cart</h2>
+        <div className="flex justify-center items-center min-h-[400px] w-full">
+            <div className="max-w-4xl w-full p-8 bg-white rounded-lg shadow-xl">
+                <h2 className="text-3xl font-bold mb-6">Your Cart</h2>
                 {cartItems.length > 0 ? (
                     <div>
                         {uniqueCartItems.map((item) => (
-                            <div key={item.id} className="flex items-center border-b py-2">
-                                {/* Renderizar información del producto */}
-                                <img className="w-20 h-20 mr-4 rounded-lg" src={item.image1} alt={item.name} />
-                                <div>
-                                    <h3 className="text-lg font-semibold">{item.name}</h3>
+                            <div key={item.id} className="flex items-center border-b py-4 space-x-4">
+                                <img className="w-24 h-24 rounded-lg" src={item.image1} alt={item.name} />
+                                <div className="flex-1">
+                                    <h3 className="text-xl font-semibold">{item.name}</h3>
                                     <p className="text-gray-600">${item.price}</p>
-                                    <div className="flex items-center">
-                                        {/* Botón para reducir la cantidad */}
+                                    <div className="flex items-center space-x-2 mt-2">
                                         <button
-                                            className="mr-2 text-gray-600 focus:border-yellow-600"
+                                            className="text-gray-600 hover:text-gray-800 focus:outline-none"
                                             onClick={() => removeItemFromCart(item.id)}
                                             disabled={(itemQuantities[item.id] || 1) <= 0}
                                         >
                                             -
                                         </button>
-                                        {/* Mostrar la cantidad */}
                                         <p className="text-black font-bold">x{itemQuantities[item.id] || 1}</p>
-                                        {/* Botón para aumentar la cantidad */}
                                         <button
-                                            className="ml-2 text-gray-600 focus:border-yellow-600"
+                                            className="text-gray-600 hover:text-gray-800 focus:outline-none"
                                             onClick={() => addItemToCart(item)}
                                         >
                                             +
                                         </button>
                                     </div>
                                 </div>
-                                {/* Mostrar el precio total del producto */}
-                                <p className="text-gray-600 ml-auto">${item.price * (itemQuantities[item.id] || 1)}</p>
+                                <p className="text-gray-600 font-semibold">${item.price * (itemQuantities[item.id] || 1)}</p>
                             </div>
                         ))}
-                        {/* Mostrar el total */}
-                        <div className="mt-4">
-                            <p className="text-lg font-semibold">Total: ${total}</p>
+                        <div className="mt-6">
+                            <p className="text-xl font-semibold">Total: ${total.toFixed(2)}</p>
                         </div>
                     </div>
                 ) : (
                     <p className="text-gray-500">Your cart is empty</p>
                 )}
-                {/* Botón para el pago */}
-                <div className="mt-4">
-                    <span onClick={handlePayment} className="cursor-pointer bg-black hover:bg-yellow-600 focus:border-yellow-600 text-yellow-600 hover:text-black font-bold font-semibold py-2 px-4 rounded">
+                <div className="mt-6 flex justify-end">
+                    <button onClick={handlePayment} className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded">
                         Checkout
-                    </span>
+                    </button>
                 </div>
             </div>
         </div>
