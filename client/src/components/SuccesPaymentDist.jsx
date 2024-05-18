@@ -73,7 +73,7 @@ const SuccessPaymentDist = () => {
   }, [order]);
 
   // Enviar email con los datos agrupados del pedido
-  useEffect(() => {
+  /* useEffect(() => {
     if (groupedBySupplier) {
       console.log(groupedBySupplier);
       const sendEmail = async () => {
@@ -87,7 +87,7 @@ const SuccessPaymentDist = () => {
 
       sendEmail();
     }
-  }, [groupedBySupplier, API_URL_BASE]);
+  }, [groupedBySupplier, API_URL_BASE]); */
 
   // Aplanar la estructura de productos agrupados por proveedor
   const flattenedItems = groupedBySupplier ? Object.values(groupedBySupplier).flatMap(supplier => supplier.products) : [];

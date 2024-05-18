@@ -7,12 +7,14 @@ import {
 import OrderModal from "../modal/OrderModal";
 import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 
 const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState()
+  const token = useSelector((state) => state?.client.token)
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -68,7 +70,11 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
     // Realiza la solicitud para 
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/orders/user/${order.users_id}`);
+        const response = await axios.get(`${API_URL_BASE}/api/orders/user/${order.users_id}`, {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
         setUserData(response.data); // Almacena los datos del usuario en el estado
         console.log(response.data)
       } catch (error) {

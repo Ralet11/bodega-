@@ -97,6 +97,12 @@ export const checkoutDistPayment = async (req, res) => {
   const { products, customerInfo, orderData } = req.body; // Agregar orderId a la petición
   const { name, email, id } = customerInfo;
 
+  const idConfirm = req.user.clientId
+
+  if (id !== idConfirm) {
+    return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+  }
+
   try {
     let customer;
 

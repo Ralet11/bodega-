@@ -17,7 +17,7 @@ const DistPurchaseHistory = () => {
         });
         return formattedDate;
     };
-
+    const token = useSelector((state) => state?.client.token)
     const activeShop = useSelector((state) => state.activeShop);
     const [orders, setOrders] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -26,7 +26,11 @@ const DistPurchaseHistory = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.post(`${API_URL_BASE}/api/distOrder/getByLocalId`, { local_id: activeShop })
+                const response = await axios.post(`${API_URL_BASE}/api/distOrder/getByLocalId`, { local_id: activeShop }, {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  })
                 setOrders(response.data)
             } catch (error) {
                 console.log(error)

@@ -8,12 +8,14 @@ import {
 import OrderModal from "../modal/OrderModal";
 import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 
 const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const token = useSelector((state) => state?.client.token)
   const openModal = () => {
     setIsModalOpen(true);
   };
@@ -88,20 +90,29 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
   };
 
   useEffect(() => {
-    console.log(order.users_id)
-    // Realiza la solicitud para 
+    console.log(order.users_id);
+
     const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`${API_URL_BASE}/api/orders/user/${order.users_id}`);
-        setUserData(response.data); // Almacena los datos del usuario en el estado
-        console.log(response.data, "user")
-      } catch (error) {
-        console.error("Error al obtener la información del usuario:", error);
-      }
+        try {
+            if (!token) {
+                throw new Error('No token found');
+            }
+
+            const response = await axios.get(`${API_URL_BASE}/api/orders/user/${order.users_id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            setUserData(response.data); // Almacena los datos del usuario en el estado
+            console.log(response.data, "user");
+        } catch (error) {
+            console.error("Error al obtener la información del usuario:", error);
+        }
     };
 
-    fetchUserData(); // Llama a la función para obtener la información del usuario al montar el componente
-  }, [order.users_id]); // Omiti
+    fetchUserData();
+}, [order.users_id]);
 
   if (!userData) {
     // Si no hay datos de usuario, no renderizar nada

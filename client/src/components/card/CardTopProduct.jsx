@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setDistProd } from '../../redux/actions/actions';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 
@@ -12,11 +12,16 @@ const TopProducts = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const dispatch = useDispatch();
+  const token = useSelector((state) => state?.client.token)
 
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/distProducts/getAll`);
+        const response = await axios.get(`${API_URL_BASE}/api/distProducts/getAll`,{
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
         console.log(response);
         setAllProducts(response.data);
       } catch (error) {

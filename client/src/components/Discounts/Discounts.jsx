@@ -13,6 +13,7 @@ const Discounts = () => {
     const [discounts, setDiscounts] = useState(null);
     const [products, setProducts] = useState({});
     const shop = useSelector((state) => state?.activeShop);
+    const token = useSelector((state) => state?.client.token)
     
     console.log(shop);
 
@@ -35,7 +36,11 @@ const Discounts = () => {
 
         const fetchProducts = async () => {
             try {
-                const response = await axios.get(`${API_URL_BASE}/api/products/getByLocalId/${shop}`);
+                const response = await axios.get(`${API_URL_BASE}/api/products/getByLocalId/${shop}`,{
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
                 setProducts(response.data);
                 console.log(response);
             } catch (error) {
@@ -43,7 +48,7 @@ const Discounts = () => {
             }
         };
 
-        fetchProducts();
+        fetchProducts()
     }, []);
 
     console.log(products);

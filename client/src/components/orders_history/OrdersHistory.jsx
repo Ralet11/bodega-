@@ -10,6 +10,7 @@ const {API_URL_BASE} = getParamsEnv();
 
 const HistorialVentas = () => {
     const activeShop = useSelector((state) => state.activeShop);
+    const token = useSelector((state) => state?.client.token)
 
     const [orders, setOrders] = useState({
         "new order": [],
@@ -22,7 +23,11 @@ const HistorialVentas = () => {
         const fetchData = async () => {
             try {
                 const response = await axios.get(
-                    `${API_URL_BASE}/api/orders/get/${activeShop}`
+                    `${API_URL_BASE}/api/orders/get/${activeShop}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
                 );
 
                 const ordersByStatus = {
