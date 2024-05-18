@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 
@@ -9,6 +10,7 @@ function OrderModal({ order, closeModal }) {
     console.log(order)
     const innerOrderDetails = JSON.parse(order.oder_details);
     const orderDetails = innerOrderDetails.orderDetails;
+    const token = useSelector((state) => state?.client.token)
 
     const conteoProductos = {};
 
@@ -33,7 +35,13 @@ function OrderModal({ order, closeModal }) {
 
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_URL_BASE}/api/users/get/${id}`);
+                const response = await axios.get(`${API_URL_BASE}/api/users/get/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+                );
                 setUserInfo(response.data);
             } catch (error) {
                 console.error(error);

@@ -6,10 +6,10 @@ import { TimeoutError } from "sequelize";
 
 const router = Router()
 
-router.get('/getAll', getAll)
-router.post('/add', createDiscount)
+router.get('/getAll', methods.auth, getAll)
+router.post('/add', methods.auth, createDiscount)
 router.get('/getByUserId', methods.auth, getDiscountsByUser)
-router.post('/getByLocalId', getByLocalId)
+router.get('/getByLocalId/:id', methods.auth, getByLocalId)
 
 
 export default router

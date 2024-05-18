@@ -4,6 +4,7 @@ import Client from '../models/client.js';
 import PayMethod from '../models/pay_method.js';
 import Stripe from 'stripe';
 import { FRONTEND_URL, SSK } from '../config.js';
+import Local from '../models/local.js';
 
 const stripe = new Stripe(SSK);
 
@@ -94,8 +95,8 @@ export const removePayMethod = async (req, res) => {
 };
 
 export const checkoutDistPayment = async (req, res) => {
-  const { products, customerInfo, orderData } = req.body; // Agregar orderId a la petición
-  const { name, email, id } = customerInfo;
+  const { products, customerInfo, orderData, shop } = req.body; // Agregar orderId a la petición
+  const { name, email, id, phone} = customerInfo;
 
   const idConfirm = req.user.clientId
 
@@ -104,6 +105,16 @@ export const checkoutDistPayment = async (req, res) => {
   }
 
   try {
+
+    const local = await Local.findByPk(shop)
+
+    const localData = {
+      name: local.name,
+      address: local.address,
+      phone: local.phone,
+      id: local.id
+    }
+
     let customer;
 
     // Verificar si el cliente ya existe en Stripe
@@ -115,7 +126,8 @@ export const checkoutDistPayment = async (req, res) => {
         customer = await stripe.customers.create({
           name: name,
           email: email,
-          id: id.toString() // Convert id to string
+          id: id.toString(),
+          phone: phone
         });
       } else {
         throw error; // Re-throw error if it's not "resource_missing"
@@ -148,7 +160,10 @@ export const checkoutDistPayment = async (req, res) => {
       payment_intent_data: {
         setup_future_usage: "off_session",
         metadata: {
-          orderData: orderDataString // Almacenar la información de la orden como una cadena JSON
+          orderData: orderDataString,
+          customer: customer.id,
+          localData: JSON.stringify(localData.id)
+           // Almacenar la información de la orden como una cadena JSON
         }
       }
     });

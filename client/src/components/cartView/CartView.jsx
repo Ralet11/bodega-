@@ -15,6 +15,7 @@ const CartView = ({ onClose }) => {
     const order_date = new Date();
     const [total, setTotal] = useState(0);
     const token = useSelector((state) => state?.client.token)
+    const shop = useSelector((state) => state?.activeShop)
 
     // Actualizar el estado itemQuantities
     useEffect(() => {
@@ -49,7 +50,7 @@ const CartView = ({ onClose }) => {
     // Función para manejar el pago
     const handlePayment = async () => {
         const products = cartItems;
-        const customerInfo = { name: user.name, mail: user.mail, id: user.id };
+        const customerInfo = { name: user.name, mail: user.mail, id: user.id, phone: user.phone };
     
         try {
             // Crear la orden
@@ -61,11 +62,11 @@ const CartView = ({ onClose }) => {
             
             if (orderResponse.status === 201) { // Asegurarse de que el estado de respuesta es 201 (Created)
                 const orderId = orderResponse.data[0].order_id;
-                console.log(orderResponse);
+                dispatch(setDistOrder(orderResponse.data));
     
                 try {
                     // Iniciar el pago
-                    const paymentResponse = await axios.post(`${API_URL_BASE}/api/payment/distPayment`, { products, customerInfo, orderData: orderId }, {
+                    const paymentResponse = await axios.post(`${API_URL_BASE}/api/payment/distPayment`, { products, customerInfo, orderData: orderId, shop }, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                         },
@@ -73,7 +74,7 @@ const CartView = ({ onClose }) => {
                     console.log(paymentResponse, "respuesta");
     
                     // Actualizar el estado y redirigir
-                    dispatch(setDistOrder(paymentResponse.data));
+                    
                     window.location.href = paymentResponse.data.url;
                     onClose();
                 } catch (paymentError) {

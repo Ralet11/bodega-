@@ -28,6 +28,7 @@ const CreateDiscountModal = ({
     const [submitLoader, setSubmitLoader] = useState(false);
     const [disableSubmit, setDisableSubmit] = useState(false);
     const [isSelectOpen, setIsSelectOpen] = useState(false);
+    const token = useSelector((state) => state?.client.token)
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -78,7 +79,12 @@ const CreateDiscountModal = ({
             console.log(data)
             const response = await axios.post(
                 `${API_URL_BASE}/api/discounts/add`,
-                data
+                data, 
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
             );
             if (response.data.created === "ok") {
                 setSubmitLoader(false);

@@ -97,6 +97,9 @@ import Stripe from "stripe";
 import DistOrder from "./models/distOrders.model.js";
 import DistOrderProduct from "./models/distOrderProduct.model.js";
 import DistProduct from "./models/distProducts.model.js";
+import { sendEmailWithProducts } from "./functions/sendEmail.js";
+import Client from "./models/client.js";
+import Local from "./models/local.js";
 
 const app = express();
 const stripe = new Stripe(SSK);
@@ -129,29 +132,56 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object;
       const orderId = paymentIntent.metadata.orderData;
-      console.log(paymentIntent)
       
-
       try {
-        const order = await DistOrderProduct.findAll({where: {
-          order_id: orderId
-        },
-        include: [
-          
-          {
+        const order = await DistOrderProduct.findAll({
+          where: {
+            order_id: orderId
+          },
+          include: [
+            {
               model: DistProduct
-          }
-      ]
-      
-      }
+            }
+          ]
+        });
         
-      
-      );
         if (!order) {
           console.error(`Order with ID ${orderId} not found.`);
           return response.status(404).send(`Order with ID ${orderId} not found.`);
         }
-        console.log("Order found:", order);
+
+        // Crear un nuevo array con la información específica de cada producto
+        const productDetails = order.map(item => ({
+          name: item.DistProduct.name,
+          id_proveedor: item.DistProduct.id_proveedor,
+          quantity: item.quantity,
+          price: item.DistProduct.price
+        }));
+
+        console.log("Product details:", JSON.stringify(productDetails, null, 2));
+      
+
+        const client = await Client.findByPk(paymentIntent.metadata.customer)
+        const local = await Local.findByPk(paymentIntent.metadata.localData)
+        // Datos ficticios para clientData y localData
+        const clientData = {
+          name: client.name,
+          id: client.id,
+          phone: client.phone
+        };
+
+        const localData = {
+          name: local.name,
+          address: local.address,
+          phone: local.phone,
+          id: local.phone
+        };
+
+        
+
+        // Llamar a la función para enviar el email
+        const emailResult = await sendEmailWithProducts(productDetails, clientData, localData);
+        console.log(emailResult);
 
         // Aquí puedes agregar cualquier lógica adicional, como actualizar el estado de la orden, enviar correos electrónicos, etc.
 
@@ -160,7 +190,6 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
         return response.status(500).send(`Error fetching order: ${error.message}`);
       }
 
-      console.log("PaymentIntent was successful!", paymentIntent);
       break;
 
     default:
