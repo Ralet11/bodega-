@@ -49,23 +49,30 @@ const CartView = ({ onClose }) => {
     const handlePayment = async () => {
         const products = cartItems;
         const customerInfo = { name: user.name, mail: user.mail, id: user.id };
-
+    
         try {
-            const response = await axios.post(`${API_URL_BASE}/api/payment/distPayment`, { products, customerInfo });
-            if (response.statusText === "OK") {
+            // Crear la orden
+            const orderResponse = await axios.post(`${API_URL_BASE}/api/distOrder/add`, { local_id, order_details: cartItems, order_date });
+            
+            if (orderResponse.status === 201) { // Asegurarse de que el estado de respuesta es 201 (Created)
+                const orderId = orderResponse.data[0].order_id;
+                console.log(orderResponse);
+    
                 try {
-                    const response = await axios.post(`${API_URL_BASE}/api/distOrder/add`, { local_id, order_details: cartItems, order_date });
-                    console.log(response, "respuesta");
-                    dispatch(setDistOrder(response.data));
-                } catch (error) {
-                    console.log(error);
+                    // Iniciar el pago
+                    const paymentResponse = await axios.post(`${API_URL_BASE}/api/payment/distPayment`, { products, customerInfo, orderData: orderId });
+                    console.log(paymentResponse, "respuesta");
+    
+                    // Actualizar el estado y redirigir
+                    dispatch(setDistOrder(paymentResponse.data));
+                    window.location.href = paymentResponse.data.url;
+                    onClose();
+                } catch (paymentError) {
+                    console.error("Error al procesar el pago:", paymentError);
                 }
-
-                window.location.href = response.data.url;
-                onClose();
             }
-        } catch (error) {
-            console.log(error);
+        } catch (orderError) {
+            console.error("Error al crear la orden:", orderError);
         }
     };
 

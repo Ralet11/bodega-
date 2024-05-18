@@ -60,8 +60,10 @@ export const getDistProductById = async (req, res) => {
 
 export const sendEmailWithProducts = async (req, res) => {
   const { orderData, clientData, localData } = req.body.data;
+
+  console.log("enviando mail")
   
-  // Construct the email content
+  /* // Construct the email content
   let productsList = '';
   for (const id_proveedor in orderData) {
     if (orderData.hasOwnProperty(id_proveedor)) {
@@ -216,5 +218,5 @@ export const sendEmailWithProducts = async (req, res) => {
   } catch (error) {
     console.error("Error sending email:", error);
     res.status(500).json({ message: 'Error sending email' });
-  } 
+  }  */
 };
