@@ -89,13 +89,13 @@ export const updateById = async (req, res) => {
 };
 
 export const getByLocalId = async (req, res) => {
-  const id = parseInt(req.params.id, 10); // Convertir id a entero
-  const idConfirm = parseInt(req.user.clientId, 10); // Convertir idConfirm a entero
-  console.log(id);
+  const { id } = req.params;
+  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
+  console.log(id) 
 
   try {
-    // Buscar el local para verificar el clientId
-    const local = await Local.findByPk(id);
+     // Buscar el local para verificar el clientId
+     const local = await Local.findByPk(id);
 
     if (!local) {
       return res.status(404).json({ message: "Local not found" });
@@ -103,13 +103,13 @@ export const getByLocalId = async (req, res) => {
 
     if (local.clients_id !== idConfirm) {
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
-    }
+    } 
 
     // Obtener las categorías activas asociadas al local
     const categories = await Category.findAll({
       where: {
         local_id: id,
-        state: 1
+        state: "1"
       }
     });
 

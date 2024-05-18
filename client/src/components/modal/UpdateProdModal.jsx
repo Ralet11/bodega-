@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import axios from "axios"
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { useSelector } from 'react-redux';
 
 const {API_URL_BASE} = getParamsEnv(); 
 
@@ -17,8 +18,8 @@ export default function UpDateProductModal({
   
   // Initialize a state to hold the edited product
   const [editedProduct, setEditedProduct] = useState(productToEdit);
-  console.log
-
+  const token = useSelector((state) => state?.client.token)
+  
   // Whenever productToEdit changes, update the editedProduct state
   useEffect(() => {
     setEditedProduct(productToEdit);
@@ -52,7 +53,12 @@ export default function UpDateProductModal({
       formData.append('image', img);
       console.log(formData)
       try {
-        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData);
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
+          headers:
+          {
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {

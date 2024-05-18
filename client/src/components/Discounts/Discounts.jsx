@@ -20,7 +20,13 @@ const Discounts = () => {
     useEffect(() => {
         const fetchDiscounts = async () => {
             try {
-                const response = await axios.get(`${API_URL_BASE}/api/discounts/getAll`);
+                const response = await axios.get(`${API_URL_BASE}/api/discounts/getByLocalId/${shop}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+                );
                 
                 console.log(response.data);
                 setDiscounts(response.data);
