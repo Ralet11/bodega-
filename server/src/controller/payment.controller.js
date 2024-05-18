@@ -94,9 +94,8 @@ export const removePayMethod = async (req, res) => {
 };
 
 export const checkoutDistPayment = async (req, res) => {
-  const { products, customerInfo } = req.body;
+  const { products, customerInfo, orderData } = req.body; // Agregar orderId a la petición
   const { name, email, id } = customerInfo;
-
 
   try {
     let customer;
@@ -129,6 +128,9 @@ export const checkoutDistPayment = async (req, res) => {
       quantity: product.quantity || 1 // Si no se especifica la cantidad, se asume 1
     }));
 
+    // Convertir la información de la orden a una cadena JSON
+    const orderDataString = JSON.stringify(orderData);
+
     // Crear la sesión de pago en Stripe
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
@@ -138,7 +140,10 @@ export const checkoutDistPayment = async (req, res) => {
       success_url: `${FRONTEND_URL}/succesPaymentDist`,
       cancel_url: `${FRONTEND_URL}/payment/cancel`,
       payment_intent_data: {
-        setup_future_usage: "off_session"
+        setup_future_usage: "off_session",
+        metadata: {
+          orderData: orderDataString // Almacenar la información de la orden como una cadena JSON
+        }
       }
     });
 
