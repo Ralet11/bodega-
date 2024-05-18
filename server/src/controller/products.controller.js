@@ -1,6 +1,7 @@
 import Category from '../models/category.js';
 import Product from '../models/product.js';
 import { Op } from 'sequelize';
+import Local from '../models/local.js';
 
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
@@ -88,26 +89,37 @@ export const updateById = async (req, res) => {
 };
 
 export const getByLocalId = async (req, res) => {
-  
-  const {id} = req.params
+  const id = parseInt(req.params.id, 10); // Convertir id a entero
+  const idConfirm = parseInt(req.user.clientId, 10); // Convertir idConfirm a entero
+  console.log(id);
 
   try {
+    // Buscar el local para verificar el clientId
+    const local = await Local.findByPk(id);
 
+    if (!local) {
+      return res.status(404).json({ message: "Local not found" });
+    }
+
+    if (local.clients_id !== idConfirm) {
+      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+    }
+
+    // Obtener las categorías activas asociadas al local
     const categories = await Category.findAll({
       where: {
         local_id: id,
         state: 1
       }
-    })
+    });
 
-    let catId = []
+    let catId = [];
 
     categories.map((cat) => {
-      catId.push(cat.id)
-    })
+      catId.push(cat.id);
+    });
 
-
-
+    // Obtener los productos asociados a las categorías activas
     const response = await Product.findAll({
       where: {
         categories_id: {
@@ -117,9 +129,8 @@ export const getByLocalId = async (req, res) => {
     });
 
     res.status(200).json(response);
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Error al buscar productos por IDs locales' });
   }
-}
+};

@@ -15,7 +15,8 @@ const Orders = () => {
     const activeShop = useSelector((state) => state.activeShop);
     const lastOrder = useSelector((state) => state.newOrder);
     const dispatch = useDispatch()
-    console.log(lastOrder)
+    const token = useSelector((state) => state?.client.token)
+ 
 
     const [orders, setOrders] = useState({
         "new order": [],
@@ -24,35 +25,44 @@ const Orders = () => {
         finished: [],
     });
 
-    const socket = socketIOClient("https://3.15.211.38");
+    const socket = socketIOClient("http://localhost:80");
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                if (!token) {
+                    throw new Error('No token found');
+                }
+    
                 const response = await axios.get(
-                    `${API_URL_BASE}/api/orders/get/${activeShop}`
+                    `${API_URL_BASE}/api/orders/get/${activeShop}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
                 );
-
+    
                 const ordersByStatus = {
                     "new order": [],
                     accepted: [],
                     sending: [],
                     finished: [],
                 };
-
+    
                 response.data.forEach((order) => {
                     const status = order.status;
                     if (status in ordersByStatus) {
                         ordersByStatus[status].push(order);
                     }
                 });
-
+    
                 setOrders(ordersByStatus);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
-
+    
         fetchData();
     }, [activeShop]);
 

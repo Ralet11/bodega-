@@ -5,8 +5,22 @@ import { getIo } from '../socket.js';
 import Local from '../models/local.js';
 
 export const getByLocalId = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // Asume que el ID del local se pasa como parámetro de la URL
+  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
+
   try {
+    // Buscar el local para verificar el clientId
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: "Local not found" });
+    }
+
+    if (local.clients_id !== idConfirm) {
+      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+    }
+
+    // Obtener las órdenes relacionadas con el local
     const orders = await Order.findAll({
       where: {
         local_id: id
