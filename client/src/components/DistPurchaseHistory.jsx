@@ -34,16 +34,36 @@ const DistPurchaseHistory = () => {
         }
 
         fetchOrders();
-    }, []);
+    }, [activeShop]);
 
     const handleDetailsClick = (products) => {
-      console.log("1")
         setSelectedProducts(products);
         setShowModal(true);
-    }
+    };
 
+    const getStatusClass = (status) => {
+        switch (status) {
+            case 'Pending purchase':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
+            case 'Confirmed purchase':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
+            case 'Packing up':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
+            case 'On the way':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
+            case 'Arrived':
+                return 'bg-green-100 text-green-800 font-bold';
+            case 'Closed':
+                return 'bg-gray-100 text-gray-800 font-bold';
+            case 'Canceled by user':
+                return 'bg-red-100 text-red-800 font-bold';
+            case 'Canceled by Bodega':
+                return 'bg-red-100 text-red-800 font-bold';
+            default:
+                return 'bg-gray-100 text-gray-800 font-bold';
+        }
+    };
 
-    console.log(selectedProducts)
     return (
         <>
             <div className='ml-20 mt-20'>
@@ -74,7 +94,7 @@ const DistPurchaseHistory = () => {
                                         <button className='border border-black hover:text-black' onClick={() => handleDetailsClick(order.products)}>Details</button>
                                     </TableCell>
                                     <TableCell>{formatDate(order.date)}</TableCell>
-                                    <TableCell>{order.status}</TableCell>
+                                    <TableCell className={getStatusClass(order.status)}>{order.status}</TableCell>
                                     <TableCell>${order.total}</TableCell>
                                     <TableCell>
                                         <a href="#" className="font-medium text-cyan-600 hover:underline dark:text-cyan-500">
@@ -90,35 +110,35 @@ const DistPurchaseHistory = () => {
                 </div>
             </div>
             {showModal && (
-    <Modal onClose={() => setShowModal(false)}>
-        <div className="p-6">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-800">Order Details</h2>
-            <ul>
-                {selectedProducts.map(product => (
-                    <li key={product.id} className="mb-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <img src={product.DistProduct.image1} alt={product.DistProduct.name} className="w-16 h-16 rounded-full" />
-                            <div>
-                                <h3 className="text-lg font-semibold text-gray-800">{product.DistProduct.name}</h3>
-                                <p className="text-sm text-gray-600">Price: ${product.DistProduct.price.toFixed(2)}</p>
-                            </div>
+                <Modal onClose={() => setShowModal(false)}>
+                    <div className="p-6">
+                        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Order Details</h2>
+                        <ul>
+                            {selectedProducts.map(product => (
+                                <li key={product.id} className="mb-4 flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                        <img src={product.DistProduct.image1} alt={product.DistProduct.name} className="w-16 h-16 rounded-full" />
+                                        <div>
+                                            <h3 className="text-lg font-semibold text-gray-800">{product.DistProduct.name}</h3>
+                                            <p className="text-sm text-gray-600">Price: ${product.DistProduct.price.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-gray-600">{product.quantity}x</p>
+                                        <p className="text-lg font-semibold">${(product.DistProduct.price * product.quantity).toFixed(2)}</p>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="mt-6 flex justify-between items-center border-t pt-4">
+                            <p className="text-lg font-semibold text-gray-800">Total:</p>
+                            <p className="text-lg font-semibold text-green-600">${selectedProducts.reduce((acc, product) => acc + product.DistProduct.price * product.quantity, 0).toFixed(2)}</p>
                         </div>
-                        <div className="text-right">
-                            <p className="text-gray-600">{product.quantity}x</p>
-                            <p className="text-lg font-semibold">${(product.DistProduct.price * product.quantity).toFixed(2)}</p>
-                        </div>
-                    </li>
-                ))}
-            </ul>
-            <div className="mt-6 flex justify-between items-center border-t pt-4">
-                <p className="text-lg font-semibold text-gray-800">Total:</p>
-                <p className="text-lg font-semibold text-green-600">${selectedProducts.reduce((acc, product) => acc + product.DistProduct.price * product.quantity, 0).toFixed(2)}</p>
-            </div>
-        </div>
-    </Modal>
-)}
+                    </div>
+                </Modal>
+            )}
         </>
     );
-}
+};
 
 export default DistPurchaseHistory;
