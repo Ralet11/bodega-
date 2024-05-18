@@ -47,49 +47,52 @@ const CreateFirstShop = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    if (!token) {
+      console.error('No token found');
+      alert('No token found');
+      return;
+    }
+  
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/local/add`, formData); // Assuming the endpoint to create a shop is '/api/shops'
-      console.log(response.data)
-
+      // Enviar solicitud para crear una tienda
+      const response = await axios.post(`${API_URL_BASE}/api/local/add`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      console.log(response.data);
+  
       if (response.data.created === "ok") {
-
+        // Función para obtener los locales del cliente
         const fetchLocals = async () => {
           try {
-           
-            if (!token) {
-              throw new Error('No token found');
-            }
-    
             const response = await axios.get(`${API_URL_BASE}/api/local/getByClient`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
-    
-            if (response.data.finded === "ok"){
-              console.log(response.data.locals)
-              dispatch(setClientLocals(response.data.locals))
+  
+            if (response.data.finded === "ok") {
+              console.log(response.data.locals);
+              dispatch(setClientLocals(response.data.locals));
             }
-    
-           
           } catch (error) {
             console.error('Error fetching locals:', error);
           }
         };
-
-        fetchLocals()
-      
-        dispatch(changeShop(response.data.result.id))
-        navigate("/dashboard")
-
-        
+  
+        fetchLocals();
+  
+        dispatch(changeShop(response.data.result.id));
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error('Error creating shop:', error);
       alert('Error creating shop');
     }
   };
-
   return (
     <>
       <Header />
