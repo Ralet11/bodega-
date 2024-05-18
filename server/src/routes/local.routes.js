@@ -11,7 +11,7 @@ router.put('/update/:id', updateShop)
 router.post('/update/address/:id', updateAddress)
 router.get('/activeShops', getActiveShops)
 router.get('/getAllShops', getAllShops)
-router.post('/add', addShop)
+router.post('/add', middleware.auth, addShop)
 router.get('/getByClient', getByClientId)
 
 export default router

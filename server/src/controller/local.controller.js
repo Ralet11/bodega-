@@ -162,10 +162,20 @@ export const addShop = async (req, res) => {
   try {
     const { name, address, phone, lat, lng, category, clientId } = req.body;
 
+    const idConfirm = req.user.clientId;
+    console.log(idConfirm);
+
+    // Verificar que todos los campos estén presentes
     if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
 
+    // Verificar que el clientId coincida con el idConfirm
+    if (clientId !== idConfirm) {
+      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+    }
+
+    // Crear la nueva tienda
     const newShop = await Local.create({
       name,
       address,
@@ -176,22 +186,18 @@ export const addShop = async (req, res) => {
       clients_id: clientId // Assuming the client ID is passed from the frontend
     });
 
+    // Obtener la tienda recién creada
     const shop = await Local.findOne({
       where: {
         id: newShop.id
       }
-      
-    
-    })
-
-    console.log(shop)
+    });
 
     res.json({
       error: false,
       created: "ok",
       result: shop,
       message: "Shop added successfully"
-
     });
   } catch (error) {
     console.error('Error adding shop:', error);
