@@ -7,9 +7,12 @@ export const getByLocalId = async (req, res) => {
   console.log(id, "id")
 
   try {
-    const categories = await Category.findAll({ where: { local_id: idNumber, state: "1" } });
+    const categories = await Category.findByPk(id);
+
     res.status(200).json(categories);
+
   } catch (error) {
+
     console.error("Error al consultar categorías:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }

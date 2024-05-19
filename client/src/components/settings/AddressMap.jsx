@@ -18,6 +18,7 @@ export default function Index({ shopData, setShopData, latLong }) {
 }
 
 function Map({ shopData, latLong }) {
+  const token = useSelector((state) => state?.client.token)
   const center = useMemo(() => ({ lat: 26, lng: -80 }), []);
   const [selected, setSelected] = useState(null);
   const [address, setAddress] = useState(shopData.address);
@@ -58,7 +59,11 @@ function Map({ shopData, latLong }) {
     }
 
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data);
+      const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data,{
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      });
       console.log(response.data);
       if (response.status === 200) {
         window.alert("Dirección actualizada con éxito");

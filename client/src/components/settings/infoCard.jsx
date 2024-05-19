@@ -14,6 +14,7 @@ function InfoCard({ shopData, setShopData }) {
     address: '',
     img: null,
   });
+  const token = useSelector((state) => state?.client.token)
 
   console.log(shopData)
 
@@ -83,7 +84,11 @@ function InfoCard({ shopData, setShopData }) {
       formData.append('image', imageFile);
 
       try {
-        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData);
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData,{
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        });
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {
@@ -100,7 +105,11 @@ function InfoCard({ shopData, setShopData }) {
   // Handle shop update
   const handleChangeShop = async () => {
     try {
-      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, newShop);
+      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, newShop,{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      });
       console.log(response.data);
       window.alert("Info updated")
     } catch (error) {

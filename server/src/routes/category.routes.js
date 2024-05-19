@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { addCategory, getByLocalId, hideById, getAllCategories } from "../controller/category.controller.js";
+import { methods as middleware } from "../middleware.js";
+
 const router = Router()
 
-router.get('/get/:id', getByLocalId)
-router.post('/add', addCategory)
-router.delete('/hide/:id', hideById)
-router.get('/getAll', getAllCategories)
+router.get('/get/:id', middleware.auth, getByLocalId)
+router.post('/add',middleware.auth, addCategory)
+router.delete('/hide/:id',middleware.auth, hideById)
+router.get('/getAll',middleware.auth, getAllCategories)
 
 
 
