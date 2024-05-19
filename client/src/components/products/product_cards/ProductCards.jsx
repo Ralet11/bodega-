@@ -21,7 +21,7 @@ function ProductCards({
     setShowNewProductModal,
   }) {
     
-
+    const token = useSelector((state) => state?.client.token)
     const handleClick = (product) => {
         handleCardClick(product);
     };
@@ -41,7 +41,11 @@ function ProductCards({
 
         if (confirmDeleteCategory) {
             axios
-                .delete(`${API_URL_BASE}/api/categories/hide/${category_id}`)
+                .delete(`${API_URL_BASE}/api/categories/hide/${category_id}`,{
+                    headers:{
+                        Authorization:`Bearer ${token}`
+                    }
+                })
                 .then((response) => {
                     console.log('Categoría eliminada:', response.data);
                     // Actualiza las categorías en el estado después de eliminar

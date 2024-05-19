@@ -88,7 +88,11 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`${API_URL_BASE}/api/orders/accept/${orderId}`);
+            await axios.put(`${API_URL_BASE}/api/orders/accept/${orderId}`, {
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {
@@ -113,7 +117,11 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`);
+            await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`,{
+                headers:{
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {
@@ -138,7 +146,11 @@ const Orders = () => {
         console.log("cambiando estado")
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-            await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`);
+            await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`,{
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
 
             // Actualiza localmente el estado de la orden cambiando su status
             setOrders((prevOrders) => {

@@ -17,6 +17,7 @@ const {API_URL_BASE} = getParamsEnv();
 function Products() {
   const activeShop = useSelector((state) => state.activeShop);
   const dispatch = useDispatch();
+  const token = useSelector((state) => state?.client.token)
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,7 +53,11 @@ function Products() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${API_URL_BASE}/api/categories/get/${activeShop}`
+          `${API_URL_BASE}/api/categories/get/${activeShop}`, {
+            headers:{
+              Authorization: `Bearer ${token}`
+            }
+          }
         );
         setCategories(response.data);
         setSelectedCategory(response.data[0].id);
@@ -67,7 +72,11 @@ function Products() {
     const fetchData = async () => {
       try {
         const response = await axios.get(
-          `${API_URL_BASE}/api/products/get/${selectedCategory}`
+          `${API_URL_BASE}/api/products/get/${selectedCategory}`,{
+            headers:{
+              Authorization: `Bearer ${token}`
+            }
+          }
         );
         setProducts(response.data);
 
@@ -102,7 +111,11 @@ function Products() {
 
   const handleCreateCategory = () => {
     axios
-      .post(`${API_URL_BASE}/api/categories/add`, newCategory)
+      .post(`${API_URL_BASE}/api/categories/add`, newCategory,{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
         setNewCategory({
           name: '',
@@ -111,7 +124,11 @@ function Products() {
         setshowAddCategory(false);
 
         axios
-          .get(`${API_URL_BASE}/api/categories/get/${activeShop}`)
+          .get(`${API_URL_BASE}/api/categories/get/${activeShop}`,{
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          })
           .then((response) => {
             setCategories(response.data);
           })
@@ -136,10 +153,18 @@ function Products() {
 
     if (userConfirmed) {
       axios
-        .delete(`${API_URL_BASE}/api/products/delete/${id}`)
+        .delete(`${API_URL_BASE}/api/products/delete/${id}`,{
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
         .then((response) => {
           axios
-            .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`)
+            .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`,{
+              headers:{
+                Authorization: `Bearer ${token}`
+              }
+            })
             .then((response) => {
               setProducts(response.data);
             })
@@ -174,7 +199,11 @@ function Products() {
 
     axios
       .put(
-        `${API_URL_BASE}/api/products/update/${selectedProduct.id}`,
+        `${API_URL_BASE}/api/products/update/${selectedProduct.id}`,{
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        },
         updatedFields
       )
       .then((response) => {
@@ -184,7 +213,11 @@ function Products() {
         }));
 
         axios
-          .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`)
+          .get(`${API_URL_BASE}/api/products/get/${selectedCategory}`,{
+            headers:{
+              Authorization:`Bearer ${token}`
+            }
+          })
           .then((response) => {
             setProducts(response.data);
           })
@@ -232,13 +265,21 @@ function Products() {
     try {
       const response = await axios.post(
         `${API_URL_BASE}/api/products/add`,
-        updatedNewProduct // Utiliza updatedNewProduct en lugar de newProduct
+        updatedNewProduct,{
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        } // Utiliza updatedNewProduct en lugar de newProduct
       );
       console.log('Producto creado:', response.data);
   
       // Actualiza la lista de productos después de crear uno nuevo
       const updatedProductsResponse = await axios.get(
-        `${API_URL_BASE}/api/products/get/${selectedCategory}`
+        `${API_URL_BASE}/api/products/get/${selectedCategory}`,{
+          headers:{
+            Authorization:`Bearer ${token}`
+          }
+        }
       );
 
       handleImageUpload(response.data.id)

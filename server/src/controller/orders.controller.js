@@ -3,6 +3,8 @@ import Order from '../models/order.js';
 import User from '../models/user.js';
 import { getIo } from '../socket.js';
 import Local from '../models/local.js';
+import DistOrder from '../models/distOrders.model.js';
+
 
 export const getByLocalId = async (req, res) => {
   const { id } = req.params; // Asume que el ID del local se pasa como parámetro de la URL
@@ -37,6 +39,8 @@ export const getByLocalId = async (req, res) => {
 export const acceptOrder = async (req, res) => {
   const { id } = req.params;
 
+  console.log("Esto es el id: ", id)
+
   try {
     const order = await Order.findByPk(id);
 
@@ -47,7 +51,7 @@ export const acceptOrder = async (req, res) => {
     await order.update({ status: 'accepted' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit('changeOrderState', { status: 'accepted' });
+    //io.emit('changeOrderState', { status: 'accepted' });
 
     res.status(200).json(order);
   } catch (error) {
@@ -69,7 +73,7 @@ export const sendOrder = async (req, res) => {
     await order.update({ status: 'sending' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit('changeOrderState', { status: 'sending' });
+    //io.emit('changeOrderState', { status: 'sending' });
 
     res.status(200).json(order);
   } catch (error) {
@@ -80,9 +84,9 @@ export const sendOrder = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   const { delivery_fee, total_price, oder_details, local_id, status, date_time, type } = req.body;
-  const {userId} = req.user
+  const {clientId} = req.user
   const io = getIo()
-  const users_id = userId
+  const users_id = clientId
 
   console.log(oder_details, "order details")
 
@@ -99,7 +103,7 @@ export const createOrder = async (req, res) => {
     });
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-    io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
+    //io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
 
     res.status(201).json({ message: 'Pedido creado exitosamente' });
   } catch (error) {
@@ -138,7 +142,7 @@ export const finishOrder = async (req, res) => {
     await order.update({ status: 'finished' });
 
     // Emitir evento de finalización de pedido a través de Socket.IO
-    io.emit('finishOrder', { id });
+    //io.emit('finishOrder', { id });
 
     res.status(200).json(order);
   } catch (error) {
