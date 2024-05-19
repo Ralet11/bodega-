@@ -1,4 +1,5 @@
 import Discount from "../models/discount.js";
+import Local from "../models/local.js";
 import UserDiscount from "../models/userDiscount.js";
 
 export const getAll = async (req, res) => {
@@ -16,28 +17,42 @@ export const getAll = async (req, res) => {
 };
 
 export const createDiscount = async (req, res) => {
-    const {productName, initialPrice, discountPrice, shop_id, image, limitDate, percentage, order_details} = req.body
-    console.log(order_details, "init price")
+  const { productName, initialPrice, discountPrice, shop_id, image, limitDate, percentage, order_details } = req.body;
+  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
 
-    try {
-        const newDiscount = await Discount.create({
-            productName,
-            initialPrice,
-            discountPrice,
-            local_id: shop_id,
-            image,
-            limitDate,
-            percentage,
-            order_details
-        })
+  console.log(order_details, "init price");
 
-        res.status(200).json({newDiscount, created: "ok"})
+  try {
+      // Buscar el local para verificar el clientId
+      const local = await Local.findByPk(shop_id);
 
-    } catch (error) {
-        res.json(error)
-        console.log(error)
-    }
-}
+      if (!local) {
+          return res.status(404).json({ message: "Local not found" });
+      }
+
+      if (local.clients_id !== idConfirm) {
+          return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+      }
+
+      // Crear el descuento
+      const newDiscount = await Discount.create({
+          productName,
+          initialPrice,
+          discountPrice,
+          local_id: shop_id,
+          image,
+          limitDate,
+          percentage,
+          order_details
+      });
+
+      res.status(200).json({ newDiscount, created: "ok" });
+
+  } catch (error) {
+      console.error('Error creating discount:', error);
+      res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 export const getDiscountsByUser = async (req,res) => {
   console.log(req.user)
@@ -57,20 +72,34 @@ export const getDiscountsByUser = async (req,res) => {
   }
 }
 
-export const getByLocalId = async (req,res) => {
-  
-  const {id} = req.body
+export const getByLocalId = async (req, res) => {
+  const { id } = req.params;
+  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
+  console.log(id);
 
   try {
-    const response = await Discount.findAll({
-      where:{
+    // Buscar el local para verificar el clientId
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: "Local not found" });
+    }
+
+    if (local.clients_id !== idConfirm) {
+      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+    }
+
+    // Obtener los descuentos asociados al local
+    const discounts = await Discount.findAll({
+      where: {
         local_id: id
       }
-    })
-    console.log(response)
-    res.status(200).json(response)
+    });
+
+    console.log(discounts);
+    res.status(200).json(discounts);
   } catch (error) {
-    console.log(error)
-    res.status(400).json(error)
+    console.log(error);
+    res.status(500).json({ error: 'Error al buscar descuentos por ID del local' });
   }
-}
+};

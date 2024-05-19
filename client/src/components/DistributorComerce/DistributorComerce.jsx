@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setDistProd } from '../../redux/actions/actions';
 import CommerceSidebar from '../CommerceSidebar/CommerceSidebar';
 import OrderFilter from '../CommerceSidebar/OrderFilter';
@@ -18,6 +18,7 @@ const DistributorComerce = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const token = useSelector((state) => state?.client.token)
   const [filters, setFilters] = useState({
     order: 'newest',
     price: 50,
@@ -28,7 +29,11 @@ const DistributorComerce = () => {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/distProducts/getAll`);
+        const response = await axios.get(`${API_URL_BASE}/api/distProducts/getAll`, {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+      });
         setAllProducts(response.data);
         setFilteredProducts(response.data);
       } catch (error) {

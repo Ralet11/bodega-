@@ -1,87 +1,18 @@
-import DistProduct from "../models/distProducts.model.js"
 import nodemailer from 'nodemailer';
 
-export const getAllDistProducts = async (req, res) => {
-    try {
-        const response = await DistProduct.findAll()
-
-        res.status(200).json(response)
-    } catch (error) {
-        res.json(error)
-    }
-}
-
-export const addDistProduct = async (req, res) => {
-    const { id_proveedor, name, category, price, description, image1, image2, image3,feature_1, feature_2, feature_3 } = req.body
-
-    try {
-        // Crear un nuevo producto distribuido
-        const newProduct = await DistProduct.create({
-            id_proveedor,
-            name,
-            category,
-            price,
-            description,
-            image1,
-            image2,
-            image3,
-            feature_1,
-            feature_2,
-            feature_3
-        });
-
-        res.status(201).json(newProduct);
-       
-    } catch (error) {
-        res.status(500).json({ error: "Error al guardar el producto" });
-        console.log(error)
-    }
-}
-
-export const getDistProductById = async (req, res) => {
-    const { id } = req.params; // Cambiado de req.body a req.params para obtener el ID de la URL
-
-    try {
-        // Encontrar el producto distribuido por su ID
-        const product = await DistProduct.findByPk(id);
-
-        if (product) {
-            // Si se encuentra el producto, enviarlo como respuesta
-            res.status(200).json(product);
-        } else {
-            // Si no se encuentra el producto, devolver un error
-            res.status(404).json({ error: "Producto no encontrado" });
-        }
-    } catch (error) {
-        // Si hay algún error, devolver un mensaje de error genérico
-        res.status(500).json({ error: "Error al obtener el producto" });
-    }
-}
-
-export const sendEmailWithProducts = async (req, res) => {
-  const { orderData, clientData, localData } = req.body.data;
-
-  console.log("enviando mail")
-  
-  /* // Construct the email content
+export const sendEmailWithProducts = async (orderData, clientData, localData) => {
+  // Construir el contenido del email
   let productsList = '';
-  for (const id_proveedor in orderData) {
-    if (orderData.hasOwnProperty(id_proveedor)) {
-      const supplierData = orderData[id_proveedor];
-      supplierData.products.forEach(product => {
-        productsList += `
-          <tr>
-            <td style="padding: 10px; border: 1px solid #ddd;">${product.name}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
-            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${id_proveedor}</td>
-          </tr>
-        `;
-      });
-    }
-  }
-
-  // Verify that productsList is being generated correctly
-  console.log(productsList);
+  orderData.forEach(product => {
+    productsList += `
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">${product.name}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.id_proveedor}</td>
+        <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.price}</td>
+      </tr>
+    `;
+  });
 
   const contentHTML = `
   <!DOCTYPE html>
@@ -178,6 +109,7 @@ export const sendEmailWithProducts = async (req, res) => {
               <th>Product</th>
               <th>Quantity</th>
               <th>Supplier ID</th>
+              <th>Price</th>
             </tr>
           </thead>
           <tbody>
@@ -195,18 +127,18 @@ export const sendEmailWithProducts = async (req, res) => {
   </html>
   `;
 
-  // Create a transporter
+  // Crear un transporter
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: "proyectoapptrader@gmail.com",  // Replace with your Gmail address from environment variables
-      pass: "eozh tjoi bdod hwiz"   // Replace with your Gmail password or app-specific password from environment variables
+      pass: "eozh tjoi bdod hwiz"  // Replace with your Gmail password or app-specific password from environment variables
     }
   });
 
   try {
     let info = await transporter.sendMail({
-      from: "proyectoapptrader@gmail.com",  // Replace with your Gmail address
+      from: process.env.EMAIL_USER,  // Replace with your Gmail address
       to: 'ramiro.alet@gmail.com',  // Replace with the actual recipient
       subject: 'New Order',
       html: contentHTML
@@ -214,9 +146,9 @@ export const sendEmailWithProducts = async (req, res) => {
 
     console.log('Message sent: %s', info.messageId);
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    res.status(200).json({ message: 'Email sent successfully' });
+    return { success: true, message: 'Email sent successfully' };
   } catch (error) {
     console.error("Error sending email:", error);
-    res.status(500).json({ message: 'Error sending email' });
-  }  */
+    return { success: false, message: 'Error sending email' };
+  }
 };

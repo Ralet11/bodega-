@@ -72,23 +72,6 @@ const SuccessPaymentDist = () => {
     }
   }, [order]);
 
-  // Enviar email con los datos agrupados del pedido
-  useEffect(() => {
-    if (groupedBySupplier) {
-      console.log(groupedBySupplier);
-      const sendEmail = async () => {
-        try {
-          const response = await axios.post(`${API_URL_BASE}/api/distProducts/sendEmailWithOrder`, { data: { orderData: groupedBySupplier, clientData, localData } });
-          console.log('Email sent:', response.data);
-        } catch (error) {
-          console.error('Error sending email:', error);
-        }
-      };
-
-      sendEmail();
-    }
-  }, [groupedBySupplier, API_URL_BASE]);
-
   // Aplanar la estructura de productos agrupados por proveedor
   const flattenedItems = groupedBySupplier ? Object.values(groupedBySupplier).flatMap(supplier => supplier.products) : [];
 

@@ -4,6 +4,7 @@ import Client from '../models/client.js';
 import PayMethod from '../models/pay_method.js';
 import Stripe from 'stripe';
 import { FRONTEND_URL, SSK } from '../config.js';
+import Local from '../models/local.js';
 
 const stripe = new Stripe(SSK);
 
@@ -94,11 +95,26 @@ export const removePayMethod = async (req, res) => {
 };
 
 export const checkoutDistPayment = async (req, res) => {
-  const { products, customerInfo } = req.body;
-  const { name, email, id } = customerInfo;
+  const { products, customerInfo, orderData, shop } = req.body; // Agregar orderId a la petición
+  const { name, email, id, phone} = customerInfo;
 
+  const idConfirm = req.user.clientId
+
+  if (id !== idConfirm) {
+    return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+  }
 
   try {
+
+    const local = await Local.findByPk(shop)
+
+    const localData = {
+      name: local.name,
+      address: local.address,
+      phone: local.phone,
+      id: local.id
+    }
+
     let customer;
 
     // Verificar si el cliente ya existe en Stripe
@@ -110,7 +126,8 @@ export const checkoutDistPayment = async (req, res) => {
         customer = await stripe.customers.create({
           name: name,
           email: email,
-          id: id.toString() // Convert id to string
+          id: id.toString(),
+          phone: phone
         });
       } else {
         throw error; // Re-throw error if it's not "resource_missing"
@@ -129,6 +146,9 @@ export const checkoutDistPayment = async (req, res) => {
       quantity: product.quantity || 1 // Si no se especifica la cantidad, se asume 1
     }));
 
+    // Convertir la información de la orden a una cadena JSON
+    const orderDataString = JSON.stringify(orderData);
+
     // Crear la sesión de pago en Stripe
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
@@ -138,7 +158,13 @@ export const checkoutDistPayment = async (req, res) => {
       success_url: `${FRONTEND_URL}/succesPaymentDist`,
       cancel_url: `${FRONTEND_URL}/payment/cancel`,
       payment_intent_data: {
-        setup_future_usage: "off_session"
+        setup_future_usage: "off_session",
+        metadata: {
+          orderData: orderDataString,
+          customer: customer.id,
+          localData: JSON.stringify(localData.id)
+           // Almacenar la información de la orden como una cadena JSON
+        }
       }
     });
 

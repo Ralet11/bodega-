@@ -13,10 +13,15 @@ function PayMethods() {
   const mets = client.client.payMethod;
   const [payMethods, setPayMethods] = useState();
   const dispatch = useDispatch();
+  const token = useSelector((state) => state?.client.token)
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(`${API_URL_BASE}/api/payment/getPayMethods`);
+      const response = await axios.get(`${API_URL_BASE}/api/payment/getPayMethods`,{
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setPayMethods(response.data);
       console.log(response.data);
     };
@@ -56,6 +61,9 @@ function PayMethods() {
             methodId,
             client: client.client.id
           },
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
         });
         console.log(response.data, "response");
         dispatch(removePayMethods(response.data));
@@ -78,7 +86,11 @@ function PayMethods() {
             methods,
             client: client.client.id,
           },
-        });
+          headers:{
+            Authorization: `Bearer ${token}`
+            }
+          }
+        );
         console.log("prevDispatch");
         dispatch(addPayMethods(methods));
       }
@@ -126,7 +138,11 @@ function PayMethods() {
     console.log(data)
 
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/payment/addKeys`, data);
+      const response = await axios.post(`${API_URL_BASE}/api/payment/addKeys`, data,{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      });
       console.log(response.data, "Keys fetched successfully");
     } catch (error) {
       console.error("Error fetching keys:", error);

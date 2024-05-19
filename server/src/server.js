@@ -92,19 +92,119 @@ import discountRouter from './routes/discounts.routes.js';
 import DistProductRouter from './routes/distProducts.routes.js';
 import distOrderRouter from './routes/distOrders.routes.js';
 import distOrderStatusRouter from "./routes/distOrderStatus.routes.js";
-import { FRONTEND_URL } from "./config.js";
+import { FRONTEND_URL, SSK } from "./config.js";
+import Stripe from "stripe";
+import DistOrder from "./models/distOrders.model.js";
+import DistOrderProduct from "./models/distOrderProduct.model.js";
+import DistProduct from "./models/distProducts.model.js";
+import { sendEmailWithProducts } from "./functions/sendEmail.js";
+import Client from "./models/client.js";
+import Local from "./models/local.js";
 
 const app = express();
+const stripe = new Stripe(SSK);
 
+const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6";
+
+// Middleware de logging
 app.use(morgan("dev"));
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb" }));
 
+// Configuración de CORS
 const corsOptions = {
   origin: [`${FRONTEND_URL}`, "exp://192.168.75.227:8081"],
 };
 app.use(cors(corsOptions));
-app.use('/uploads', express.static('uploads'))
+
+// Ruta del webhook de Stripe antes de los otros middleware
+app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
+  const sig = request.headers["stripe-signature"];
+  
+  let event;
+
+  try {
+    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+  } catch (err) {
+    console.error(`Webhook Error: ${err.message}`);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  switch (event.type) {
+    case "payment_intent.succeeded":
+      const paymentIntent = event.data.object;
+      const orderId = paymentIntent.metadata.orderData;
+      
+      try {
+        const order = await DistOrderProduct.findAll({
+          where: {
+            order_id: orderId
+          },
+          include: [
+            {
+              model: DistProduct
+            }
+          ]
+        });
+        
+        if (!order) {
+          console.error(`Order with ID ${orderId} not found.`);
+          return response.status(404).send(`Order with ID ${orderId} not found.`);
+        }
+
+        // Crear un nuevo array con la información específica de cada producto
+        const productDetails = order.map(item => ({
+          name: item.DistProduct.name,
+          id_proveedor: item.DistProduct.id_proveedor,
+          quantity: item.quantity,
+          price: item.DistProduct.price
+        }));
+
+        console.log("Product details:", JSON.stringify(productDetails, null, 2));
+      
+
+        const client = await Client.findByPk(paymentIntent.metadata.customer)
+        const local = await Local.findByPk(paymentIntent.metadata.localData)
+        // Datos ficticios para clientData y localData
+        const clientData = {
+          name: client.name,
+          id: client.id,
+          phone: client.phone
+        };
+
+        const localData = {
+          name: local.name,
+          address: local.address,
+          phone: local.phone,
+          id: local.phone
+        };
+
+        
+
+        // Llamar a la función para enviar el email
+        const emailResult = await sendEmailWithProducts(productDetails, clientData, localData);
+        console.log(emailResult);
+
+        // Aquí puedes agregar cualquier lógica adicional, como actualizar el estado de la orden, enviar correos electrónicos, etc.
+
+      } catch (error) {
+        console.error(`Error fetching order: ${error.message}`);
+        return response.status(500).send(`Error fetching order: ${error.message}`);
+      }
+
+      break;
+
+    default:
+      console.log(`Unhandled event type ${event.type}`);
+  }
+
+  response.status(200).send();
+});
+
+// Middleware general para otras rutas
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb" }));
+
+// Rutas
+app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", authRoutes);
 app.use("/api/local", localRoutes);
 app.use("/api/categories", categoryRoutes);
@@ -118,9 +218,8 @@ app.use("/api/addresses", addresesRouter);
 app.use("/api/discounts", discountRouter);
 app.use("/api/distProducts", DistProductRouter);
 app.use("/api/distOrder", distOrderRouter);
-app.use("/api/distOrderStatus", distOrderStatusRouter)
-
-export default app; 
+app.use("/api/distOrderStatus", distOrderStatusRouter);
 
 
 
+export default app;
