@@ -1,7 +1,9 @@
 import jwt from 'jsonwebtoken';
 
 const auth = async (req, res, next) => {
+   
     const authHeader = req.headers.authorization;
+  
 
     if (!authHeader) {
         return res.status(401).send({ error: 'Missing authorization header' });
@@ -13,6 +15,7 @@ const auth = async (req, res, next) => {
         const decoded = jwt.verify(token, "secret_key");
         
         req.user = decoded;
+        console.log(req.user)
         next();
     } catch (err) {
         res.status(401).send({ error: 'Invalid token' });

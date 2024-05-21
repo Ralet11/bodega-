@@ -2,6 +2,7 @@ import { useMemo, useState, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, Autocomplete } from "@react-google-maps/api";
 import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 

@@ -23,17 +23,15 @@ const CartIcon = () => {
 
     return (
         <div className='cursor-pointer'>
-
-            <div onClick={openModal} >
-
-                <div className='p-2 flex gap-6 rounded-lg bg-black'>
-                    <ShoppingCartIcon className='w-8 h-8 text-yellow-600' />
-                    <p className='text-xl text-yellow-600 font-bold mt-1'>{cartItems.length}</p>
+            <div onClick={openModal}>
+                <div className='p-2 flex gap-4 rounded-lg bg-black'>
+                    <ShoppingCartIcon className='w-6 h-6 text-yellow-600 sm:w-8 sm:h-8' />
+                    <p className='text-base text-yellow-600 font-bold mt-1 sm:text-xl'>{cartItems.length}</p>
                 </div>
             </div>
             {isModalOpen && (
                 <Modal onClose={closeModal}>
-                    <CartView onclose={closeModal} />
+                    <CartView onClose={closeModal} />
                 </Modal>
             )}
         </div>

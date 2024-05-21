@@ -13,7 +13,6 @@ import CartIcon from '../CartIcon';
 
 const { API_URL_BASE } = getParamsEnv();
 
-// Importa los componentes de Tailwind Elements
 import { Dropdown, Ripple, initTE } from 'tw-elements';
 import { emptyCart, logOutClient } from '../../redux/actions/actions';
 
@@ -31,15 +30,17 @@ const Header = () => {
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const dropdownRef = useRef(null);
 
-  let Links = [
-    { name: `${shopName}`, link: '/about' },
-  ];
-  let [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setOpen(!open);
+  };
 
   const toggleDropdown = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setDropdownPosition({ top: rect.bottom, left: rect.left });
-    setOpen(!open);
+    setDropdownOpen(!dropdownOpen);
   };
 
   const logOut = () => {
@@ -49,30 +50,42 @@ const Header = () => {
   };
 
   useEffect(() => {
-    if (open && dropdownRef.current) {
+    if (dropdownOpen && dropdownRef.current) {
       const dropdownMenu = dropdownRef.current;
       dropdownMenu.style.top = `${dropdownPosition.top}px`;
       dropdownMenu.style.left = `${dropdownPosition.left}px`;
     }
-  }, [open, dropdownPosition]);
+  }, [dropdownOpen, dropdownPosition]);
 
   return (
-    <div className='shadow-md w-full fixed top-0 left-0 z-[10]'>
-
-      <div className='md:flex items-center justify-between bg-[#F2BB26] py-4 md:px-10 px-7'>
-        {/* logo section */}
-        <div className='font-bold text-2xl cursor-pointer flex items-center gap-1'>
+    <div className='shadow-md w-full fixed top-0 left-0 z-10'>
+      <div className='flex items-center justify-between bg-[#F2BB26] py-4 px-5 md:px-10'>
+        {/* Logo section */}
+        <div className='flex items-center gap-1'>
           <RocketLaunchIcon className='w-7 h-7 text-black' />
-          <span className='text-black font-bold'>Bodega+</span>
+          <span className='text-black font-bold text-2xl'>Bodega+</span>
+        </div>
+
+        {/* Cart Icon always visible */}
+        <div className='md:hidden flex items-center'>
+          <CartIcon className='mr-4' />
+        </div>
+
+        {/* Mobile menu button */}
+        <div className='md:hidden flex items-center'>
+          <button onClick={toggleMenu}>
+            {open ? <XMarkIcon className='w-6 h-6' /> : <Bars3BottomRightIcon className='w-6 h-6' />}
+          </button>
         </div>
 
         {/* Dropdown de Tailwind Elements */}
-        {open && (
+        {dropdownOpen && (
           <ul
             ref={dropdownRef}
-            className="absolute z-[99999] w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm"
+            className="absolute z-50 w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm"
             aria-labelledby="dropdownMenuButton1"
             data-te-dropdown-menu-ref
+            style={{ top: '100%', left: 'auto', right: '0' }}
           >
             <li>
               <a
@@ -104,12 +117,15 @@ const Header = () => {
           </ul>
         )}
 
+        {/* Menu items */}
         <ul
-          className={`ml-[-350px] md:flex md:items-center md:pb-0 pb-12 absolute md:static bg-[#F2BB26] md:z-auto z-[-1] left-0 w-full md:w-auto md:pl-0 pl-9 transition-all duration-500 ease-in ${open ? 'top-12' : 'top-[-490px]'
+          className={`flex flex-col md:flex-row md:items-center md:static absolute w-full md:w-auto bg-[#F2BB26] md:bg-transparent left-0 transition-all duration-500 ease-in ${open ? 'top-16 opacity-100' : 'top-[-490px] opacity-0 md:opacity-100'
             }`}
         >
-          <CartIcon />
-          <span className='bg-[#F2BB26] ml-8'>
+          <li className='hidden md:flex items-center md:pr-5 justify-center md:justify-start w-full md:w-auto'>
+            <CartIcon />
+          </li>
+          <li className='flex items-center justify-center md:justify-start w-full md:w-auto mt-4 md:mt-0'>
             {shop && shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
@@ -117,14 +133,14 @@ const Header = () => {
                 alt={`Thumbnail of ${shop.name}`}
               />
             )}
-          </span>
-
-          {shop && Links.map((link) => (
-            <li onClick={toggleDropdown} className='flex gap-1 flex-row cursor-pointer md:ml-3 md:my-0 my-7 font-bold bg-[#F2BB26]' key={link.name}>
-              {link.name}{<ChevronDownIcon className='w-4 mt-2 h-4' />}
-            </li>
-          ))}
-          <ArrowLeftOnRectangleIcon onClick={logOut} className='w-7 font-bold cursor-pointer h-7 ml-2' />
+          </li>
+          <li className='flex items-center justify-center md:ml-3 md:justify-start w-full md:w-auto mt-4 md:mt-0 cursor-pointer font-bold'>
+            {shop && shop.name}
+            {shop && <ChevronDownIcon onClick={toggleDropdown} className='w-4 h-4 ml-1' />}
+          </li>
+          <li className='flex items-center justify-center md:justify-start w-full md:w-auto mt-4 md:mt-0'>
+            <ArrowLeftOnRectangleIcon onClick={logOut} className='w-7 h-7 cursor-pointer' />
+          </li>
         </ul>
       </div>
     </div>

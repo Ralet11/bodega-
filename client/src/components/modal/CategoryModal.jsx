@@ -9,6 +9,7 @@ export default function CategoryModal({
 }) {
   const onSubmit = (e) => {
     e.preventDefault(); // Evita la recarga de la página
+    console.log("papa")
     handleSubmit();
   };
 

@@ -38,7 +38,7 @@ export const getByLocalId = async (req, res) => {
 
 export const acceptOrder = async (req, res) => {
   const { id } = req.params;
-
+  const io = getIo()
   console.log("Esto es el id: ", id)
 
   try {
@@ -51,7 +51,7 @@ export const acceptOrder = async (req, res) => {
     await order.update({ status: 'accepted' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    //io.emit('changeOrderState', { status: 'accepted' });
+    io.emit('changeOrderState', { status: 'accepted' });
 
     res.status(200).json(order);
   } catch (error) {
@@ -62,7 +62,7 @@ export const acceptOrder = async (req, res) => {
 
 export const sendOrder = async (req, res) => {
   const { id } = req.params;
-
+  const io = getIo()
   try {
     const order = await Order.findByPk(id);
 
@@ -73,7 +73,7 @@ export const sendOrder = async (req, res) => {
     await order.update({ status: 'sending' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    //io.emit('changeOrderState', { status: 'sending' });
+    io.emit('changeOrderState', { status: 'sending' });
 
     res.status(200).json(order);
   } catch (error) {
@@ -103,7 +103,7 @@ export const createOrder = async (req, res) => {
     });
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-    //io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
+  io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
 
     res.status(201).json({ message: 'Pedido creado exitosamente' });
   } catch (error) {
@@ -142,7 +142,7 @@ export const finishOrder = async (req, res) => {
     await order.update({ status: 'finished' });
 
     // Emitir evento de finalización de pedido a través de Socket.IO
-    //io.emit('finishOrder', { id });
+    io.emit('finishOrder', { id });
 
     res.status(200).json(order);
   } catch (error) {
