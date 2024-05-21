@@ -114,7 +114,7 @@ const CreateFirstShop = () => {
               
             </div>
             <div className='mb-4'>
-              <label htmlFor='phone' className='text-white '>Phone:</label>
+              <label htmlFor='phone' className='text-white '>Shop phone:</label>
               <Input onChange={handleChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
             
             </div>

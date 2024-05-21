@@ -1,12 +1,15 @@
 
 import axios from "axios";
 import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
+import { useLocation } from "react-router-dom";
 import { changeShop, getCategories, loginSuccess } from "../../redux/actions/actions";
 import { useSelector } from "react-redux/es/hooks/useSelector";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import Input from "../../ui_bodega/Input";
+import ToasterConfig from "../../ui_bodega/Toaster";
 
 const { API_URL_BASE } = getParamsEnv()
 
@@ -17,8 +20,15 @@ const Login = () => {
   const [error, setError] = useState('')
 
   const navigate = useNavigate()
+  const location = useLocation();
   const dispatch = useDispatch()
   const client = useSelector(state => state.client)
+
+  useEffect(() => {
+    if (location.state && location.state.registered) {
+      toast.success("Registration successful! Please log in.");
+    }
+  }, [location.state]);
 
   const handleInputChange = (e) => {
     if (e.target.name === 'email') {
@@ -27,6 +37,8 @@ const Login = () => {
       setPassword(e.target.value)
     }
   }
+
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -93,7 +105,7 @@ const Login = () => {
     } */
   }
   return (
-    <div className="w-full h-full bg-yellow-400">
+    <>    <div className="w-full h-full bg-yellow-400">
   <div className="flex flex-col justify-center items-center min-h-screen bg-cover bg-center bg-yellow-400 md:ml-10">
     <div className="w-full max-w-full px-4 md:px-3 mx-auto mt-0 md:flex-0 shrink-0">
       <div className="flex flex-col justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-login" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
@@ -167,7 +179,11 @@ const Login = () => {
       </div>
     </div>
   </div>
+  
 </div>
+<ToasterConfig/>
+</>
+
 
   );
 
