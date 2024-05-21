@@ -115,33 +115,39 @@ const DistributorComerce = () => {
         )}
         </div>
         <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
-          {filteredProducts.map((offer, index) => (
-            <div
-              key={index}
-              className={`flex flex-col mx-2 md:mx-0 mb-10 bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
-              onMouseEnter={() => handleHover(index)}
-              onMouseLeave={() => handleHover(-1)}
-              onClick={() => goToDetail(offer)}
-            >
-              <div className="relative h-24 sm:h-32 overflow-hidden"> {/* Reduced height */}
-                <img
-                  className="w-full h-full object-cover"
-                  src={hoveredIndex === index ? offer.image2 : offer.image1}
-                  alt={offer.name}
-                />
-                <div className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded-bl-lg">
-                  {offer.category}
+          {filteredProducts.length === 0 ? (
+            <div className="col-span-2 sm:col-span-3 md:col-span-4 lg:w-[940px] flex justify-center items-center h-full">
+              <h1 className="text-xl text-start font-bold text-gray-700">Products not found</h1>
+            </div>
+          ) : (
+            filteredProducts.map((offer, index) => (
+              <div
+                key={index}
+                className={`flex flex-col  max-h-[240px]  mx-2 md:mx-0 mb-10 bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
+                onMouseEnter={() => handleHover(index)}
+                onMouseLeave={() => handleHover(-1)}
+                onClick={() => goToDetail(offer)}
+              >
+                <div className="relative h-24 sm:h-32 overflow-hidden"> {/* Reduced height */}
+                  <img
+                    className="w-full h-full object-cover"
+                    src={hoveredIndex === index ? offer.image2 : offer.image1}
+                    alt={offer.name}
+                  />
+                  <div className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded-bl-lg">
+                    {offer.category}
+                  </div>
+                </div>
+                <div className="p-2  flex flex-col flex-grow">
+                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{offer.name}</h3> {/* Reduced font size */}
+                  <p className="text-gray-700 text-xs font-bold mb-2">${offer.price}</p> {/* Reduced font size */}
+                  <button className="text-white bg-blue-600 font-bold py-1 px-2 rounded-full transition duration-300 hover:bg-[#F2BB26] hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50">
+                    Add to cart
+                  </button>
                 </div>
               </div>
-              <div className="p-2  flex flex-col flex-grow">
-                <h3 className="font-semibold text-xs sm:text-sm mb-1">{offer.name}</h3> {/* Reduced font size */}
-                <p className="text-gray-700 text-xs font-bold mb-2">${offer.price}</p> {/* Reduced font size */}
-                <button className="text-white bg-blue-600 font-bold py-1 px-2 rounded-full transition duration-300 hover:bg-[#F2BB26] hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50">
-                  Add to cart
-                </button>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

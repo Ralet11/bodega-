@@ -93,7 +93,7 @@ const SignUp = () => {
 
         if (response.data.data.created === 'ok') {
           console.log("Succes at create user")
-          navigate('/login');
+          navigate('/login', { state: { fromRegister: true } });
         }
       } catch (error) {
         let errorMessage = '';
