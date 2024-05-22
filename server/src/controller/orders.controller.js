@@ -86,7 +86,8 @@ export const createOrder = async (req, res) => {
   const { delivery_fee, total_price, oder_details, local_id, status, date_time, type } = req.body;
   const {clientId} = req.user
   const io = getIo()
-  const users_id = clientId
+  const users_id = 1
+  
 
   console.log(oder_details, "order details")
 

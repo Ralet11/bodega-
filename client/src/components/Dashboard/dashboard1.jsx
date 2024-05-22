@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMediaQuery } from 'react-responsive';
 import { CurrencyDollarIcon, StarIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, Dot } from 'recharts';
+import axios from 'axios'
+import {getParamsEnv} from './../../functions/getParamsEnv.js'
+import {useSelector} from 'react-redux'
+import dayjs from 'dayjs';
+
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
+dayjs.extend(isSameOrAfter);
+
+const {API_URL_BASE} = getParamsEnv()
+
 
 function Dashboard1() {
   const [isChecked, setIsChecked] = useState(true);
+  
+  const [totalSalesDay, setTotalSalesDay] = useState(0);
+  const [totalSalesMonth, setTotalSalesMonth] = useState(0);
+  const [topProductId, setTopProductId] = useState(null);
+  const [localProducts, setLocalProducts] = useState(null);
+
+  const shop = useSelector((state) => state?.activeShop)
+  const token = useSelector((state) => state?.client.token)
 
   const handleToggle = () => {
     setIsChecked(!isChecked);
@@ -30,6 +49,97 @@ function Dashboard1() {
     { name: 'Apr', thisQuarter: 10, lastQuarter: 11 },
   ];
 
+  useEffect(() => {
+    const fetchOrdersByDay = async () => {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/orders/get/${shop}`, {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        });
+
+        console.log(response.data, "orders");
+
+        // Process orders
+        let totalSalesValueDay = 0;
+        let totalSalesValueMonth = 0;
+        const productSalesCount = {};
+        const today = dayjs().startOf('day');
+        const startOfMonth = dayjs().startOf('month');
+
+        response.data.forEach(order => {
+          const orderDate = dayjs(order.date_time);
+          const orderDetails = order.order_details.orderDetails;
+
+          if (Array.isArray(orderDetails)) {
+            orderDetails.forEach(detail => {
+              if (typeof detail.price === 'number' && typeof detail.id === 'number') {
+                // Add to total sales value for the day
+                if (orderDate.isSame(today, 'day')) {
+                  totalSalesValueDay += detail.price;
+                }
+
+                // Add to total sales value for the month
+                if (orderDate.isSameOrAfter(startOfMonth)) {
+                  totalSalesValueMonth += detail.price;
+                }
+
+                // Count each product sale
+                if (!productSalesCount[detail.id]) {
+                  productSalesCount[detail.id] = 0;
+                }
+                productSalesCount[detail.id] += 1;
+              }
+            });
+          } else {
+            console.error('orderDetails is not an array', order);
+          }
+        });
+
+        // Determine the most sold product
+        let mostSoldProductId = null;
+        let maxSalesCount = 0;
+
+        Object.entries(productSalesCount).forEach(([productId, count]) => {
+          if (count > maxSalesCount) {
+            mostSoldProductId = productId;
+            maxSalesCount = count;
+          }
+        });
+
+        setTotalSalesDay(totalSalesValueDay);
+        setTotalSalesMonth(totalSalesValueMonth);
+        setTopProductId(mostSoldProductId);
+
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
+
+    fetchOrdersByDay();
+  }, [shop, token]);
+
+  useEffect(() => {
+    const fetchProductsByLocal = async () => {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/products//getByLocalId/${shop}`, {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        })
+        console.log(response.data, "productos ready")
+        setLocalProducts(response.data.length)
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchProductsByLocal()
+  },[])
+
+console.log(localProducts)
+console.log(totalSalesMonth, totalSalesDay, topProductId)
+
   const sortedMostSoldItemsData = mostSoldItemsData.sort((a, b) => b['sold this month'] - a['sold this month']);
 
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
@@ -44,7 +154,7 @@ function Dashboard1() {
                   <CurrencyDollarIcon className='text-blue-500' />
                 </div>
                 <div className='ml-3'>
-                  <span className='text-[20px]'><strong>$3,251</strong></span>
+                  <span className='text-[20px]'><strong>${totalSalesDay.toFixed(2)}</strong></span>
                   <p className='text-[13px]'>Sold Today</p>
                 </div>
               </div>
@@ -53,7 +163,7 @@ function Dashboard1() {
                   <CurrencyDollarIcon className='text-red-500' />
                 </div>
                 <div className='ml-3'>
-                  <span className='text-[20px]'><strong>$15,251</strong></span>
+                  <span className='text-[20px]'><strong>${totalSalesMonth.toFixed(2)}</strong></span>
                   <p className='text-[13px]'>This month</p>
                 </div>
               </div>
@@ -64,8 +174,8 @@ function Dashboard1() {
                   <ShoppingBagIcon className='text-green-500' />
                 </div>
                 <div className='ml-3'>
-                  <span className='text-[20px]'><strong>115</strong></span>
-                  <p className='text-[13px] ml-2'>Products ready</p>
+                  <span className='ml-2 text-[20px]'><strong>{localProducts}</strong></span>
+                  <p className='text-[12.3px] ml-2'>Products ready</p>
                 </div>
               </div>
               <div className='bg-cards1 shadow-lg w-[48%] h-[100%] rounded-lg flex items-center p-2 mb-4'>
@@ -73,8 +183,8 @@ function Dashboard1() {
                   <StarIcon className='text-yellow-500' />
                 </div>
                 <div className='ml-3'>
-                  <span className='text-[23px] font-bold'>4.9</span>
-                  <p className='text-[13px]'>out of 5</p>
+                  <span className='text-[23px] font-bold'>$5500.00</span>
+                  <p className='text-[13px]'>Bodega Balance</p>
                 </div>
               </div>
             </div>
@@ -140,8 +250,8 @@ function Dashboard1() {
             <CurrencyDollarIcon className='text-blue-500' />
           </div>
           <div>
-            <span className='text-[20px] ml-[30px] mt-4'><strong>$3,251</strong></span>
-            <p className='text-[13px]'>Sold Today</p>
+            <span className='text-[20px] ml-[30px] mt-4'><strong>${totalSalesDay.toFixed(2)}</strong></span>
+            <p className='ml-5 text-[13px]'>Sold Today</p>
           </div>
         </div>
         <div className='bg-cards1 w-[20%] h-[100%] rounded-full flex items-center'>
@@ -149,8 +259,8 @@ function Dashboard1() {
             <CurrencyDollarIcon className='text-red-500' />
           </div>
           <div>
-            <span className='text-[20px] ml-[30px] pt-3'><strong>$15,251</strong></span>
-            <p className='text-[13px]'>This month</p>
+            <span className='text-[20px] ml-[30px] pt-3'><strong>${totalSalesMonth.toFixed(2)}</strong></span>
+            <p className='ml-5 text-[13px]'>This month</p>
           </div>
         </div>
         <div className='bg-cards1 w-[18%] h-[100%] rounded-full flex items-center'>
@@ -159,16 +269,16 @@ function Dashboard1() {
           </div>
           <div>
             <span className='text-[20px] ml-[30px] pt-3'><strong>115</strong></span>
-            <p className='text-[13px] ml-2'>Products ready</p>
+            <p className='ml-5 text-[13px] ml-2'>Products ready</p>
           </div>
         </div>
-        <div className='bg-cards1 w-[20%] h-[100%] rounded-full flex items-center'>
+        <div className='bg-cards1 w-[17%] h-[100%] rounded-full flex items-center'>
           <div className='w-10 h-10 ml-5 flex items-center justify-center'>
             <StarIcon className='text-yellow-500' />
           </div>
           <div className='ml-3'>
-            <span className='text-[23px] font-bold ml-[30px]'>4.9</span>
-            <p className='text-[13px]'>out of 5</p>
+          <span className='text-[23px] font-bold'>$5500.00</span>
+                  <p className='text-[13px]'>Bodega Balance</p>
           </div>
         </div>
       </div>

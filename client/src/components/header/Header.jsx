@@ -61,9 +61,9 @@ const Header = () => {
     <div className='shadow-md w-full fixed top-0 left-0 z-10'>
       <div className='flex items-center justify-between bg-[#F2BB26] py-4 px-5 md:px-10'>
         {/* Logo section */}
-        <div className='flex items-center gap-1'>
-          <RocketLaunchIcon className='w-7 h-7 text-black' />
-          <span className='text-black font-bold text-2xl'>Bodega+</span>
+        <div className='flex items-center'>
+          <img src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716317107/bodegaicon_2-removebg-preview2_hwvlb3.png' alt='BodegaLogo' className='mb-1 w-8 h-10' />
+          <span className='text-black font-bold text-2xl'>odega+</span>
         </div>
 
         {/* Cart Icon always visible */}
