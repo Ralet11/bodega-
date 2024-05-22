@@ -98,6 +98,7 @@ export const checkoutDistPayment = async (req, res) => {
   const { products, customerInfo, orderData, shop } = req.body; // Agregar orderId a la petición
   const { name, email, id, phone} = customerInfo;
 
+
   const idConfirm = req.user.clientId
 
   if (id !== idConfirm) {
@@ -148,6 +149,8 @@ export const checkoutDistPayment = async (req, res) => {
 
     // Convertir la información de la orden a una cadena JSON
     const orderDataString = JSON.stringify(orderData);
+    const uniqueProviderIds = [...new Set(products.map(product => product.id_proveedor))];
+
 
     // Crear la sesión de pago en Stripe
     const session = await stripe.checkout.sessions.create({
@@ -162,7 +165,8 @@ export const checkoutDistPayment = async (req, res) => {
         metadata: {
           orderData: orderDataString,
           customer: customer.id,
-          localData: JSON.stringify(localData.id)
+          localData: JSON.stringify(localData.id),
+          providerIds: JSON.stringify(uniqueProviderIds)
            // Almacenar la información de la orden como una cadena JSON
         }
       }
