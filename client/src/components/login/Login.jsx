@@ -13,7 +13,7 @@ import ToasterConfig from "../../ui_bodega/Toaster";
 
 const { API_URL_BASE } = getParamsEnv()
 
-const Login = () => {
+const Login = ({setSelected}) => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -24,11 +24,6 @@ const Login = () => {
   const dispatch = useDispatch()
   const client = useSelector(state => state.client)
 
-  useEffect(() => {
-    if (location.state && location.state.registered) {
-      toast.success("Registration successful! Please log in.");
-    }
-  }, [location.state]);
 
   const handleInputChange = (e) => {
     if (e.target.name === 'email') {
@@ -84,8 +79,10 @@ const Login = () => {
 
   const goRegister = async (e) => {
     e.preventDefault()
+
+    setSelected(false)
     
-    navigate("/register")
+/*     navigate("/register") */
 
   /*   try {
       const response = await axios.post(`${API_URL_BASE}/api/auth/register`, {

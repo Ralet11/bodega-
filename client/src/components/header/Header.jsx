@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Bars3BottomRightIcon,
   XMarkIcon,
-  RocketLaunchIcon,
   ChevronDownIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  CogIcon,
+  CalendarIcon,
+  UserIcon
 } from '@heroicons/react/24/solid';
 import { useDispatch, useSelector } from 'react-redux';
 import { getParamsEnv } from '../../functions/getParamsEnv';
@@ -43,6 +45,10 @@ const Header = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
+  const closeDropdown = () => {
+    setDropdownOpen(false);
+  };
+
   const logOut = () => {
     dispatch(logOutClient());
     dispatch(emptyCart());
@@ -57,13 +63,15 @@ const Header = () => {
     }
   }, [dropdownOpen, dropdownPosition]);
 
+  console.log(shop)
+
   return (
-    <div className='shadow-md w-full fixed top-0 left-0 z-10'>
-      <div className='flex items-center justify-between bg-[#F2BB26] py-4 px-5 md:px-10'>
+    <header className='shadow-md w-full fixed top-0 left-0 z-10 bg-white'>
+      <nav className='flex items-center justify-between bg-[#F2BB26] py-4 px-5 md:px-10'>
         {/* Logo section */}
         <div className='flex items-center'>
           <img src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716317107/bodegaicon_2-removebg-preview2_hwvlb3.png' alt='BodegaLogo' className='mb-1 w-8 h-10' />
-          <span className='text-black font-bold text-2xl'> odega+</span>
+          <span className='text-black ml-0.5 font-bold text-2xl'>odega+</span>
         </div>
 
         {/* Cart Icon always visible */}
@@ -82,37 +90,43 @@ const Header = () => {
         {dropdownOpen && (
           <ul
             ref={dropdownRef}
-            className="absolute z-50 w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm"
+            className="absolute md:ml-[-100px] md:mt-5 z-50 w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm transition duration-300 ease-in-out"
             aria-labelledby="dropdownMenuButton1"
             data-te-dropdown-menu-ref
             style={{ top: '100%', left: 'auto', right: '0' }}
           >
             <li>
-              <a
-                className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                href="/settings"
+              <Link
+                className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 transition duration-200"
+                to="/settings"
                 data-te-dropdown-item-ref
+                onClick={closeDropdown}
               >
+                <CogIcon className="w-5 h-5 mr-2" />
                 Shop Settings
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                href="#"
+              <Link
+                className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 transition duration-200"
+                to="#"
                 data-te-dropdown-item-ref
+                onClick={closeDropdown}
               >
+                <CalendarIcon className="w-5 h-5 mr-2" />
                 Edit Availability
-              </a>
+              </Link>
             </li>
             <li>
-              <a
-                className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                href="#"
+              <Link
+                className="flex items-center px-4 py-2 text-gray-800 hover:bg-gray-100 transition duration-200"
+                to="#"
                 data-te-dropdown-item-ref
+                onClick={closeDropdown}
               >
+                <UserIcon className="w-5 h-5 mr-2" />
                 Account
-              </a>
+              </Link>
             </li>
           </ul>
         )}
@@ -129,7 +143,7 @@ const Header = () => {
             {shop && shop.img && (
               <img
                 className='w-10 h-10 rounded-full'
-                src={`${API_URL_BASE}/${shop.img}`}
+                src={shop.img}
                 alt={`Thumbnail of ${shop.name}`}
               />
             )}
@@ -142,8 +156,8 @@ const Header = () => {
             <ArrowLeftOnRectangleIcon onClick={logOut} className='w-7 h-7 cursor-pointer' />
           </li>
         </ul>
-      </div>
-    </div>
+      </nav>
+    </header>
   );
 };
 

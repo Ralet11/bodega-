@@ -15,6 +15,12 @@ export default {
         'custom-img-login': "url('https://images.pexels.com/photos/5025517/pexels-photo-5025517.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')",
           
       },
+      color: {
+        'gray-700': '#4a5568',
+        'green-500': '#48bb78',
+        'custom-yellow': '#FFA000',
+        'custom-yellow-hover': '#FFD54F'
+      }
       
       
     },

@@ -147,6 +147,7 @@ function Dashboard1() {
             authorization: `Bearer ${token}`
           }
         })
+       
         console.log(response.data, "productos ready")
         setClientNow(response.data)
 
@@ -157,10 +158,10 @@ function Dashboard1() {
     fetchClient()
   },[])
 
-  console.log(clientNow)
+
 
 console.log(localProducts)
-console.log(totalSalesMonth, totalSalesDay, topProductId)
+
 
   const sortedMostSoldItemsData = mostSoldItemsData.sort((a, b) => b['sold this month'] - a['sold this month']);
 
@@ -169,7 +170,7 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
     return (
       <div className="flex flex-col p-4 pt-20 pb-20 bg-gray-100">
         <div className="flex justify-between items-center mb-6">
-          <div className='flex flex-col w-full'>
+          <div className='flex pt-10 flex-col w-full'>
             <div className='flex justify-between w-full mb-4'>
               <div className='bg-cards1 shadow-lg w-[48%] h-[100%] rounded-lg flex items-center p-2'>
                 <div className='w-10 h-10 flex items-center  justify-center'>
@@ -190,8 +191,8 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
                 </div>
               </div>
             </div>
-            <div className='flex shadow-lg justify-between w-full'>
-              <div className='bg-cards1 w-[48%] h-[100%] rounded-lg flex items-center p-2 mb-4'>
+            <div className='flex justify-between w-full'>
+              <div className='bg-cards1 shadow-lg w-[48%] h-[100%] rounded-lg flex items-center p-2 mb-4'>
                 <div className='w-10 h-10 flex items-center justify-center'>
                   <ShoppingBagIcon className='text-green-500' />
                 </div>
@@ -290,7 +291,7 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
             <ShoppingBagIcon className='text-green-500' />
           </div>
           <div>
-            <span className='text-[20px] ml-[30px] pt-3'><strong>{localProducts}</strong></span>
+            <span className='text-[20px] ml-[30px] pt-3'><strong>{localProducts && localProducts}</strong></span>
             <p className='ml-5 text-[13px] ml-2'>Products ready</p>
           </div>
         </div>
