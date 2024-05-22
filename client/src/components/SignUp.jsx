@@ -9,7 +9,7 @@ import image1 from './../assets/image1.jpg';
 
 const { API_URL_BASE } = getParamsEnv();
 
-const SignUp = () => {
+const SignUp = ({setSelected, setLogged}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errors, setErrors] = useState({})
@@ -92,8 +92,9 @@ const SignUp = () => {
         console.log(response.data)
 
         if (response.data.data.created === 'ok') {
-          console.log("Succes at create user")
-          navigate('/login', { state: { fromRegister: true } });
+          console.log("creado")
+          setLogged(true)
+        setSelected(true)
         }
       } catch (error) {
         let errorMessage = '';
@@ -112,7 +113,7 @@ const SignUp = () => {
   };
 
   const goLogin = () => {
-    navigate("/login")
+    setSelected(true)
   }
 
   return (
@@ -157,7 +158,7 @@ const SignUp = () => {
                 <span className="text-white hover:text-black">Sign up</span>
               </button>
             </div>
-            <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <Link to={"/login"}><a className="font-bold cursor-pointer text-white hover:text-indigo-800">Log in</a></Link></p>
+            <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a onClick={goLogin} className="font-bold cursor-pointer text-white hover:text-indigo-800">Log in</a></p>
           </div>
         </div>
       </div>

@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, removeFromCart, setDistOrder } from '../../redux/actions/actions';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import axios from 'axios';
+import {
+    StarIcon
+  } from '@heroicons/react/24/solid'
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -16,6 +19,28 @@ const CartView = ({ onClose }) => {
     const [total, setTotal] = useState(0);
     const token = useSelector((state) => state?.client.token);
     const shop = useSelector((state) => state?.activeShop);
+    const [isBodegaCheckout, setIsBodegaCheckout] = useState(false);
+    const client = useSelector((state) => state?.client.client)
+    const [clientNow, setClientNow] = useState(null)
+
+    useEffect(() => {
+        const fetchClient = async () => {
+          try {
+            const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
+              headers: {
+                authorization: `Bearer ${token}`
+              }
+            })
+           
+            console.log(response.data, "productos ready")
+            setClientNow(response.data)
+    
+          } catch (error) {
+            console.log(error)
+          }
+        }
+        fetchClient()
+      },[])
 
     useEffect(() => {
         const quantities = {};
@@ -44,7 +69,12 @@ const CartView = ({ onClose }) => {
         dispatch(removeFromCart(itemId));
     };
 
-    const handlePayment = async () => {
+    const handlePayment = async (method) => {
+        if (method === 'bodega') {
+            setIsBodegaCheckout(true);
+            return;
+        }
+
         const products = cartItems;
         const customerInfo = { name: user.name, mail: user.mail, id: user.id, phone: user.phone };
 
@@ -77,22 +107,98 @@ const CartView = ({ onClose }) => {
         }
     };
 
+    const finalizeBodegaPurchase = async () => {
+        const products = cartItems;
+        const customerInfo = { name: user.name, mail: user.mail, id: user.id, phone: user.phone };
+
+        try {
+            const orderResponse = await axios.post(`${API_URL_BASE}/api/distOrder/add`, { local_id, order_details: cartItems, order_date }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (orderResponse.status === 201) {
+                const orderId = orderResponse.data[0].order_id;
+                dispatch(setDistOrder(orderResponse.data));
+
+                try {
+                    const paymentResponse = await axios.post(`${API_URL_BASE}/api/payment/bodegaPayment`, { products, customerInfo, orderData: orderId, shop }, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+
+                    window.location.href = paymentResponse.data.url;
+                    onClose();
+                } catch (paymentError) {
+                    console.error("Error al procesar el pago:", paymentError);
+                }
+            }
+        } catch (orderError) {
+            console.error("Error al crear la orden:", orderError);
+        }
+    };
+
     const uniqueCartItems = Object.values(cartItems.reduce((acc, item) => {
         acc[item.id] = item;
         return acc;
     }, {}));
 
+    if (isBodegaCheckout) {
+        const BodegaBalance = clientNow && clientNow.balance
+
+        const remainingBalance = BodegaBalance - total;
+        return (
+            <div className="flex justify-center items-center w-full bg-gradient-to-br from-gray-100 to-gray-300">
+                <div className="max-w-4xl w-full p-8 md:p-10 bg-white rounded-xl shadow-2xl">
+                    <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-gray-800">Confirm Bodega Balance Purchase</h2>
+                    <div className="text-lg md:text-xl font-medium mb-8 text-gray-700">
+                        <div className="flex justify-between items-center mb-4">
+                            <span>Total:</span>
+                            <span className="font-semibold text-gray-900">{total}</span>
+                        </div>
+                        <div className="flex justify-between items-center mb-4">
+                            <span>Bodega Balance:</span>
+                            <span className="flex items-center font-semibold text-gray-900">
+                                <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                                {BodegaBalance}
+                            </span>
+                        </div>
+                        <div className="border-t border-gray-300 my-6"></div>
+                        <div className="flex justify-between items-center mb-4">
+                            <span>Remaining Balance:</span>
+                            <span className="flex items-center font-semibold text-gray-900">
+                                <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                                {remainingBalance}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="mt-6 flex justify-end">
+                        <button
+                            onClick={finalizeBodegaPurchase}
+                            className="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                            aria-label="Finalize Purchase"
+                        >
+                            Finalize Purchase
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="flex justify-center items-center min-h-[400px] w-full">
-            <div className="max-w-4xl w-full p-4 md:p-8 bg-white rounded-lg shadow-xl">
-                <h2 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6">Your Cart</h2>
+        <div className="flex justify-center items-center min-h-[600px] w-full">
+            <div className="max-w-5xl w-full p-6 md:p-10 bg-white rounded-lg shadow-xl">
+                <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8">Your Cart</h2>
                 {cartItems.length > 0 ? (
-                    <div className="max-h-96 overflow-y-auto">
+                    <div className="max-h-[600px] overflow-y-auto">
                         {uniqueCartItems.map((item) => (
-                            <div key={item.id} className="flex flex-col md:flex-row items-center border-b py-4 space-y-4 md:space-y-0 md:space-x-4">
-                                <img className="w-16 h-16 md:w-24 md:h-24 rounded-lg" src={item.image1} alt={item.name} />
+                            <div key={item.id} className="flex flex-col md:flex-row items-center border-b py-6 space-y-6 md:space-y-0 md:space-x-6">
+                                <img className="w-20 h-20 md:w-32 md:h-32 rounded-lg" src={item.image1} alt={item.name} />
                                 <div className="flex-1 text-center md:text-left">
-                                    <h3 className="text-lg md:text-xl font-semibold">{item.name}</h3>
+                                    <h3 className="text-xl md:text-2xl font-semibold">{item.name}</h3>
                                     <p className="text-gray-600">${item.price}</p>
                                     <div className="flex items-center justify-center md:justify-start space-x-2 mt-2">
                                         <button
@@ -114,16 +220,25 @@ const CartView = ({ onClose }) => {
                                 <p className="text-gray-600 font-semibold">${item.price * (itemQuantities[item.id] || 1)}</p>
                             </div>
                         ))}
-                        <div className="mt-6">
-                            <p className="text-lg md:text-xl font-semibold">Total: ${total.toFixed(2)}</p>
+                        <div className="mt-8">
+                            <p className="text-xl md:text-2xl font-semibold">Total: ${total.toFixed(2)}</p>
                         </div>
                     </div>
                 ) : (
                     <p className="text-gray-500">Your cart is empty</p>
                 )}
-                <div className="mt-6 flex justify-end">
-                    <button onClick={handlePayment} className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded">
-                        Checkout
+                <div className="mt-8 flex flex-col md:flex-row justify-end space-y-4 md:space-y-0 md:space-x-4">
+                    <button
+                        onClick={() => handlePayment('stripe')}
+                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Checkout with Stripe
+                    </button>
+                    <button
+                        onClick={() => handlePayment('bodega')}
+                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                    >
+                        Checkout with Bodega Balance
                     </button>
                 </div>
             </div>

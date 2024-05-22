@@ -24,7 +24,7 @@ const ToasterConfig = () => {
             },
 
             success: {
-              duration: 2000,
+              duration: 3000,
               theme: {
                 primary: "green",
                 secondary: "black",

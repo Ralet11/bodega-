@@ -23,7 +23,7 @@ const Orders = () => {
     finished: [],
   });
 
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -182,7 +182,7 @@ const Orders = () => {
   };
 
   return (
-    <div className="ml-5 md:ml-20 mt-10 md:mt-20">
+    <div className="ml-5 md:ml-20 mt-20">
       <div className="pl-5 md:pl-9 pb-5">
         <h3 className="text-lg font-semibold mt-2">Orders</h3>
         <hr className="my-4 border-t border-gray-300" />
