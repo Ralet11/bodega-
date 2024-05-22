@@ -100,11 +100,17 @@ import DistProduct from "./models/distProducts.model.js";
 import { sendEmailWithProducts } from "./functions/sendEmail.js";
 import Client from "./models/client.js";
 import Local from "./models/local.js";
+import Distributor from "./models/distributor.model.js";
+import { createDistributor } from "./controller/distributor.controller.js";
+import clientRouter from "./routes/client.routes.js";
 
 const app = express();
 const stripe = new Stripe(SSK);
 
-const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6";
+const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6"
+
+
+//
 
 // Middleware de logging
 app.use(morgan("dev"));
@@ -116,6 +122,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Ruta del webhook de Stripe antes de los otros middleware
+
+
 app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
   const sig = request.headers["stripe-signature"];
   
@@ -132,7 +140,19 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object;
       const orderId = paymentIntent.metadata.orderData;
-      
+      console.log("Esto es order id: ", orderId);
+      console.log("Esto es paymentIntent.metadata: ", paymentIntent.metadata);
+
+      // Analizar providerIds desde JSON a array
+      let supplierIds;
+      try {
+        supplierIds = JSON.parse(paymentIntent.metadata.providerIds);
+        console.log("Esto es supplier id: ", supplierIds);
+      } catch (error) {
+        console.error(`Error parsing supplierIds: ${error.message}`);
+        return response.status(400).send(`Error parsing supplierIds: ${error.message}`);
+      }
+
       try {
         const order = await DistOrderProduct.findAll({
           where: {
@@ -152,18 +172,37 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
 
         // Crear un nuevo array con la información específica de cada producto
         const productDetails = order.map(item => ({
+          id: item.DistProduct.id,
           name: item.DistProduct.name,
           id_proveedor: item.DistProduct.id_proveedor,
           quantity: item.quantity,
           price: item.DistProduct.price
         }));
 
+        const suppliers = await Distributor.findAll({
+          where: {
+            id: supplierIds
+          },
+          include: [
+            {
+              model: DistProduct
+            }
+          ]
+        });
+
+        const supplierData = suppliers.map(supplier => ({
+          id: supplier.id,
+          name: supplier.name,
+          phone: supplier.phone,
+          email: supplier.email,
+          address: supplier.address
+        }));
+
         console.log("Product details:", JSON.stringify(productDetails, null, 2));
       
-
-        const client = await Client.findByPk(paymentIntent.metadata.customer)
-        const local = await Local.findByPk(paymentIntent.metadata.localData)
-        // Datos ficticios para clientData y localData
+        const client = await Client.findByPk(paymentIntent.metadata.customer);
+        const local = await Local.findByPk(paymentIntent.metadata.localData);
+        
         const clientData = {
           name: client.name,
           id: client.id,
@@ -174,13 +213,11 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
           name: local.name,
           address: local.address,
           phone: local.phone,
-          id: local.phone
+          id: local.id
         };
 
-        
-
         // Llamar a la función para enviar el email
-        const emailResult = await sendEmailWithProducts(productDetails, clientData, localData);
+        const emailResult = await sendEmailWithProducts(productDetails, clientData, localData, supplierData);
         console.log(emailResult);
 
         // Aquí puedes agregar cualquier lógica adicional, como actualizar el estado de la orden, enviar correos electrónicos, etc.
@@ -198,6 +235,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
 
   response.status(200).send();
 });
+
 
 // Middleware general para otras rutas
 app.use(express.json({ limit: "10mb" }));
@@ -219,6 +257,8 @@ app.use("/api/discounts", discountRouter);
 app.use("/api/distProducts", DistProductRouter);
 app.use("/api/distOrder", distOrderRouter);
 app.use("/api/distOrderStatus", distOrderStatusRouter);
+app.use("/api/distributors", createDistributor);
+app.use('/api/clients', clientRouter)
 
 
 

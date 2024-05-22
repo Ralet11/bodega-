@@ -1,26 +1,37 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Dot
+} from 'recharts';
 
-const SalesAndComparisonChart = () => {
+const SalesAndCategoriesChart = () => {
   const data = [
-    { name: 'January', 'Current Sales': 12000, 'Last Year Sales': 10000 },
-    { name: 'February', 'Current Sales': 14500, 'Last Year Sales': 13000 },
-    { name: 'March', 'Current Sales': 13200, 'Last Year Sales': 11000 },
-    { name: 'April', 'Current Sales': 15500, 'Last Year Sales': 12000 },
-];
+    { name: 'Jan', thisQuarter: 10, lastQuarter: 6 },
+    { name: 'Feb', thisQuarter: 15, lastQuarter: 10 },
+    { name: 'Mar', thisQuarter: 8, lastQuarter: 12 },
+    { name: 'Apr', thisQuarter: 10, lastQuarter: 11 },
+  ];
+
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 20 }}>
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
+        <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+        <YAxis tick={{ fontSize: 12 }} />
         <Tooltip />
         <Legend />
-        <Bar dataKey='Current Sales' fill="rgba(112, 161, 255, 0.6)" stroke="#70a1ff" strokeWidth={2} /> {/* Cambia el cuarto valor para ajustar la opacidad */}
-        <Bar dataKey='Last Year Sales' fill="rgba(0, 216, 216, 0.6)" stroke="#00d8d8" strokeWidth={2} /> {/* Cambia el cuarto valor para ajustar la opacidad */}
-      </BarChart>
+        <Area type="monotone" dataKey="thisQuarter" name="This Quarter" stroke="#8884d8" fill="#8884d8" dot={<Dot r={6} strokeWidth={2} />} />
+        <Area type="monotone" dataKey="lastQuarter" name="Last Quarter" stroke="#82ca9d" fill="#82ca9d" dot={<Dot r={6} strokeWidth={2} />} />
+      </AreaChart>
     </ResponsiveContainer>
   );
 };
 
-export default SalesAndComparisonChart;
+export default SalesAndCategoriesChart;

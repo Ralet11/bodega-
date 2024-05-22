@@ -1,10 +1,9 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, Link } from 'react-router-dom';
 import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
-import "./App.css"
+import "./App.css";
 import { ShoppingCartIcon, BellAlertIcon, RectangleStackIcon, BuildingStorefrontIcon, PhoneIcon, ComputerDesktopIcon, WalletIcon, TicketIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
 import Login from './components/login/Login.jsx';
-import { Link } from 'react-router-dom';
 import Products from './components/products/Products';
 import Shops from './components/shops/Shops.jsx';
 import Orders from './components/orders/orders';
@@ -18,15 +17,12 @@ import { useDispatch } from 'react-redux';
 import Landing from './components/Landing/Landing';
 import Discounts from './components/Discounts/Discounts';
 import DistributorComerce from './components/DistributorComerce/DistributorComerce';
-import { getParamsEnv } from './functions/getParamsEnv';
 import DistProdCard from './components/card/CardBodega';
 import CartView from './components/cartView/CartView';
 import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 import SignUp from './components/SignUp.jsx';
 import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
 import CreateFirstShop from './components/CreateFirstShop.jsx';
-
-
 
 function App() {
   const location = useLocation();
@@ -59,40 +55,21 @@ function App() {
       {renderSidebarAndHeader && (
         <>
           <Sidebar className="sidebar">
-            <Link to="/dashboard">
-              <SidebarItem icon={<ComputerDesktopIcon className="w-6" />} text="Dashboard" />
-            </Link>
-            <Link to="/products">
-              <SidebarItem icon={<ShoppingCartIcon className="w-6" />} text="Products" />
-            </Link>
-            <Link to="/discounts">
-              <SidebarItem icon={<TicketIcon className="w-6" />} text="Discounts" />
-            </Link>
-            <Link to="/orders">
-              <SidebarItem
-                icon={<BellAlertIcon className="w-6" />}
-                text="Orders"
-                notificationCount={orderNotificationCount} // Pasa el contador como prop
-                onClick={handleOrdersClick} // Restablece el contador al hacer clic
-              />
-              <Link to="/history">
-              <SidebarItem icon={<WalletIcon className="w-6" />} text="History" />
-            </Link>
-            </Link>
-            <Link to="/shops">
-              <SidebarItem icon={<BuildingStorefrontIcon className="w-6" />} text="Shops" />
-            </Link>
-            <Link to="/contact">
-              <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" />
-            </Link>
-            <Link to="/distributorsCommerce">
-              <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Market" />
-            </Link>
-            <Link to="/distHistoryBuy">
-              <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Your buys" />
-            </Link>
+            <SidebarItem icon={<ComputerDesktopIcon className="w-6" />} text="Dashboard" link="/dashboard" />
+            <SidebarItem icon={<ShoppingCartIcon className="w-6" />} text="Products" link="/products" />
+            <SidebarItem
+              icon={<BellAlertIcon className="w-6" />}
+              text="Orders"
+              notificationCount={orderNotificationCount}
+              onClick={handleOrdersClick}
+              link="/orders"
+            />
+            <SidebarItem icon={<WalletIcon className="w-6" />} text="History" link="/history" />
+            <SidebarItem icon={<BuildingStorefrontIcon className="w-6" />} text="Shops" link="/shops" />
+            <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" link="/contact" />
+            <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Market" link="/distributorsCommerce" />
+            <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Your buys" link="/distHistoryBuy" />
           </Sidebar>
-          {/* Header */}
           <Header className="header" />
         </>
       )}
@@ -118,4 +95,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

@@ -47,57 +47,58 @@ const CreateFirstShop = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    if (!token) {
-      console.error('No token found');
-      alert('No token found');
-      return;
-    }
-  
     try {
-      // Enviar solicitud para crear una tienda
       const response = await axios.post(`${API_URL_BASE}/api/local/add`, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      console.log(response.data);
-  
+          Authorization: `Bearer ${token}`
+        }
+      }); // Assuming the endpoint to create a shop is '/api/shops'
+      console.log(response.data)
+
       if (response.data.created === "ok") {
-        // Función para obtener los locales del cliente
+
         const fetchLocals = async () => {
           try {
+           
+            if (!token) {
+              throw new Error('No token found');
+            }
+    
             const response = await axios.get(`${API_URL_BASE}/api/local/getByClient`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
-  
-            if (response.data.finded === "ok") {
-              console.log(response.data.locals);
-              dispatch(setClientLocals(response.data.locals));
+    
+            if (response.data.finded === "ok"){
+              console.log(response.data.locals)
+              dispatch(setClientLocals(response.data.locals))
             }
+    
+           
           } catch (error) {
             console.error('Error fetching locals:', error);
           }
         };
-  
-        fetchLocals();
-  
-        dispatch(changeShop(response.data.result.id));
-        navigate("/dashboard");
+
+        fetchLocals()
+      
+        dispatch(changeShop(response.data.result.id))
+        navigate("/dashboard")
+
+        
       }
     } catch (error) {
       console.error('Error creating shop:', error);
       alert('Error creating shop');
     }
   };
+
   return (
     <>
       <Header />
 
-      <div className='flex justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-2' style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+      <div className='flex justify-center items-center min-h-screen bg-gray-100  bg-custom-img-2' style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
         <div className='w-full max-w-md p-8 bg-black rounded-md shadow-md bg-black bg-opacity-20' >
           <h1 className='text-2xl font-bold mb-6 text-center text-white'>Create Your First Shop</h1>
           <form onSubmit={handleSubmit}>
@@ -113,7 +114,7 @@ const CreateFirstShop = () => {
               
             </div>
             <div className='mb-4'>
-              <label htmlFor='phone' className='text-white '>Phone:</label>
+              <label htmlFor='phone' className='text-white '>Shop phone:</label>
               <Input onChange={handleChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
             
             </div>

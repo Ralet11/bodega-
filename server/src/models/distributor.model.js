@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
-import DistProduct from './DistProduct.js';
+import DistProduct from './distProducts.model.js';
 
 const Distributor = sequelize.define('Distributor', {
   id: {

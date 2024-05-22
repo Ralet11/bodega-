@@ -1,20 +1,21 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowDownLeftIcon } from "@heroicons/react/24/solid";
 import { ArrowLeftIcon } from 'lucide-react';
 
 const GoBackArrow = () => {
     const navigate = useNavigate();
 
     const goBack = () => {
-        navigate(-1); // Esta función te lleva a la página anterior
+        navigate(-1); // This function takes you to the previous page
     };
 
     return (
-        <div onClick={goBack} className='cursor-pointer mt-20 h-screen' style={{ position: 'fixed', top: '2.4%', left: '12.5%' }}>
+        <div
+            onClick={goBack}
+            className='cursor-pointer mt-20 h-screen fixed top-[2.4%] left-[0.5%] md:left-[12.5%]'
+        >
             <div className='p-2 flex gap-6 rounded-lg'>
-                <ArrowLeftIcon className='w-8 h-8 text-yellow-600' />
-                
+                <ArrowLeftIcon className='w-8 h-8 text-yellow-600 sm:w-6 sm:h-6 md:w-8 md:h-8' />
             </div>
         </div>
     );

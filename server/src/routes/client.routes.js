@@ -5,7 +5,7 @@ import { getAllClients, getClientById } from "../controller/clients.controller.j
 const clientRouter = Router();
 
 clientRouter.get("/clients", getAllClients)
-clientRouter.get("/clients/:id", getClientById)
+clientRouter.get("/:id", getClientById)
 
 
 export default clientRouter
