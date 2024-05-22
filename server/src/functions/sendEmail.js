@@ -1,11 +1,12 @@
 import nodemailer from 'nodemailer';
 
-export const sendEmailWithProducts = async (orderData, clientData, localData) => {
+export const sendEmailWithProducts = async (orderData, clientData, localData, supplierData) => {
   // Construir el contenido del email
   let productsList = '';
   orderData.forEach(product => {
     productsList += `
       <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">${product.id}</td>
         <td style="padding: 10px; border: 1px solid #ddd;">${product.name}</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.quantity}</td>
         <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">${product.id_proveedor}</td>
@@ -13,6 +14,19 @@ export const sendEmailWithProducts = async (orderData, clientData, localData) =>
       </tr>
     `;
   });
+
+  let supplierList='';
+
+  supplierData.forEach(supplier =>{
+    supplierList += `
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">${supplier.id}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">${supplier.name}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">${supplier.email}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">${supplier.phone}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">${supplier.address}</td>
+      </tr>`
+    })
 
   const contentHTML = `
   <!DOCTYPE html>
@@ -106,6 +120,7 @@ export const sendEmailWithProducts = async (orderData, clientData, localData) =>
         <table>
           <thead>
             <tr>
+              <th>Id Product</th>
               <th>Product</th>
               <th>Quantity</th>
               <th>Supplier ID</th>
@@ -114,6 +129,22 @@ export const sendEmailWithProducts = async (orderData, clientData, localData) =>
           </thead>
           <tbody>
             ${productsList}
+          </tbody>
+        </table>
+
+        <h3>Suppliers</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Id Supplier</th>
+              <th>Name Supplier</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Address</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${supplierList}
           </tbody>
         </table>
       </div>
@@ -139,7 +170,7 @@ export const sendEmailWithProducts = async (orderData, clientData, localData) =>
   try {
     let info = await transporter.sendMail({
       from: process.env.EMAIL_USER,  // Replace with your Gmail address
-      to: 'ramiro.alet@gmail.com',  // Replace with the actual recipient
+      to: 'augustofavrearg@gmail.com',  // Replace with the actual recipient
       subject: 'New Order',
       html: contentHTML
     });
