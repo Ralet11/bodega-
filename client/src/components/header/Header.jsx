@@ -63,7 +63,7 @@ const Header = () => {
         {/* Logo section */}
         <div className='flex items-center'>
           <img src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716317107/bodegaicon_2-removebg-preview2_hwvlb3.png' alt='BodegaLogo' className='mb-1 w-8 h-10' />
-          <span className='text-black font-bold text-2xl'>odega+</span>
+          <span className='text-black font-bold text-2xl'> odega+</span>
         </div>
 
         {/* Cart Icon always visible */}

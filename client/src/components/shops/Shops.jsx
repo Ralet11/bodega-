@@ -6,7 +6,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
 
 function Shops() {
     const client = useSelector((state) => state.client);
@@ -19,7 +19,11 @@ function Shops() {
     };
 
     return (
-        <div className="container mx-auto py-8 mt-[100px] p-5">
+        <div className="container mx-auto py-8 mt-12 md:ml-16 p-5">
+            <div className="pl-5 md:pl-9 pb-5">
+                <h3 className="text-lg font-semibold mt-2">Your Shops</h3>
+                <hr className="my-4 border-t border-gray-300" />
+            </div>
             <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ml-[70px]">
                 {client.locals.map((local, index) => (
                     <div
@@ -40,11 +44,11 @@ function Shops() {
                 ))}
                 <button
 
-                className="mb-5 ml-[10px] max-w-[200px] flex items-center gap-2 px-3 py-1 bg-blue-400 rounded-md focus:outline-none hover:bg-blue-200"
-            >
-                <PlusCircleIcon className="h-5 w-5" />
-                Add New Shop
-            </button>
+                    className="mb-5 ml-[10px] max-w-[200px] flex items-center gap-2 px-3 py-1 bg-blue-400 rounded-md focus:outline-none hover:bg-blue-200"
+                >
+                    <PlusCircleIcon className="h-5 w-5" />
+                    Add New Shop
+                </button>
             </div>
         </div>
     );

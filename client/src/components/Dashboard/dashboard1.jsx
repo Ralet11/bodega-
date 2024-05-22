@@ -21,9 +21,11 @@ function Dashboard1() {
   const [totalSalesMonth, setTotalSalesMonth] = useState(0);
   const [topProductId, setTopProductId] = useState(null);
   const [localProducts, setLocalProducts] = useState(null);
+  const [clientNow, setClientNow] = useState(null)
 
   const shop = useSelector((state) => state?.activeShop)
   const token = useSelector((state) => state?.client.token)
+  const client = useSelector((state) => state?.client.client)
 
   const handleToggle = () => {
     setIsChecked(!isChecked);
@@ -122,7 +124,7 @@ function Dashboard1() {
   useEffect(() => {
     const fetchProductsByLocal = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/products//getByLocalId/${shop}`, {
+        const response = await axios.get(`${API_URL_BASE}/api/products/getByLocalId/${shop}`, {
           headers: {
             authorization: `Bearer ${token}`
           }
@@ -136,6 +138,26 @@ function Dashboard1() {
     }
     fetchProductsByLocal()
   },[])
+
+  useEffect(() => {
+    const fetchClient = async () => {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        })
+        console.log(response.data, "productos ready")
+        setClientNow(response.data)
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    fetchClient()
+  },[])
+
+  console.log(clientNow)
 
 console.log(localProducts)
 console.log(totalSalesMonth, totalSalesDay, topProductId)
@@ -183,8 +205,8 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
                   <StarIcon className='text-yellow-500' />
                 </div>
                 <div className='ml-3'>
-                  <span className='text-[23px] font-bold'>$5500.00</span>
-                  <p className='text-[13px]'>Bodega Balance</p>
+                  <span className='text-[23px] font-bold'>${clientNow && clientNow.balance}</span>
+                  <p className='text-[12px]'>Bodega Balance</p>
                 </div>
               </div>
             </div>
@@ -268,7 +290,7 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
             <ShoppingBagIcon className='text-green-500' />
           </div>
           <div>
-            <span className='text-[20px] ml-[30px] pt-3'><strong>115</strong></span>
+            <span className='text-[20px] ml-[30px] pt-3'><strong>{localProducts}</strong></span>
             <p className='ml-5 text-[13px] ml-2'>Products ready</p>
           </div>
         </div>
@@ -277,7 +299,7 @@ console.log(totalSalesMonth, totalSalesDay, topProductId)
             <StarIcon className='text-yellow-500' />
           </div>
           <div className='ml-3'>
-          <span className='text-[23px] font-bold'>$5500.00</span>
+          <span className='text-[23px] font-bold'>${clientNow && clientNow.balance}</span>
                   <p className='text-[13px]'>Bodega Balance</p>
           </div>
         </div>
