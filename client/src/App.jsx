@@ -23,6 +23,7 @@ import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 import SignUp from './components/SignUp.jsx';
 import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
 import CreateFirstShop from './components/CreateFirstShop.jsx';
+import NuevoLogin from './components/NuevoLogin.jsx';
 
 function App() {
   const location = useLocation();
@@ -31,7 +32,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -81,7 +82,7 @@ function App() {
         <Route path='/orders' element={<Orders />}></Route>
         <Route path='/history' element={<OrdersHistory />}></Route>
         <Route path='settings' element={<Settings />}></Route>
-        <Route path='/login' element={<Login />}></Route>
+        <Route path='/login' element={<NuevoLogin />}></Route>
         <Route path='/discounts' element={<Discounts />}></Route>
         <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
         <Route path='/distProduct-detail' element={<DistProdCard />}></Route>

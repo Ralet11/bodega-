@@ -9,7 +9,7 @@ import {
 import {
   Square3Stack3DIcon,
   UserCircleIcon,
-  Cog6ToothIcon,
+  StarIcon,
 } from "@heroicons/react/24/solid";
 
 import InfoCard from "./infoCard";
@@ -18,18 +18,21 @@ import { useSelector } from "react-redux";
 import axios from "axios";
 import PayMethods from "./PayMethods";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import Balance from "../balanceBodega";
 
 const {API_URL_BASE} = getParamsEnv()
 
 function Settings() {
   const activeShop = useSelector((state) => state.activeShop);
+  const client = useSelector((state) => state.client);
+  const shop = client.locals.find((local) => local.id === activeShop);
 
   const [shopData, setShopData] = useState({
     id: '',
     name: '',
     phone: '',
     address: '',
-    image: null,
+    image: shop.img,
   });
   const [latLong, setlatLong] = useState({ lat: null, lng: null });
   const [fetchLatLong, setFetchLatLong] = useState(false);
@@ -102,27 +105,12 @@ function Settings() {
         </div>)
     },
     {
-      label: "availability",
-      value: "availability",
-      icon: UserCircleIcon,
-      desc: `Horario en que el shop estara abierto`,
-    },
-    {
-      label: "Pay methods",
-      value: "Deliveys",
-      icon: Cog6ToothIcon,
-      desc: (<div className=" w-full min-h-[200px] p-4 rounded">
-      <div className="flex gap-[60px] p-5">
-        <div className=" w-[1100px] min-h-[400px] m-auto rounded-lg bg-white text-white">
-          <div className=" p-5 w-[500px] max-h-[50px]">
-            <PayMethods />
-          </div>
-        </div>
-        
-      </div>
-      <div></div>
-    </div>),
-    },
+      label: "Bodega Balance",
+      value: "Bodega Balance",
+      icon: StarIcon,
+      desc: <Balance />
+    }
+    
   ];
 
 

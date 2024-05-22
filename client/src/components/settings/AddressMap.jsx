@@ -4,7 +4,7 @@ import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import { useSelector } from "react-redux";
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
@@ -19,12 +19,11 @@ export default function Index({ shopData, setShopData, latLong }) {
 }
 
 function Map({ shopData, latLong }) {
-  const token = useSelector((state) => state?.client.token)
+  const token = useSelector((state) => state?.client.token);
   const center = useMemo(() => ({ lat: 26, lng: -80 }), []);
   const [selected, setSelected] = useState(null);
   const [address, setAddress] = useState(shopData.address);
   const searchResult = useRef(null);
-  
 
   useEffect(() => {
     if (latLong) {
@@ -40,7 +39,6 @@ function Map({ shopData, latLong }) {
       const lng = location.lng();
       
       setAddress(place.formatted_address);
-
       setSelected({ lat, lng });
     } else {
       alert("Please enter text");
@@ -57,12 +55,12 @@ function Map({ shopData, latLong }) {
       address,
       lat: selected.lat,
       lng: selected.lng
-    }
+    };
 
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data,{
-        headers:{
-          Authorization:`Bearer ${token}`
+      const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
       });
       console.log(response.data);
@@ -77,19 +75,25 @@ function Map({ shopData, latLong }) {
     }
   };
 
-
-
   return (
     <>
-      <div>
-        <GoogleMap zoom={15} center={selected || center} mapContainerClassName="map-container">
-          {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
-        </GoogleMap>
+      <div className="w-full h-full p-4 bg-white shadow-lg rounded-lg">
+        <div className="mb-4">
+          <GoogleMap zoom={15} center={selected || center} mapContainerClassName="w-full h-64 rounded-lg overflow-hidden">
+            {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
+          </GoogleMap>
+        </div>
         <div className="places-container flex items-center w-full">
           <Autocomplete onPlaceChanged={handlePlaceSelect} onLoad={autocomplete => (searchResult.current = autocomplete)}>
             <div className="relative flex w-full mt-5">
-              <input className="text-black w-[100%] border border-black hover:border-blue-700 p-3" placeholder={address} />
-              <button className="bg-blue-500 text-white p-2 rounded ml-2" onClick={handleConfirmAddress}>
+              <input 
+                className="text-black w-full border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
+                placeholder={address} 
+              />
+              <button 
+                className="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-700 transition duration-300" 
+                onClick={handleConfirmAddress}
+              >
                 Save
               </button>
             </div>
@@ -99,4 +103,3 @@ function Map({ shopData, latLong }) {
     </>
   );
 }
-
