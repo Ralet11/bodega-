@@ -170,7 +170,7 @@ export const sendEmailWithProducts = async (orderData, clientData, localData, su
   try {
     let info = await transporter.sendMail({
       from: process.env.EMAIL_USER,  // Replace with your Gmail address
-      to: 'augustofavrearg@gmail.com',  // Replace with the actual recipient
+      to: 'ramiro.alet@gmail.com',  // Replace with the actual recipient
       subject: 'New Order',
       html: contentHTML
     });

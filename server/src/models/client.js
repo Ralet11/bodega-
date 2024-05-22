@@ -31,6 +31,10 @@ const Client = sequelize.define('client', {
   pay_methods: {
     type: DataTypes.JSON,
     defaultValue: null
+  },
+  balance: {
+    type: DataTypes.FLOAT,
+    allowNull: true
   }
 }, {
   tableName: 'clients',
