@@ -120,6 +120,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Ruta del webhook de Stripe antes de los otros middleware
+
+
 app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
   const sig = request.headers["stripe-signature"];
   
