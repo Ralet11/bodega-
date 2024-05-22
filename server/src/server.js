@@ -102,11 +102,13 @@ import Client from "./models/client.js";
 import Local from "./models/local.js";
 import Distributor from "./models/distributor.model.js";
 import { createDistributor } from "./controller/distributor.controller.js";
+import clientRouter from "./routes/client.routes.js";
 
 const app = express();
 const stripe = new Stripe(SSK);
 
-const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6";
+const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6"
+
 
 //
 
@@ -256,6 +258,7 @@ app.use("/api/distProducts", DistProductRouter);
 app.use("/api/distOrder", distOrderRouter);
 app.use("/api/distOrderStatus", distOrderStatusRouter);
 app.use("/api/distributors", createDistributor);
+app.use('/api/clients', clientRouter)
 
 
 
