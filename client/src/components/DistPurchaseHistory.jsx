@@ -70,21 +70,21 @@ const DistPurchaseHistory = () => {
 
     return (
         <>
-            <div className='ml-20 mt-20'>
-                <div className='pl-5 pb-10'>
-                    <h3 className="text-lg font-semibold mt-2">Your buys</h3>
-                    <hr className="my-4 border-t border-gray-300" />
-                </div>
+            <div className='md:ml-20 md:pl-5 mt-20'>
+            <div className="pb-5 text-center">
+                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Your buys</h3>
+                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+            </div>
                 <div className='m-auto w-4/5'>
-                <div className="overflow-y-auto max-h-[680px]">
+                <div className="overflow-y-auto min-w-[100%] max-h-[680px]">
                     <Table hoverable>
                         <TableHead>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Order Id</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Details</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Date</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Status</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">Payment</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-10">
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Order Id</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Details</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Date</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Status</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Payment</TableHeadCell>
+                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">
                                 <span className="sr-only">Edit</span>
                             </TableHeadCell>
                         </TableHead>

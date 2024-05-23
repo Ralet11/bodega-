@@ -3,9 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart, removeFromCart, setDistOrder } from '../../redux/actions/actions';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import axios from 'axios';
-import {
-    StarIcon
-  } from '@heroicons/react/24/solid'
+import { StarIcon } from '@heroicons/react/24/solid';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -20,27 +18,24 @@ const CartView = ({ onClose }) => {
     const token = useSelector((state) => state?.client.token);
     const shop = useSelector((state) => state?.activeShop);
     const [isBodegaCheckout, setIsBodegaCheckout] = useState(false);
-    const client = useSelector((state) => state?.client.client)
-    const [clientNow, setClientNow] = useState(null)
+    const client = useSelector((state) => state?.client.client);
+    const [clientNow, setClientNow] = useState(null);
 
     useEffect(() => {
         const fetchClient = async () => {
-          try {
-            const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
-              headers: {
-                authorization: `Bearer ${token}`
-              }
-            })
-           
-            console.log(response.data, "productos ready")
-            setClientNow(response.data)
-    
-          } catch (error) {
-            console.log(error)
-          }
-        }
-        fetchClient()
-      },[])
+            try {
+                const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
+                    headers: {
+                        authorization: `Bearer ${token}`,
+                    },
+                });
+                setClientNow(response.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        fetchClient();
+    }, [client.id, token]);
 
     useEffect(() => {
         const quantities = {};
@@ -146,39 +141,40 @@ const CartView = ({ onClose }) => {
     }, {}));
 
     if (isBodegaCheckout) {
-        const BodegaBalance = clientNow && clientNow.balance
+        const BodegaBalance = clientNow && clientNow.balance;
 
         const remainingBalance = BodegaBalance - total;
         return (
             <div className="flex justify-center items-center w-full bg-gradient-to-br from-gray-100 to-gray-300">
-                <div className="max-w-4xl w-full p-8 md:p-10 bg-white rounded-xl shadow-2xl">
-                    <h2 className="text-3xl md:text-4xl font-extrabold mb-6 text-gray-800">Confirm Bodega Balance Purchase</h2>
-                    <div className="text-lg md:text-xl font-medium mb-8 text-gray-700">
-                        <div className="flex justify-between items-center mb-4">
+                <div className="max-w-4xl w-full p-4 sm:p-8 md:p-10 bg-white rounded-xl shadow-2xl">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-4 sm:mb-6 text-gray-800">Confirm Bodega Balance Purchase</h2>
+                    <div className="text-base sm:text-lg md:text-xl font-medium mb-4 sm:mb-8 text-gray-700">
+                        <div className="flex justify-between items-center mb-2 sm:mb-4">
                             <span>Total:</span>
-                            <span className="font-semibold text-gray-900">{total}</span>
+                            <span className="font-semibold text-gray-900">${total}</span>
                         </div>
-                        <div className="flex justify-between items-center mb-4">
+                        <div className="flex justify-between items-center mb-2 sm:mb-4">
                             <span>Bodega Balance:</span>
                             <span className="flex items-center font-semibold text-gray-900">
-                                <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                                <StarIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-yellow-500 mr-1 sm:mr-2" />
                                 {BodegaBalance}
                             </span>
                         </div>
-                        <div className="border-t border-gray-300 my-6"></div>
-                        <div className="flex justify-between items-center mb-4">
+                        <div className="border-t border-gray-300 my-4 sm:my-6"></div>
+                        <div className="flex justify-between items-center mb-2 sm:mb-4">
                             <span>Remaining Balance:</span>
                             <span className="flex items-center font-semibold text-gray-900">
-                                <StarIcon className="h-6 w-6 text-yellow-500 mr-2" />
+                                <StarIcon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-yellow-500 mr-1 sm:mr-2" />
                                 {remainingBalance}
                             </span>
                         </div>
                     </div>
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-4 sm:mt-6 flex justify-end">
                         <button
                             onClick={finalizeBodegaPurchase}
-                            className="bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300"
+                            className={`bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-bold py-2 sm:py-3 px-6 sm:px-8 rounded-lg shadow-lg transform transition-transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-yellow-300 ${BodegaBalance < total ? 'opacity-50 cursor-not-allowed' : ''}`}
                             aria-label="Finalize Purchase"
+                            disabled={BodegaBalance < total}
                         >
                             Finalize Purchase
                         </button>
@@ -189,16 +185,16 @@ const CartView = ({ onClose }) => {
     }
 
     return (
-        <div className="flex justify-center items-center min-h-[600px] w-full">
-            <div className="max-w-5xl w-full p-6 md:p-10 bg-white rounded-lg shadow-xl">
-                <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-8">Your Cart</h2>
+        <div className="flex justify-center  items-center w-full">
+            <div className="max-w-5xl max-h-[400px] md:max-h-screen overflow-y-auto w-full p-4 sm:p-6 md:p-10 bg-white rounded-lg shadow-xl">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 md:mb-8">Your Cart</h2>
                 {cartItems.length > 0 ? (
-                    <div className="max-h-[600px] overflow-y-auto">
+                    <div className="">
                         {uniqueCartItems.map((item) => (
-                            <div key={item.id} className="flex flex-col md:flex-row items-center border-b py-6 space-y-6 md:space-y-0 md:space-x-6">
-                                <img className="w-20 h-20 md:w-32 md:h-32 rounded-lg" src={item.image1} alt={item.name} />
+                            <div key={item.id} className="flex flex-col md:flex-row items-center border-b py-4 sm:py-6 space-y-4 sm:space-y-6 md:space-y-0 md:space-x-6">
+                                <img className="w-16 h-16 sm:w-20 sm:h-20 md:w-32 md:h-32 rounded-lg" src={item.image1} alt={item.name} />
                                 <div className="flex-1 text-center md:text-left">
-                                    <h3 className="text-xl md:text-2xl font-semibold">{item.name}</h3>
+                                    <h3 className="text-lg sm:text-xl md:text-2xl font-semibold">{item.name}</h3>
                                     <p className="text-gray-600">${item.price}</p>
                                     <div className="flex items-center justify-center md:justify-start space-x-2 mt-2">
                                         <button
@@ -220,23 +216,23 @@ const CartView = ({ onClose }) => {
                                 <p className="text-gray-600 font-semibold">${item.price * (itemQuantities[item.id] || 1)}</p>
                             </div>
                         ))}
-                        <div className="mt-8">
-                            <p className="text-xl md:text-2xl font-semibold">Total: ${total.toFixed(2)}</p>
+                        <div className="mt-4 sm:mt-6">
+                            <p className="text-lg sm:text-xl md:text-2xl font-semibold">Total: ${total.toFixed(2)}</p>
                         </div>
                     </div>
                 ) : (
                     <p className="text-gray-500">Your cart is empty</p>
                 )}
-                <div className="mt-8 flex flex-col md:flex-row justify-end space-y-4 md:space-y-0 md:space-x-4">
+                <div className="mt-4 sm:mt-8 flex flex-col md:flex-row justify-end space-y-4 md:space-y-0 md:space-x-4">
                     <button
                         onClick={() => handlePayment('stripe')}
-                        className="bg-yellow-500 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded"
+                        className="bg-indigo-500 hover:bg-indigo-500 text-white font-bold py-2 sm:py-3 px-4 rounded"
                     >
                         Checkout with Stripe
                     </button>
                     <button
                         onClick={() => handlePayment('bodega')}
-                        className="bg-yellow-500 hover:bg-indigo-500 hover:text-white text-gray-700 font-bold py-2 px-4 rounded"
+                        className="bg-[#F2BB26] text-black font-bold py-2 sm:py-3 px-4 rounded"
                     >
                         Checkout with Bodega Balance
                     </button>

@@ -69,10 +69,10 @@ const HistorialVentas = () => {
     };
 
     return (
-        <div>
-            <div className="pl-5 md:pl-20 mt-20 md:ml-8 md:pt-0.5 pb-5">
-                <h3 className="text-lg font-semibold mt-2">Orders History</h3>
-                <hr className="my-4 border-t border-gray-300" />
+        <div className='ml-5 md:ml-20 mt-20'>
+            <div className="pb-5 text-center">
+                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Order History</h3>
+                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
             </div>
             <div className='px-2  md:ml-20 md:pl-20 w-full md:w-4/5'>
                 <div className="overflow-x-auto">

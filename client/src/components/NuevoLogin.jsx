@@ -3,12 +3,15 @@ import Login from './login/Login'
 import SignUp from './SignUp'
 import ToasterConfig from '../ui_bodega/Toaster'
 import toast from 'react-hot-toast'
+import { Newspaper } from 'lucide-react'
 
 
 const NuevoLogin = () => {
 
     const [selected, setSelected] = useState(true)
     const [logged, setLogged] = useState(null)
+    const [error, setError] = useState(null)
+    const [newError, setNewError] = useState(true)
 
     useEffect(() => {
         if(logged) {
@@ -16,20 +19,28 @@ const NuevoLogin = () => {
         }
     },[logged])
 
+    useEffect(() => {
+        if (error !== null) {
+            toast.error(error)
+        }
+        
+        
+    },[newError])
+
 
 
 
     if (selected) {
         return (
             <>
-                <Login setSelected={setSelected} />
+                <Login newError={newError} setNewError={setNewError} setError={setError} setSelected={setSelected} />
                 <ToasterConfig />
             </>
         )
     } else {
         return (
             <>
-                <SignUp setLogged={setLogged} setSelected={setSelected} />
+                <SignUp newError={newError} setNewError={setNewError} setError={setError} setLogged={setLogged} setSelected={setSelected} />
                 <ToasterConfig />
             </>
         )

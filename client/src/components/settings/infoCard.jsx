@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { PhotoIcon } from "@heroicons/react/24/solid";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
@@ -18,14 +17,14 @@ function InfoCard({ shopData, setShopData }) {
   });
   const token = useSelector((state) => state?.client.token);
 
-  const [selectedImage, setSelectedImage] = useState({ img: shopData.img || defaultImageUrl });
+  const [selectedImage, setSelectedImage] = useState({ img: shopData ? shopData.image : defaultImageUrl });
   const cat = useSelector((state) => state);
 
   const categories = cat.categories;
 
   useEffect(() => {
-    setSelectedImage({ img: shopData.img || defaultImageUrl });
-  }, [shopData.img]);
+    setSelectedImage({ img: shopData.image || defaultImageUrl });
+  }, [shopData]);
 
   useEffect(() => {
     setNewShop({
@@ -106,11 +105,11 @@ function InfoCard({ shopData, setShopData }) {
   };
 
   return (
-    <div className="w-full min-h-[430px] pt-6 rounded-lg bg-white text-black shadow-lg">
-      <div className="flex flex-row min-h-[200px]">
+    <div className="w-full lg:w-[90%] min-h-[430px] pt-6 rounded-lg bg-white text-black shadow-lg mx-auto">
+      <div className="flex flex-col md:flex-row min-h-[200px]">
         <div className="flex-1 min-h-[200px] pl-5">
           <div
-            className="w-[300px] h-[300px] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
+            className="w-full h-[300px] rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105"
             onClick={handleImageClick}
           >
             <img
