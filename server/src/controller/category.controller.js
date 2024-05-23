@@ -14,6 +14,7 @@ export const getByLocalId = async (req, res) => {
     const categories = await Category.findAll({
       where: {
         local_id: idNumber,
+        state: "1",
       },
     });
 

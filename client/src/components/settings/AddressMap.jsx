@@ -47,16 +47,16 @@ function Map({ shopData, latLong }) {
 
   const handleConfirmAddress = async () => {
     if (!address) {
-      window.alert("Por favor, ingresa una dirección válida.");
+      window.alert("Please enter a valid address.");
       return;
     }
-
+  
     const data = {
       address,
       lat: selected.lat,
       lng: selected.lng
     };
-
+  
     try {
       const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data, {
         headers: {
@@ -65,15 +65,16 @@ function Map({ shopData, latLong }) {
       });
       console.log(response.data);
       if (response.status === 200) {
-        window.alert("Dirección actualizada con éxito");
+        window.alert("Address updated successfully.");
       } else {
-        window.alert("Error al actualizar la dirección de la tienda");
+        window.alert("Error updating the shop's address.");
       }
     } catch (error) {
-      console.error('Error actualizando la tienda:', error);
-      window.alert("Ocurrió un error al actualizar la dirección de la tienda.");
+      console.error('Error updating the shop:', error);
+      window.alert("An error occurred while updating the shop's address.");
     }
   };
+  
 
   return (
     <>

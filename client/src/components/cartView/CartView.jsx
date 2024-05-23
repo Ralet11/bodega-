@@ -230,13 +230,13 @@ const CartView = ({ onClose }) => {
                 <div className="mt-8 flex flex-col md:flex-row justify-end space-y-4 md:space-y-0 md:space-x-4">
                     <button
                         onClick={() => handlePayment('stripe')}
-                        className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                        className="bg-yellow-500 hover:bg-indigo-500 text-white font-bold py-2 px-4 rounded"
                     >
                         Checkout with Stripe
                     </button>
                     <button
                         onClick={() => handlePayment('bodega')}
-                        className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+                        className="bg-yellow-500 hover:bg-indigo-500 hover:text-white text-gray-700 font-bold py-2 px-4 rounded"
                     >
                         Checkout with Bodega Balance
                     </button>
