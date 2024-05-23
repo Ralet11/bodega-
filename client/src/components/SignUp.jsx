@@ -18,6 +18,7 @@ const SignUp = ({setSelected, setLogged}) => {
     name: '',
     email: '',
     password: '',
+    confirmPassword: '',
     phone: '',
     address: ''
   });
@@ -32,6 +33,8 @@ const SignUp = ({setSelected, setLogged}) => {
       error = 'Email is invalid';
     } else if (name === 'password' && !value.trim()) {
       error = 'Password is required';
+    } else if (name === 'confirmPassword' && value !== formData.password) {
+      error = 'Passwords do not match';
     }
 
     setFormData({
@@ -64,6 +67,14 @@ const SignUp = ({setSelected, setLogged}) => {
 
     if (!formData.password) {
       errors.password = 'Password is required';
+      isValid = false;
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = 'Confirm Password is required';
+      isValid = false;
+    } else if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
       isValid = false;
     }
 
@@ -128,7 +139,7 @@ const SignUp = ({setSelected, setLogged}) => {
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="name">Name</label>
               <Input onChange={handleInputChange} id="name" placeholder="Enter your name" type="name" name="name" />
-              {errors.UserName && <p className="text-red-500 text-sm mt-1">{errors.UserName}</p>}
+              {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
             </div>
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="email">Email</label>
@@ -138,20 +149,22 @@ const SignUp = ({setSelected, setLogged}) => {
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="password">Password</label>
               <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" />
-              {errors.Password && <p className="text-red-500 text-sm mt-1">{errors.Password}</p>}
+              {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
             </div>
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="confirmPassword">Confirm Password</label>
               <Input onChange={handleInputChange} id="confirmPassword" placeholder="Confirm your password" type="password" name="confirmPassword" />
-              {errors.ConfirmPassword && <p className="text-red-500 text-sm mt-1">{errors.ConfirmPassword}</p>}
+              {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
             </div>
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="phone">Phone</label>
               <Input onChange={handleInputChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
+              {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
             </div>
             <div className="w-full px-3 mb-4">
               <label className="text-white" htmlFor="address">Address</label>
               <Input onChange={handleInputChange} id="address" placeholder="Enter your address" type="address" name="address" />
+              {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
             </div>
             <div className="text-center relative w-full">
               <button onClick={handleSubmit} type="submit" className="w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600">
