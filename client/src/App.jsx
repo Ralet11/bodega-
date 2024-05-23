@@ -24,6 +24,7 @@ import SignUp from './components/SignUp.jsx';
 import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
 import CreateFirstShop from './components/CreateFirstShop.jsx';
 import NuevoLogin from './components/NuevoLogin.jsx';
+import ContactForm from './components/contact/Contact.jsx';
 
 function App() {
   const location = useLocation();
@@ -91,6 +92,7 @@ function App() {
         <Route path='/register' element={<SignUp />}></Route>
         <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
         <Route path='/create-shop' element={<CreateFirstShop />}></Route>
+        <Route path='/contact' element={<ContactForm />}></Route>
       </Routes>
     </div>
   );
