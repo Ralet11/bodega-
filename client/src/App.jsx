@@ -32,7 +32,7 @@ function App() {
   // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
-  const socket = socketIOClient("https://3.15.211.38");
+  const socket = socketIOClient("http://localhost");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {

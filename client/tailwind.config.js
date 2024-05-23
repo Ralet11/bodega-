@@ -20,7 +20,10 @@ export default {
         'green-500': '#48bb78',
         'custom-yellow': '#FFA000',
         'custom-yellow-hover': '#FFD54F'
-      }
+      },
+      fontFamily: {
+        sans: ['Fira Code', 'monospace'],
+      },
       
       
     },
