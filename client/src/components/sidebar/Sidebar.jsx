@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect, useRef } from "react";
 import PropTypes from 'prop-types';
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, X } from "lucide-react";
 import { Link } from 'react-router-dom';
 
 const SidebarContext = React.createContext();
@@ -9,11 +9,25 @@ export default function Sidebar({ children }) {
   const [expanded, setExpanded] = useState(false);
   const [selectedButton, setSelectedButton] = useState("");
   const [showMore, setShowMore] = useState(false);
+  const moreMenuRef = useRef(null);
 
   // Split children into visible and hidden icons
   const childrenArray = React.Children.toArray(children);
   const visibleChildren = childrenArray.slice(0, 4); // Display 4 icons initially
   const hiddenChildren = childrenArray.slice(4); // Rest of the icons
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMore && moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
+        setShowMore(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showMore]);
 
   return (
     <>
@@ -38,12 +52,12 @@ export default function Sidebar({ children }) {
             {hiddenChildren.length > 0 && (
               <>
                 <SidebarItem
-                  icon={<MoreVertical />}
-                  text="More"
+                  icon={showMore ? <X /> : <MoreVertical />}
+                  text={showMore ? "Less" : "More"}
                   onClick={() => setShowMore(!showMore)}
                 />
                 {showMore && (
-                  <div className="absolute bottom-full mb-2 w-full flex justify-around bg-white shadow-lg p-2 border-t">
+                  <div ref={moreMenuRef} className="absolute bottom-full mb-2 w-full flex justify-around bg-white shadow-lg p-2 border-t">
                     {hiddenChildren}
                   </div>
                 )}
