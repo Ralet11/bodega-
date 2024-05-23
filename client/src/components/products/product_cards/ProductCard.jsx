@@ -22,7 +22,7 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
     >
       <div className="mb-2">
         <img
-          src={`${API_URL_BASE}/${product.img}`}
+          src={product.img}
           alt={product.name}
           className="w-16 h-16 object-cover rounded-full"
         />

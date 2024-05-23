@@ -63,34 +63,34 @@ const Header = () => {
     }
   }, [dropdownOpen, dropdownPosition]);
 
-  console.log(shop)
+  console.log(shop);
 
   return (
     <header className='shadow-md w-full fixed top-0 left-0 z-10 bg-white'>
-      <nav className='flex items-center justify-between bg-[#F2BB26] py-4 px-5 md:px-10'>
+      <nav className='flex items-center justify-between bg-[#F2BB26] py-3 px-4 md:py-4 md:px-10'>
         {/* Logo section */}
         <div className='flex items-center'>
-          <img src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716317107/bodegaicon_2-removebg-preview2_hwvlb3.png' alt='BodegaLogo' className='mb-1 w-8 h-10' />
-          <span className='text-black ml-0.5 font-bold text-2xl'>odega+</span>
+          <img src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716317107/bodegaicon_2-removebg-preview2_hwvlb3.png' alt='BodegaLogo' className='mb-1 w-6 h-8 md:w-8 md:h-10' />
+          <span className='text-black ml-0.5 font-bold md:text-2xl'>odega+</span>
         </div>
 
         {/* Cart Icon always visible */}
         <div className='md:hidden flex items-center'>
-          <CartIcon className='mr-4' />
+          <CartIcon className='mr-3' />
         </div>
 
         {/* Mobile menu button */}
         <div className='md:hidden flex items-center'>
-          <button onClick={toggleMenu}>
-            {open ? <XMarkIcon className='w-6 h-6' /> : <Bars3BottomRightIcon className='w-6 h-6' />}
-          </button>
-        </div>
+  <button className='bg-black p-2' onClick={toggleMenu}>
+    {open ? <XMarkIcon className='text-yellow-300 w-5 h-5' /> : <Bars3BottomRightIcon className='text-yellow-300 w-5 h-5' />}
+  </button>
+</div>
 
         {/* Dropdown de Tailwind Elements */}
         {dropdownOpen && (
           <ul
             ref={dropdownRef}
-            className="absolute md:ml-[-100px] md:mt-5 z-50 w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm transition duration-300 ease-in-out"
+            className="absolute ml-[-120px] mt-4 z-20 w-48 py-2 bg-white border border-gray-300 rounded-lg shadow-lg text-left text-sm transition duration-300 ease-in-out"
             aria-labelledby="dropdownMenuButton1"
             data-te-dropdown-menu-ref
             style={{ top: '100%', left: 'auto', right: '0' }}
@@ -102,7 +102,7 @@ const Header = () => {
                 data-te-dropdown-item-ref
                 onClick={closeDropdown}
               >
-                <CogIcon className="w-5 h-5 mr-2" />
+                <CogIcon className="w-4 h-4 mr-2" />
                 Shop Settings
               </Link>
             </li>
@@ -113,7 +113,7 @@ const Header = () => {
                 data-te-dropdown-item-ref
                 onClick={closeDropdown}
               >
-                <CalendarIcon className="w-5 h-5 mr-2" />
+                <CalendarIcon className="w-4 h-4 mr-2" />
                 Edit Availability
               </Link>
             </li>
@@ -124,7 +124,7 @@ const Header = () => {
                 data-te-dropdown-item-ref
                 onClick={closeDropdown}
               >
-                <UserIcon className="w-5 h-5 mr-2" />
+                <UserIcon className="w-4 h-4 mr-2" />
                 Account
               </Link>
             </li>
@@ -142,7 +142,7 @@ const Header = () => {
           <li className='flex items-center justify-center md:justify-start w-full md:w-auto mt-4 md:mt-0'>
             {shop && shop.img && (
               <img
-                className='w-10 h-10 rounded-full'
+                className='w-8 h-8 md:w-10 md:h-10 rounded-full'
                 src={shop.img}
                 alt={`Thumbnail of ${shop.name}`}
               />
@@ -150,10 +150,10 @@ const Header = () => {
           </li>
           <li className='flex items-center justify-center md:ml-3 md:justify-start w-full md:w-auto mt-4 md:mt-0 cursor-pointer font-bold'>
             {shop && shop.name}
-            {shop && <ChevronDownIcon onClick={toggleDropdown} className='w-4 h-4 ml-1' />}
+            {shop && <ChevronDownIcon onClick={toggleDropdown} className='w-3 h-3 md:w-4 md:h-4 ml-1' />}
           </li>
           <li className='flex items-center justify-center md:justify-start w-full md:w-auto mt-4 md:mt-0'>
-            <ArrowLeftOnRectangleIcon onClick={logOut} className='w-7 h-7 cursor-pointer' />
+            <ArrowLeftOnRectangleIcon onClick={logOut} className='w-6 h-6 md:w-7 md:h-7 cursor-pointer' />
           </li>
         </ul>
       </nav>

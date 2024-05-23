@@ -74,33 +74,30 @@ function Map({ shopData, latLong }) {
       window.alert("An error occurred while updating the shop's address.");
     }
   };
-  
 
   return (
-    <>
-      <div className="w-full h-full p-4 bg-white shadow-lg rounded-lg">
-        <div className="mb-4">
-          <GoogleMap zoom={15} center={selected || center} mapContainerClassName="w-full h-64 rounded-lg overflow-hidden">
-            {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
-          </GoogleMap>
-        </div>
-        <div className="places-container flex items-center w-full">
-          <Autocomplete onPlaceChanged={handlePlaceSelect} onLoad={autocomplete => (searchResult.current = autocomplete)}>
-            <div className="relative flex w-full mt-5">
-              <input 
-                className="text-black w-full border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
-                placeholder={address} 
-              />
-              <button 
-                className="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-700 transition duration-300" 
-                onClick={handleConfirmAddress}
-              >
-                Save
-              </button>
-            </div>
-          </Autocomplete>
-        </div>
+    <div className="w-full h-full p-4 bg-white shadow-lg rounded-lg">
+      <div className="mb-4">
+        <GoogleMap zoom={15} center={selected || center} mapContainerClassName="w-full h-64 rounded-lg overflow-hidden">
+          {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
+        </GoogleMap>
       </div>
-    </>
+      <div className="places-container flex flex-col items-center w-full">
+        <Autocomplete onPlaceChanged={handlePlaceSelect} onLoad={autocomplete => (searchResult.current = autocomplete)}>
+          <div className="relative flex w-full mt-5">
+            <input 
+              className="text-black w-full border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
+              placeholder={address} 
+            />
+            <button 
+              className="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-700 transition duration-300" 
+              onClick={handleConfirmAddress}
+            >
+              Save
+            </button>
+          </div>
+        </Autocomplete>
+      </div>
+    </div>
   );
 }

@@ -315,8 +315,12 @@ function Products() {
 
   return (
     <>
-      <div className="flex flex-col bg-gray-100 lg:h-screen lg:mt-20 lg:pl-[150px] md:flex-row gap-4 md:gap-[30px] p-4">
-        <div className="bg-transparent-cloud p-4 rounded-lg shadow-md w-full md:w-[200px] h-auto md:h-[360px]">
+      <div className="pb-5 text-center mt-20">
+        <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Products</h3>
+        <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+      </div>
+      <div className="flex pb-20 md:ml-20 md:pt-10 flex-col bg-gray-200 lg:h-screen lg:pl-[150px] md:flex-row gap-4 md:gap-[30px] p-4">
+        <div className=" bg-gray-100 p-4 rounded-lg shadow-md w-full md:w-[200px] h-auto md:h-[360px]">
           <h2 className="text-base font-semibold mt-2">All Categories</h2>
           <ul className="mt-4">
             {Array.isArray(categories) && categories.map((category, index) => (
@@ -344,7 +348,7 @@ function Products() {
           </div>
         </div>
         {selectedCategory !== null && (
-          <div className="bg-transparent-cloud p-4 rounded-lg shadow-md w-full md:w-[800px] min-h-[600px]">
+          <div className="bg-gray-100 p-4 rounded-lg shadow-md w-full md:w-[800px] min-h-[600px]">
             <ProductCards
               selectedCategory={selectedCategory}
               products={products}
@@ -362,36 +366,42 @@ function Products() {
         )}
 
         {selectedProduct && (
-          <div className="w-full md:w-[300px] h-auto md:h-[350px] rounded overflow-hidden shadow-lg bg-white">
-            <img
-              src={`${API_URL_BASE}/${selectedProduct.img}`}
-              alt={selectedProduct.name}
-              className="w-full h-[200px] md:h-[100px] rounded-lg object-cover mb-2"
-            />
-            <div className="px-6 py-4">
-              <div className="font-bold text-xl mb-2">{selectedProduct.name}</div>
-              <hr className="my-2 border-gray-300" />
-              <p className="text-gray-700 text-base mt-4 font-serif italic">
-                {selectedProduct.description}
-              </p>
-            </div>
-            <div className="px-6 pt-4 pb-2">
-              <hr className="my-2 border-gray-300" />
-              <p className="text-gray-700 text-base">Price: ${selectedProduct.price}</p>
-              <hr className="my-2 border-gray-300" />
-              <div className="mt-4 flex justify-between items-center">
-                <div className="flex items-center ml-auto md:ml-[150px]">
-                  <span className="text-blue-500 hover:text-blue-700 font-bold py-2 px-4 rounded-full cursor-pointer">
-                    <PencilIcon onClick={openEditProduct} className="w-5 h-5" />
-                  </span>
-                  <span className="text-red-500 hover:text-red-700 font-bold py-2 px-4 rounded-full cursor-pointer">
-                    <Trash onClick={DeleteProduct} className="w-5 h-5" />
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="bg-white w-full md:w-[350px] h-auto rounded-lg overflow-hidden shadow-lg">
+    <img
+      src={selectedProduct.img}
+      alt={selectedProduct.name}
+      className="w-full h-[200px] md:h-[250px] object-cover"
+    />
+    <div className="px-6 py-4">
+      <div className="font-bold text-2xl mb-2 text-gray-800">{selectedProduct.name}</div>
+      <hr className="my-2 border-gray-300" />
+      <p className="text-gray-700 text-base mt-4 font-serif italic">
+        {selectedProduct.description}
+      </p>
+    </div>
+    <div className="px-6 pt-4 pb-2">
+      <hr className="my-2 border-gray-300" />
+      <p className="text-gray-700 text-base">Price: ${selectedProduct.price}</p>
+      <hr className="my-2 border-gray-300" />
+      <div className="mt-4 flex justify-end items-center">
+        <button
+          className="text-blue-500 hover:text-blue-700 font-bold py-2 px-4 rounded-full flex items-center mr-2"
+          onClick={openEditProduct}
+        >
+          <PencilIcon className="w-5 h-5 mr-1" />
+          Edit
+        </button>
+        <button
+          className="text-red-500 hover:text-red-700 font-bold py-2 px-4 rounded-full flex items-center"
+          onClick={DeleteProduct}
+        >
+          <Trash className="w-5 h-5 mr-1" />
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
         <CategoryModal
           show={showAddCategory}

@@ -8,19 +8,17 @@ import {
 } from "@material-tailwind/react";
 import {
   Square3Stack3DIcon,
-  UserCircleIcon,
   StarIcon,
 } from "@heroicons/react/24/solid";
 
 import InfoCard from "./infoCard";
-import AdressMap from "./AddressMap";
+import AddressMap from "./AddressMap";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import PayMethods from "./PayMethods";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import Balance from "../balanceBodega";
 
-const {API_URL_BASE} = getParamsEnv()
+const { API_URL_BASE } = getParamsEnv();
 
 function Settings() {
   const activeShop = useSelector((state) => state.activeShop);
@@ -32,9 +30,9 @@ function Settings() {
     name: '',
     phone: '',
     address: '',
-    image: shop.img,
+    image: null,
   });
-  const [latLong, setlatLong] = useState({ lat: null, lng: null });
+  const [latLong, setLatLong] = useState({ lat: null, lng: null });
   const [fetchLatLong, setFetchLatLong] = useState(false);
 
   useEffect(() => {
@@ -48,17 +46,17 @@ function Settings() {
           name: data.name,
           phone: data.phone,
           address: data.address,
-          image: `${API_URL_BASE}/${data.img}`,
+          image: data.img,
           category: data.locals_categories_id || ""
         });
-  
+
         // Activa la solicitud de coordenadas
         setFetchLatLong(true);
       } catch (error) {
         console.error('Error en la solicitud:', error);
       }
     };
-  
+
     fetchData();
   }, [activeShop]);
 
@@ -71,57 +69,52 @@ function Settings() {
           const lat = location.lat;
           const lng = location.lng;
           console.log(lat, lng);
-          setlatLong({ lat, lng });
+          setLatLong({ lat, lng });
         } catch (error) {
           console.error('Error en la solicitud:', error);
         }
         // Restablece fetchLatLong a false después de la solicitud
         setFetchLatLong(false);
       };
-  
+
       fetchData();
     }
   }, [shopData, fetchLatLong]);
 
-
   const data = [
     {
-      label: "Shop Settings",
-      value: "Shop Settings",
+      label: "Settings",
+      value: "Settings",
       icon: Square3Stack3DIcon,
       desc: (
-        <div className=" w-full min-h-[200px] p-4 rounded">
-          <div className="flex gap-[60px] p-5">
-            <div className=" w-[800px] min-h-[400px] rounded-lg bg-white text-white">
-              <div className=" p-5 w-[500px] max-h-[50px]">
-                <AdressMap shopData={shopData} setShopData={setShopData} latLong={latLong}/>
+        <div className="w-full min-h-[200px] p-4 rounded">
+          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 p-5">
+            <div className="w-full lg:w-1/2 min-h-[400px] rounded-lg bg-white text-white">
+              <div className="p-5 w-full lg:w-full max-h-[50px]">
+                <AddressMap shopData={shopData} setShopData={setShopData} latLong={latLong} />
               </div>
             </div>
-            <div className=" w-full min-h-[400px]">
+            <div className="w-full lg:w-1/2 min-h-[400px]">
               <InfoCard shopData={shopData} setShopData={setShopData} />
             </div>
           </div>
-          <div></div>
-        </div>)
+        </div>
+      )
     },
     {
-      label: "Bodega Balance",
-      value: "Bodega Balance",
+      label: "Balance",
+      value: "Balance",
       icon: StarIcon,
       desc: <Balance />
     }
-    
   ];
 
-
-
-
   return (
-    <div className="mt-[100px] ml-[80px] p-5">
+    <div className="bg-gray-200 pb-20 mt-20 md:mt-12 lg:mt-[100px] md:ml-8 lg:ml-[80px]">
       <Tabs value="Shop Settings">
-        <TabsHeader>
+        <TabsHeader className="flex w-2/3 m-auto">
           {data.map(({ label, value, icon }) => (
-            <Tab key={value} value={value}>
+            <Tab key={value} value={value} className="flex-1">
               <div className="flex items-center gap-2">
                 {React.createElement(icon, { className: "w-5 h-5" })}
                 {label}
@@ -141,4 +134,4 @@ function Settings() {
   );
 }
 
-export default Settings
+export default Settings;

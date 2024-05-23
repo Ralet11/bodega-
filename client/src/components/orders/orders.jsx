@@ -23,7 +23,7 @@ const Orders = () => {
     finished: [],
   });
 
-  const socket = socketIOClient("http://localhost");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -183,10 +183,10 @@ const Orders = () => {
 
   return (
     <div className="ml-5 md:ml-20 mt-20">
-      <div className="pl-5 md:pl-9 pb-5">
-        <h3 className="text-lg font-semibold mt-2">Orders</h3>
-        <hr className="my-4 border-t border-gray-300" />
-      </div>
+       <div className="pb-5 text-center">
+                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Orders</h3>
+                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+            </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-5 md:ml-20 pl-5 md:pl-10">
         {["new order", "accepted", "sending"].map((status, index) => (
           <div

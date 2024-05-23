@@ -13,11 +13,10 @@ import ToasterConfig from "../../ui_bodega/Toaster";
 
 const { API_URL_BASE } = getParamsEnv()
 
-const Login = ({setSelected}) => {
+const Login = ({setSelected, setError, newError, setNewError}) => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
 
   const navigate = useNavigate()
   const location = useLocation();
@@ -70,10 +69,12 @@ const Login = ({setSelected}) => {
       } else {
         console.log('Error en la respuesta del servidor:', response.data)
         setError('Usuario o contraseña incorrectos')
+        setNewError(!newError)
       }
     } catch (error) {
       console.error('Error:', error)
       setError('Usuario o contraseña incorrectos')
+      setNewError(!newError)
     }
   }
 
