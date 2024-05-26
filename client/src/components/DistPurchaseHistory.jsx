@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 
 import axios from 'axios';
 import { getParamsEnv } from './../functions/getParamsEnv.js';
 import { useDispatch, useSelector } from "react-redux";
-import Modal from './Modal'
+import Modal from './Modal';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -17,7 +17,8 @@ const DistPurchaseHistory = () => {
         });
         return formattedDate;
     };
-    const token = useSelector((state) => state?.client.token)
+
+    const token = useSelector((state) => state?.client.token);
     const activeShop = useSelector((state) => state.activeShop);
     const [orders, setOrders] = useState([]);
     const [selectedProducts, setSelectedProducts] = useState([]);
@@ -30,12 +31,12 @@ const DistPurchaseHistory = () => {
                     headers: {
                       Authorization: `Bearer ${token}`,
                     },
-                  })
-                setOrders(response.data)
+                  });
+                setOrders(response.data);
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
-        }
+        };
 
         fetchOrders();
     }, [activeShop]);
@@ -48,11 +49,8 @@ const DistPurchaseHistory = () => {
     const getStatusClass = (status) => {
         switch (status) {
             case 'Pending purchase':
-                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Confirmed purchase':
-                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Packing up':
-                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'On the way':
                 return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Arrived':
@@ -60,7 +58,6 @@ const DistPurchaseHistory = () => {
             case 'Closed':
                 return 'bg-gray-100 text-gray-800 font-bold';
             case 'Canceled by user':
-                return 'bg-red-100 text-red-800 font-bold';
             case 'Canceled by Bodega':
                 return 'bg-red-100 text-red-800 font-bold';
             default:
@@ -71,46 +68,45 @@ const DistPurchaseHistory = () => {
     return (
         <>
             <div className='md:ml-20 md:pl-5 mt-20'>
-            <div className="pb-5 text-center">
-                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Your buys</h3>
-                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
-            </div>
-                <div className='m-auto w-4/5'>
-                <div className="overflow-y-auto min-w-[100%] max-h-[680px]">
-                    <Table hoverable>
-                        <TableHead>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Order Id</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Details</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Date</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Status</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Payment</TableHeadCell>
-                            <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">
-                                <span className="sr-only">Edit</span>
-                            </TableHeadCell>
-                        </TableHead>
-                        <TableBody className="divide-y">
-                            {orders.map(order => (
-                                <TableRow key={order.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
-                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
-                                        {order.id}
-                                    </TableCell>
-                                    <TableCell>
-                                        <button className='border border-black hover:text-black' onClick={() => handleDetailsClick(order.products)}>Details</button>
-                                    </TableCell>
-                                    <TableCell>{formatDate(order.date)}</TableCell>
-                                    <TableCell className={getStatusClass(order.status)}>{order.status}</TableCell>
-                                    <TableCell>${order.total}</TableCell>
-                                    <TableCell>
-                                        <a href="#" className="font-medium text-cyan-600 hover:underline dark:text-cyan-500">
-                                            Edit
-                                        </a>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                <div className="pb-5 text-center">
+                    <h3 className="text-lg md:text-2xl font-bold mt-2 text-gray-800">Your buys</h3>
+                    <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
                 </div>
-
+                <div className='m-auto w-4/5'>
+                    <div className="overflow-y-auto min-w-[100%] max-h-[680px] custom-scrollbar">
+                        <Table hoverable>
+                            <TableHead>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Order Id</TableHeadCell>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Details</TableHeadCell>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Date</TableHeadCell>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Status</TableHeadCell>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">Payment</TableHeadCell>
+                                <TableHeadCell className="sticky top-0 bg-white dark:bg-gray-800 z-2">
+                                    <span className="sr-only">Edit</span>
+                                </TableHeadCell>
+                            </TableHead>
+                            <TableBody className="divide-y">
+                                {orders.map(order => (
+                                    <TableRow key={order.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
+                                        <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                                            {order.id}
+                                        </TableCell>
+                                        <TableCell>
+                                            <button className='border border-black hover:text-black' onClick={() => handleDetailsClick(order.products)}>Details</button>
+                                        </TableCell>
+                                        <TableCell>{formatDate(order.date)}</TableCell>
+                                        <TableCell className={getStatusClass(order.status)}>{order.status}</TableCell>
+                                        <TableCell>${order.total}</TableCell>
+                                        <TableCell>
+                                            <a href="#" className="font-medium text-cyan-600 hover:underline dark:text-cyan-500">
+                                                Edit
+                                            </a>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
             </div>
             {showModal && (
