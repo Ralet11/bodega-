@@ -29,6 +29,7 @@ import Local from "./models/local.js";
 import Distributor from "./models/distributor.model.js";
 import { createDistributor } from "./controller/distributor.controller.js";
 import clientRouter from "./routes/client.routes.js";
+import contactRouter from "./routes/contact.routes.js";
 
 const app = express();
 const stripe = new Stripe(SSK);
@@ -185,6 +186,7 @@ app.use("/api/distOrder", distOrderRouter);
 app.use("/api/distOrderStatus", distOrderStatusRouter);
 app.use("/api/distributors", createDistributor);
 app.use('/api/clients', clientRouter)
+app.use('/api/contact', contactRouter)
 
 
 

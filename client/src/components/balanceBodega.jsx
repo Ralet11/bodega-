@@ -94,7 +94,7 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
   console.log(clientNow);
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container md:h mx-auto p-6">
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-1 bg-white p-4 rounded-lg shadow-lg">
           <div className="flex justify-between items-center mb-4">
@@ -134,7 +134,7 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
         </div>
         <div className="flex-2 w-full md:w-1/3 bg-white p-6 rounded-lg shadow-lg flex flex-col justify-center items-center">
           <h2 className="text-lg font-semibold text-gray-700 mb-4">Account Balance</h2>
-          <p className="text-3xl font-bold text-green-500">${clientNow && clientNow.balance.toFixed(2)}</p>
+          <p className="text-3xl font-bold text-green-500">${clientNow && clientNow.client.balance}</p>
         </div>
       </div>
 

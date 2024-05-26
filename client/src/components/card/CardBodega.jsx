@@ -35,7 +35,7 @@ const DistProdCard = () => {
     return (
         <>
             <GoBackArrow />
-            <div className="flex mt-20 p-2 bg-gray-200 justify-center lg:pt-20 items-center my-6">
+            <div className="flex md:ml-10 mt-20 p-2 bg-gray-200 justify-center lg:pt-20 items-center my-6">
                 <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-6 sm:p-12 pb-24"> {/* Increased bottom padding */}
                     <div className="flex flex-col md:flex-row">
                         <div className="w-full md:w-1/4 flex flex-wrap justify-center md:flex-col md:items-start md:space-y-4 mb-6 md:mb-0 space-x-4 md:space-x-0">

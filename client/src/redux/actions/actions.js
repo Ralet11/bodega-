@@ -12,6 +12,8 @@ export const LOG_OUT = "LOG_OUT"
 export const EMPTY_CART = "EMPTY_CART"
 export const SET_DIST_ORDER = "SET_DIST_ORDER"
 export const SET_CLIENT_LOCALS = "SET_CLIENT_LOCALS"
+export const SET_CATEGORIES = "SET_CATEGORIES"
+export const RESET_CLIENT ="RESET_CLIENT"
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -155,3 +157,11 @@ export const setClientLocals = (locals) => {
     payload: locals
   }
 }
+
+export const setCategories = (categories) => {
+  return {
+    type: SET_CATEGORIES,
+    payload: categories
+  }
+}
+

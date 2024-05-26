@@ -86,6 +86,9 @@ export const changeStatus = async (req, res) => {
 export const updateShop = async (req, res) => {
   const { id, name, phone, category } = req.body;
 
+  const cat = String(category)
+  console.log(cat)
+
   try {
     const local = await Local.findByPk(id);
 
@@ -93,7 +96,7 @@ export const updateShop = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
 
-    await local.update({ name, phone, locals_categories_id: category });
+    await local.update({ name, phone, locals_categories_id: cat });
 
     res.status(200).json({ message: 'Información del local actualizada exitosamente' });
   } catch (error) {
@@ -167,11 +170,14 @@ export const addShop = async (req, res) => {
 
     // Verificar que todos los campos estén presentes
     if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
+      console.log("")
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
+     
     }
 
     // Verificar que el clientId coincida con el idConfirm
     if (clientId !== idConfirm) {
+      console.log("2")
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
     }
 
@@ -192,6 +198,7 @@ export const addShop = async (req, res) => {
         id: newShop.id
       }
     });
+    console.log("err1")
 
     res.json({
       error: false,

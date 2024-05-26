@@ -5,6 +5,8 @@ import PayMethod from '../models/pay_method.js';
 import Stripe from 'stripe';
 import { FRONTEND_URL, SSK } from '../config.js';
 import Local from '../models/local.js';
+import { sendEmailWithProducts } from '../functions/sendEmail.js';
+import Distributor from '../models/distributor.model.js';
 
 const stripe = new Stripe(SSK);
 
@@ -178,3 +180,82 @@ export const checkoutDistPayment = async (req, res) => {
     res.status(500).json({ error: 'Error al procesar el pago' });
   }
 }
+
+
+export const checkoutBodegaDistPayment = async (req, res) => {
+  
+  const { remainingBalance, clientId, orderData, localId } = req.body;
+
+  const idConfirm = req.user.clientId
+
+  if (clientId !== idConfirm) {
+    return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+  }
+
+  const productDetails = orderData.map(item => ({
+    id: item.DistProduct.id,
+    name: item.DistProduct.name,
+    id_proveedor: item.DistProduct.id_proveedor,
+    quantity: item.quantity,
+    price: item.DistProduct.price
+}));
+
+// Extraer todos los proveedores únicos
+ const uniqueSuppliers = [...new Set(productDetails.map(item => item.id_proveedor))];
+
+ const suppliers = await Distributor.findAll({
+  where: {
+      id: uniqueSuppliers
+  }
+})
+
+const supplierData = suppliers.map(supplier => ({
+  id: supplier.id,
+  name: supplier.name,
+  phone: supplier.phone,
+  email: supplier.email,
+  address: supplier.address
+}));
+
+  
+  try {
+    // Encuentra al cliente por su ID
+    const client = await Client.findByPk(clientId);
+
+
+    // Si el cliente no existe, devuelve un error
+    if (!client) {
+      return res.status(404).json({ message: 'Cliente no encontrado' });
+    }
+
+    const clientData = {
+      name: client.name,
+      id: client.id,
+      phone: client.phone
+    };
+
+
+    // Actualiza el balance del cliente
+    client.balance = remainingBalance;
+    await client.save();
+
+    const local = await Local.findByPk(localId);
+
+    const localData = {
+      name: local.name,
+      address: local.address,
+      phone: local.phone,
+      id: local.id
+    };
+
+    await sendEmailWithProducts(productDetails, clientData, localData, supplierData )
+    console.log("email send succesfully")
+
+    // Devuelve una respuesta exitosa
+    res.status(200).json({ message: 'Balance actualizado correctamente', client });
+  } catch (error) {
+    // Maneja los errores
+    console.error('Error actualizando el balance del cliente:', error);
+    res.status(500).json({ message: 'Error actualizando el balance del cliente', error });
+  }
+};
