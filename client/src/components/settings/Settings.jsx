@@ -98,7 +98,7 @@ function Settings() {
   ];
 
   return (
-    <div className="bg-gray-200 mt-20 md:w-4/5 pb-20 md:m-auto md:pt-10 relative z-30">
+    <div className="bg-gray-200 mt-20 md:w-4/5 pb-20 md:m-auto md:pt-10 relative">
       <Tabs value="Settings"> {/* Set "Settings" as the default tab */}
         <TabsHeader className="flex w-2/3 m-auto relative z-10">
           {data.map(({ label, value, icon }) => (
