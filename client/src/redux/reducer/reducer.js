@@ -1,7 +1,9 @@
 import { 
   LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, 
   GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, 
-  SET_DIST_ORDER, SET_CLIENT_LOCALS 
+  SET_DIST_ORDER, SET_CLIENT_LOCALS, 
+  SET_CATEGORIES,
+  RESET_CLIENT
 } from "../actions/actions";
 
 const initialState = {
@@ -108,6 +110,11 @@ const rootReducer = (state = initialState, action) => {
           ...state.client,
           locals: action.payload
         }
+      }
+    case SET_CATEGORIES:
+      return {
+        ...state,
+        categories: action.payload
       }
     default:
       return state;

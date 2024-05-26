@@ -1,6 +1,8 @@
 import Client from '../models/client.js';
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
+import { where } from 'sequelize';
+import Local from '../models/local.js'
 
 export const getAllClients = async (req, res) => {
   try {
@@ -38,17 +40,20 @@ export const addClient = async (req, res) => {
 export const getClientById = async (req, res) => {
   try {
     const clientId = req.params.id; 
+    const token = req.headers['authorization']?.split(' ')[1]; // Obtener el token del encabezado Authorization
+
     if (!clientId) {
       return res.status(400).json({ message: "Solicitud incorrecta. Por favor, proporcione un ID de cliente válido." });
     }
 
     const client = await Client.findByPk(clientId);
+    const locals = await Local.findAll({ where: { clients_id: clientId } });
 
     if (!client) {
       return res.status(404).json({ message: "Cliente no encontrado." });
     }
 
-    res.json(client);
+    res.json({ client, locals, token });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
   }

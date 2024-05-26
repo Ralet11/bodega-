@@ -23,6 +23,7 @@ function Map({ shopData, latLong }) {
   const center = useMemo(() => ({ lat: 26, lng: -80 }), []);
   const [selected, setSelected] = useState(null);
   const [address, setAddress] = useState(shopData.address);
+  const [isAddressChanged, setIsAddressChanged] = useState(false);
   const searchResult = useRef(null);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ function Map({ shopData, latLong }) {
       
       setAddress(place.formatted_address);
       setSelected({ lat, lng });
+      setIsAddressChanged(true);
     } else {
       alert("Please enter text");
     }
@@ -66,6 +68,7 @@ function Map({ shopData, latLong }) {
       console.log(response.data);
       if (response.status === 200) {
         window.alert("Address updated successfully.");
+        setIsAddressChanged(false);
       } else {
         window.alert("Error updating the shop's address.");
       }
@@ -78,7 +81,7 @@ function Map({ shopData, latLong }) {
   return (
     <div className="w-full h-full p-4 bg-white shadow-lg rounded-lg">
       <div className="mb-4">
-        <GoogleMap zoom={15} center={selected || center} mapContainerClassName="w-full h-64 rounded-lg overflow-hidden">
+        <GoogleMap zoom={15} center={selected || center} mapContainerClassName="w-full h-64 rounded-lg overflow-hidden shadow-md">
           {selected && <Marker position={{ lat: selected.lat, lng: selected.lng }} />}
         </GoogleMap>
       </div>
@@ -88,10 +91,12 @@ function Map({ shopData, latLong }) {
             <input 
               className="text-black w-full border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
               placeholder={address} 
+              onChange={() => setIsAddressChanged(true)}
             />
             <button 
-              className="bg-blue-500 text-white p-3 rounded-r-lg hover:bg-blue-700 transition duration-300" 
+              className={`bg-gradient-to-r from-blue-500 to-blue-700 text-white p-3 rounded-r-lg hover:from-blue-600 hover:to-blue-800 transition duration-300 ${!isAddressChanged ? 'bg-gray-400 cursor-not-allowed' : ''}`}
               onClick={handleConfirmAddress}
+              disabled={!isAddressChanged}
             >
               Save
             </button>

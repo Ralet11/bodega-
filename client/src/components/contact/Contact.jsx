@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import axios from "axios";
+import { useState } from "react";
+import {useSelector} from 'react-redux'
+import {getParamsEnv} from './../../functions/getParamsEnv.js'
+
+const {API_URL_BASE} = getParamsEnv()
+
 
 export default function ContactForm() {
+  const token = useSelector((state) => state?.client.token)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -15,9 +22,28 @@ export default function ContactForm() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form data submitted:", formData);
+
+    try {
+      const response = await axios.post(`${API_URL_BASE}/api/contact/sendContactMail`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      console.log(response)
+
+      if (response.statusText === "OK") {
+        alert("Email sent successfully!");
+      } else {
+        alert("Error sending email. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Error sending email. Please try again.");
+    }
   };
 
   return (
