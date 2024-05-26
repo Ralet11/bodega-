@@ -29,7 +29,7 @@ const SuccessPaymentDist = () => {
     id: client.client.id
   }
 
-  console.log(client)
+  
   // Agrupar items por su ID
   useEffect(() => {
     if (cartItems.length > 0) {

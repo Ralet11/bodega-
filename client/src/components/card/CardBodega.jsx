@@ -35,7 +35,7 @@ const DistProdCard = () => {
     return (
         <>
             <GoBackArrow />
-            <div className="flex mt-20 justify-center lg:pt-20 items-center my-6">
+            <div className="flex md:ml-10 mt-20 p-2 bg-gray-200 justify-center lg:pt-20 items-center my-6">
                 <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-6 sm:p-12 pb-24"> {/* Increased bottom padding */}
                     <div className="flex flex-col md:flex-row">
                         <div className="w-full md:w-1/4 flex flex-wrap justify-center md:flex-col md:items-start md:space-y-4 mb-6 md:mb-0 space-x-4 md:space-x-0">
@@ -58,9 +58,9 @@ const DistProdCard = () => {
                         </div>
                         <div className="w-full md:w-1/4 flex flex-col justify-start space-y-6 md:ml-8 mt-8 md:mt-0">
                             <div className="text-center">
-                                <h1 className="text-3xl sm:text-5xl font-bold text-gray-800 mb-4">{product.name}</h1>
+                                <h1 className="text-3xl sm:text-2xl font-bold text-gray-800 mb-6">{product.name}</h1>
                                 <div className="flex flex-col sm:flex-row justify-center items-center">
-                                    <Title className="text-2xl sm:text-5xl font-bold leading-9 tracking-tight text-gray-900" text={`$${product.price}`} />
+                                    <span className="text-4xl p-4 mb-2 md:text-4xl md:mt-2 font-bold leading-9 tracking-tight text-gray-900">{`$${product.price}`}</span>
                                     <span className="text-green-600 text-xl sm:text-2xl font-semibold ml-4">10% discount</span>
                                 </div>
                             </div>

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { PhotoIcon } from "@heroicons/react/24/solid";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
+
+const defaultImageUrl = 'https://via.placeholder.com/300';
 
 function InfoCard({ shopData, setShopData }) {
   const [newShop, setNewShop] = useState({
@@ -14,22 +15,15 @@ function InfoCard({ shopData, setShopData }) {
     address: '',
     img: null,
   });
-  const token = useSelector((state) => state?.client.token)
-
-  console.log(shopData)
-
-  const [selectedImage, setSelectedImage] = useState({ img: shopData.image });
-  const cat = useSelector((state) => state)
-
-  
-
-  const categories = cat.categories
+  const token = useSelector((state) => state?.client.token);
+  const [selectedImage, setSelectedImage] = useState({ img: shopData ? shopData.image : defaultImageUrl });
+  const [imageChanged, setImageChanged] = useState(false);
+  const categories = useSelector((state) => state.categories);
 
   useEffect(() => {
-    setSelectedImage({ img: shopData.image });
-  }, [shopData.image]);
+    setSelectedImage({ img: shopData.image || defaultImageUrl });
+  }, [shopData]);
 
-  // Update newShop when shopData changes
   useEffect(() => {
     setNewShop({
       id: shopData.id,
@@ -40,9 +34,6 @@ function InfoCard({ shopData, setShopData }) {
     });
   }, [shopData]);
 
-
-
-  // Handle changes in the input fields
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewShop({
@@ -51,17 +42,15 @@ function InfoCard({ shopData, setShopData }) {
     });
   };
 
-  // Handle changes in the selected image
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a URL for the selected image
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage({ img: imageUrl });
+      setImageChanged(true);
     }
   };
 
-  // Open file input dialog
   const handleImageClick = () => {
     document.getElementById('imageInput').click();
   };
@@ -69,11 +58,10 @@ function InfoCard({ shopData, setShopData }) {
   async function convertBlobUrlToImageFile(blobUrl) {
     const response = await fetch(blobUrl);
     const blob = await response.blob();
-    const filename = 'image.png'; // Puedes cambiar el nombre del archivo si es necesario
+    const filename = 'image.png';
     return new File([blob], filename);
   }
 
-  // Upload selected image
   const handleImageUpload = async () => {
     if (selectedImage) {
       const imageFile = await convertBlobUrlToImageFile(selectedImage.img);
@@ -84,8 +72,8 @@ function InfoCard({ shopData, setShopData }) {
       formData.append('image', imageFile);
 
       try {
-        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData,{
-          headers:{
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
+          headers: {
             Authorization: `Bearer ${token}`
           }
         });
@@ -94,50 +82,44 @@ function InfoCard({ shopData, setShopData }) {
         } else {
           console.error('Error uploading image');
         }
-        window.alert("image updated")
+        window.alert("Image updated");
+        setImageChanged(false);
       } catch (error) {
         console.error('Error uploading image:', error);
       }
     }
   };
 
-
-  // Handle shop update
   const handleChangeShop = async () => {
     try {
-      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, newShop,{
-        headers:{
+      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, newShop, {
+        headers: {
           Authorization: `Bearer ${token}`
         }
       });
       console.log(response.data);
-      window.alert("Info updated")
+      window.alert("Info updated");
     } catch (error) {
       console.error('Error updating shop:', error);
     }
   };
 
-  console.log(newShop)
-
   return (
-    <div className="w-full min-h-[430px] pt-[30px] rounded-lg bg-white text-black">
-      <div className="flex flex-row min-h-[200px]">
-        <div className="flex-1 min-h-[200px] pl-5">
+    <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-lg transition-transform transform hover:scale-105">
+      <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6">
+        <div className="flex-1 p-4">
           <div
-            className="w-[300px] h-[300px] object-cover rounded-lg border border-blue-500 cursor-pointer"
+            className="w-full h-64 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 relative group shadow-lg"
             onClick={handleImageClick}
           >
-            {selectedImage ? (
-              <img
-                src={selectedImage.img}
-                alt="Shop"
-                className="w-full h-full object-cover rounded-lg"
-              />
-            ) : (
-              <div className="w-[80%] h-[80%] flex items-center justify-center">
-                <PhotoIcon className="w-20 h-20 text-blue-500" />
-              </div>
-            )}
+            <img
+              src={selectedImage.img}
+              alt="Shop"
+              className="object-cover w-full h-full rounded-lg"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="text-white font-bold">Change Image</span>
+            </div>
           </div>
           <input
             type="file"
@@ -148,74 +130,70 @@ function InfoCard({ shopData, setShopData }) {
           />
           <button
             onClick={handleImageUpload}
-            className="bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded mt-2 focus:outline-none focus:shadow-outline"
+            disabled={!imageChanged}
+            className={`mt-4 w-full text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 ${imageChanged ? 'bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800' : 'bg-gray-400 cursor-not-allowed'}`}
           >
-            Upload Image
+            Save Image
           </button>
         </div>
         <div className="flex-1 p-4">
-          <h2 className="text-xl font-bold mb-4">Shop Information</h2>
+          <h2 className="text-3xl font-semibold mb-4 text-gray-800">Shop Information</h2>
           <form>
             <div className="mb-4">
-              <div>
-                <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">
-                  Name:
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={newShop.name}
-                  onChange={handleInputChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
+              <label htmlFor="name" className="block text-gray-500 text-sm font-medium mb-2">
+                Name:
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={newShop.name}
+                onChange={handleInputChange}
+                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
             <div className="mb-4">
-              <div>
-                <label htmlFor="phone" className="block text-gray-700 text-sm font-bold mb-2">
-                  Phone:
-                </label>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  value={newShop.phone}
-                  onChange={handleInputChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">
-                  Category:
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={newShop.category}
-                  onChange={handleInputChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option value="" disabled>Select a category</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <label htmlFor="phone" className="block text-gray-500 text-sm font-medium mb-2">
+                Phone:
+              </label>
+              <input
+                type="text"
+                id="phone"
+                name="phone"
+                value={newShop.phone}
+                onChange={handleInputChange}
+                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div className="mb-4">
+              <label htmlFor="category" className="block text-gray-500 text-sm font-medium mb-2">
+                Category:
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={newShop.category}
+                onChange={handleInputChange}
+                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="" disabled>Select a category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <button
               onClick={handleChangeShop}
               type="button"
-              className="bg-blue-500 hover-bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300"
             >
               Save
             </button>
           </form>
         </div>
       </div>
-      <div></div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation, Link } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import Sidebar, { SidebarItem } from './components/sidebar/Sidebar';
 import Header from './components/header/Header';
 import "./App.css";
@@ -12,8 +12,8 @@ import { useState, useEffect } from 'react';
 import socketIOClient from "socket.io-client";
 import OrdersHistory from './components/orders_history/OrdersHistory';
 import Settings from './components/settings/Settings';
-import { setNewOrder } from './redux/actions/actions';
-import { useDispatch } from 'react-redux';
+import { setCategories, setNewOrder } from './redux/actions/actions';
+import { useDispatch, useSelector } from 'react-redux';
 import Landing from './components/Landing/Landing';
 import Discounts from './components/Discounts/Discounts';
 import DistributorComerce from './components/DistributorComerce/DistributorComerce';
@@ -23,52 +23,82 @@ import SuccessPaymentDist from './components/SuccesPaymentDist.jsx';
 import SignUp from './components/SignUp.jsx';
 import DistPurchaseHistory from './components/DistPurchaseHistory.jsx';
 import CreateFirstShop from './components/CreateFirstShop.jsx';
+import NuevoLogin from './components/NuevoLogin.jsx';
+import ContactForm from './components/contact/Contact.jsx';
+import axios from 'axios';
+import { getParamsEnv } from './functions/getParamsEnv.js';
+import Loader from './components/Loader'; // Importa el nuevo componente Loader
+
+const { API_URL_BASE } = getParamsEnv();
 
 function App() {
   const location = useLocation();
-  const dispatch = useDispatch()
-
-  // Renderiza la barra lateral y el encabezado solo si la ruta actual no es '/'
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const token = useSelector((state) => state?.client?.token);
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
-  const [orderNotificationCount, setOrderNotificationCount] = useState(0); // Estado para el contador de notificaciones
+  const [orderNotificationCount, setOrderNotificationCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
-      console.log("entro nueva orden");
       setOrderNotificationCount((prevCount) => prevCount + 1);
       dispatch(setNewOrder(true));
     });
-  
-    // Limpia el evento cuando el componente se desmonta
+
     return () => {
       socket.off("newOrder");
     };
-  }, []);
+  }, [dispatch]);
 
   const handleOrdersClick = () => {
-    setOrderNotificationCount(0); // Restablece el contador a cero
+    setOrderNotificationCount(0);
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
+      console.log(response.data, "llamando categorias");
+      dispatch(setCategories(response.data));
+    };
+
+    fetchCategories();
+  }, [dispatch]);
+
+  useEffect(() => {
+    const protectedRoutes = [
+      '/dashboard', '/products', '/shops', '/orders', 
+      '/history', '/settings', '/discounts', 
+      '/distributorsCommerce', '/distProduct-detail', 
+      '/cartView', '/succesPaymentDist', '/distHistoryBuy', 
+      '/create-shop', '/contact'
+    ];
+
+    if (!token && protectedRoutes.includes(location.pathname)) {
+      navigate("/login");
+    }
+  }, [token, location.pathname, navigate]);
 
   return (
     <div className="flex flex-col h-screen">
       {renderSidebarAndHeader && (
         <>
           <Sidebar className="sidebar">
-            <SidebarItem icon={<ComputerDesktopIcon className="w-6" />} text="Dashboard" link="/dashboard" />
-            <SidebarItem icon={<ShoppingCartIcon className="w-6" />} text="Products" link="/products" />
+            <SidebarItem icon={<ComputerDesktopIcon className="w-4" />} text="Dashboard" link="/dashboard" />
+            <SidebarItem icon={<ShoppingCartIcon className="w-4" />} text="Products" link="/products" />
             <SidebarItem
-              icon={<BellAlertIcon className="w-6" />}
+              icon={<BellAlertIcon className="w-4" />}
               text="Orders"
               notificationCount={orderNotificationCount}
               onClick={handleOrdersClick}
               link="/orders"
             />
-            <SidebarItem icon={<WalletIcon className="w-6" />} text="History" link="/history" />
-            <SidebarItem icon={<BuildingStorefrontIcon className="w-6" />} text="Shops" link="/shops" />
-            <SidebarItem icon={<PhoneIcon className="w-6" />} text="Contact" link="/contact" />
-            <SidebarItem icon={<ShoppingBagIcon className="w-6" />} text="Market" link="/distributorsCommerce" />
-            <SidebarItem icon={<RectangleStackIcon className="w-6" />} text="Your buys" link="/distHistoryBuy" />
+            <SidebarItem icon={<ShoppingBagIcon className="w-4" />} text="Market" link="/distributorsCommerce" />
+            <SidebarItem icon={<WalletIcon className="w-4" />} text="History" link="/history" />
+            <SidebarItem icon={<BuildingStorefrontIcon className="w-4" />} text="Shops" link="/shops" />
+            <SidebarItem icon={<PhoneIcon className="w-4" />} text="Contact" link="/contact" />
+            <SidebarItem icon={<RectangleStackIcon className="w-4" />} text="Your buys" link="/distHistoryBuy" />
           </Sidebar>
           <Header className="header" />
         </>
@@ -80,8 +110,8 @@ function App() {
         <Route path='/shops' element={<Shops />}></Route>
         <Route path='/orders' element={<Orders />}></Route>
         <Route path='/history' element={<OrdersHistory />}></Route>
-        <Route path='settings' element={<Settings />}></Route>
-        <Route path='/login' element={<Login />}></Route>
+        <Route path='/settings' element={<Settings />}></Route>
+        <Route path='/login' element={<NuevoLogin />}></Route>
         <Route path='/discounts' element={<Discounts />}></Route>
         <Route path='/distributorsCommerce' element={<DistributorComerce />}></Route>
         <Route path='/distProduct-detail' element={<DistProdCard />}></Route>
@@ -90,6 +120,7 @@ function App() {
         <Route path='/register' element={<SignUp />}></Route>
         <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
         <Route path='/create-shop' element={<CreateFirstShop />}></Route>
+        <Route path='/contact' element={<ContactForm />}></Route>
       </Routes>
     </div>
   );

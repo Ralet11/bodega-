@@ -5,8 +5,9 @@ import {
     DocumentTextIcon
 } from "@heroicons/react/24/solid";
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import { Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
 
 const HistorialVentas = () => {
     const activeShop = useSelector((state) => state.activeShop);
@@ -24,10 +25,10 @@ const HistorialVentas = () => {
             try {
                 const response = await axios.get(
                     `${API_URL_BASE}/api/orders/get/${activeShop}`, {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
                 );
 
                 const ordersByStatus = {
@@ -68,43 +69,71 @@ const HistorialVentas = () => {
     };
 
     return (
-        <div className="flex flex-col mt-[80px] ml-[160px] max-w-[80%] max-h-[800px]">
-            <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-                    <div className="overflow-hidden">
-                        <table className="min-w-full text-center text-sm font-light">
-                            <thead className="border-b bg-blue-800 font-medium text-white">
-                                <tr>
-                                    <th scope="col" className="px-6 py-4">#</th>
-                                    <th scope="col" className="px-6 py-4">Date</th>
-                                    <th scope="col" className="px-6 py-4">User Name</th>
-                                    <th scope="col" className="px-6 py-4">Order Details</th>
-                                    <th scope="col" className="px-6 py-4">Final Price</th>
-                                    <th scope="col" className="px-6 py-4">Pay Method</th>
-                                    <th scope="col" className="px-6 py-4">Address</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {orders.finished.map((order, index) => (
-
-                                    <tr key={order.id} className="border-b dark:border-neutral-500">
-                                        <td className="whitespace-nowrap px-6 py-4 font-medium">{index + 1}</td>
-                                        <td className="whitespace-nowrap px-6 py-4">{formatDateTime(order.date_time)}</td>
-                                        <td className="whitespace-nowrap px-6 py-4">Nombre usuario</td>
-                                        <td className="whitespace-nowrap px-6 py-4">
-                                            <DocumentTextIcon className="h-6 w-6 text-blue-500 ml-[60px]" />
-                                        </td>
-                                        <td className="whitespace-nowrap px-6 py-4">{order.total_price}</td>
-                                        <td className="whitespace-nowrap px-6 py-4">Credit Card</td>
-                                        <td className="whitespace-nowrap px-6 py-4">User Adress</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+        <div className='ml-5 md:ml-20 mt-20'>
+            <div className="pb-5 text-center">
+                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Order History</h3>
+                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+            </div>
+            <div className='px-2  md:ml-20 md:pl-20 w-full md:w-4/5'>
+                <div className="overflow-x-auto">
+                    <Table className="min-w-full text-center text-sm font-light">
+                        <TableHead className="bg-gray-50">
+                            <TableRow>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    #
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Date
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    User Name
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Order Details
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Final Price
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Pay Method
+                                </TableHeadCell>
+                                <TableHeadCell className="px-3 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Address
+                                </TableHeadCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {orders.finished.map((order, index) => (
+                                <TableRow key={order.id}>
+                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white px-3 py-2">
+                                        {index + 1}
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        {formatDateTime(order.date_time)}
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        Nombre usuario
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        <DocumentTextIcon className="h-6 w-6 text-blue-500 ml-[60px]" />
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        {order.total_price}
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        Credit Card
+                                    </TableCell>
+                                    <TableCell className="px-3 py-2">
+                                        User Address
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
         </div>
+
     );
 }
 

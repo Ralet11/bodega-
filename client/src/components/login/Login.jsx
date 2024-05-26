@@ -13,22 +13,16 @@ import ToasterConfig from "../../ui_bodega/Toaster";
 
 const { API_URL_BASE } = getParamsEnv()
 
-const Login = () => {
+const Login = ({setSelected, setError, newError, setNewError}) => {
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
 
   const navigate = useNavigate()
   const location = useLocation();
   const dispatch = useDispatch()
   const client = useSelector(state => state.client)
 
-  useEffect(() => {
-    if (location.state && location.state.registered) {
-      toast.success("Registration successful! Please log in.");
-    }
-  }, [location.state]);
 
   const handleInputChange = (e) => {
     if (e.target.name === 'email') {
@@ -75,17 +69,21 @@ const Login = () => {
       } else {
         console.log('Error en la respuesta del servidor:', response.data)
         setError('Usuario o contraseña incorrectos')
+        setNewError(!newError)
       }
     } catch (error) {
       console.error('Error:', error)
       setError('Usuario o contraseña incorrectos')
+      setNewError(!newError)
     }
   }
 
   const goRegister = async (e) => {
     e.preventDefault()
+
+    setSelected(false)
     
-    navigate("/register")
+/*     navigate("/register") */
 
   /*   try {
       const response = await axios.post(`${API_URL_BASE}/api/auth/register`, {
@@ -108,7 +106,8 @@ const Login = () => {
     <>    <div className="w-full h-full bg-yellow-400">
   <div className="flex flex-col justify-center items-center min-h-screen bg-cover bg-center bg-yellow-400 md:ml-10">
     <div className="w-full max-w-full px-4 md:px-3 mx-auto mt-0 md:flex-0 shrink-0">
-      <div className="flex flex-col justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-login" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+      <div className="flex flex-col rounded-lg overflow-hidden justify-center items-center min-h-screen bg-yellow-400 bg-custom-img-login" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
+
         <div className="relative bg-black bg-opacity-20 z-0 min-w-0 break-words border-0 shadow-soft-xl rounded-2xl bg-clip-border w-full md:w-4/12 h-auto md:h-[600px] filter brightness-75 contrast-125 p-4 md:p-0">
           <div className="p-6 mb-0 text-center border-b-0 rounded-t-2xl">
             <h5 className="text-center text-3xl md:text-6xl font-bold leading-9 tracking-tight text-white p-6 md:p-12 filter brightness-110">Login with</h5>
@@ -156,23 +155,23 @@ const Login = () => {
             </div>
           </div>
           <div className="flex-auto p-6">
-            <form onSubmit={handleSubmit} role="form text-left">
-              <div className="w-full px-3 mb-4">
+            <form onSubmit={handleSubmit} role=" form text-left">
+              <div className="w-full md:px-10 mb-4">
                 <label className="text-white" htmlFor="email">Email</label>
                 <Input onChange={handleInputChange} id="email" placeholder="Enter your email" type="email" name="email" />
               </div>
-              <div className="w-full px-3 mb-4">
+              <div className="w-full md:px-10 mb-4">
                 <label className="text-white" htmlFor="password">Password</label>
                 <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" />
               </div>
-              <div className="text-center relative">
-                <button className="w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600">
+              <div className="md:px-10 text-center relative">
+                <button className="w-full bg-yellow-500 text-white px-3 rounded-md focus:outline-none hover:bg-indigo-600">
                   <span className="hover:text-black">
                     Log in
                   </span>
                 </button>
               </div>
-              <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-indigo-600" onClick={goRegister}>Sign up</a></p>
+              <p className="mt-4 mb-0 md:px-10 leading-normal text-white text-sm">Don't have an account? <a className="font-bold cursor-pointer text-white hover:text-indigo-600" onClick={goRegister}>Sign up</a></p>
             </form>
           </div>
         </div>

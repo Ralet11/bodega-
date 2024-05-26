@@ -36,7 +36,8 @@ const Client = sequelize.define('client', {
     type: DataTypes.FLOAT,
     allowNull: true
   }
-}, {
+   }
+, {
   tableName: 'clients',
   timestamps: false
 });
