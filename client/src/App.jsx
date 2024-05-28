@@ -39,7 +39,7 @@ function App() {
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("https://3.15.211.38");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -85,20 +85,20 @@ function App() {
       {renderSidebarAndHeader && (
         <>
           <Sidebar className="sidebar">
-            <SidebarItem icon={<ComputerDesktopIcon className="w-4" />} text="Dashboard" link="/dashboard" />
-            <SidebarItem icon={<ShoppingCartIcon className="w-4" />} text="Products" link="/products" />
-            <SidebarItem
-              icon={<BellAlertIcon className="w-4" />}
+            <SidebarItem icon={<ComputerDesktopIcon className="w-2" />} text="Dashboard" link="/dashboard" />
+            <SidebarItem icon={<ShoppingCartIcon className="w-2" />} text="Products" link="/products" />
+           {/*  <SidebarItem
+              icon={<BellAlertIcon className="w-2" />}
               text="Orders"
               notificationCount={orderNotificationCount}
               onClick={handleOrdersClick}
               link="/orders"
-            />
-            <SidebarItem icon={<ShoppingBagIcon className="w-4" />} text="Market" link="/distributorsCommerce" />
-            <SidebarItem icon={<WalletIcon className="w-4" />} text="History" link="/history" />
-            <SidebarItem icon={<BuildingStorefrontIcon className="w-4" />} text="Shops" link="/shops" />
-            <SidebarItem icon={<PhoneIcon className="w-4" />} text="Contact" link="/contact" />
-            <SidebarItem icon={<RectangleStackIcon className="w-4" />} text="Your buys" link="/distHistoryBuy" />
+            /> */}
+            <SidebarItem icon={<ShoppingBagIcon className="w-2" />} text="Market" link="/distributorsCommerce" />
+            <SidebarItem icon={<WalletIcon className="w-2" />} text="History" link="/history" />
+            <SidebarItem icon={<BuildingStorefrontIcon className="w-2" />} text="Shops" link="/shops" />
+            <SidebarItem icon={<PhoneIcon className="w-2" />} text="Contact" link="/contact" />
+            <SidebarItem icon={<RectangleStackIcon className="w-2" />} text="Your buys" link="/distHistoryBuy" />
           </Sidebar>
           <Header className="header" />
         </>
