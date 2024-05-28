@@ -165,7 +165,7 @@ function Dashboard1() {
   const isMobile = useMediaQuery({ query: '(max-width: 768px)' });
   if (isMobile) {
     return (
-      <div className="flex flex-col p-4 pt-8 md:pt-20 pb-20 bg-gray-100">
+      <div className="flex flex-col p-4 pt-8 md:pt-20 pb-20 mt-5 bg-gray-200">
         {loading ? (
           <SkeletonLoader />
         ) : (

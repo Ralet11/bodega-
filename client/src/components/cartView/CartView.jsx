@@ -38,8 +38,9 @@ const CartView = ({ onClose }) => {
             }
         };
         fetchClient();
-    }, [client.id, token]);
+    }, []);
 
+    console.log(clientNow)
     useEffect(() => {
         const quantities = {};
         for (const item of cartItems) {
@@ -144,10 +145,13 @@ const CartView = ({ onClose }) => {
         return acc;
     }, {}));
 
+   
+
     if (isBodegaCheckout) {
         const BodegaBalance = clientNow && clientNow.balance;
 
         const remainingBalance = BodegaBalance - total;
+        
         return (
             <div className="flex justify-center items-center w-full h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
                 <div className="w-full h-full md:h-auto md:max-w-4xl p-4 sm:p-8 md:p-10 bg-white rounded-xl shadow-2xl overflow-y-auto max-h-screen relative">

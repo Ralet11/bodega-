@@ -3,12 +3,10 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDistProd } from '../../redux/actions/actions';
-import CommerceSidebar from '../CommerceSidebar/CommerceSidebar';
 import { getParamsEnv } from '../../functions/getParamsEnv';
-import { RocketLaunchIcon, ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/24/solid';
-import OrderFilter from '../CommerceSidebar/OrderFilter';
-import PriceFilter from '../CommerceSidebar/PriceFilter';
-import CategoriesFilter from '../CommerceSidebar/CategoriesFilter';
+import { MapPinIcon } from '@heroicons/react/24/outline';
+import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
+import HeadSlider from '../sliders/HeadSlider';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -19,13 +17,14 @@ const DistributorComerce = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [hoveredIndex, setHoveredIndex] = useState(-1);
   const token = useSelector((state) => state?.client.token);
+  const client = useSelector((state) => state?.client.client);
   const [filters, setFilters] = useState({
     order: 'newest',
     price: 50,
     categories: [],
     searchTerm: ''
   });
-  const [filtersVisible, setFiltersVisible] = useState(false); // Estado para dispositivos móviles
+  const [filtersVisible, setFiltersVisible] = useState(false);
 
   useEffect(() => {
     const fetchAllProducts = async () => {
@@ -87,30 +86,18 @@ const DistributorComerce = () => {
 
   return (
     <div className="flex flex-col items-center w-full bg-gray-200 pb-20">
-      <div className="w-full md:ml-20 pt-5 md:mt-5 max-w-screen-xl px-4">
-        <CommerceSidebar setFilters={setFilters} filters={filters} />
+      <SearchBarCommerce setFilters={setFilters} filters={filters} />
+      <div className="flex text-xs bg-[#F2BB26] font-bold px-3 gap-1 w-full mt-16">
+        <MapPinIcon className="w-4 h-4" />
+        <p>Send to Calle 1234</p>
+      </div>
+      <HeadSlider />
+      <div className="shadow-md p-1 px-6 font-bold rounded bg-white">
+        <p className="text-xs">
+          <span className="text-green-500">Free Delivery</span> in all products from $1.000
+        </p>
       </div>
       <div className="flex flex-col px-2 md:flex-row justify-center w-full md:w-[80%] mt-8">
-        <button 
-          className="md:hidden flex items-center bg-gray-200 text-black font-bold py-2 px-3 rounded-lg transition duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 mb-4"
-          onClick={toggleFiltersVisibility}
-        >
-          {filtersVisible ? <ChevronUpIcon className="w-5 h-5 mr-1" /> : <ChevronDownIcon className="w-5 h-5 mr-1" />}
-          <span>{filtersVisible ? 'Hide Filters' : 'Show Filters'}</span>
-        </button>
-        <div className={`px-10 ${filtersVisible || 'md:flex'} ${filtersVisible ? '' : 'hidden'}`}>
-          <div className="w-full md:w-60 bg-white border rounded-lg border-gray-300 shadow-lg p-4 mb-4 md:mb-0 md:mr-4">
-            <div className="mb-4">
-              <OrderFilter setFilters={setFilters} filters={filters} />
-            </div>
-            <div className="mb-4">
-              <PriceFilter setFilters={setFilters} filters={filters} />
-            </div>
-            <div>
-              <CategoriesFilter setFilters={setFilters} filters={filters} />
-            </div>
-          </div>
-        </div>
         <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
           {filteredProducts.length === 0 ? (
             <div className="col-span-2 sm:col-span-3 md:col-span-4 lg:w-[940px] flex justify-center items-center h-full">
@@ -125,7 +112,7 @@ const DistributorComerce = () => {
                 onMouseLeave={() => handleHover(-1)}
                 onClick={() => goToDetail(offer)}
               >
-                <div className="relative h-24 sm:h-32 overflow-hidden"> {/* Reduced height */}
+                <div className="relative h-36 sm:h-48 overflow-hidden"> {/* Adjusted height */}
                   <img
                     className="w-full h-full object-cover"
                     src={hoveredIndex === index ? offer.image2 : offer.image1}
@@ -136,8 +123,8 @@ const DistributorComerce = () => {
                   </div>
                 </div>
                 <div className="p-2 flex flex-col flex-grow">
-                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{offer.name}</h3> {/* Reduced font size */}
-                  <p className="text-gray-700 text-lg font-bold mb-2">${offer.price}</p> {/* Reduced font size */}
+                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{offer.name}</h3>
+                  <p className="text-gray-700 text-lg font-bold mb-2">${offer.price}</p>
                   <button className="text-white bg-blue-600 font-bold py-1 px-2 rounded-full transition duration-300 hover:bg-[#F2BB26] hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50">
                     Add to cart
                   </button>
