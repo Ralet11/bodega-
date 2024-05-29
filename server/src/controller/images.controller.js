@@ -13,14 +13,16 @@ cloudinary.config({
 export const updateImage = async (req, res) => {
   try {
     const { id, action } = req.body;
-    const image = req.file;
 
-    console.log(req.body);
+ 
+    const fileContent = req.file.buffer.toString('base64')
 
-    if (!image) {
+    if (!fileContent) {
       res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
       return;
     }
+
+    console.log("3")
 
     let modelToUpdate;
 
@@ -40,9 +42,11 @@ export const updateImage = async (req, res) => {
         return;
     }
 
-    const uploadResult = await cloudinary.uploader.upload(image.path, {
-      folder: action // Subir a la carpeta respectiva en Cloudinary
-    });
+  
+
+    const uploadResult = await cloudinary.uploader.upload(`data:${req.file.mimetype};base64,${fileContent}`, {
+      folder: 'action'
+  });
 
     const imageUrl = uploadResult.secure_url;
 
@@ -52,7 +56,7 @@ export const updateImage = async (req, res) => {
 
   } catch (err) {
     console.error('Error en la función updateImage:', err);
-    res.status(500).json({ error: 'Error en el servidor' });
+    res.status(500).json({ error: err });
   }
   console.log("papa");
 };

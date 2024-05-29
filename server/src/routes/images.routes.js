@@ -8,6 +8,6 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 routerImages.post("/", middleware.auth, upload.single('file'), updateImage);
-routerImages.post("/addNewBalance", middleware.auth, upload.single('file'), uploadBalanceImage )
+routerImages.post("/addNewBalance", middleware.auth, upload.single('file'), uploadBalanceImage);
 
 export default routerImages;

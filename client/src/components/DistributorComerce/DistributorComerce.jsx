@@ -7,7 +7,7 @@ import { getParamsEnv } from '../../functions/getParamsEnv';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import HeadSlider from '../sliders/HeadSlider';
-
+import CartIcon from '../CartIcon'
 const { API_URL_BASE } = getParamsEnv();
 
 const DistributorComerce = () => {
@@ -91,6 +91,7 @@ const DistributorComerce = () => {
         <MapPinIcon className="w-4 h-4" />
         <p>Send to Calle 1234</p>
       </div>
+      <CartIcon />
       <HeadSlider />
       <div className="shadow-md p-1 px-6 font-bold rounded bg-white">
         <p className="text-xs">
