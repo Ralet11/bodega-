@@ -23,7 +23,7 @@ const SearchBarCommerce = ({ setFilters, filters, className }) => {
         stiffness: 50,
         damping: 10,
       }}
-      className={`hidden md:block flex flex-row mt-10 w-1/3 md:flex-row justify-evenly items-center bg-white rounded-lg shadow-lg p-4 ${className}`}
+      className={`hidden md:hidden flex flex-row mt-10 w-1/3 md:flex-row justify-evenly items-center bg-white rounded-lg shadow-lg p-4 ${className}`}
     >
       <div className='flex p-1'>
       <MagnifyingGlassCircleIcon className='w-8 h-8' />

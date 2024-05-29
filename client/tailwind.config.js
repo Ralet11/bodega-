@@ -23,6 +23,10 @@ export default {
       fontFamily: {
         sans: ['Fira Code', 'monospace'],
       },
+      width:{
+        '800px' : '800px',
+        '780px' : '780px'
+      }
     },
   },
   plugins: [
