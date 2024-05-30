@@ -4,10 +4,11 @@ import { ChevronDownIcon, ArrowLeftOnRectangleIcon, CogIcon, Bars3Icon } from '@
 import { useDispatch, useSelector } from 'react-redux';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import { LiaCartPlusSolid } from "react-icons/lia";
-
+import { Bars3BottomRightIcon, MagnifyingGlassCircleIcon } from '@heroicons/react/24/solid';
 const { API_URL_BASE } = getParamsEnv();
 import { Dropdown, Ripple, initTE } from 'tw-elements';
 import { emptyCart, logOutClient } from '../../redux/actions/actions';
+import CartIcon from '../CartIcon';
 
 initTE({ Dropdown, Ripple });
 
@@ -48,13 +49,12 @@ const Header = () => {
     navigate("/login");
   };
 
-  // Verificar si la ruta actual es /distributorsCommerce
-  const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail' ;
+  const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail';
 
   return (
     <header className='w-full fixed top-0 left-0 z-50 bg-gradient-to-b from-[#F2BB26] via-[#F2BB26] to-gray-200 md:bg-[#F2BB26] md:bg-none md:pb-1 md:shadow-md'>
-      <nav className='flex items-center justify-between p-1'>
-        <div className='md:hidden flex items-center pl-2'>
+      <nav className='flex items-center justify-around p-2'>
+        <div className='md:hidden flex items-center mr-2 md:pl-2'>
           <img
             src={isDistributorsCommerce ? 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1716449453/product/q8a1uvpoigzjdfv8fh13.png' : 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1716848833/bodgea_logo__1_chico-removebg-preview_1_uncx6r.png'}
             className={isDistributorsCommerce ? 'w-6 py-4' : ""}
@@ -68,18 +68,24 @@ const Header = () => {
         </div>
 
         {isDistributorsCommerce && (
-          <div className='md:hidden flex items-center justify-center w-2/3 sm:w-auto'>
+          <div className='flex bg-white   md:w-[800px] items-center justify-center shadow-lg'>
             <input
               type="text"
-              placeholder="Estoy buscando..."
-              className="w-full max-w-xs sm:max-w-md p-2 text-sm border border-gray-300 rounded-md"
+              placeholder="Search products..."
+              className="w-full p-2 text-base sm:text-1xl border-none sm:w-auto md:w-[780px]"
             />
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="m-2 w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
           </div>
+        
+          
         )}
-
-        <div className='flex items-center space-x-4'>
+        
+        <div className='flex items-center justify-center space-x-4'>
+           <CartIcon/>
           {isDistributorsCommerce && (
-            <LiaCartPlusSolid className='w-6 h-6 block sm:hidden' />
+            <LiaCartPlusSolid className='w-6 h-6 hidden ' />
           )}
 
           <Bars3Icon className="w-6 h-6 text-gray-700 block sm:hidden" />
@@ -95,7 +101,7 @@ const Header = () => {
             {dropdownOpen && (
               <ul
                 ref={dropdownRef}
-                className="absolute text-xs sm:text-base right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-20"
+                className="absolute text-xs sm:text-base md:right-6 md:top-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-20"
               >
                 <li>
                   <Link
@@ -125,3 +131,6 @@ const Header = () => {
 };
 
 export default Header;
+
+
+
