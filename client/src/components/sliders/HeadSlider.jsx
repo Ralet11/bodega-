@@ -34,11 +34,11 @@ const HeadSlider = () => {
     ];
 
     return (
-        <div className="w-full bg-gradient-to-b from-[#F2BB26] pb-5 to-gray-200 p-3 max-w-screen-xl mx-auto">
+        <div className="w-full bg-gradient-to-b mt-14 from-[#F2BB26] pb-5 to-gray-200 p-3 mx-auto">
             <Slider {...settings}>
                 {sliderItems.map((item, index) => (
-                    <div key={index} className="relative">
-                        <img src={item.image} alt={item.title} className="w-[95%] ml-2 h-42 object-cover rounded-lg" />
+                    <div key={index} className="flex w-full mx-auto justify-center items-center md:h-[34rem]">
+                        <img src={item.image} alt={item.title} className="h-full md:w-[85%] mx-auto w-full object-fit rounded-lg" />
                     </div>
                 ))}
             </Slider>
