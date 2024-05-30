@@ -52,7 +52,7 @@ const Header = () => {
   const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail';
 
   return (
-    <header className='w-full fixed top-0 left-0 z-50 bg-gradient-to-b from-[#F2BB26] via-[#F2BB26] to-gray-200 md:bg-[#F2BB26] md:bg-none md:pb-1 md:shadow-md'>
+    <header className='w-full fixed top-0 left-0 z-50 bg-[#F2BB26] md:bg-none md:pb-1 md:shadow-md'>
       <nav className='flex items-center justify-around p-2'>
         <div className='md:hidden flex items-center mr-2 md:pl-2'>
           <img

@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDistProd } from '../../redux/actions/actions';
 import { getParamsEnv } from '../../functions/getParamsEnv';
-import { MapPinIcon } from '@heroicons/react/24/outline';
+import { MapPinIcon, HeartIcon } from '@heroicons/react/24/outline';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import HeadSlider from '../sliders/HeadSlider';
-import CartIcon from '../CartIcon'
-import ProductSlider from '../sliders/OfertSlider'
+import CartIcon from '../CartIcon';
+import ProductSlider from '../sliders/OfertSlider';
+
 const { API_URL_BASE } = getParamsEnv();
 
 const DistributorComerce = () => {
@@ -94,63 +95,84 @@ const DistributorComerce = () => {
 
   return (
     <div className="flex flex-col items-center w-full bg-gray-200 pb-20">
-
-      <div className="md:hidden flex text-xs mt-20 bg-[#F2BB26] font-bold px-3 gap-1 w-full">
+      <div className="md:hidden flex text-xs mt-20 bg-[#F2BB26] pt-4 font-bold px-3 gap-1 w-full">
         <MapPinIcon className="w-4 h-4" />
         <p>Send to Calle 1234</p>
       </div>
-      <CartIcon />
       <HeadSlider />
-      <div className="shadow-md p-1 px-6 font-bold rounded bg-white">
-        <p className="text-xs">
-          <span className="text-green-500">Free Delivery</span> in all products from $1.000
+      <div className="shadow-md mt-5 p-1 px-6 font-bold rounded bg-white w-4/5 md:w-auto md:text-lg">
+        <p className="text-xs md:text-base">
+          <span className="text-green-500">Free Delivery</span> on all products from $1.000
         </p>
       </div>
-      <div className="mt-8 animate__animated animate__fadeInUp grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mt-8 pt-10 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 animate__animated animate__fadeInUp">
         {categories.map((category, index) => (
-          <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-            <img className="w-full h-48 object-cover" src={category.imageUrl} alt={category.title} />
-            <div className="p-4">
-              <h3 className="font-bold text-lg">{category.title}</h3>
+          <div key={index} className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105">
+            <img className="w-full h-24 object-cover" src={category.imageUrl} alt={category.title} />
+            <div className="p-2">
+              <h3 className="font-bold text-sm md:text-xl text-gray-800">{category.title}</h3>
             </div>
           </div>
         ))}
       </div>
       <ProductSlider />
-      <div className="flex flex-col px-2 md:flex-row justify-center w-full md:w-[80%] mt-8">
-        <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
+      <div className="flex flex-col px-2 justify-center w-full md:w-[80%] mt-8">
+        <h2 className="text-base font-bold text-gray-800 mb-4">Find your products</h2>
+        <div className="mt-8 flex flex-col">
           {filteredProducts.length === 0 ? (
-            <div className="col-span-2 sm:col-span-3 md:col-span-4 lg:w-[940px] flex justify-center items-center h-full">
-              <h1 className="text-xl text-start font-bold text-gray-700">Products not found</h1>
+            <div className="flex justify-center items-center h-full">
+              <h1 className="text-2xl text-center font-bold text-gray-700">Products not found</h1>
             </div>
           ) : (
-            filteredProducts.map((offer, index) => (
-              <div
-                key={index}
-                className={`flex flex-col max-h-[240px] mx-2 md:mx-0 mb-10 bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
-                onMouseEnter={() => handleHover(index)}
-                onMouseLeave={() => handleHover(-1)}
-                onClick={() => goToDetail(offer)}
-              >
-                <div className="relative h-36 sm:h-48 overflow-hidden">
-                  <img
-                    className="w-full h-full object-cover"
-                    src={hoveredIndex === index ? offer.image2 : offer.image1}
-                    alt={offer.name}
-                  />
-                  <div className="absolute top-0 right-0 bg-gray-800 text-white text-xs px-2 py-1 rounded-bl-lg">
-                    {offer.category}
-                  </div>
-                </div>
-                <div className="p-2 flex flex-col flex-grow">
-                  <h3 className="font-semibold text-xs sm:text-sm mb-1">{offer.name}</h3>
-                  <p className="text-gray-700 text-lg font-bold mb-2">${offer.price}</p>
-                  <button className="text-white bg-blue-600 font-bold py-1 px-2 rounded-full transition duration-300 hover:bg-[#F2BB26] hover:text-black focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50">
-                    Add to cart
-                  </button>
-                </div>
-              </div>
-            ))
+            filteredProducts.map((product, index) => (
+  <div
+    key={index}
+    className={`flex flex-col md:flex-row border h-auto bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
+    onMouseEnter={() => handleHover(index)}
+    onMouseLeave={() => handleHover(-1)}
+    onClick={() => goToDetail(product)}
+  >
+    <div className="relative w-full md:w-1/3 overflow-hidden">
+      <img
+        className="w-full h-32 md:h-full object-cover transition-transform duration-500 transform hover:scale-110"
+        src={hoveredIndex === index ? product.image2 : product.image1}
+        alt={product.name}
+      />
+    </div>
+    <div className="p-4 flex flex-col justify-between w-full">
+      <h3 className="font-semibold text-sm md:text-xl text-gray-800 mb-2">{product.name}</h3>
+      <p className="text-gray-700 text-base md:text-lg font-bold mb-2">${product.price.toFixed(2)}</p>
+      <p className="text-xs md:text-sm text-red-500 mb-2">
+        <span className="line-through">${(product.price + 50).toFixed(2)}</span> 10% OFF
+      </p>
+      <p className="text-xs md:text-sm text-gray-500 mb-4">{product.description}</p>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
+        <p className="text-xs text-gray-500">Tienda del Producto</p>
+        {product.freeShipping && (
+          <p className="text-green-500 text-xs md:text-sm ml-0 md:ml-2">Envío gratis</p>
+        )}
+      </div>
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+        <button className="py-1 md:py-2 px-2 md:px-4 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300 mb-2 md:mb-0">
+          Add to Cart
+        </button>
+        <p className="text-xs md:text-sm text-gray-500 mb-2 md:mb-0">Availability: <span className="text-green-500">In Stock</span></p>
+        <button className="text-gray-500 hover:text-red-500 transition-colors duration-300">
+          <HeartIcon className="w-4 md:w-6 h-4 md:h-6" />
+        </button>
+      </div>
+      <div className="flex items-center mt-4">
+        <span className="text-yellow-500 flex items-center">
+          {Array.from({ length: product.rating }, (_, i) => (
+            <svg key={i} className="w-3 md:w-4 h-3 md:h-4 fill-current" viewBox="0 0 24 24">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+            </svg>
+          ))}
+        </span>
+      </div>
+    </div>
+  </div>
+))
           )}
         </div>
       </div>

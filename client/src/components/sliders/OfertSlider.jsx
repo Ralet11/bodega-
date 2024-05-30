@@ -4,11 +4,33 @@ import Slider from 'react-slick';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setDistProd } from '../../redux/actions/actions';
-import "slick-carousel/slick/slick.css"; 
+import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import { getParamsEnv } from '../../functions/getParamsEnv';
 
 const { API_URL_BASE } = getParamsEnv();
+
+const CustomNextArrow = (props) => {
+  const { className, onClick } = props;
+  return (
+    <div
+      className={`${className} next-arrow`}
+      onClick={onClick}
+      style={{ display: 'block', background: '#00000066', borderRadius: '50%' }}
+    />
+  );
+};
+
+const CustomPrevArrow = (props) => {
+  const { className, onClick } = props;
+  return (
+    <div
+      className={`${className} prev-arrow`}
+      onClick={onClick}
+      style={{ display: 'block', background: '#00000066', borderRadius: '50%' }}
+    />
+  );
+};
 
 const ProductSlider = () => {
   const navigate = useNavigate();
@@ -46,10 +68,12 @@ const ProductSlider = () => {
     dotsClass: "slick-dots slick-thumb",
     customPaging: (i) => <button>{i + 1}</button>,
     appendDots: dots => (
-      <div style={{ position: 'absolute', top: 0, right: 0 }}>
-        <ul style={{ margin: 0 }}>{dots}</ul>
+      <div style={{ position: 'absolute', bottom: '-25px', width: '100%' }}>
+        <ul style={{ margin: '0 auto', padding: '0', display: 'flex', justifyContent: 'center' }}>{dots}</ul>
       </div>
     ),
+    nextArrow: <CustomNextArrow />,
+    prevArrow: <CustomPrevArrow />,
     responsive: [
       {
         breakpoint: 1024,
@@ -136,15 +160,15 @@ const ProductSlider = () => {
   ];
 
   return (
-    <div className="p-10 rounded-lg  w-[80%]  mt-20  bg-white relative">
-      <h2 className="text-xl font-bold mb-4">Inspirado en lo último que viste</h2>
+    <div className="p-10 rounded-lg w-[80%] mt-20 bg-white relative">
+      <h2 className="text-2xl font-bold mb-4">Inspirado en lo último que viste</h2>
       <Slider {...settings}>
         {sampleProducts.map((product, index) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-lg p-4 transition-transform transform hover:scale-105 cursor-pointer flex flex-col"
             onClick={() => goToDetail(product)}
-            style={{ height: '350px' }}
+            style={{ height: '400px' }}
           >
             <img src={product.image1} alt={product.name} className="w-full h-48 object-cover rounded-t-lg" />
             <div className="p-4 flex-grow flex flex-col justify-between">

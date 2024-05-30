@@ -8,3 +8,25 @@ body {
   font-weight: 400;
   font-style: normal;
 }
+
+.slick-arrow {
+  transition: background 0.3s ease;
+}
+
+.slick-arrow:hover {
+  background: #00000099 !important;
+}
+
+.slick-dots {
+  bottom: -25px !important;
+}
+
+.slick-dots li button {
+  border: none;
+  background: transparent;
+}
+
+.slick-dots li.slick-active button {
+  color: #000;
+  font-weight: bold;
+}
