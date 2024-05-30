@@ -34,7 +34,7 @@ const HeadSlider = () => {
     ];
 
     return (
-        <div className="w-full bg-gradient-to-b mt-14 from-[#F2BB26] pb-5 to-gray-200 p-3 mx-auto">
+        <div className="w-full bg-gradient-to-b md:mt-14 from-[#F2BB26] pb-5 to-gray-200 p-3 mx-auto">
             <Slider {...settings}>
                 {sliderItems.map((item, index) => (
                     <div key={index} className="flex w-full mx-auto justify-center items-center md:h-[34rem]">
