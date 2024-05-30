@@ -7,7 +7,8 @@ import { getParamsEnv } from '../../functions/getParamsEnv';
 import { MapPinIcon } from '@heroicons/react/24/outline';
 import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import HeadSlider from '../sliders/HeadSlider';
-
+import CartIcon from '../CartIcon'
+import ProductSlider from '../sliders/OfertSlider'
 const { API_URL_BASE } = getParamsEnv();
 
 const DistributorComerce = () => {
@@ -84,19 +85,38 @@ const DistributorComerce = () => {
     setFiltersVisible(!filtersVisible);
   };
 
+  const categories = [
+    { title: 'Smoke Shops', imageUrl: 'https://source.unsplash.com/random/400x300?smoke' },
+    { title: 'Drinks', imageUrl: 'https://source.unsplash.com/random/400x300?drinks' },
+    { title: 'Restaurants', imageUrl: 'https://source.unsplash.com/random/400x300?restaurant' },
+    { title: 'Bakery', imageUrl: 'https://source.unsplash.com/random/400x300?bakery' }
+  ];
+
   return (
     <div className="flex flex-col items-center w-full bg-gray-200 pb-20">
-      <SearchBarCommerce setFilters={setFilters} filters={filters} />
-      <div className="flex text-xs bg-[#F2BB26] font-bold px-3 gap-1 w-full mt-16">
+
+      <div className="md:hidden flex text-xs mt-20 bg-[#F2BB26] font-bold px-3 gap-1 w-full">
         <MapPinIcon className="w-4 h-4" />
         <p>Send to Calle 1234</p>
       </div>
+      <CartIcon />
       <HeadSlider />
       <div className="shadow-md p-1 px-6 font-bold rounded bg-white">
         <p className="text-xs">
           <span className="text-green-500">Free Delivery</span> in all products from $1.000
         </p>
       </div>
+      <div className="mt-8 animate__animated animate__fadeInUp grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        {categories.map((category, index) => (
+          <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <img className="w-full h-48 object-cover" src={category.imageUrl} alt={category.title} />
+            <div className="p-4">
+              <h3 className="font-bold text-lg">{category.title}</h3>
+            </div>
+          </div>
+        ))}
+      </div>
+      <ProductSlider />
       <div className="flex flex-col px-2 md:flex-row justify-center w-full md:w-[80%] mt-8">
         <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
           {filteredProducts.length === 0 ? (
@@ -112,7 +132,7 @@ const DistributorComerce = () => {
                 onMouseLeave={() => handleHover(-1)}
                 onClick={() => goToDetail(offer)}
               >
-                <div className="relative h-36 sm:h-48 overflow-hidden"> {/* Adjusted height */}
+                <div className="relative h-36 sm:h-48 overflow-hidden">
                   <img
                     className="w-full h-full object-cover"
                     src={hoveredIndex === index ? offer.image2 : offer.image1}

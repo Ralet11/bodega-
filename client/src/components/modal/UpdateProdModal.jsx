@@ -1,40 +1,39 @@
-import { useEffect, useState } from 'react'; 
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { PhotoIcon } from '@heroicons/react/24/solid';
-import axios from "axios"
+import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import { useSelector } from 'react-redux';
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
 
 export default function UpDateProductModal({
   selectedProduct,
   show,
   handleClose,
   handleUpdate,
-  handleInputChange,
-  productToEdit,
+  aux,
+  setAux
 }) {
-  
   // Initialize a state to hold the edited product
-  const [editedProduct, setEditedProduct] = useState(productToEdit);
-  const token = useSelector((state) => state?.client.token)
-  
-  // Whenever productToEdit changes, update the editedProduct state
+  const [editedProduct, setEditedProduct] = useState(selectedProduct);
+  const token = useSelector((state) => state?.client.token);
+
+  // Whenever selectedProduct changes, update the editedProduct state
   useEffect(() => {
-    setEditedProduct(productToEdit);
-  }, [productToEdit]);
+    setEditedProduct(selectedProduct);
+  }, [selectedProduct]);
 
   const onSubmit = (e) => {
-    console.log(editedProduct)
     e.preventDefault();
-    handleUpdate();
+    console.log(editedProduct, "enviando")
+    handleUpdate(editedProduct);
   };
 
   const onClose = () => {
-    setEditedProduct(productToEdit)
-    handleClose()
-  }
+    setEditedProduct(selectedProduct);
+    handleClose();
+  };
 
   async function convertBlobUrlToImageFile(blobUrl) {
     const response = await fetch(blobUrl);
@@ -45,44 +44,50 @@ export default function UpDateProductModal({
   }
 
   const handleImageUpload = async (productId, img) => {
-    console.log(productId, img)
+    const formData = new FormData();
+    formData.append('id', productId);
+    formData.append('action', 'product');
+    formData.append('file', img);
 
-      const formData = new FormData();
-      formData.append('id', productId);
-      formData.append('action', 'product');
-      formData.append('image', img);
-      console.log(formData)
-      try {
-        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
-          headers:
-          {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        if (response.status === 200) {
-          console.log('Image uploaded successfully');
-        } else {
-          console.error('Error uploading image');
+    try {
+      const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-        window.alert("image updated")
-      } catch (error) {
-        console.error('Error uploading image:', error);
+      });
+      if (response.status === 200) {
+        setAux(!aux)
+        console.log('Image uploaded successfully');
+      } else {
+        console.error('Error uploading image');
       }
+  
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
       // Create a URL for the selected image
-      const imageUrl = URL.createObjectURL(file)
+      const imageUrl = URL.createObjectURL(file);
       setEditedProduct({
         ...editedProduct,
         img: imageUrl
       });
       const imageFile = await convertBlobUrlToImageFile(imageUrl);
-      handleImageUpload(selectedProduct.id, imageFile)
+      handleImageUpload(selectedProduct.id, imageFile);
     }
-}
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedProduct({
+      ...editedProduct,
+      [name]: value
+    });
+  };
 
   return (
     <div>
@@ -104,7 +109,7 @@ export default function UpDateProductModal({
                           type="text"
                           name="name"
                           placeholder="Name"
-                          value={editedProduct.name} // Use editedProduct instead of productToEdit
+                          value={editedProduct.name || ''}
                           onChange={handleInputChange}
                           className="w-full p-2 border border-gray-300 rounded"
                         />
@@ -114,7 +119,7 @@ export default function UpDateProductModal({
                           type="number"
                           name="price"
                           placeholder="Price"
-                          value={editedProduct.price} // Use editedProduct instead of productToEdit
+                          value={editedProduct.price || ''}
                           onChange={handleInputChange}
                           className="w-full p-2 border border-gray-300 rounded"
                         />
@@ -124,7 +129,7 @@ export default function UpDateProductModal({
                           type="text"
                           name="description"
                           placeholder="Description"
-                          value={editedProduct.description} // Use editedProduct instead of productToEdit
+                          value={editedProduct.description || ''}
                           onChange={handleInputChange}
                           className="w-full p-2 border border-gray-300 rounded"
                         />
@@ -151,7 +156,7 @@ export default function UpDateProductModal({
                   <div className="bg-gray-100 p-4 rounded-lg shadow-md">
                     <div className="mt-[-10px] w-[300px] h-[300px] rounded overflow-hidden shadow-lg mt-5 bg-white">
                       <img
-                        src={editedProduct.img || `${API_URL_BASE}/${selectedProduct.img}`} // Use editedProduct.img
+                        src={editedProduct.img || selectedProduct.img}
                         alt={selectedProduct.name || 'Product Preview'}
                         className="w-full h-[100px] rounded-lg object-cover mb-2"
                       />
@@ -188,7 +193,5 @@ UpDateProductModal.propTypes = {
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
   handleUpdate: PropTypes.func.isRequired,
-  handleInputChange: PropTypes.func.isRequired,
-  productToEdit: PropTypes.object.isRequired,
   selectedProduct: PropTypes.object,
 };

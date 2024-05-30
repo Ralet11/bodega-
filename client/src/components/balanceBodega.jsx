@@ -235,7 +235,7 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
           {balanceRequests.length === 0 ? (
             <p className="text-gray-500">No orders available.</p>
           ) : (
-            <ul className="space-y-4">
+            <ul className="md:max-h-[35rem] md:min-h-[24rem] overflow-auto pace-y-4">
               {balanceRequests.map((order, index) => (
                 <li key={index} className="flex items-center bg-gray-100 p-3 rounded-lg shadow-md">
                   <img

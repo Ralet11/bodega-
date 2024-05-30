@@ -24,21 +24,21 @@ const CartView = ({ onClose }) => {
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const fetchClient = async () => {
-            try {
-                const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
-                    headers: {
-                        authorization: `Bearer ${token}`,
-                    },
-                });
-                setClientNow(response.data);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-        fetchClient();
-    }, []);
+        useEffect(() => {
+            const fetchClient = async () => {
+                try {
+                    const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
+                        headers: {
+                            authorization: `Bearer ${token}`,
+                        },
+                    });
+                    setClientNow(response.data);
+                } catch (error) {
+                    console.log(error);
+                }
+            };
+            fetchClient();
+        }, []);
 
     console.log(clientNow)
     useEffect(() => {
@@ -148,8 +148,8 @@ const CartView = ({ onClose }) => {
    
 
     if (isBodegaCheckout) {
-        const BodegaBalance = clientNow && clientNow.balance;
-
+        const BodegaBalance = clientNow && clientNow.client.balance;
+        console.log(clientNow)
         const remainingBalance = BodegaBalance - total;
         
         return (

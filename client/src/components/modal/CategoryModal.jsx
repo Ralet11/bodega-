@@ -9,7 +9,6 @@ export default function CategoryModal({
 }) {
   const onSubmit = (e) => {
     e.preventDefault(); // Evita la recarga de la página
-    console.log("papa")
     handleSubmit();
   };
 
@@ -21,21 +20,21 @@ export default function CategoryModal({
           <div className="fixed inset-0 bg-black opacity-50"></div>
 
           {/* Modal */}
-          <div className="bg-white p-4 rounded shadow-md w-80 relative">
-            <h2 className="text-xl font-semibold mb-4">Add New Category</h2>
+          <div className="bg-white text-black p-8 rounded-2xl shadow-2xl w-96 relative transition-transform transform-gpu scale-95 hover:scale-100 duration-300 ease-in-out">
+            <h2 className="text-3xl font-extrabold mb-6 tracking-wide text-black border-b-4 border-yellow-500 pb-2">Add New Category</h2>
             <form onSubmit={onSubmit}>
-              <div className="mb-3">
+              <div className="mb-6">
                 <input
                   type="text"
                   name="name"
                   placeholder="Category name"
                   value={newCategory.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-gray-300 rounded"
+                  className="w-full p-4 border border-gray-300 rounded-xl bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-yellow-500 transition-shadow duration-300 ease-in-out"
                 />
               </div>
               <button
-                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                className="bg-yellow-500 text-black py-3 px-6 rounded-xl font-semibold shadow-md hover:bg-yellow-600 transition-colors duration-300 ease-in-out"
                 type="submit"
               >
                 Save
@@ -43,7 +42,7 @@ export default function CategoryModal({
             </form>
             <button
               onClick={handleClose}
-              className="mt-4 text-gray-500 hover:text-gray-700 cursor-pointer"
+              className="mt-6 text-gray-500 hover:text-gray-700 transition-colors duration-300 ease-in-out cursor-pointer"
             >
               Close
             </button>
