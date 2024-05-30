@@ -36,7 +36,7 @@ const DistProdCard = () => {
         <>
             <GoBackArrow />
             <div className="flex md:ml-10 mt-20 p-2 bg-gray-200 justify-center lg:pt-20 items-center my-6">
-                <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-6 sm:p-12 pb-24"> {/* Increased bottom padding */}
+                <div className="bg-white rounded-xl shadow-2xl max-w-screen-xl w-full p-6 sm:p-12 pb-24">
                     <div className="flex flex-col md:flex-row">
                         <div className="w-full md:w-1/4 flex flex-wrap justify-center md:flex-col md:items-start md:space-y-4 mb-6 md:mb-0 space-x-4 md:space-x-0">
                             {[product.image1, product.image2, product.image3].map((image, index) => (
@@ -68,7 +68,7 @@ const DistProdCard = () => {
                                 <div className="ml-2 mt-2 flex flex-col space-y-1">
                                     {[product.feature_1, product.feature_2, product.feature_3].map((feature, index) => (
                                         <div key={index} className="flex items-center">
-                                            <CheckIcon className="h-4 w-4 mr-2 text-gray-500" />
+                                            <CheckIcon className="h-4 w-4 mr-2 text-green-500" />
                                             <p className="text-sm text-gray-700">{feature}</p>
                                         </div>
                                     ))}
