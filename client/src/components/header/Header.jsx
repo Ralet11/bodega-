@@ -62,7 +62,7 @@ const Header = () => {
           />
         </div>
 
-        <div className='hidden md:block flex items-center pl-2'>
+        <div className={isDistributorsCommerce ? 'hidden md:block flex items-center pl-2' : 'hidden md:block pl-2'} >
           <img
             src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716669836/bodgea_logo_1_chico_ds9b92.png'
           />
@@ -81,7 +81,7 @@ const Header = () => {
           </div>
         )}
 
-        <div className='flex items-center justify-center space-x-4'>
+        <div className={isDistributorsCommerce ? 'flex items-center justify-center space-x-4' : 'flex items-center md:ml-[85rem] justify-center space-x-4'}>
           <CartIcon />
           {isDistributorsCommerce && (
             <LiaCartPlusSolid className='w-6 h-6 hidden ' />
