@@ -196,8 +196,8 @@ const CartView = ({ onClose }) => {
     }
 
     return (
-        <div className="flex justify-center items-center w-full h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
-            <div className="w-full h-full md:h-auto md:max-w-5xl p-2 sm:p-4 md:p-10 bg-white rounded-lg shadow-xl overflow-y-auto max-h-screen relative">
+        <div className="flex justify-center items-center  md:w-full md:h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
+            <div className="w-[330px] h-800px md:w-full md:max-w-5xl p-2 sm:p-4 md:p-10 bg-white rounded-lg shadow-xl overflow-y-auto  relative">
                 <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none"
                     onClick={onClose}

@@ -25,13 +25,14 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
+  const barsRef = useRef(null);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
   const closeDropdown = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !triggerRef.current.contains(event.target)) {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !triggerRef.current.contains(event.target) && !barsRef.current.contains(event.target)) {
       setDropdownOpen(false);
     }
   };
@@ -68,7 +69,7 @@ const Header = () => {
         </div>
 
         {isDistributorsCommerce && (
-          <div className='flex bg-white   md:w-[800px] items-center justify-center shadow-lg'>
+          <div className='flex bg-white md:w-[800px] items-center justify-center shadow-lg'>
             <input
               type="text"
               placeholder="Search products..."
@@ -78,17 +79,15 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
           </div>
-        
-          
         )}
-        
+
         <div className='flex items-center justify-center space-x-4'>
-           <CartIcon/>
+          <CartIcon />
           {isDistributorsCommerce && (
             <LiaCartPlusSolid className='w-6 h-6 hidden ' />
           )}
 
-          <Bars3Icon className="w-6 h-6 text-gray-700 block sm:hidden" />
+          <Bars3Icon ref={barsRef} className="w-6 h-6 text-gray-700 block sm:hidden" onClick={toggleDropdown} />
           <div className='relative hidden sm:flex items-center'>
             <span
               ref={triggerRef}
@@ -101,7 +100,7 @@ const Header = () => {
             {dropdownOpen && (
               <ul
                 ref={dropdownRef}
-                className="absolute text-xs sm:text-base md:right-6 md:top-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-20"
+                className="absolute text-xs sm:text-base right-0 md:right-6 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-20"
               >
                 <li>
                   <Link
@@ -124,6 +123,33 @@ const Header = () => {
               </ul>
             )}
           </div>
+          {dropdownOpen && (
+            <div className='relative sm:hidden'>
+              <ul
+                ref={dropdownRef}
+                className="absolute text-xs sm:text-base right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-md z-20"
+              >
+                <li>
+                  <Link
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    to="/settings"
+                  >
+                    <CogIcon className="w-4 h-4 mr-2 inline-block" />
+                    Shop Settings
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                    onClick={logOut}
+                  >
+                    <ArrowLeftOnRectangleIcon className='w-4 h-4 mr-2 inline-block' />
+                    Log Out
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
     </header>
@@ -131,6 +157,3 @@ const Header = () => {
 };
 
 export default Header;
-
-
-
