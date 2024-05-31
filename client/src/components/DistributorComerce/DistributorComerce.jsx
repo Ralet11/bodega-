@@ -127,7 +127,7 @@ const DistributorComerce = () => {
             filteredProducts.map((product, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col md:flex-row justify-center items-center   w-[360px] md:w-full mb-2 border h-auto bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
+                  className={`flex flex-col md:flex-row justify-center items-center   w-[330px] md:w-full mb-2 border h-auto bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
                   onMouseEnter={() => handleHover(index)}
                   onMouseLeave={() => handleHover(-1)}
                   onClick={() => goToDetail(product)}
