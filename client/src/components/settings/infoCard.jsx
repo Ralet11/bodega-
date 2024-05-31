@@ -69,7 +69,7 @@ function InfoCard({ shopData, setShopData }) {
       const formData = new FormData();
       formData.append('id', newShop.id);
       formData.append('action', 'shop');
-      formData.append('image', imageFile);
+      formData.append('file', imageFile);
 
       try {
         const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {

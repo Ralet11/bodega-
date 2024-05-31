@@ -9,6 +9,7 @@ import SearchBarCommerce from '../SearchBarCommerce/SearchBarCommerce';
 import HeadSlider from '../sliders/HeadSlider';
 import CartIcon from '../CartIcon';
 import ProductSlider from '../sliders/OfertSlider';
+import ProductSlider2 from '../sliders/ofertSilder2';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -116,18 +117,19 @@ const DistributorComerce = () => {
         ))}
       </div>
       <ProductSlider />
+      <ProductSlider2 />
       <div className="flex flex-col px-2 justify-center w-full md:w-[80%] mt-8">
-        <h2 className="text-base font-bold text-gray-800 mb-4">Find your products</h2>
+        <h2 className="text-base font-bold text-gray-800 mb-1 md:mt-4">Find your products</h2>
         <div className="mt-8 flex flex-col justify-center items-center">
           {filteredProducts.length === 0 ? (
             <div className="flex justify-center items-center h-full">
-              <h1 className="text-2xl text-center font-bold text-gray-700">Products not found</h1>
+              <h1 className="text-xs md:text-2xl text-center font-bold text-gray-700">Products not found</h1>
             </div>
           ) : (
             filteredProducts.map((product, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col md:flex-row justify-center items-center   w-[330px] md:w-full mb-2 border h-auto bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
+                  className={`flex flex-col md:flex-row justify-center items-center   w-[330px] md:w-full mb-2 border h-auto md:max-h-[15rem] bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
                   onMouseEnter={() => handleHover(index)}
                   onMouseLeave={() => handleHover(-1)}
                   onClick={() => goToDetail(product)}

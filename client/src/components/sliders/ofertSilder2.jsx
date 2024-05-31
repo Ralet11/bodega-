@@ -104,73 +104,73 @@ const ProductSlider = () => {
 
   const sampleProducts = [
     {
-      name: "Vaporizador XMAX Starry 3.0",
-      price: 49999,
-      image1: "https://source.unsplash.com/random/400x300?vaporizador",
-      store: "Store A",
-      discount: 10,
-      originalPrice: 55555,
-      freeShipping: true
+        name: "RAW King Size Rolling Papers",
+        price: 2.99,
+        image1: "https://source.unsplash.com/random/400x300?rollingpapers",
+        store: "Store A",
+        discount: 0,
+        originalPrice: 2.99,
+        freeShipping: false
     },
     {
-      name: "Vaporizador Pax 3",
-      price: 199999,
-      image1: "https://source.unsplash.com/random/400x300?vape",
-      store: "Store B",
-      discount: 15,
-      originalPrice: 235000,
-      freeShipping: true
+        name: "Glass Bong 12-inch",
+        price: 59.99,
+        image1: "https://source.unsplash.com/random/400x300?bong",
+        store: "Store B",
+        discount: 10,
+        originalPrice: 66.66,
+        freeShipping: true
     },
     {
-      name: "Vaporizador Mighty",
-      price: 349999,
-      image1: "https://source.unsplash.com/random/400x300?vapes",
-      store: "Store C",
-      discount: 20,
-      originalPrice: 437499,
-      freeShipping: true
+        name: "Grinder 4-Piece",
+        price: 19.99,
+        image1: "https://source.unsplash.com/random/400x300?grinder",
+        store: "Store C",
+        discount: 5,
+        originalPrice: 21.05,
+        freeShipping: true
     },
     {
-      name: "Vaporizador DaVinci IQ2",
-      price: 299999,
-      image1: "https://source.unsplash.com/random/400x300?vaping",
-      store: "Store D",
-      discount: 5,
-      originalPrice: 315789,
-      freeShipping: true
+        name: "Silicone Dab Rig",
+        price: 39.99,
+        image1: "https://source.unsplash.com/random/400x300?dabrig",
+        store: "Store D",
+        discount: 15,
+        originalPrice: 47.05,
+        freeShipping: true
     },
     {
-      name: "Vaporizador Arizer Solo 2",
-      price: 249999,
-      image1: "https://source.unsplash.com/random/400x300?vapes",
-      store: "Store E",
-      discount: 12,
-      originalPrice: 284090,
-      freeShipping: true
+        name: "Hemp Wick Spool",
+        price: 5.99,
+        image1: "https://source.unsplash.com/random/400x300?hempwick",
+        store: "Store E",
+        discount: 0,
+        originalPrice: 5.99,
+        freeShipping: false
     },
     {
-      name: "Vaporizador Boundless CFX",
-      price: 199999,
-      image1: "https://source.unsplash.com/random/400x300?vaper",
-      store: "Store F",
-      discount: 8,
-      originalPrice: 217390,
-      freeShipping: true
+        name: "Ceramic Chillum",
+        price: 14.99,
+        image1: "https://source.unsplash.com/random/400x300?chillum",
+        store: "Store F",
+        discount: 10,
+        originalPrice: 16.66,
+        freeShipping: true
     },
     {
-      name: "Vaporizador Firefly 2+",
-      price: 329999,
-      image1: "https://source.unsplash.com/random/400x300?vape",
-      store: "Store G",
-      discount: 7,
-      originalPrice: 354838,
-      freeShipping: true
+        name: "Cannabis Storage Jar",
+        price: 24.99,
+        image1: "https://source.unsplash.com/random/400x300?storagejar",
+        store: "Store G",
+        discount: 20,
+        originalPrice: 31.24,
+        freeShipping: true
     }
-  ];
+];
 
   return (
     <div className="p-4 rounded-lg w-[90%] md:w-[79%] pb-6 md:pb-10 mt-10 bg-white relative">
-      <h2 className="text-lg font-bold mb-2">Inspired by the last thing you saw</h2>
+      <h2 className="text-lg font-bold mb-2">Best offerts</h2>
       <Slider {...settings}>
         {sampleProducts.map((product, index) => (
           <div
@@ -190,7 +190,7 @@ const ProductSlider = () => {
               )}
               <p className="text-xs text-gray-500 mb-1">{product.store}</p>
               {product.freeShipping && (
-                <p className="text-green-500 text-xs font-semibold">Envío gratis</p>
+                <p className="text-green-500 text-xs font-semibold">Free delivery</p>
               )}
             </div>
           </div>
