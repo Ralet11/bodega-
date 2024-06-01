@@ -3,7 +3,8 @@ import {
   GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, 
   SET_DIST_ORDER, SET_CLIENT_LOCALS, 
   SET_CATEGORIES,
-  RESET_CLIENT
+  RESET_CLIENT,
+  SET_FINDED_PRODUCTS
 } from "../actions/actions";
 
 const initialState = {
@@ -115,6 +116,11 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         categories: action.payload
+      }
+    case SET_FINDED_PRODUCTS:
+      return {
+        ...state,
+        findedProducts: action.payload
       }
     default:
       return state;

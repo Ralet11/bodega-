@@ -5,17 +5,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import { LiaCartPlusSolid } from "react-icons/lia";
 import { Bars3BottomRightIcon, MagnifyingGlassCircleIcon } from '@heroicons/react/24/solid';
+import axios from 'axios';
 const { API_URL_BASE } = getParamsEnv();
 import { Dropdown, Ripple, initTE } from 'tw-elements';
 import { emptyCart, logOutClient } from '../../redux/actions/actions';
 import CartIcon from '../CartIcon';
+import { setFindedProducts } from '../../redux/actions/actions';
 
 initTE({ Dropdown, Ripple });
 
 const Header = () => {
   const activeShop = useSelector((state) => state.activeShop);
-  const client = useSelector((state) => state.client);
+  const client = useSelector((state) => state?.client);
   const shop = client.locals.find((local) => local.id === activeShop);
+  const findedProducts = useSelector((state) => state?.findedProducts);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,9 +26,12 @@ const Header = () => {
   const shopName = shop ? shop.name : "";
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const barsRef = useRef(null);
+  
+
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -50,7 +56,28 @@ const Header = () => {
     navigate("/login");
   };
 
-  const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail';
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const handleSearchKeyPress = async (event) => {
+    if (event.key === 'Enter') {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/distProducts/search`, {
+          params: { query: searchQuery },
+        });
+        console.log(response.data)
+        dispatch(setFindedProducts(response.data.results));
+        navigate("/searchProducts")
+      } catch (error) {
+        console.error('Error fetching search results:', error);
+      }
+    }
+  };
+
+  const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail' || location.pathname === '/searchProducts';
+
+  console.log(findedProducts)
 
   return (
     <header className='w-full fixed top-0 left-0 z-50 bg-[#F2BB26] md:bg-none md:pb-1 md:shadow-md'>
@@ -62,7 +89,7 @@ const Header = () => {
           />
         </div>
 
-        <div className={isDistributorsCommerce ? 'hidden md:block flex items-center pl-2' : 'hidden md:block pl-2'} >
+        <div className={isDistributorsCommerce ? 'hidden md:block flex items-center pl-2' : 'hidden md:block pl-2'}>
           <img
             src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1716669836/bodgea_logo_1_chico_ds9b92.png'
           />
@@ -72,6 +99,9 @@ const Header = () => {
           <div className='flex bg-white md:w-[800px] items-center justify-center shadow-lg'>
             <input
               type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              onKeyPress={handleSearchKeyPress}
               placeholder="Search products..."
               className="w-full p-2 text-base sm:text-1xl border-none sm:w-auto md:w-[780px]"
             />

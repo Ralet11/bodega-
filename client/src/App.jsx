@@ -28,6 +28,7 @@ import ContactForm from './components/contact/Contact.jsx';
 import axios from 'axios';
 import { getParamsEnv } from './functions/getParamsEnv.js';
 import Loader from './components/Loader'; // Importa el nuevo componente Loader
+import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -121,6 +122,7 @@ function App() {
         <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
         <Route path='/create-shop' element={<CreateFirstShop />}></Route>
         <Route path='/contact' element={<ContactForm />}></Route>
+        <Route path='/searchProducts' element={<FindedProducts />}></Route>
       </Routes>
     </div>
   );
