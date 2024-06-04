@@ -3,19 +3,36 @@ import { useSelector, useDispatch } from 'react-redux';
 import { addToCart } from '../../redux/actions/actions';
 import ThumbnailImage from '../../ui_bodega/ThumbnailImage';
 import CheckIcon from '../../icons/checkIcon';
-import GoBackArrow from '../GobackArrow';
 import ToasterConfig from '../../ui_bodega/Toaster';
 import toast from 'react-hot-toast';
 
 const DistProdCard = () => {
     const dispatch = useDispatch();
     const distProduct = useSelector((state) => state?.selectedDistProd);
-    const [product, setProduct] = useState(distProduct || "");
+    const [product, setProduct] = useState(distProduct || {});
     const [selectedImage, setSelectedImage] = useState(null);
+    const [quantities, setQuantities] = useState({});
+    const [totalPrice, setTotalPrice] = useState(0);
+
+    // Array de variantes de muestra
+    const variants = [
+        { option: 'Color Rojo', stock: 10, price: 100 },
+        { option: 'Color Azul', stock: 15, price: 110 },
+        { option: 'Color Verde', stock: 20, price: 120 }
+    ];
 
     useEffect(() => {
         setProduct(distProduct);
+        const initialQuantities = {};
+        variants.forEach((variant, index) => {
+            initialQuantities[index] = 1; // Initialize all quantities to 1
+        });
+        setQuantities(initialQuantities);
     }, [distProduct]);
+
+    useEffect(() => {
+        calculateTotalPrice();
+    }, [quantities]);
 
     const handleThumbnailClick = (imageSrc) => {
         setSelectedImage(imageSrc);
@@ -31,9 +48,25 @@ const DistProdCard = () => {
         }
     };
 
+    const handleQuantityChange = (index, amount) => {
+        setQuantities((prevQuantities) => {
+            const newQuantities = { ...prevQuantities };
+            newQuantities[index] = newQuantities[index] + amount;
+            if (newQuantities[index] < 1) newQuantities[index] = 1;
+            return newQuantities;
+        });
+    };
+
+    const calculateTotalPrice = () => {
+        let total = 0;
+        variants.forEach((variant, index) => {
+            total += variant.price * (quantities[index] || 1);
+        });
+        setTotalPrice(total);
+    };
+
     return (
         <>
-           
             <div className="flex justify-center mt-10 bg-gray-200 py-10 px-4">
                 <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full p-6 md:p-12">
                     <div className="flex flex-col md:flex-row">
@@ -92,7 +125,54 @@ const DistProdCard = () => {
                     </div>
                     <div className="mt-4">
                         <p className="text-gray-600 text-sm">Stock disponible</p>
-                        <p className="text-gray-600 text-sm">Cantidad: 1 unidad (+50 disponibles)</p>
+                        <p className="text-gray-600 text-sm">Cantidad: {Object.values(quantities).reduce((a, b) => a + b, 1)} unidad (+50 disponibles)</p>
+                    </div>
+                    <div className="mt-4">
+                        <table className="min-w-full divide-y divide-gray-200">
+                            <thead className="bg-gray-50">
+                                <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Options</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partial Price</th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
+                                {variants.map((variant, index) => (
+                                    <tr key={index}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{variant.option}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{variant.stock}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${variant.price}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center">
+                                            <button
+                                                className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-l-lg hover:bg-gray-400"
+                                                onClick={() => handleQuantityChange(index, -1)}
+                                            >
+                                                -
+                                            </button>
+                                            <span className="px-4">{quantities[index]}</span>
+                                            <button
+                                                className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-r-lg hover:bg-gray-400"
+                                                onClick={() => handleQuantityChange(index, 1)}
+                                            >
+                                                +
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${variant.price * (quantities[index] || 1)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="mt-4 flex justify-between items-center">
+                        <button
+                            className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
+                            onClick={itemToCart}
+                        >
+                            Agregar todos al carrito
+                        </button>
+                        <span className="text-xl font-bold text-gray-800">{`Total: $${totalPrice}`}</span>
                     </div>
                 </div>
             </div>

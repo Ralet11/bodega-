@@ -4,7 +4,10 @@ import {
   SET_DIST_ORDER, SET_CLIENT_LOCALS, 
   SET_CATEGORIES,
   RESET_CLIENT,
-  SET_FINDED_PRODUCTS
+  SET_FINDED_PRODUCTS,
+  SET_SUBCATEGORIES,
+  SET_SELECTED_SUBCATEGORY,
+  SET_ALL_DIST_PRODUCTS
 } from "../actions/actions";
 
 const initialState = {
@@ -18,7 +21,10 @@ const initialState = {
   },
   newOrder: false,
   categories: {},
-  cart: []
+  cart: [],
+  subcategories: [],
+  selectedSubcategory: null,
+  allDistProducts: []
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -121,6 +127,21 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         findedProducts: action.payload
+      }
+    case SET_SUBCATEGORIES: 
+    return {
+      ...state,
+      subcategories: action.payload
+    }
+    case SET_SELECTED_SUBCATEGORY:
+      return {
+        ...state,
+        selectedSubcategory: action.payload
+      }
+    case SET_ALL_DIST_PRODUCTS:
+      return {
+        ...state,
+        allDistProducts: action.payload
       }
     default:
       return state;

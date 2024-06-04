@@ -1,17 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { setDistProd } from '../../redux/actions/actions';
+import { useNavigate, useParams } from 'react-router-dom';
+import { setDistProd, setSelectedSubCategory, setFindedProducts } from '../../redux/actions/actions';
+import axios from 'axios';
+import { getParamsEnv } from '../../functions/getParamsEnv';
+
+const { API_URL_BASE } = getParamsEnv();
 
 const FindedProducts = () => {
-  const [filters, setFilters] = useState({ sortOrder: '', category: '' });
+  const [filters, setFilters] = useState({ sortOrder: '', subcategory: '' });
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const findedProducts = useSelector((state) => state?.findedProducts);
+  const subcategories = useSelector((state) => state?.subcategories);
+  const selectedSubcategory = useSelector((state) => state?.selectedSubcategory);
+  const allProducts = useSelector((state) => state?.allDistProducts);
+  const [brands, setBrands] = useState(null);
+  const token = useSelector((state) => state?.client.token);
+
+  useEffect(() => {
+    if (selectedSubcategory) {
+      setFilters((prevFilters) => ({ ...prevFilters, subcategory: selectedSubcategory.toString() }));
+    }
+  }, [selectedSubcategory]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  };
+
+  useEffect(() => {
+    const fetchBrands = async () => {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/brands/getAllByCategory/${selectedSubcategory}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (response.statusText === "OK") {
+          setBrands(response.data);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    if (selectedSubcategory) {
+      fetchBrands();
+    }
+  }, [selectedSubcategory, token]);
+
+  const handleSelectSubCategory = (id) => {
+    const filtered = allProducts.filter(product => product.subcategory_id === id);
+    dispatch(setSelectedSubCategory(id));
+    dispatch(setFindedProducts(filtered));
+    navigate("/searchProducts");
+  };
+
+  const handleSelectBrand = (id) => {
+    const filtered = allProducts.filter(product => product.brand_id === id);
+    dispatch(setFindedProducts(filtered));
   };
 
   const [hoveredIndex, setHoveredIndex] = useState(-1);
@@ -30,14 +78,14 @@ const FindedProducts = () => {
     } else if (filters.sortOrder === 'moreExpensive') {
       products.sort((a, b) => b.price - a.price);
     }
-    if (filters.category) {
-      products = products.filter((product) => product.category === filters.category);
+    if (filters.subcategory) {
+      products = products.filter((product) => product.subcategory_id === parseInt(filters.subcategory));
     }
     return products;
   };
 
   return (
-    <div className="flex flex-col md:mt-[8rem] md:min-h-screen md:w-[80%] md:h- bg-gray-200 m-auto md:flex-row w-full p-2 space-y-2 md:space-y-0 md:space-x-2">
+    <div className="flex flex-col md:mt-[8rem] md:min-h-screen md:w-[80%] h-[100%] bg-gray-200 m-auto md:flex-row w-full p-2 space-y-2 md:space-y-0 md:space-x-2">
       {/* Filters Section */}
       <div className="flex flex-col md:p-10 w-full md:w-1/4 p-2 rounded-lg shadow-md">
         <h2 className="text-md font-semibold text-gray-800 mb-2">Filters</h2>
@@ -55,23 +103,42 @@ const FindedProducts = () => {
           </select>
         </div>
         <div className="mb-2">
-          <label className="text-sm font-medium text-gray-700">Category</label>
+          <label className="text-sm font-medium text-gray-700">Subcategory</label>
           <select
-            name="category"
-            value={filters.category}
+            name="subcategory"
+            value={filters.subcategory}
             onChange={handleFilterChange}
+            onClick={() => handleSelectSubCategory(parseInt(filters.subcategory))}
             className="w-full mt-1 p-1 border border-gray-300 rounded-lg"
           >
             <option value="">All</option>
-            <option value="electronics">Electronics</option>
-            <option value="clothing">Clothing</option>
-            {/* Agrega más categorías según sea necesario */}
+            {subcategories.map((subcat) => (
+              <option key={subcat.id} value={subcat.id}>
+                {subcat.name}
+              </option>
+            ))}
           </select>
         </div>
+        {brands && (
+          <div className="mt-4">
+            <h3 className="text-sm font-medium text-gray-700">Brands</h3>
+            <ul className="mt-2">
+              {brands.map((brand) => (
+                <li
+                  key={brand.id}
+                  className="cursor-pointer text-blue-500 hover:underline"
+                  onClick={() => handleSelectBrand(brand.id)}
+                >
+                  {brand.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       {/* Products Section */}
-      <div className="flex flex-col w-full bg-white md:p-10  md:w-3/4">
+      <div className="flex flex-col w-full max-h-[700px] overflow-auto bg-white md:p-10 md:w-3/4">
         <h2 className="text-md font-semibold text-gray-800 mb-2">Find your products</h2>
         <div className="flex flex-col space-y-2">
           {sortedProducts().length === 0 ? (
