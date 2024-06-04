@@ -1,5 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
+import Subcategory from './subCategories.js';
+import Brand from './brands.models.js';
 
 const DistProduct = sequelize.define('DistProduct', {
   id: {
@@ -16,9 +18,13 @@ const DistProduct = sequelize.define('DistProduct', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  category: {
-    type: DataTypes.STRING,
+  subcategory_id: {
+    type: DataTypes.INTEGER,
     allowNull: false,
+    references: {
+      model: Subcategory,
+      key: 'id',
+    },
   },
   price: {
     type: DataTypes.INTEGER,
@@ -68,6 +74,17 @@ const DistProduct = sequelize.define('DistProduct', {
     type: DataTypes.ARRAY(DataTypes.STRING),
     allowNull: true,
   },
+  brand_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: Brand,
+      key: 'id',
+    },
+  },
 });
+
+DistProduct.belongsTo(Subcategory, { foreignKey: 'subcategory_id', as: 'subcategory' });
+DistProduct.belongsTo(Brand, { foreignKey: 'brand_id', as: 'brand' }); // Define la relación con Brand
 
 export default DistProduct;

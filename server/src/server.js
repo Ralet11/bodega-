@@ -31,6 +31,8 @@ import { createDistributor } from "./controller/distributor.controller.js";
 import clientRouter from "./routes/client.routes.js";
 import contactRouter from "./routes/contact.routes.js";
 import balanceRequestRouter from "./routes/balanceRequest.routes.js";
+import subcategoriesRouter from './routes/subcategories.routes.js'
+import brandsRouter from './routes/brands.routes.js'
 
 
 
@@ -191,7 +193,8 @@ app.use("/api/distributors", createDistributor);
 app.use('/api/clients', clientRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/balanceRequest', balanceRequestRouter)
-
+app.use('/api/subcategories', subcategoriesRouter)
+app.use('/api/brands', brandsRouter)
 
 
 export default app;
