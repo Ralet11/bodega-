@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { addToCart } from '../../redux/actions/actions';
+import { addToCart, removeFromCart } from '../../redux/actions/actions';
 import ThumbnailImage from '../../ui_bodega/ThumbnailImage';
 import CheckIcon from '../../icons/checkIcon';
 import ToasterConfig from '../../ui_bodega/Toaster';
@@ -11,58 +11,50 @@ const DistProdCard = () => {
     const distProduct = useSelector((state) => state?.selectedDistProd);
     const [product, setProduct] = useState(distProduct || {});
     const [selectedImage, setSelectedImage] = useState(null);
-    const [quantities, setQuantities] = useState({});
+    const [quantity, setQuantity] = useState(1);
     const [totalPrice, setTotalPrice] = useState(0);
-
-    // Array de variantes de muestra
-    const variants = [
-        { option: 'Color Rojo', stock: 10, price: 100 },
-        { option: 'Color Azul', stock: 15, price: 110 },
-        { option: 'Color Verde', stock: 20, price: 120 }
-    ];
 
     useEffect(() => {
         setProduct(distProduct);
-        const initialQuantities = {};
-        variants.forEach((variant, index) => {
-            initialQuantities[index] = 1; // Initialize all quantities to 1
-        });
-        setQuantities(initialQuantities);
+        setQuantity(1);
     }, [distProduct]);
 
     useEffect(() => {
         calculateTotalPrice();
-    }, [quantities]);
+    }, [quantity]);
 
     const handleThumbnailClick = (imageSrc) => {
         setSelectedImage(imageSrc);
     };
 
-    const itemToCart = () => {
+    const addToCartHandler = () => {
         try {
-            dispatch(addToCart(product));
-            toast.success("Item added to cart");
+            if (quantity > 0) {
+                const item = {
+                    ...product,
+                    quantity,
+                    price: product.price
+                };
+                dispatch(addToCart(item));
+                toast.success("Item added to cart");
+            } else {
+                toast.error("Quantity must be greater than 0");
+            }
         } catch (error) {
             console.log(error);
             toast.error(error.message);
         }
     };
 
-    const handleQuantityChange = (index, amount) => {
-        setQuantities((prevQuantities) => {
-            const newQuantities = { ...prevQuantities };
-            newQuantities[index] = newQuantities[index] + amount;
-            if (newQuantities[index] < 1) newQuantities[index] = 1;
-            return newQuantities;
+    const handleQuantityChange = (amount) => {
+        setQuantity((prevQuantity) => {
+            const newQuantity = prevQuantity + amount;
+            return newQuantity < 1 ? 1 : newQuantity;
         });
     };
 
     const calculateTotalPrice = () => {
-        let total = 0;
-        variants.forEach((variant, index) => {
-            total += variant.price * (quantities[index] || 1);
-        });
-        setTotalPrice(total);
+        setTotalPrice(product.price * quantity);
     };
 
     return (
@@ -105,7 +97,7 @@ const DistProdCard = () => {
                                 <div className="flex items-center mb-4">
                                     <button
                                         className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700"
-                                        onClick={itemToCart}
+                                        onClick={addToCartHandler}
                                     >
                                         Agregar al carrito
                                     </button>
@@ -125,7 +117,7 @@ const DistProdCard = () => {
                     </div>
                     <div className="mt-4">
                         <p className="text-gray-600 text-sm">Stock disponible</p>
-                        <p className="text-gray-600 text-sm">Cantidad: {Object.values(quantities).reduce((a, b) => a + b, 1)} unidad (+50 disponibles)</p>
+                        <p className="text-gray-600 text-sm">Cantidad: {quantity} unidad(es) disponibles</p>
                     </div>
                     <div className="mt-4">
                         <table className="min-w-full divide-y divide-gray-200">
@@ -139,38 +131,36 @@ const DistProdCard = () => {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {variants.map((variant, index) => (
-                                    <tr key={index}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{variant.option}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{variant.stock}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${variant.price}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center">
-                                            <button
-                                                className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-l-lg hover:bg-gray-400"
-                                                onClick={() => handleQuantityChange(index, -1)}
-                                            >
-                                                -
-                                            </button>
-                                            <span className="px-4">{quantities[index]}</span>
-                                            <button
-                                                className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-r-lg hover:bg-gray-400"
-                                                onClick={() => handleQuantityChange(index, 1)}
-                                            >
-                                                +
-                                            </button>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${variant.price * (quantities[index] || 1)}</td>
-                                    </tr>
-                                ))}
+                                <tr>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.option || "Default Option"}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock || "50"}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center">
+                                        <button
+                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-l-lg hover:bg-gray-400"
+                                            onClick={() => handleQuantityChange(-1)}
+                                        >
+                                            -
+                                        </button>
+                                        <span className="px-4">{quantity}</span>
+                                        <button
+                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-r-lg hover:bg-gray-400"
+                                            onClick={() => handleQuantityChange(1)}
+                                        >
+                                            +
+                                        </button>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price * quantity}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <div className="mt-4 flex justify-between items-center">
                         <button
                             className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
-                            onClick={itemToCart}
+                            onClick={addToCartHandler}
                         >
-                            Agregar todos al carrito
+                            Agregar al carrito
                         </button>
                         <span className="text-xl font-bold text-gray-800">{`Total: $${totalPrice}`}</span>
                     </div>

@@ -12,7 +12,6 @@ const CartView = ({ onClose }) => {
     const cartItems = useSelector((state) => state?.cart);
     const user = useSelector((state) => state?.client.client);
     const local_id = useSelector((state) => state?.activeShop);
-    const [itemQuantities, setItemQuantities] = useState({});
     const dispatch = useDispatch();
     const order_date = new Date();
     const [total, setTotal] = useState(0);
@@ -38,33 +37,24 @@ const CartView = ({ onClose }) => {
             }
         };
         fetchClient();
-    }, []);
-
-    useEffect(() => {
-        const quantities = {};
-        for (const item of cartItems) {
-            if (!quantities[item.id]) {
-                quantities[item.id] = 0;
-            }
-            quantities[item.id]++;
-        }
-        setItemQuantities(quantities);
-    }, [cartItems]);
+    }, [client.id, token]);
 
     useEffect(() => {
         let totalPrice = 0;
         for (const item of cartItems) {
-            totalPrice += item.price;
+            totalPrice += item.price * item.quantity;
         }
         setTotal(totalPrice);
-    }, [cartItems, itemQuantities]);
+    }, [cartItems]);
 
     const addItemToCart = (item) => {
-        dispatch(addToCart(item));
+        const updatedItem = { ...item, quantity: 1 };
+        dispatch(addToCart(updatedItem));
     };
 
-    const removeItemFromCart = (itemId) => {
-        dispatch(removeFromCart(itemId));
+    const removeItemFromCart = (item) => {
+        const updatedItem = { ...item, quantity: 1 };
+        dispatch(removeFromCart(updatedItem));
     };
 
     const handlePayment = async (method) => {
@@ -106,7 +96,7 @@ const CartView = ({ onClose }) => {
     };
 
     const finalizeBodegaPurchase = async (remainingBalance) => {
-        setIsLoading(true);  // Establecer el estado de carga a verdadero
+        setIsLoading(true);
         try {
             const orderResponse = await axios.post(`${API_URL_BASE}/api/distOrder/add`, { local_id, order_details: cartItems, order_date }, {
                 headers: {
@@ -134,7 +124,7 @@ const CartView = ({ onClose }) => {
         } catch (orderError) {
             console.error("Error al crear la orden:", orderError);
         } finally {
-            setIsLoading(false);  // Restablecer el estado de carga a falso
+            setIsLoading(false);
         }
     };
 
@@ -146,7 +136,7 @@ const CartView = ({ onClose }) => {
     if (isBodegaCheckout) {
         const BodegaBalance = clientNow && clientNow.client.balance;
         const remainingBalance = BodegaBalance - total;
-        
+
         return (
             <div className="flex justify-center items-center w-full h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
                 <div className="w-full h-full md:h-auto md:max-w-4xl p-2 sm:p-4 md:p-10 bg-white rounded-xl shadow-2xl overflow-y-auto max-h-screen relative">
@@ -196,8 +186,8 @@ const CartView = ({ onClose }) => {
     }
 
     return (
-        <div className="flex justify-center items-center  md:w-full md:h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
-            <div className="w-[330px] h-800px md:w-full md:max-w-5xl p-2 sm:p-4 md:p-10 bg-white rounded-lg shadow-xl overflow-y-auto  relative">
+        <div className="flex justify-center items-center md:w-full md:h-screen fixed inset-0 z-50 bg-gray-900 bg-opacity-50">
+            <div className="w-[330px] h-[800px] md:w-full md:max-w-5xl p-2 sm:p-4 md:p-10 bg-white rounded-lg shadow-xl overflow-y-auto relative">
                 <button
                     className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none"
                     onClick={onClose}
@@ -218,12 +208,12 @@ const CartView = ({ onClose }) => {
                                     <div className="flex items-center justify-center md:justify-start space-x-1 mt-1">
                                         <button
                                             className="text-gray-600 hover:text-gray-800 focus:outline-none"
-                                            onClick={() => removeItemFromCart(item.id)}
-                                            disabled={(itemQuantities[item.id] || 1) <= 0}
+                                            onClick={() => removeItemFromCart(item)}
+                                            disabled={item.quantity <= 0}
                                         >
                                             -
                                         </button>
-                                        <p className="text-black font-bold">x{itemQuantities[item.id] || 1}</p>
+                                        <p className="text-black font-bold">x{item.quantity}</p>
                                         <button
                                             className="text-gray-600 hover:text-gray-800 focus:outline-none"
                                             onClick={() => addItemToCart(item)}
@@ -232,7 +222,7 @@ const CartView = ({ onClose }) => {
                                         </button>
                                     </div>
                                 </div>
-                                <p className="text-gray-600 font-semibold">${item.price * (itemQuantities[item.id] || 1)}</p>
+                                <p className="text-gray-600 font-semibold">${item.price * item.quantity}</p>
                             </div>
                         ))}
                         <div className="mt-2 sm:mt-4 md:mt-6">
