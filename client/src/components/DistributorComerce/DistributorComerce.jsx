@@ -134,7 +134,7 @@ const DistributorComerce = () => {
             <div key={index}>
               <div className="grid grid-cols-5 gap-4">
                 {group.map((subcategory, idx) => (
-                  <div key={idx} onClick={() => handleSelectSubCategory(subcategory.id)} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105" onClick={() => handleSelectSubCategory(subcategory.id)}>
+                  <div key={idx} onClick={() => handleSelectSubCategory(subcategory.id)} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105" >
                     <img className="w-full h-24 object-cover" src={`https://source.unsplash.com/random/400x300?${subcategory.name}`} alt={subcategory.name} />
                     <div className="p-2">
                       <h3 className="font-bold text-xs text-gray-800">{subcategory.name}</h3>

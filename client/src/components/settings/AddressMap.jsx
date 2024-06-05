@@ -89,12 +89,12 @@ function Map({ shopData, latLong }) {
         <Autocomplete onPlaceChanged={handlePlaceSelect} onLoad={autocomplete => (searchResult.current = autocomplete)}>
           <div className="relative flex w-full mt-5">
             <input 
-              className="text-black w-full border border-gray-300 rounded-l-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
+              className="text-black w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
               placeholder={address} 
               onChange={() => setIsAddressChanged(true)}
             />
             <button 
-              className={`bg-gradient-to-r from-blue-500 to-blue-700 text-white p-3 rounded-r-lg hover:from-blue-600 hover:to-blue-800 transition duration-300 ${!isAddressChanged ? 'bg-gray-400 cursor-not-allowed' : ''}`}
+              className={`bg-gradient-to-r ml-2 from-blue-500 to-blue-700 text-white p-3 rounded-lg hover:from-blue-600 hover:to-blue-800 transition duration-300 ${!isAddressChanged ? 'bg-gray-400 cursor-not-allowed' : ''}`}
               onClick={handleConfirmAddress}
               disabled={!isAddressChanged}
             >
