@@ -8,23 +8,30 @@ const { API_URL_BASE } = getParamsEnv();
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU", // Replace with your API key
+    googleMapsApiKey: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU",
     libraries: ["places"]
   });
 
-  if (loadError) return <div>Error loading maps</div>;
-  if (!isLoaded) return <div>Loading...</div>;
+  if (loadError) return <div>Error cargando mapas</div>;
+  if (!isLoaded) return <div>Cargando...</div>;
 
-  return <Map shopData={shopData} latLong={latLong} />;
+  return <Map shopData={shopData} setShopData={setShopData} latLong={latLong} />;
 }
 
-function Map({ shopData, latLong }) {
+function Map({ shopData, setShopData, latLong }) {
   const token = useSelector((state) => state?.client.token);
-  const center = useMemo(() => ({ lat: 26, lng: -80 }), []);
+  const center = useMemo(() => ({ lat: shopData.lat || 26, lng: shopData.lng || -80 }), [shopData.lat, shopData.lng]);
   const [selected, setSelected] = useState(null);
-  const [address, setAddress] = useState(shopData.address);
+  const [address, setAddress] = useState("");
   const [isAddressChanged, setIsAddressChanged] = useState(false);
   const searchResult = useRef(null);
+
+  useEffect(() => {
+    if (shopData) {
+      setAddress(shopData.address || "");
+      setSelected({ lat: shopData.lat || 26, lng: shopData.lng || -80 });
+    }
+  }, [shopData]);
 
   useEffect(() => {
     if (latLong) {
@@ -43,13 +50,13 @@ function Map({ shopData, latLong }) {
       setSelected({ lat, lng });
       setIsAddressChanged(true);
     } else {
-      alert("Please enter text");
+      alert("Por favor, ingresa una dirección válida");
     }
   };
 
   const handleConfirmAddress = async () => {
-    if (!address) {
-      window.alert("Please enter a valid address.");
+    if (!address || !selected) {
+      window.alert("Por favor, ingresa una dirección válida.");
       return;
     }
   
@@ -58,6 +65,8 @@ function Map({ shopData, latLong }) {
       lat: selected.lat,
       lng: selected.lng
     };
+
+    console.log('Datos a enviar:', data);
   
     try {
       const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data, {
@@ -65,16 +74,43 @@ function Map({ shopData, latLong }) {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log(response.data);
+      console.log('Respuesta del servidor:', response.data);
       if (response.status === 200) {
-        window.alert("Address updated successfully.");
+        window.alert("Dirección actualizada exitosamente.");
         setIsAddressChanged(false);
+        setShopData((prev) => ({ ...prev, address, lat: selected.lat, lng: selected.lng }));
       } else {
-        window.alert("Error updating the shop's address.");
+        window.alert("Error actualizando la dirección del local.");
       }
     } catch (error) {
-      console.error('Error updating the shop:', error);
-      window.alert("An error occurred while updating the shop's address.");
+      console.error('Error actualizando el local:', error);
+      window.alert("Ocurrió un error al actualizar la dirección del local.");
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setAddress(e.target.value);
+    setIsAddressChanged(true);
+  };
+
+  const handleInputBlur = async () => {
+    if (address) {
+      await geocodeAddress(address);
+    }
+  };
+
+  const geocodeAddress = async (address) => {
+    try {
+      const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
+        params: {
+          address: address,
+          key: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU"
+        }
+      });
+      const location = response.data.results[0].geometry.location;
+      setSelected({ lat: location.lat, lng: location.lng });
+    } catch (error) {
+      console.error('Error geocodificando la dirección:', error);
     }
   };
 
@@ -90,15 +126,17 @@ function Map({ shopData, latLong }) {
           <div className="relative flex w-full mt-5">
             <input 
               className="text-black w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300" 
-              placeholder={address} 
-              onChange={() => setIsAddressChanged(true)}
+              placeholder="Ingrese la dirección" 
+              value={address}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
             />
             <button 
               className={`bg-gradient-to-r ml-2 from-blue-500 to-blue-700 text-white p-3 rounded-lg hover:from-blue-600 hover:to-blue-800 transition duration-300 ${!isAddressChanged ? 'bg-gray-400 cursor-not-allowed' : ''}`}
               onClick={handleConfirmAddress}
               disabled={!isAddressChanged}
             >
-              Save
+              Guardar
             </button>
           </div>
         </Autocomplete>
