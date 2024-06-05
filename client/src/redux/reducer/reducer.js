@@ -3,7 +3,11 @@ import {
   GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, 
   SET_DIST_ORDER, SET_CLIENT_LOCALS, 
   SET_CATEGORIES,
-  RESET_CLIENT
+  RESET_CLIENT,
+  SET_FINDED_PRODUCTS,
+  SET_SUBCATEGORIES,
+  SET_SELECTED_SUBCATEGORY,
+  SET_ALL_DIST_PRODUCTS
 } from "../actions/actions";
 
 const initialState = {
@@ -17,7 +21,10 @@ const initialState = {
   },
   newOrder: false,
   categories: {},
-  cart: []
+  cart: [],
+  subcategories: [],
+  selectedSubcategory: null,
+  allDistProducts: []
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -25,7 +32,6 @@ const rootReducer = (state = initialState, action) => {
     case LOGIN_SUCCESS:
       return { ...state, client: action.payload }
     case CHANGE_SHOP:
-      console.log(action.payload)
       return { ...state, activeShop: action.payload }
     case ADD_NEW_ORDER:
       return {
@@ -41,7 +47,6 @@ const rootReducer = (state = initialState, action) => {
         newOrder: action.payload
       }
     case ADD_PAY_METHODS:
-      console.log(action.payload)
       return {
         ...state,
         client: {
@@ -53,7 +58,6 @@ const rootReducer = (state = initialState, action) => {
         }
       };
     case REMOVE_PAY_METHODS:
-      console.log(state.client.client.payMethod, "reducer")
       return {
         ...state,
         client: {
@@ -75,22 +79,38 @@ const rootReducer = (state = initialState, action) => {
         selectedDistProd: action.payload
       };
     case ADD_TO_CART:
-      console.log(action.payload, "en reducer")
-      return {
-        ...state,
-        cart: [...state.cart, action.payload]
-      };
-    case REMOVE_FROM_CART:
-      console.log("remove3")
-      const newCart = [...state.cart];
-      const itemIndex = newCart.findIndex(item => item.id === action.payload);
-      if (itemIndex !== -1) {
-        newCart.splice(itemIndex, 1);
+      const existingItemIndex = state.cart.findIndex(item => item.id === action.payload.id);
+      if (existingItemIndex !== -1) {
+        const updatedCart = state.cart.map(item =>
+          item.id === action.payload.id
+            ? { ...item, quantity: item.quantity + action.payload.quantity }
+            : item
+        );
+        return {
+          ...state,
+          cart: updatedCart,
+        };
+      } else {
+        return {
+          ...state,
+          cart: [...state.cart, { ...action.payload, quantity: action.payload.quantity }],
+        };
       }
-      return {
-        ...state,
-        cart: newCart
-      };
+    case REMOVE_FROM_CART:
+      const itemIndex = state.cart.findIndex(item => item.id === action.payload.id);
+      if (itemIndex !== -1) {
+        const updatedCart = state.cart.map(item =>
+          item.id === action.payload.id
+            ? { ...item, quantity: item.quantity - action.payload.quantity }
+            : item
+        ).filter(item => item.quantity > 0);
+        return {
+          ...state,
+          cart: updatedCart,
+        };
+      } else {
+        return state;
+      }
     case LOG_OUT:
       return initialState;
     case EMPTY_CART:
@@ -115,6 +135,26 @@ const rootReducer = (state = initialState, action) => {
       return {
         ...state,
         categories: action.payload
+      }
+    case SET_FINDED_PRODUCTS:
+      return {
+        ...state,
+        findedProducts: action.payload
+      }
+    case SET_SUBCATEGORIES: 
+      return {
+        ...state,
+        subcategories: action.payload
+      }
+    case SET_SELECTED_SUBCATEGORY:
+      return {
+        ...state,
+        selectedSubcategory: action.payload
+      }
+    case SET_ALL_DIST_PRODUCTS:
+      return {
+        ...state,
+        allDistProducts: action.payload
       }
     default:
       return state;

@@ -28,6 +28,7 @@ import ContactForm from './components/contact/Contact.jsx';
 import axios from 'axios';
 import { getParamsEnv } from './functions/getParamsEnv.js';
 import Loader from './components/Loader'; // Importa el nuevo componente Loader
+import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -85,20 +86,20 @@ function App() {
       {renderSidebarAndHeader && (
         <>
           <Sidebar className="sidebar">
-            <SidebarItem icon={<ComputerDesktopIcon className="w-4" />} text="Dashboard" link="/dashboard" />
-            <SidebarItem icon={<ShoppingCartIcon className="w-4" />} text="Products" link="/products" />
-            <SidebarItem
-              icon={<BellAlertIcon className="w-4" />}
+            <SidebarItem icon={<ComputerDesktopIcon className="w-2" />} text="Dashboard" link="/dashboard" />
+            <SidebarItem icon={<ShoppingCartIcon className="w-2" />} text="Products" link="/products" />
+           {/*  <SidebarItem
+              icon={<BellAlertIcon className="w-2" />}
               text="Orders"
               notificationCount={orderNotificationCount}
               onClick={handleOrdersClick}
               link="/orders"
-            />
-            <SidebarItem icon={<ShoppingBagIcon className="w-4" />} text="Market" link="/distributorsCommerce" />
-            <SidebarItem icon={<WalletIcon className="w-4" />} text="History" link="/history" />
-            <SidebarItem icon={<BuildingStorefrontIcon className="w-4" />} text="Shops" link="/shops" />
-            <SidebarItem icon={<PhoneIcon className="w-4" />} text="Contact" link="/contact" />
-            <SidebarItem icon={<RectangleStackIcon className="w-4" />} text="Your buys" link="/distHistoryBuy" />
+            /> */}
+            <SidebarItem icon={<ShoppingBagIcon className="w-2" />} text="Market" link="/distributorsCommerce" />
+            <SidebarItem icon={<WalletIcon className="w-2" />} text="History" link="/history" />
+            <SidebarItem icon={<BuildingStorefrontIcon className="w-2" />} text="Shops" link="/shops" />
+            <SidebarItem icon={<PhoneIcon className="w-2" />} text="Contact" link="/contact" />
+            <SidebarItem icon={<RectangleStackIcon className="w-2" />} text="Your buys" link="/distHistoryBuy" />
           </Sidebar>
           <Header className="header" />
         </>
@@ -121,6 +122,7 @@ function App() {
         <Route path='/distHistoryBuy' element={<DistPurchaseHistory />}></Route>
         <Route path='/create-shop' element={<CreateFirstShop />}></Route>
         <Route path='/contact' element={<ContactForm />}></Route>
+        <Route path='/searchProducts' element={<FindedProducts />}></Route>
       </Routes>
     </div>
   );

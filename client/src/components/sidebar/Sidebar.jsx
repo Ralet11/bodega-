@@ -35,7 +35,7 @@ export default function Sidebar({ children }) {
   return (
     <>
       <aside className="hidden rounded rounded-lg md:block h-screen" style={{ marginTop: '50px', height: "91.3%", position: "fixed", left: 0, top: "1.01%", zIndex: 10 }}>
-        <nav className="h-full rounded rounded-lg pt-5 flex flex-col bg-white border-r shadow-sm">
+        <nav className="h-full rounded rounded-lg pt-5 flex flex-co md:bg-white md:bg-none bg-gradient-to-b from-gray-200 via-[#F2BB26] to-[#F2BB26] border-r shadow-sm">
           <SidebarContext.Provider value={{ expanded, selectedButton, setSelectedButton, handleIconClick }}>
             <ul className="flex-1 px-3">
               {childrenArray}
@@ -44,7 +44,7 @@ export default function Sidebar({ children }) {
         </nav>
       </aside>
 
-      <div className="md:hidden fixed bottom-0 w-full bg-white border-t shadow-sm z-50">
+      <div className="md:hidden fixed bottom-0 w-full bg-gradient-to-b from-gray-200 to-[#F2BB26] border-t shadow-sm z-50">
         <SidebarContext.Provider value={{ expanded: true, selectedButton, setSelectedButton, handleIconClick }}>
           <ul className="flex justify-between items-center flex-nowrap">
             {visibleChildren}

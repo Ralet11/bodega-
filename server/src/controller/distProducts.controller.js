@@ -1,5 +1,6 @@
 import DistProduct from "../models/distProducts.model.js"
 import nodemailer from 'nodemailer';
+import { Op } from "sequelize";
 
 export const getAllDistProducts = async (req, res) => {
     try {
@@ -219,4 +220,38 @@ export const sendEmailWithProducts = async (req, res) => {
     console.error("Error sending email:", error);
     res.status(500).json({ message: 'Error sending email' });
   }  */
+};
+
+
+export const searchProducts = async (req, res) => {
+  const query = req.query.query;
+  const searchTerms = query.split(' '); // Divide el término de búsqueda en palabras
+
+  try {
+    const results = await DistProduct.findAll({
+      where: {
+        [Op.or]: [
+          {
+            name: {
+              [Op.iLike]: `%${query}%`, // Coincidencia completa del término de búsqueda
+            },
+          },
+          {
+            name: {
+              [Op.iLike]: { [Op.any]: searchTerms.map(term => `%${term}%`) }, // Coincidencia de cualquier palabra del término de búsqueda
+            },
+          },
+          {
+            tags: {
+              [Op.overlap]: searchTerms, // Coincidencia de cualquier palabra del término de búsqueda en los tags
+            },
+          },
+        ],
+      },
+    });
+
+    res.json({ results });
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while searching for products.' });
+  }
 };

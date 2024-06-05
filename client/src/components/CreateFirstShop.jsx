@@ -8,28 +8,38 @@ import { useNavigate } from 'react-router-dom';
 
 import Input from "../ui_bodega/Input";
 
-
-const {API_URL_BASE} = getParamsEnv()
+const { API_URL_BASE } = getParamsEnv();
 
 const CreateFirstShop = () => {
+  const client = useSelector((state) => state?.client.client);
+  const token = useSelector((state) => state?.client.token);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [locals, setLocals] = useState(null);
+  const [categories, setCategories] = useState([]);
 
-    const client = useSelector((state) => state?.client.client)
-    const token = useSelector((state) => state?.client.token)
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const [clientId, setClientId] = useState(null)
-    const [locals, setLocals] = useState(null)
-    const [aux, setAux] = useState(false)
-
-    console.log(client)
   const [formData, setFormData] = useState({
     name: '',
     address: '',
     phone: '',
     lat: 85.65,
     lng: 60.45,
+    category: '',  // Añadido campo de categoría
     clientId: client.id || ""
   });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleChange = (e) => {
     setFormData({
@@ -38,13 +48,6 @@ const CreateFirstShop = () => {
     });
   };
 
-
- 
-
-  console.log(locals)
-  console.log(client)
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -52,41 +55,35 @@ const CreateFirstShop = () => {
         headers: {
           Authorization: `Bearer ${token}`
         }
-      }); // Assuming the endpoint to create a shop is '/api/shops'
-      console.log(response.data)
+      });
+      console.log(response.data);
 
       if (response.data.created === "ok") {
-
         const fetchLocals = async () => {
           try {
-           
             if (!token) {
               throw new Error('No token found');
             }
-    
+
             const response = await axios.get(`${API_URL_BASE}/api/local/getByClient`, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
             });
-    
-            if (response.data.finded === "ok"){
-              console.log(response.data.locals)
-              dispatch(setClientLocals(response.data.locals))
+
+            if (response.data.finded === "ok") {
+              console.log(response.data.locals);
+              dispatch(setClientLocals(response.data.locals));
             }
-    
-           
           } catch (error) {
             console.error('Error fetching locals:', error);
           }
         };
 
-        fetchLocals()
+        fetchLocals();
       
-        dispatch(changeShop(response.data.result.id))
-        navigate("/dashboard")
-
-        
+        dispatch(changeShop(response.data.result.id));
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error('Error creating shop:', error);
@@ -104,23 +101,24 @@ const CreateFirstShop = () => {
           <form onSubmit={handleSubmit}>
             <div className='mb-4'>
               <label htmlFor='name' className='block  text-white'>Name:</label>
-              
               <Input onChange={handleChange} id="name" placeholder="Enter your name" type="name" name="name" />
             </div>
             <div className='mb-4'>
               <label htmlFor='address' className='text-white  '>Address:</label>
-              
               <Input onChange={handleChange} id="address" placeholder="Enter your address" type="address" name="address" />
-              
             </div>
             <div className='mb-4'>
               <label htmlFor='phone' className='text-white '>Shop phone:</label>
               <Input onChange={handleChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
-            
             </div>
-            <div className='mb-6'>
-              <label htmlFor='category' className='text-white  '>Category:</label>
-              <Input onChange={handleChange} id="category" placeholder="Enter your category" type="category" name="category" />
+            <div className='mb-4'>
+              <label htmlFor='category' className='text-white'>Category:</label>
+              <select id="category" name="category" onChange={handleChange} className="form-select px-2 mb-2 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm  placeholder:text-gray-400 sm:text-sm sm:leading-6">
+                <option value="">Select a category</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>{category.name}</option>
+                ))}
+              </select>
             </div>
             <button type='submit' className='w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none hover:bg-indigo-600'>Create Shop</button>
           </form>

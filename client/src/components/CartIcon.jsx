@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ShoppingCartIcon } from "@heroicons/react/24/solid";
 import { useSelector } from 'react-redux';
 import Modal from './Modal';
 import CartView from './cartView/CartView';
+import { LiaCartPlusSolid } from "react-icons/lia";
 
 const CartIcon = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,17 +16,16 @@ const CartIcon = () => {
         setIsModalOpen(false);
     }
 
-    // Si no hay elementos en el carrito, no se muestra el icono del carrito
     if (cartItems.length === 0) {
         return null;
     }
 
     return (
-        <div className='cursor-pointer'>
-            <div onClick={openModal}>
-                <div className='p-2 flex gap-4 rounded-lg bg-black'>
-                    <ShoppingCartIcon className='w-6 h-6 text-yellow-600 sm:w-8 sm:h-8' />
-                    <p className='text-base text-yellow-600 font-bold mt-1 sm:text-xl'>{cartItems.length}</p>
+        <div className='relative cursor-pointer'>
+            <div onClick={openModal} className='relative'>
+                <LiaCartPlusSolid className='ml-2 w-6 h-6 md:w-8 md:h-8 text-black' />
+                <div className='absolute -top-2 -right-2 w-4 h-4 md:w-6 md:h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs font-bold'>
+                    {cartItems.length}
                 </div>
             </div>
             {isModalOpen && (

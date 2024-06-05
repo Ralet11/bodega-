@@ -14,6 +14,10 @@ export const SET_DIST_ORDER = "SET_DIST_ORDER"
 export const SET_CLIENT_LOCALS = "SET_CLIENT_LOCALS"
 export const SET_CATEGORIES = "SET_CATEGORIES"
 export const RESET_CLIENT ="RESET_CLIENT"
+export const SET_FINDED_PRODUCTS ="SET_FINDED_PRODUCTS"
+export const SET_SUBCATEGORIES = "SET_SUBCATEGORIES"
+export const SET_SELECTED_SUBCATEGORY ="SET_SELECTED_SUBCATEGORY"
+export const SET_ALL_DIST_PRODUCTS = "SET_ALL_DIST_PRODUCTS"
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -165,3 +169,30 @@ export const setCategories = (categories) => {
   }
 }
 
+export const setFindedProducts = (findedProducts) => {
+  return {
+    type: SET_FINDED_PRODUCTS,
+    payload: findedProducts
+  }
+}
+
+export const setSubcategories = (subcategories) => {
+  return {
+    type: SET_SUBCATEGORIES,
+    payload: subcategories
+  }
+}
+
+export const setSelectedSubCategory = (id) => {
+  return {
+    type: SET_SELECTED_SUBCATEGORY,
+    payload: id
+  }
+}
+
+export const setAllDistProducts = (products) => {
+  return {
+    type: SET_ALL_DIST_PRODUCTS,
+    payload: products
+  }
+} 

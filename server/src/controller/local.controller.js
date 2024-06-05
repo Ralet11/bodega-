@@ -160,7 +160,6 @@ export const getAllShops = async (req, res) => {
   }
 };
 
-
 export const addShop = async (req, res) => {
   try {
     const { name, address, phone, lat, lng, category, clientId } = req.body;
@@ -170,14 +169,11 @@ export const addShop = async (req, res) => {
 
     // Verificar que todos los campos estén presentes
     if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
-      console.log("")
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
-     
     }
 
     // Verificar que el clientId coincida con el idConfirm
     if (clientId !== idConfirm) {
-      console.log("2")
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
     }
 
@@ -189,7 +185,7 @@ export const addShop = async (req, res) => {
       lat,
       lng,
       category,
-      clients_id: clientId // Assuming the client ID is passed from the frontend
+      clients_id: clientId
     });
 
     // Obtener la tienda recién creada
@@ -198,7 +194,6 @@ export const addShop = async (req, res) => {
         id: newShop.id
       }
     });
-    console.log("err1")
 
     res.json({
       error: false,

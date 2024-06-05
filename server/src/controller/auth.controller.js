@@ -135,8 +135,11 @@ export const loginUser = async (req, res) => {
       email: user.email,
       phone: user.phone,
       birthDate: user.birthDate,
-      id: user.id
+      id: user.id,
+      address: user.address
     };
+
+    console.log(user, "address del user")
 
     const token = jwt.sign({ userId: user.id }, "secret_key", { expiresIn: "1h" });
 

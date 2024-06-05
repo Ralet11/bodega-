@@ -42,6 +42,8 @@ function Products() {
   });
   const [showNewProductModal, setShowNewProductModal] = useState(false);
 
+  const [aux, setAux] = useState(true)
+
   console.log(selectedCategory, "categoria");
   console.log(newProduct);
   dispatch(changeShop(activeShop));
@@ -99,7 +101,7 @@ function Products() {
     if (selectedCategory !== null) {
       fetchData();
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, aux]);
 
   const handleIconClick = (categoryId) => {
     console.log(categoryId, "id categoria");
@@ -185,13 +187,13 @@ function Products() {
     }
   };
 
-  const handleUpdateProduct = () => {
+  const handleUpdateProduct = (editedProduct) => {
     setShowUpdateProduct(false);
     const updatedFields = {
-      name: productToUpdate.name || selectedProduct.name,
-      price: productToUpdate.price || selectedProduct.price,
-      description: productToUpdate.description || selectedProduct.description,
-      img: productToUpdate.img || selectedProduct.img,
+      name: editedProduct.name || selectedProduct.name,
+      price: editedProduct.price || selectedProduct.price,
+      description: editedProduct.description || selectedProduct.description,
+      img: editedProduct.img || selectedProduct.img,
     };
 
     const hasChanged = Object.keys(updatedFields).some(
@@ -242,30 +244,27 @@ function Products() {
       const formData = new FormData();
       formData.append('id', productId);
       formData.append('action', 'product');
-      formData.append('image', newProduct.img);
-      console.log(formData);
-
+      formData.append('file', newProduct.img);
+  
       try {
-        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData,
-          {
-            headers:
-            {
-              Authorization: `Bearer ${token}`
-            }
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
           }
-        );
+        });
         if (response.status === 200) {
+          setAux(!aux)
           console.log('Image uploaded successfully');
         } else {
           console.error('Error uploading image');
         }
-        window.alert("image updated");
+        
       } catch (error) {
         console.error('Error uploading image:', error);
       }
     }
   };
-
   const handleCreateProduct = async () => {
     console.log("papapa");
     // Actualiza el category_id en newProduct con el valor seleccionado
@@ -320,33 +319,34 @@ function Products() {
         <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
       </div>
       <div className="flex pb-20 md:ml-20 md:pt-10 flex-col bg-gray-200 lg:h-screen lg:pl-[150px] md:flex-row gap-4 md:gap-[30px] p-4">
-        <div className=" bg-gray-100 p-4 rounded-lg shadow-md w-full md:w-[200px] h-auto md:h-[360px]">
-          <h2 className="text-base font-semibold mt-2">All Categories</h2>
-          <ul className="mt-4">
-            {Array.isArray(categories) && categories.map((category, index) => (
-              <li
-                key={category.id}
-                className={`category flex items-center justify-between mb-2 ${category.id === selectedCategory ? 'selectedCategory' : ''
-                  } ${index !== categories.length - 1 ? 'border-b pb-2' : ''}`}
-              >
-                <span className="text-sm">{category.name}</span>
-                <ArrowRightIcon
-                  className="w-4 h-4 cursor-pointer"
-                  onClick={() => handleIconClick(category.id)}
-                />
-              </li>
-            ))}
-          </ul>
-          <div className="flex mt-5">
-            <div
-              className="hover:text-green-700 flex items-center mt-1 rounded-md px-3 py-1 cursor-pointer"
-              onClick={handleAddCategory}
-            >
-              <PlusCircle className="w-5 h-5 mr-2" />
-              <p className="text-sm">Add Category</p>
-            </div>
-          </div>
-        </div>
+      <div className="bg-gray-100 p-4 rounded-lg shadow-md w-full md:w-[200px] h-auto md:h-[360px]">
+  <h2 className="text-base font-semibold mt-2">All Categories</h2>
+  <ul className="mt-4">
+    {Array.isArray(categories) && categories.map((category, index) => (
+      <li
+        key={category.id}
+        className={`category flex items-center justify-between mb-2 ${category.id === selectedCategory ? 'text-yellow-500 selectedCategory' : ''
+          } ${index !== categories.length - 1 ? 'border-b pb-2' : ''}`}
+        style={{ fontWeight: category.id === selectedCategory ? 'bold' : 'normal' }}
+      >
+        <span className="text-sm">{category.name}</span>
+        <ArrowRightIcon
+          className="w-4 h-4 cursor-pointer"
+          onClick={() => handleIconClick(category.id)}
+        />
+      </li>
+    ))}
+  </ul>
+  <div className="flex mt-5">
+    <div
+      className="hover:text-green-700 flex items-center mt-1 rounded-md px-3 py-1 cursor-pointer"
+      onClick={handleAddCategory}
+    >
+      <PlusCircle className="w-5 h-5 mr-2" />
+      <p className="text-sm">Add Category</p>
+    </div>
+  </div>
+</div>
         {selectedCategory !== null && (
           <div className="bg-gray-100 p-4 rounded-lg shadow-md w-full md:w-[800px] min-h-[600px]">
             <ProductCards
@@ -436,15 +436,8 @@ function Products() {
             });
           }}
           handleUpdate={handleUpdateProduct}
-          productToEdit={productToUpdate}
-          handleInputChange={(e) => {
-            const { name, value } = e.target;
-            setProductToUpdate({
-              ...productToUpdate,
-              [name]: value,
-            });
-          }}
-          local_id={activeShop}
+          aux={aux}
+          setAux={setAux}
         />
 
         {/* Render NewProductModal here */}

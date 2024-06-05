@@ -75,6 +75,8 @@ const SuccessPaymentDist = () => {
   // Aplanar la estructura de productos agrupados por proveedor
   const flattenedItems = groupedBySupplier ? Object.values(groupedBySupplier).flatMap(supplier => supplier.products) : [];
 
+
+  console.log(order)
   return (
     <div className="container mx-auto px-5 md:w-2/3 md:p-20 mt-8 pt-20">
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
