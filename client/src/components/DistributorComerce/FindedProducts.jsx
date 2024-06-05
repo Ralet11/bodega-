@@ -165,7 +165,7 @@ const FindedProducts = () => {
                   <h3 className="font-semibold text-md text-gray-800 mb-1">{product.name}</h3>
                   <p className="text-gray-700 text-md font-bold mb-1">${product.price.toFixed(2)}</p>
                   <p className="text-sm text-red-500 mb-1">
-                    <span className="line-through">${(product.price + 50).toFixed(2)}</span> 10% OFF
+                    <span className="line-through">${(product.price * 1.1).toFixed(2)}</span> 10% OFF
                   </p>
                   <p className="text-xs text-gray-500 mb-1">{product.description}</p>
                   <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-1">

@@ -37,6 +37,7 @@ const ProductSlider = () => {
   const dispatch = useDispatch();
   const [products, setProducts] = useState([]);
   const token = useSelector((state) => state?.client.token);
+  const allProducts = useSelector((state) => state?.allDistProducts);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -46,13 +47,19 @@ const ProductSlider = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setProducts(response.data);
+        setProducts(response.data.reverse().slice(0, 8)); // Order inversely and limit to 8 products
       } catch (error) {
         console.error(error);
       }
     };
     fetchProducts();
   }, [token]);
+
+  useEffect(() => {
+    if (allProducts && allProducts.length > 0) {
+      setProducts(allProducts.reverse().slice(0, 8)); // Order inversely and limit to 8 products
+    }
+  }, [allProducts]);
 
   const goToDetail = (product) => {
     dispatch(setDistProd(product));
@@ -102,77 +109,11 @@ const ProductSlider = () => {
     ]
   };
 
-  const sampleProducts = [
-    {
-        name: "RAW King Size Rolling Papers",
-        price: 2.99,
-        image1: "https://source.unsplash.com/random/400x300?rollingpapers",
-        store: "Store A",
-        discount: 0,
-        originalPrice: 2.99,
-        freeShipping: false
-    },
-    {
-        name: "Glass Bong 12-inch",
-        price: 59.99,
-        image1: "https://source.unsplash.com/random/400x300?bong",
-        store: "Store B",
-        discount: 10,
-        originalPrice: 66.66,
-        freeShipping: true
-    },
-    {
-        name: "Grinder 4-Piece",
-        price: 19.99,
-        image1: "https://source.unsplash.com/random/400x300?grinder",
-        store: "Store C",
-        discount: 5,
-        originalPrice: 21.05,
-        freeShipping: true
-    },
-    {
-        name: "Silicone Dab Rig",
-        price: 39.99,
-        image1: "https://source.unsplash.com/random/400x300?dabrig",
-        store: "Store D",
-        discount: 15,
-        originalPrice: 47.05,
-        freeShipping: true
-    },
-    {
-        name: "Hemp Wick Spool",
-        price: 5.99,
-        image1: "https://source.unsplash.com/random/400x300?hempwick",
-        store: "Store E",
-        discount: 0,
-        originalPrice: 5.99,
-        freeShipping: false
-    },
-    {
-        name: "Ceramic Chillum",
-        price: 14.99,
-        image1: "https://source.unsplash.com/random/400x300?chillum",
-        store: "Store F",
-        discount: 10,
-        originalPrice: 16.66,
-        freeShipping: true
-    },
-    {
-        name: "Cannabis Storage Jar",
-        price: 24.99,
-        image1: "https://source.unsplash.com/random/400x300?storagejar",
-        store: "Store G",
-        discount: 20,
-        originalPrice: 31.24,
-        freeShipping: true
-    }
-];
-
   return (
     <div className="p-4 rounded-lg w-[90%] md:w-[79%] pb-6 md:pb-10 mt-10 bg-white relative">
-      <h2 className="text-lg font-bold mb-2">Best offerts</h2>
+      <h2 className="text-lg font-bold mb-2">Best offers</h2>
       <Slider {...settings}>
-        {sampleProducts.map((product, index) => (
+        {products.map((product, index) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-lg p-2 transition-transform transform hover:scale-105 cursor-pointer flex flex-col"
@@ -185,7 +126,7 @@ const ProductSlider = () => {
               <p className="text-sm font-bold text-gray-700 mb-2">${product.price.toLocaleString()}</p>
               {product.discount > 0 && (
                 <p className="text-xs text-red-500 mb-1">
-                  <span className="line-through">${product.originalPrice.toLocaleString()}</span> {product.discount}% OFF
+                  <span className="line-through">${(product.price * 1.1).toFixed(2)}</span> 10% OFF
                 </p>
               )}
               <p className="text-xs text-gray-500 mb-1">{product.store}</p>
