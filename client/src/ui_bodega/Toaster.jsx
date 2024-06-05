@@ -1,15 +1,19 @@
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
-import './toasterStyles.css'
+import './toasterStyles.css';
+import { useLocation } from 'react-router-dom';
 
 const ToasterConfig = () => {
+  const location = useLocation();
+  const toastStyle = location.pathname === "/settings" ? "md:mt-12" : "";
+
   return (
     <div>
       <Toaster
         position="top-center"
         reverseOrder={false}
         gutter={8}
-        containerClassName="z-50 mt-1 h-36"
+        containerClassName={`z-50 mt-1 h-36 ${toastStyle}`}
         toastOptions={{
           className: "custom-toast",
           duration: 3000,
