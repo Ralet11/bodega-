@@ -131,6 +131,7 @@ const DistributorComerce = () => {
       </div>
       <div className="w-full max-w-6xl mt-8">
         <Slider {...sliderSettings}>
+
           {loading ? (
             <Skeleton count={1} height={200} />
           ) : (
@@ -143,6 +144,7 @@ const DistributorComerce = () => {
                       <div className="p-2">
                         <h3 className="font-bold text-xs text-gray-800">{subcategory.name}</h3>
                       </div>
+
                     </div>
                   ))}
                 </div>
