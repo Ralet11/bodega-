@@ -22,6 +22,8 @@ function Settings() {
     phone: '',
     address: '',
     image: null,
+    lat:null,
+    lng:null,
   });
   const [latLong, setLatLong] = useState({ lat: null, lng: null });
   const [fetchLatLong, setFetchLatLong] = useState(false);
@@ -37,8 +39,15 @@ function Settings() {
           phone: data.phone,
           address: data.address,
           image: data.img,
+          lat:data.lat,
+          lng:data.lng,
           category: data.locals_categories_id || ""
         });
+
+        setLatLong({
+          lat: data.lat,
+          lng:data.lng
+        })
 
         // Activa la solicitud de coordenadas
         setFetchLatLong(true);
