@@ -94,14 +94,7 @@ const DistProdCard = () => {
                                 <div className="flex items-center mb-4">
                                     <span className="text-gray-600 text-sm">Envío gratis comprando 5 o más unidades</span>
                                 </div>
-                                <div className="flex items-center mb-4">
-                                    <button
-                                        className="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700"
-                                        onClick={addToCartHandler}
-                                    >
-                                        Agregar al carrito
-                                    </button>
-                                </div>
+                                
                             </div>
                             <div className="border-t border-gray-200 pt-4">
                                 <div className="ml-2 flex flex-col space-y-2">
@@ -160,7 +153,7 @@ const DistProdCard = () => {
                             className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
                             onClick={addToCartHandler}
                         >
-                            Agregar al carrito
+                            Add to cart
                         </button>
                         <span className="text-xl font-bold text-gray-800">{`Total: $${totalPrice}`}</span>
                     </div>

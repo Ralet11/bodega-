@@ -32,9 +32,14 @@ const CustomPrevArrow = (props) => {
   );
 };
 
+const shuffleArray = (array) => {
+  return array.sort(() => Math.random() - 0.5);
+};
+
 const ProductSlider = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const allProducts = useSelector((state) => state?.allDistProducts);
   const [products, setProducts] = useState([]);
   const token = useSelector((state) => state?.client.token);
 
@@ -46,13 +51,19 @@ const ProductSlider = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setProducts(response.data);
+        setProducts(response.data.slice(0, 8)); // Limit to 8 products
       } catch (error) {
         console.error(error);
       }
     };
     fetchProducts();
   }, [token]);
+
+  useEffect(() => {
+    if (allProducts && allProducts.length > 0) {
+      setProducts(shuffleArray(allProducts).slice(0, 8)); // Limit to 8 products
+    }
+  }, [allProducts]);
 
   const goToDetail = (product) => {
     dispatch(setDistProd(product));
@@ -102,77 +113,11 @@ const ProductSlider = () => {
     ]
   };
 
-  const sampleProducts = [
-    {
-      name: "Vaporizador XMAX Starry 3.0",
-      price: 49999,
-      image1: "https://source.unsplash.com/random/400x300?vaporizador",
-      store: "Store A",
-      discount: 10,
-      originalPrice: 55555,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador Pax 3",
-      price: 199999,
-      image1: "https://source.unsplash.com/random/400x300?vape",
-      store: "Store B",
-      discount: 15,
-      originalPrice: 235000,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador Mighty",
-      price: 349999,
-      image1: "https://source.unsplash.com/random/400x300?vapes",
-      store: "Store C",
-      discount: 20,
-      originalPrice: 437499,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador DaVinci IQ2",
-      price: 299999,
-      image1: "https://source.unsplash.com/random/400x300?vaping",
-      store: "Store D",
-      discount: 5,
-      originalPrice: 315789,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador Arizer Solo 2",
-      price: 249999,
-      image1: "https://source.unsplash.com/random/400x300?vapes",
-      store: "Store E",
-      discount: 12,
-      originalPrice: 284090,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador Boundless CFX",
-      price: 199999,
-      image1: "https://source.unsplash.com/random/400x300?vaper",
-      store: "Store F",
-      discount: 8,
-      originalPrice: 217390,
-      freeShipping: true
-    },
-    {
-      name: "Vaporizador Firefly 2+",
-      price: 329999,
-      image1: "https://source.unsplash.com/random/400x300?vape",
-      store: "Store G",
-      discount: 7,
-      originalPrice: 354838,
-      freeShipping: true
-    }
-  ];
-
   return (
     <div className="p-4 rounded-lg w-[90%] md:w-[79%] pb-6 md:pb-10 mt-10 bg-white relative">
       <h2 className="text-lg font-bold mb-2">Inspired by the last thing you saw</h2>
       <Slider {...settings}>
-        {sampleProducts.map((product, index) => (
+        {products.map((product, index) => (
           <div
             key={index}
             className="bg-white rounded-lg shadow-lg p-2 transition-transform transform hover:scale-105 cursor-pointer flex flex-col"
@@ -183,11 +128,9 @@ const ProductSlider = () => {
             <div className="p-2 flex-grow flex flex-col justify-between">
               <h3 className="text-xs font-semibold mb-1">{product.name}</h3>
               <p className="text-sm font-bold text-gray-700 mb-2">${product.price.toLocaleString()}</p>
-              {product.discount > 0 && (
-                <p className="text-xs text-red-500 mb-1">
-                  <span className="line-through">${product.originalPrice.toLocaleString()}</span> {product.discount}% OFF
-                </p>
-              )}
+              <p className="text-xs text-red-500 mb-1">
+                <span className="line-through">${(product.price * 1.1).toLocaleString()}</span> 10% OFF
+              </p>
               <p className="text-xs text-gray-500 mb-1">{product.store}</p>
               {product.freeShipping && (
                 <p className="text-green-500 text-xs font-semibold">Envío gratis</p>
