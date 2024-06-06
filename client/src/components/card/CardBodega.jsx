@@ -5,6 +5,7 @@ import ThumbnailImage from '../../ui_bodega/ThumbnailImage';
 import CheckIcon from '../../icons/checkIcon';
 import ToasterConfig from '../../ui_bodega/Toaster';
 import toast from 'react-hot-toast';
+import GoBackArrow from '../GobackArrow';
 
 const DistProdCard = () => {
     const dispatch = useDispatch();
@@ -59,6 +60,7 @@ const DistProdCard = () => {
 
     return (
         <>
+            <GoBackArrow />
             <div className="flex justify-center mt-10 bg-gray-200 py-10 px-4">
                 <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full p-6 md:p-12">
                     <div className="flex flex-col md:flex-row">

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
+import ToasterConfig from '../../ui_bodega/Toaster'
+import toast from 'react-hot-toast'
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -78,11 +80,11 @@ function InfoCard({ shopData, setShopData }) {
           }
         });
         if (response.status === 200) {
+          toast.success("Image uploaded successfully"); // Mostrar Toast de éxito
           console.log('Image uploaded successfully');
         } else {
           console.error('Error uploading image');
         }
-        window.alert("Image updated");
         setImageChanged(false);
       } catch (error) {
         console.error('Error uploading image:', error);
@@ -97,9 +99,15 @@ function InfoCard({ shopData, setShopData }) {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log(response.data);
-      window.alert("Info updated");
+      if (response.status === 200) {
+        toast.success("Shop information updated successfully"); // Mostrar Toast de éxito
+        
+      } else {
+        toast.error("Error updating shop information");
+        console.error('Error updating shop information');
+      }
     } catch (error) {
+      toast.error("Error updating shop information");
       console.error('Error updating shop:', error);
     }
   };
@@ -194,6 +202,7 @@ function InfoCard({ shopData, setShopData }) {
           </form>
         </div>
       </div>
+      
     </div>
   );
 }

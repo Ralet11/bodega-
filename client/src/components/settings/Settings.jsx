@@ -9,6 +9,7 @@ import { getParamsEnv } from "../../functions/getParamsEnv";
 import Balance from "../balanceBodega";
 
 
+
 const { API_URL_BASE } = getParamsEnv();
 
 function Settings() {
