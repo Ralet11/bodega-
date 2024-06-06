@@ -49,8 +49,11 @@ const DistPurchaseHistory = () => {
     const getStatusClass = (status) => {
         switch (status) {
             case 'Pending purchase':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Confirmed purchase':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Packing up':
+                return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'On the way':
                 return 'bg-yellow-100 text-yellow-800 font-bold';
             case 'Arrived':
@@ -58,6 +61,7 @@ const DistPurchaseHistory = () => {
             case 'Closed':
                 return 'bg-gray-100 text-gray-800 font-bold';
             case 'Canceled by user':
+                return 'bg-red-100 text-red-800 font-bold';
             case 'Canceled by Bodega':
                 return 'bg-red-100 text-red-800 font-bold';
             default:
