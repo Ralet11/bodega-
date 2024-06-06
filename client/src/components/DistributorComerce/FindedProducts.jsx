@@ -62,6 +62,12 @@ const FindedProducts = () => {
     dispatch(setFindedProducts(filtered));
   };
 
+  const handleResetFilters = () => {
+    setFilters({ sortOrder: '', subcategory: '' });
+    dispatch(setSelectedSubCategory(null));
+    dispatch(setFindedProducts(allProducts));
+  };
+
   const [hoveredIndex, setHoveredIndex] = useState(-1);
 
   const goToDetail = (distProduct) => {
@@ -135,6 +141,12 @@ const FindedProducts = () => {
             </ul>
           </div>
         )}
+        <button
+          onClick={handleResetFilters}
+          className="mt-4 py-2 px-4 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 transition duration-300"
+        >
+          Reset Filters
+        </button>
       </div>
 
       {/* Products Section */}

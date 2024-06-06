@@ -187,7 +187,7 @@ const DistributorComerce = () => {
                     <p className="text-xs md:text-sm text-red-500 mb-2">
                       <span className="line-through">${(product.price * 1.1).toFixed(2)}</span> 10% OFF
                     </p>
-                    <p className="text-xs md:text-sm text-gray-500 mb-4">{product.description}</p>
+                    <p className="text-xs md:text-sm hidden md:block text-gray-500 mb-4">{product.description}</p>
                     <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
                       <p className="text-xs text-gray-500">Tienda del Producto</p>
                       {product.freeShipping && (

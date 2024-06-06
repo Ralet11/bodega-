@@ -62,17 +62,18 @@ const DistProdCard = () => {
             <div className="flex justify-center mt-10 bg-gray-200 py-10 px-4">
                 <div className="bg-white rounded-xl shadow-xl max-w-6xl w-full p-6 md:p-12">
                     <div className="flex flex-col md:flex-row">
-                        <div className="w-full md:w-1/4 flex flex-col items-center mb-6 md:mb-0">
-                            {[product.image1, product.image2, product.image3].map((image, index) => (
-                                <ThumbnailImage
-                                    key={index}
-                                    src={image}
-                                    alt={`Product Thumbnail ${index + 1}`}
-                                    onClick={() => handleThumbnailClick(image)}
-                                    className="cursor-pointer rounded-lg shadow-md hover:shadow-lg w-16 h-16 sm:w-24 sm:h-24 mb-2"
-                                />
-                            ))}
-                        </div>
+                    <div className="w-full md:w-1/4 flex flex-col items-center mb-6 md:mb-0 hidden md:flex">
+                        {[product.image1, product.image2, product.image3].map((image, index) => (
+                            <ThumbnailImage
+                                key={index}
+                                src={image}
+                                alt={`Product Thumbnail ${index + 1}`}
+                                onClick={() => handleThumbnailClick(image)}
+                                className="cursor-pointer rounded-lg shadow-md hover:shadow-lg w-16 h-16 sm:w-24 sm:h-24 mb-2"
+                            />
+                        ))}
+                    </div>
+
                         <div className="w-full md:w-1/2 flex justify-center items-center p-4">
                             <img
                                 src={selectedImage || product.image1}
@@ -112,42 +113,43 @@ const DistProdCard = () => {
                         <p className="text-gray-600 text-sm">Stock disponible</p>
                         <p className="text-gray-600 text-sm">Cantidad: {quantity} unidad(es) disponibles</p>
                     </div>
-                    <div className="mt-4">
+                    <div className="mt-4 overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Options</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partial Price</th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Options</th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                                    <th className="px-2 py-1 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partial Price</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
                                 <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.option || "Default Option"}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{product.stock || "50"}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 flex items-center">
+                                    <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{product.option || "Default Option"}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">{product.stock || "50"}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">${product.price}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500 flex items-center">
                                         <button
-                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-l-lg hover:bg-gray-400"
+                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-l-lg hover:bg-gray-400"
                                             onClick={() => handleQuantityChange(-1)}
                                         >
                                             -
                                         </button>
-                                        <span className="px-4">{quantity}</span>
+                                        <span className="px-2">{quantity}</span>
                                         <button
-                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-3 rounded-r-lg hover:bg-gray-400"
+                                            className="bg-gray-300 text-gray-700 font-bold py-1 px-2 rounded-r-lg hover:bg-gray-400"
                                             onClick={() => handleQuantityChange(1)}
                                         >
                                             +
                                         </button>
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${product.price * quantity}</td>
+                                    <td className="px-2 py-1 whitespace-nowrap text-sm text-gray-500">${product.price * quantity}</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
+
                     <div className="mt-4 flex justify-between items-center">
                         <button
                             className="bg-green-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-700"
