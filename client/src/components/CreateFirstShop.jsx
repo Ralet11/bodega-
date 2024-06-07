@@ -24,8 +24,9 @@ const CreateFirstShop = () => {
     phone: '',
     lat: 85.65,
     lng: 60.45,
-    category: '',  // Añadido campo de categoría
-    clientId: client.id || ""
+    category: '',
+    clientId: client.id || "",
+    status: '1' // Inicialmente vacío
   });
 
   useEffect(() => {
@@ -50,8 +51,15 @@ const CreateFirstShop = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Actualiza el campo status antes de enviar los datos
+    const updatedFormData = {
+      ...formData,
+      status: '1'
+    };
+
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/local/add`, formData, {
+      const response = await axios.post(`${API_URL_BASE}/api/local/add`, updatedFormData, {
         headers: {
           Authorization: `Bearer ${token}`
         }
