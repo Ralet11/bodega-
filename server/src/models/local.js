@@ -27,7 +27,8 @@ const Local = sequelize.define('local', {
   },
   status: {
     type: DataTypes.STRING(45),
-    defaultValue: null
+    defaultValue: '1', // Valor por defecto ajustado
+    allowNull: false
   },
   phone: {
     type: DataTypes.STRING(45),
