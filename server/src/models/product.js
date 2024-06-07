@@ -11,7 +11,7 @@ const Product = sequelize.define('product', {
     allowNull: false
   },
   name: {
-    type: DataTypes.STRING(45),
+    type: DataTypes.STRING(300),
     allowNull: false
   },
   price: {
@@ -19,11 +19,11 @@ const Product = sequelize.define('product', {
     allowNull: false
   },
   description: {
-    type: DataTypes.STRING(45),
+    type: DataTypes.STRING(300),
     allowNull: false
   },
   img: {
-    type: DataTypes.STRING(255),
+    type: DataTypes.STRING(600),
     allowNull: false
   },
   categories_id: {

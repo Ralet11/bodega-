@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import Local from '../models/local.js';
 import { Op } from 'sequelize';
 import Client from "../models/client.js";
+import Category from "../models/category.js";
+import Product from "../models/product.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -202,5 +204,42 @@ export const addShop = async (req, res) => {
   } catch (error) {
     console.error('Error adding shop:', error);
     res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+
+export const getLocalCategoriesAndProducts = async (req, res) => {
+
+  const localId = req.params.localId
+
+  try {
+    // Obtén todas las categorías que pertenecen al local_id
+    const categories = await Category.findAll({
+      where: { local_id: localId }
+    });
+
+    // Formatea los datos para la estructura deseada
+    const formattedData = await Promise.all(categories.map(async category => {
+      const products = await Product.findAll({
+        where: { categories_id: category.id }
+      });
+
+      return {
+        id: category.id,
+        name: category.name,
+        products: products.map(product => ({
+          id: product.id,
+          name: product.name,
+          price: `$${product.price.toFixed(3)}`,
+          description: product.description,
+          image: product.img,
+        }))
+      };
+    }));
+
+    res.status(200).json({categories: formattedData });
+  } catch (error) {
+    console.error('Error fetching local data:', error);
+    res.status(500).json(error)
   }
 };
