@@ -17,8 +17,9 @@ function Shops() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const categories = useSelector((state) => state.categories);
-    
-    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         address: '',
@@ -28,6 +29,7 @@ function Shops() {
         clientId: client.client.id,
         category: ''
     });
+    const [selectedShop, setSelectedShop] = useState('');
     const [loading, setLoading] = useState(true);
 
     const selectLocal = (id) => {
@@ -49,7 +51,7 @@ function Shops() {
             });
             if (response.statusText === "OK") {
                 console.log("Shop added successfully");
-                setIsModalOpen(false);
+                setIsAddModalOpen(false);
                 const clientRes = await resetClient(client.client.id, token)
                 dispatch(loginSuccess(clientRes.client));
             }
@@ -58,9 +60,34 @@ function Shops() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    const handleDeleteShop = async () => {
+        try {
+            const response = await axios.put(`${API_URL_BASE}/api/local/update/${selectedShop}`, {
+                status: '0'
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            if (response.statusText === "OK") {
+                console.log("Shop status updated to 0");
+                setIsDeleteModalOpen(false);
+                const clientRes = await resetClient(client.client.id, token)
+                dispatch(loginSuccess(clientRes.client));
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handleSubmitAdd = async (e) => {
         e.preventDefault();
         handleAddShop();
+    };
+
+    const handleSubmitDelete = async (e) => {
+        e.preventDefault();
+        handleDeleteShop();
     };
 
     useEffect(() => {
@@ -80,6 +107,9 @@ function Shops() {
         }
     }, [dispatch, client.client.id, token]);
 
+    // Filtrar las tiendas con status='1'
+    const activeShops = client.locals.filter(local => local.status === '1');
+
     return (
         <div className="container h-screen bg-gray-200 w-full pb-20 mx-auto md:py-8 mt-12 px-5 lg:px-20">
             <div className="md:pb-5 text-center">
@@ -98,7 +128,7 @@ function Shops() {
                         </div>
                     ))
                 ) : (
-                    client.locals.map((local, index) => (
+                    activeShops.map((local, index) => (
                         <div
                             onClick={() => selectLocal(local.id)}
                             key={index}
@@ -117,21 +147,27 @@ function Shops() {
                     ))
                 )}
             </div>
-            <div className="mt-6 flex justify-center">
+            <div className="mt-6 flex justify-center gap-4">
                 <button
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={() => setIsAddModalOpen(true)}
                     className="flex font-bold items-center gap-2 px-5 py-3 bg-blue-500 text-white rounded-md focus:outline-none hover:bg-blue-400 transform transition duration-300 hover:scale-105"
                 >
                     <PlusCircleIcon className="h-6 w-6" />
                     Add New Shop
                 </button>
+                <button
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    className="flex font-bold items-center gap-2 px-5 py-3 bg-red-500 text-white rounded-md focus:outline-none hover:bg-red-400 transform transition duration-300 hover:scale-105"
+                >
+                    Delete Shop
+                </button>
             </div>
 
-            {isModalOpen && (
+            {isAddModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
                         <h2 className="text-2xl font-bold mb-4">Add New Shop</h2>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmitAdd}>
                             <div className="mb-4">
                                 <label className="block text-gray-700">Name</label>
                                 <input
@@ -172,7 +208,7 @@ function Shops() {
                                 >
                                     <option value="">Select a category</option>
                                     {categories.map((category) => (
-                                        <option key={category.id} value={category.name}>
+                                        <option key={category.id} value={category.id}>
                                             {category.name}
                                         </option>
                                     ))}
@@ -180,7 +216,7 @@ function Shops() {
                             </div>
                             <div className="flex justify-end">
                                 <button
-                                    onClick={() => setIsModalOpen(false)}
+                                    onClick={() => setIsAddModalOpen(false)}
                                     className="mr-4 px-4 py-2 bg-gray-300 rounded"
                                     type="button"
                                 >
@@ -191,6 +227,47 @@ function Shops() {
                                     className="px-4 py-2 bg-blue-500 text-white rounded"
                                 >
                                     Add
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                        <h2 className="text-2xl font-bold mb-4">Delete Shop</h2>
+                        <form onSubmit={handleSubmitDelete}>
+                            <div className="mb-4">
+                                <label className="block text-gray-700">Select Shop to Delete</label>
+                                <select
+                                    name="selectedShop"
+                                    value={selectedShop}
+                                    onChange={(e) => setSelectedShop(e.target.value)}
+                                    className="w-full px-3 py-2 border rounded"
+                                >
+                                    <option value="">Select a shop</option>
+                                    {client.locals.map((local) => (
+                                        <option key={local.id} value={local.id}>
+                                            {local.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="mr-4 px-4 py-2 bg-gray-300 rounded"
+                                    type="button"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 bg-red-500 text-white rounded"
+                                >
+                                    Delete
                                 </button>
                             </div>
                         </form>

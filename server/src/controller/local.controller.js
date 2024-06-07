@@ -33,7 +33,7 @@ export const getByClientId = async (req, res) => {
       }
     });
 
-    res.status(200).json({locals, finded: "ok"});
+    res.status(200).json({ locals, finded: "ok" });
   } catch (error) {
     console.error('Error al obtener locales por cliente:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });
@@ -84,10 +84,8 @@ export const changeStatus = async (req, res) => {
 };
 
 export const updateShop = async (req, res) => {
-  const { id, name, phone, category } = req.body;
-
-  const cat = String(category)
-  console.log(cat)
+  const { id } = req.params;
+  const { name, phone, category, address, lat, lng, status } = req.body;
 
   try {
     const local = await Local.findByPk(id);
@@ -96,7 +94,7 @@ export const updateShop = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
 
-    await local.update({ name, phone, locals_categories_id: cat });
+    await local.update({ name, phone, locals_categories_id: category, address, lat, lng, status });
 
     res.status(200).json({ message: 'Información del local actualizada exitosamente' });
   } catch (error) {
@@ -184,7 +182,7 @@ export const addShop = async (req, res) => {
       phone,
       lat,
       lng,
-      category,
+      locals_categories_id: category, // Aquí se utiliza el mismo campo que en updateShop
       clients_id: clientId
     });
 
