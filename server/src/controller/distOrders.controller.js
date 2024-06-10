@@ -32,25 +32,13 @@ export const addToLocal = async (req, res) => {
       const orderId = newOrder.id;
       console.log(orderId, "orderid");
 
-      // Agrupar orderDetails por ID y contar la cantidad de cada uno
-      const itemQuantities = order_details.reduce((acc, detail) => {
-          acc[detail.id] = acc[detail.id] ? acc[detail.id] + 1 : 1;
-          return acc;
-      }, {});
-
       // Crear los registros de DistOrderProduct
-      let ids = [];
-      for (const detail of order_details) {
-          if (!ids.includes(detail.id)) {
-              // Si el ID no está en la lista, crea un nuevo registro
-              await DistOrderProduct.create({
-                  order_id: orderId,
-                  product_id: detail.id,
-                  quantity: itemQuantities[detail.id] || 1 // Puedes establecer una cantidad predeterminada si es necesario
-              });
-              // Agrega el ID a la lista para evitar duplicados
-              ids.push(detail.id);
-          }
+      for (const item of order_details) {
+          await DistOrderProduct.create({
+              order_id: orderId,
+              product_id: item.id,
+              quantity: item.quantity // Utiliza la cantidad del carrito
+          });
       }
 
       // Buscar los detalles de los productos de la orden recién creada

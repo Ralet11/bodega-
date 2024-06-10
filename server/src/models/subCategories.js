@@ -17,16 +17,19 @@ const Subcategory = sequelize.define('Subcategory', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: LocalCategory, // Apunta a LocalCategory en lugar de Category
+      model: LocalCategory,
       key: 'id',
     },
+  },
+  imagen: {
+    type: DataTypes.STRING(600),
+    allowNull: true,
   },
 }, {
   tableName: 'subcategories',
   timestamps: false,
 });
 
-// Relación con LocalCategory
 Subcategory.belongsTo(LocalCategory, { foreignKey: 'category_id', as: 'localCategory' });
 
 export default Subcategory;

@@ -243,3 +243,31 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
     res.status(500).json(error)
   }
 };
+
+const groupShopsByCategory = (shops) => {
+  return shops.reduce((acc, shop) => {
+    const categoryId = shop.dataValues.locals_categories_id;
+    if (!acc[`${categoryId}`]) {
+      acc[`${categoryId}`] = [];
+    }
+    acc[`${categoryId}`].push(shop.dataValues);
+    return acc;
+  }, {});
+};
+
+export const getShopsOrderByCat = async (req, res) => {
+  try {
+    const shops = await Local.findAll({
+      where: {
+        status: '1',
+      },
+    });
+
+    const groupedShops = groupShopsByCategory(shops);
+
+    res.json(groupedShops);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
+  }
+};
