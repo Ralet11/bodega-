@@ -77,7 +77,7 @@ export const uploadBalanceImage = async (req, res) => {
 
   try {
       const fileContent = req.file.buffer.toString('base64');
-
+      
 
       // Subir a Cloudinary directamente desde el buffer
       const uploadResult = await cloudinary.uploader.upload(`data:${req.file.mimetype};base64,${fileContent}`, {
@@ -99,5 +99,7 @@ export const uploadBalanceImage = async (req, res) => {
       res.status(200).json({ message: "File uploaded successfully", balanceRequest: newBalanceRequest });
   } catch (error) {
       res.status(500).json({ error: "Error processing file upload", details: error });
+      console.log(error)
   }
+
 };
