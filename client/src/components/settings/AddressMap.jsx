@@ -10,7 +10,7 @@ const { API_URL_BASE } = getParamsEnv();
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU",
+    googleMapsApiKey: "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE",
     libraries: ["places"]
   });
 

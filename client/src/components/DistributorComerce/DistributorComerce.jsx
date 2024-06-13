@@ -117,6 +117,8 @@ const DistributorComerce = () => {
     navigate("/searchProducts");
   };
 
+  console.log(groupedSubcategories, "categories")
+
   return (
     <div className="flex flex-col items-center w-full bg-gray-200 pb-20">
       <div className="md:hidden flex text-xs mt-20 bg-[#F2BB26] pt-4 font-bold px-3 gap-1 w-full">
@@ -140,7 +142,7 @@ const DistributorComerce = () => {
                 <div className="grid grid-cols-5 gap-4">
                   {group.map((subcategory, idx) => (
                     <div key={idx} onClick={() => handleSelectSubCategory(subcategory.id)} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105">
-                      <img className="w-full h-24 object-cover" src={`https://source.unsplash.com/random/400x300?${subcategory.name}`} alt={subcategory.name} />
+                      <img className="w-full h-24 object-cover" src={subcategory.imagen} alt={subcategory.name} />
                       <div className="p-2">
                         <h3 className="font-bold text-xs text-gray-800">{subcategory.name}</h3>
                       </div>

@@ -10,40 +10,16 @@ const Address = sequelize.define('address', {
     autoIncrement: true,
     allowNull: false
   },
-  street_number: {
-    type: DataTypes.STRING(45),
-    allowNull: false
-  },
-  unit_number: {
-    type: DataTypes.STRING(45),
-    allowNull: false
-  },
-  address_line1: {
-    type: DataTypes.STRING(45),
-    allowNull: false
-  },
-  address_line2: {
-    type: DataTypes.STRING(45),
-    defaultValue: null
-  },
-  city: {
-    type: DataTypes.STRING(45),
-    allowNull: false
-  },
-  postal_code: {
-    type: DataTypes.INTEGER,
-    defaultValue: null
-  },
   users_id: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  lat: {
-    type: DataTypes.FLOAT,
+  name: {
+    type: Sequelize.STRING(100),
     allowNull: false
   },
-  lng: {
-    type: DataTypes.FLOAT,
+  formatted_address: {
+    type: Sequelize.STRING(255),
     allowNull: false
   }
 }, {

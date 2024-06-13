@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getAddressesByUser } from "../controller/addresses.controller.js";
+import { addAddressToUser, getAddressesByUser } from "../controller/addresses.controller.js";
+import { methods } from "../middleware.js";
 const router = Router()
 
-router.post('/getById', getAddressesByUser)
+router.get('/getById', methods.auth, getAddressesByUser)
+router.post('/addToUser', methods.auth, addAddressToUser)
 
 
 

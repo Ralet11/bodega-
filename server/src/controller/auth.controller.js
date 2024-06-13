@@ -102,12 +102,27 @@ export const registerUser = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = await User.create({ name, email, password: hashedPassword, phone });
+    const newUser = await User.create({ name, email, password: hashedPassword, phone, subscription: 0 });
+
+    console.log(newUser, "usuario neuvo")
+
+    const userData = {
+      name: newUser.name,
+      email: newUser.email,
+      phone: newUser.phone,
+      birthDate: newUser.birthDate,
+      id: newUser.id,
+      address: newUser.address,
+      subscription: newUser.subscription
+    };
+
+    const token = jwt.sign({ userId: newUser.id }, "secret_key", { expiresIn: "1h" });
 
     res.json({
       error: false,
       data: {
-        result: newUser,
+        token,
+        client: userData,
         message: "User added successfully"
       }
     });
@@ -130,13 +145,16 @@ export const loginUser = async (req, res) => {
       return res.json({ error: true, data: { message: 'Incorrect user or password' } });
     }
 
+    console.log(user, "chequeando user")
+
     const userData = {
       name: user.name,
       email: user.email,
       phone: user.phone,
       birthDate: user.birthDate,
       id: user.id,
-      address: user.address
+      address: user.address,
+      subscription: user.subscription
     };
 
     console.log(user, "address del user")

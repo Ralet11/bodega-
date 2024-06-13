@@ -17,3 +17,37 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
+
+export const updateUser = async (req, res) => {
+  const userId = req.user.userId;
+  const { name, email, phone, address, password } = req.body;
+
+  console.log(userId)
+
+  try {
+    // Encuentra el usuario por ID
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    // Actualiza los datos del usuario
+    user.name = name || user.name;
+    user.email = email || user.email;
+    user.phone = phone || user.phone;
+    user.address = address || user.address;
+
+    if (password) {
+      user.password = password; // Asegúrate de que tu modelo de usuario maneje el hashing de la contraseña
+    }
+
+    // Guarda los cambios en la base de datos
+    await user.save();
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error al actualizar el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
