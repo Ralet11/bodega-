@@ -51,6 +51,8 @@ function Dashboard1() {
     { name: 'Apr', thisQuarter: 10, lastQuarter: 11 },
   ];
 
+  //seteamos el monto vendido hoy y en el mes
+
   useEffect(() => {
     const fetchOrdersByDay = async () => {
       try {
@@ -275,7 +277,7 @@ function Dashboard1() {
         <>
           <div className='w-[100%] h-[14%] flex justify-between pl-6 pr-6'>
             <div className='bg-cards1 w-[20%] h-[100%] rounded-full flex items-center'>
-              <div className='w-10 h-10 ml-5 flex items-center justify-center'>
+              <div className='w-10 h-10 ml-5  flex items-center justify-center'>
                 <CurrencyDollarIcon className='text-blue-500' />
               </div>
               <div>

@@ -27,6 +27,11 @@ const User = sequelize.define('user', {
   phone: {
     type: DataTypes.STRING(45),
     allowNull: false
+  },
+  subscription: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 }, {
   tableName: 'users',

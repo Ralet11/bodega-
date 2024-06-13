@@ -95,6 +95,8 @@ const CartView = ({ onClose }) => {
         }
     };
 
+    console.log(cartItems)
+
     const finalizeBodegaPurchase = async (remainingBalance) => {
         setIsLoading(true);
         try {
