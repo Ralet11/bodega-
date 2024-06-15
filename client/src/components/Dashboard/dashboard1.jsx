@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import ShopsComponent from './dashShop.jsx';
 
 dayjs.extend(isSameOrAfter);
 
@@ -263,6 +264,7 @@ function Dashboard1() {
                 </ResponsiveContainer>
               </div>
             </div>
+            
           </>
         )}
       </div>
@@ -395,6 +397,7 @@ function Dashboard1() {
               </ResponsiveContainer>
             </div>
           </div>
+          <ShopsComponent/>
         </>
       )}
     </div>

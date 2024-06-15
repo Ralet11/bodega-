@@ -271,3 +271,38 @@ export const getShopsOrderByCat = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
+export const getShopsByClientId = async (req, res) => {
+  try {
+    const token = req.headers.authorization;
+
+    if (!token) {
+      return res.status(401).json({ message: 'Acceso no autorizado. Token no proporcionado.' });
+    }
+
+    const tokenParts = token.split(' ');
+
+    if (tokenParts.length !== 2 || tokenParts[0] !== 'Bearer') {
+      return res.status(401).json({ message: 'Formato de token inválido.' });
+    }
+
+    const decoded = jwt.verify(tokenParts[1], 'secret_key');
+
+    if (!decoded || !decoded.clientId) {
+      return res.status(403).json({ message: 'Token inválido o falta el ID del cliente.' });
+    }
+
+    const clientId = decoded.clientId;
+
+    const locals = await Local.findAll({
+      where: {
+        clients_id: clientId
+      }
+    });
+
+    res.status(200).json({ locals, finded: "ok" });
+  } catch (error) {
+    console.error('Error al obtener locales por cliente:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
