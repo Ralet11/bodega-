@@ -12,19 +12,37 @@ export const getAddressesByUser = async (req, res) => {
   }
 };
 
+
 export const addAddressToUser = async (req, res) => {
-  const userId = req.user.userId
-  const {formatted_address, name} = req.body
+  const userId = req.user.userId;
+  const {
+    formatted_address,
+    name,
+    houseNumber,
+    streetName,
+    additionalDetails,
+    postalCode
+  } = req.body;
+
+  // Verificar si los campos obligatorios están presentes
+  if (!formatted_address || !name || !houseNumber || !streetName || !postalCode) {
+    return res.status(400).json({ error: 'Missing required address fields' });
+  }
+
   try {
     const newAddress = await Address.create({
       users_id: userId,
       name,
-      formatted_address
-    })
+      formatted_address,
+      houseNumber,
+      streetName,
+      additionalDetails,
+      postalCode
+    });
 
-    res.status(200).json(newAddress)
+    res.status(200).json(newAddress);
   } catch (error) {
-    res.status(500).json(error)
-    console.log(error)
+    res.status(500).json({ error: 'An error occurred while saving the address' });
+    console.log(error);
   }
-}
+};
