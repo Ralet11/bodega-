@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getParamsEnv } from './../../functions/getParamsEnv.js';
+import { BarChart, BarList, Card, LineChart } from '@tremor/react';
 
 const ShopsComponent = () => {
   const [shops, setShops] = useState([]);
@@ -93,6 +94,22 @@ const ShopsComponent = () => {
     setFilteredOrdersData(ordersData);
   }, [ordersData]);
 
+  // Preparing data for the charts
+  const salesData = Object.keys(filteredOrdersData).map(shopId => ({
+    name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
+    sales: filteredOrdersData[shopId].sales
+  }));
+
+  const contributionData = Object.keys(filteredOrdersData).map(shopId => ({
+    date: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
+    contribution: filteredOrdersData[shopId].contribution
+  }));
+
+  const ordersListData = Object.keys(filteredOrdersData).map(shopId => ({
+    title: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
+    value: filteredOrdersData[shopId].ordersCount
+  }));
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Shops</h1>
@@ -103,6 +120,30 @@ const ShopsComponent = () => {
         <button onClick={() => filterOrders('semester')} className="bg-blue-500 text-white px-4 py-2 rounded">Semester</button>
         <button onClick={() => filterOrders('year')} className="bg-blue-500 text-white px-4 py-2 rounded">Year</button>
         <button onClick={showAllOrders} className="bg-blue-500 text-white px-4 py-2 rounded">Historical Data</button>
+      </div>
+      <div className="mt-4">
+        <Card>
+          <h2 className="text-xl font-bold mb-4">Sales Data</h2>
+          <BarChart
+            data={salesData}
+            dataKey="name"
+            xAxisKey="sales"
+          />
+        </Card>
+        <Card className="mt-4">
+          <h2 className="text-xl font-bold mb-4">Contribution Over Time</h2>
+          <LineChart
+            data={contributionData}
+            dataKey="date"
+            xAxisKey="contribution"
+          />
+        </Card>
+        <Card className="mt-4">
+          <h2 className="text-xl font-bold mb-4">Orders by Shop</h2>
+          <BarList
+            data={ordersListData}
+          />
+        </Card>
       </div>
       <table className="min-w-full bg-white border border-gray-200 mt-4">
         <thead>
