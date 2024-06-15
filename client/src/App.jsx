@@ -40,7 +40,7 @@ function App() {
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
