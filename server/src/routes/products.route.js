@@ -9,4 +9,5 @@ router.delete('/delete/:id',middleware.auth, deleteById)
 router.put('/update/:id', middleware.auth, updateById)
 router.get('/getByLocalId/:id', middleware.auth, getByLocalId)
 
+
 export default router
