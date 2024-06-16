@@ -29,7 +29,12 @@ export const getByLocalId = async (req, res) => {
       }
     });
 
-    res.status(200).json(orders);
+    // Calcular métricas de ventas, contribución y cantidad de órdenes
+    const sales = orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
+    const contribution = sales * 0.1; // Ejemplo: 10% de las ventas como contribución
+    const ordersCount = orders.length;
+
+    res.status(200).json({ orders, sales, contribution, ordersCount });
   } catch (error) {
     console.error('Error al obtener pedidos:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });

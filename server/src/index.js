@@ -14,9 +14,6 @@ import http from 'http'
 
 sequelize.sync({ force: false }).then(() => {
   
-  
-
-  
   const httpsServer = http.createServer( app);
   httpsServer.listen(80, () => {
     initializeSocket(httpsServer)
