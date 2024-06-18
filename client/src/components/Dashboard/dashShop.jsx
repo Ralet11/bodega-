@@ -53,7 +53,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
       // Calculate sales and contribution for filtered orders
       const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
       const quantity = filteredOrders.reduce((sum, order) => {
-        return sum + order.order_details.details.reduce((qSum, item) => qSum + item.quantity, 0);
+        return sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0);
       }, 0);
       const ordersCount = filteredOrders.length;
 
@@ -71,7 +71,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
     const newFilteredItemTotals = {};
     const orders = filteredShopData.orders;
     orders.forEach(order => {
-      order.order_details.details.forEach(item => {
+      order.order_details.forEach(item => {
         if (!newFilteredItemTotals[item.id]) {
           newFilteredItemTotals[item.id] = {
             name: item.name,
@@ -105,8 +105,8 @@ const ShopsComponent = ({ shops, ordersData }) => {
   };
 
   const handleSeeDetails = (orderDetails, orderId) => {
-    if (orderDetails && Array.isArray(orderDetails.details)) {
-      const detailsWithOrderId = orderDetails.details.map(detail => ({ ...detail, orderId }));
+    if (orderDetails && Array.isArray(orderDetails)) {
+      const detailsWithOrderId = orderDetails.map(detail => ({ ...detail, orderId }));
       setSelectedOrderDetails(detailsWithOrderId);
       setIsModalOpen(true);
     } else {
@@ -143,14 +143,16 @@ const ShopsComponent = ({ shops, ordersData }) => {
     return filteredOrdersData[shopId].orders.map(order => ({
       date: order.date_time.split('T')[0], // Extrayendo solo la fecha
       sales: parseFloat(order.total_price), // Precio total del pedido
-      quantity: order.order_details.details.reduce((sum, item) => sum + item.quantity, 0), // Cantidad total de items en el pedido
+      quantity: order.order_details.reduce((sum, item) => sum + item.quantity, 0), // Cantidad total de items en el pedido
     }));
   });
+
+  
 
   // Datos para el gráfico de dispersión (ejemplo)
   const salesScatterData = Object.keys(filteredOrdersData).flatMap(shopId => {
     return filteredOrdersData[shopId].orders.flatMap(order => {
-      return order.order_details.details.map(item => ({
+      return order.order_details.map(item => ({
         price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")), // Precio del producto
         quantity: item.quantity, // Cantidad vendida
       }));
