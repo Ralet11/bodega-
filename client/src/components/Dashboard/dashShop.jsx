@@ -188,7 +188,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
       <div className="mt-4 flex flex-wrap -mx-2">
         <div className="w-full md:w-1/2 px-2">
           <h2 className="text-xl font-bold mb-4">Sales Trend (Total Sales: {formatCurrency(totalSalesAmount)}, Total Quantity: {formatQuantity(totalSalesQuantity)})</h2>
-          <SalesLineChart data={salesLineData} totalSalesAmount={totalSalesAmount} />
+          <SalesLineChart data={salesLineData} totalSalesAmount={totalSalesAmount} totalSalesQuantity={totalSalesQuantity} />
         </div>
         <div className="w-full md:w-1/2 px-2">
           <h2 className="text-xl font-bold mb-4">Sales vs Quantity</h2>

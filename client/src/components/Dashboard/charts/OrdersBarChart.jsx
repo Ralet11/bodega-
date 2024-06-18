@@ -4,18 +4,23 @@ import {
 } from 'recharts';
 
 const OrdersBarChart = ({ data }) => (
-  <div>
-    <h2 className="text-xl font-bold mb-4">Orders by Shop</h2>
-    <ResponsiveContainer width="100%" height={400}>
-      <BarChart data={data} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis type="number" />
-        <YAxis type="category" dataKey="name" />
-        <Tooltip />
-        <Legend />
-        <Bar dataKey="ordersCount" fill="#8884d8" />
-      </BarChart>
-    </ResponsiveContainer>
+  <div className="bg-gray-800 shadow-lg rounded-lg p-8">
+    <h2 className="text-2xl font-bold text-yellow-400 mb-6">Orders by Shop</h2>
+    <div className="bg-gray-700 bg-opacity-20 p-6 rounded-lg backdrop-filter backdrop-blur-lg">
+      <ResponsiveContainer width="100%" height={400}>
+        <BarChart data={data} layout="vertical">
+          <CartesianGrid strokeDasharray="3 3" className="stroke-current text-gray-500" />
+          <XAxis type="number" className="text-gray-300" />
+          <YAxis type="category" dataKey="name" className="text-gray-300" />
+          <Tooltip 
+            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderColor: 'gray-200' }}
+            itemStyle={{ color: 'black' }}
+          />
+          <Legend wrapperStyle={{ color: 'white' }} />
+          <Bar dataKey="ordersCount" fill="#FFD700" />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   </div>
 );
 
