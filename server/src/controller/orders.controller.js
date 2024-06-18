@@ -7,6 +7,7 @@ import DistOrder from '../models/distOrders.model.js';
 
 
 export const getByLocalId = async (req, res) => {
+  console.log("122")
   const { id } = req.params; // Asume que el ID del local se pasa como parámetro de la URL
   const idConfirm = req.user.clientId; // El clientId del usuario autenticado
 
@@ -15,6 +16,7 @@ export const getByLocalId = async (req, res) => {
     const local = await Local.findByPk(id);
 
     if (!local) {
+      console.log("1")
       return res.status(404).json({ message: "Local not found" });
     }
 
@@ -111,7 +113,7 @@ export const createOrder = async (req, res) => {
     // Emitir evento de nuevo pedido a través de Socket.IO
   io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
 
-    res.status(201).json({ message: 'Pedido creado exitosamente' });
+    res.status(201).json({ message: 'Pedido creado exitosamente', newOrder });
   } catch (error) {
     console.error('Error al crear el pedido:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
@@ -174,5 +176,27 @@ export const getOrdersByUser = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener pedidos:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+export const getByOrderId = async (req, res) => {
+  console.log("1")
+  const { orderId } = req.params;
+
+  try {
+    const order = await Order.findByPk(orderId, {
+      include: [
+        { model: Local, as: 'local', attributes: ['id', 'name', 'img', 'address'] }
+      ]
+    });
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

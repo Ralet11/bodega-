@@ -17,6 +17,8 @@ const Orders = () => {
     const dispatch = useDispatch()
     console.log(lastOrder)
 
+  
+
     const [orders, setOrders] = useState({
         "new order": [],
         accepted: [],
@@ -24,7 +26,7 @@ const Orders = () => {
         finished: [],
     });
 
-    const socket = socketIOClient("https://localhost");
+    const socket = socketIOClient("http://localhost:80");
 
     useEffect(() => {
         const fetchData = async () => {
@@ -73,6 +75,8 @@ const Orders = () => {
             socket.off("newOrder");
         };
     }, []);
+
+    console.log(`${API_URL_BASE}/api/orders/get/${activeShop}`)
 
     const handleAcceptOrder = async (orderId) => {
         console.log("cambiando estado")

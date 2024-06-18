@@ -2,12 +2,23 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
-import ToasterConfig from '../../ui_bodega/Toaster'
-import toast from 'react-hot-toast'
+import ToasterConfig from '../../ui_bodega/Toaster';
+import toast from 'react-hot-toast';
+import Select from 'react-select';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 const { API_URL_BASE } = getParamsEnv();
 
 const defaultImageUrl = 'https://via.placeholder.com/300';
+
+// Lista de países con características adicionales
+const countryOptions = [
+  { value: 'AR', label: 'Argentina', code: '+54' },
+  { value: 'BR', label: 'Brazil', code: '+55' },
+  { value: 'US', label: 'United States', code: '+1' },
+  // Agrega más países según sea necesario
+];
 
 function InfoCard({ shopData, setShopData }) {
   const [newShop, setNewShop] = useState({
@@ -16,11 +27,13 @@ function InfoCard({ shopData, setShopData }) {
     phone: '',
     address: '',
     img: null,
+    nationality: '',
   });
   const token = useSelector((state) => state?.client.token);
   const [selectedImage, setSelectedImage] = useState({ img: shopData ? shopData.image : defaultImageUrl });
   const [imageChanged, setImageChanged] = useState(false);
   const categories = useSelector((state) => state.categories);
+  const [phonePrefix, setPhonePrefix] = useState('');
 
   useEffect(() => {
     setSelectedImage({ img: shopData.image || defaultImageUrl });
@@ -32,8 +45,11 @@ function InfoCard({ shopData, setShopData }) {
       name: shopData.name,
       phone: shopData.phone,
       img: shopData.img,
-      category: shopData.category || ""
+      category: shopData.category || "",
+      nationality: shopData.nationality || "",
     });
+    const selectedCountry = countryOptions.find(option => option.value === shopData.nationality);
+    setPhonePrefix(selectedCountry ? selectedCountry.code : '');
   }, [shopData]);
 
   const handleInputChange = (e) => {
@@ -41,6 +57,13 @@ function InfoCard({ shopData, setShopData }) {
     setNewShop({
       ...newShop,
       [name]: value,
+    });
+  };
+
+  const handlePhoneChange = (value) => {
+    setNewShop({
+      ...newShop,
+      phone: value,
     });
   };
 
@@ -101,7 +124,6 @@ function InfoCard({ shopData, setShopData }) {
       });
       if (response.status === 200) {
         toast.success("Shop information updated successfully"); // Mostrar Toast de éxito
-        
       } else {
         toast.error("Error updating shop information");
         console.error('Error updating shop information');
@@ -110,6 +132,14 @@ function InfoCard({ shopData, setShopData }) {
       toast.error("Error updating shop information");
       console.error('Error updating shop:', error);
     }
+  };
+
+  const handleNationalityChange = (selectedOption) => {
+    setNewShop({
+      ...newShop,
+      nationality: selectedOption.value,
+    });
+    setPhonePrefix(selectedOption.code);
   };
 
   return (
@@ -164,13 +194,11 @@ function InfoCard({ shopData, setShopData }) {
               <label htmlFor="phone" className="block text-gray-500 text-sm font-medium mb-2">
                 Phone:
               </label>
-              <input
-                type="text"
-                id="phone"
-                name="phone"
+              <PhoneInput
+                country={'us'}
                 value={newShop.phone}
-                onChange={handleInputChange}
-                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onChange={handlePhoneChange}
+                inputClass="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div className="mb-4">
@@ -202,7 +230,6 @@ function InfoCard({ shopData, setShopData }) {
           </form>
         </div>
       </div>
-      
     </div>
   );
 }

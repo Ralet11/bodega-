@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { acceptOrder, getByLocalId, sendOrder, createOrder, getOrderUser, finishOrder, getOrdersByUser } from "../controller/orders.controller.js";
+import { acceptOrder, getByLocalId, sendOrder, getByOrderId, createOrder, getOrderUser, finishOrder, getOrdersByUser } from "../controller/orders.controller.js";
 import { methods } from "../middleware.js";
 
 const router = Router()
@@ -12,5 +12,6 @@ router.get('/user/:id', methods.auth, getOrderUser )
 router.put('/finished/:id',methods.auth, finishOrder)
 router.get('/getByUser/:id',methods.auth, getOrdersByUser )
 router.post('/getByLocalDay', methods.auth, )
+router.get('/getByOrderId/:orderId',methods.auth, getByOrderId )
 
 export default router

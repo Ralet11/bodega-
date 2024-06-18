@@ -97,6 +97,7 @@ export const registerUser = async (req, res) => {
     const { name, email, password, phone } = req.body.clientData;
 
     if (!name || !email || !password || !phone) {
+    
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
 

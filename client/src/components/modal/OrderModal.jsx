@@ -3,45 +3,43 @@ import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import { useSelector } from "react-redux";
 
-const {API_URL_BASE} = getParamsEnv(); 
+const { API_URL_BASE } = getParamsEnv();
 
 function OrderModal({ order, closeModal }) {
     const [userInfo, setUserInfo] = useState(null);
-    console.log(order)
-    const innerOrderDetails = JSON.parse(order.oder_details);
-    const orderDetails = innerOrderDetails.orderDetails;
-    const token = useSelector((state) => state?.client.token)
+    const token = useSelector((state) => state?.client.token);
 
-    const conteoProductos = {};
+    // Assuming order.order_details is an array of objects
+    const orderDetails = order.order_details || [];
 
-    orderDetails.forEach(function (detalle) {
-        const { id, img, name, price } = detalle;
-        conteoProductos[name] = conteoProductos[name] || {
-            cantidad: 0,
-            nombre: name,
-            imagen: img,
-            preciotodal: 0,
-        };
-        conteoProductos[name].cantidad += 1;
-        conteoProductos[name].preciotodal += price;
-    });
+    // Aggregate product details
+    const conteoProductos = orderDetails.reduce((acc, detalle) => {
+        const { id, image, name, price, quantity } = detalle;
+        if (!acc[name]) {
+            acc[name] = {
+                cantidad: 0,
+                nombre: name,
+                imagen: image,
+                preciototal: 0,
+            };
+        }
+        acc[name].cantidad += quantity;
+        acc[name].preciototal += parseFloat(price.replace(/[^0-9.-]+/g,"")); // Convert price to a number
+        return acc;
+    }, {});
 
     const resultadoFinal = Object.values(conteoProductos);
-
-    console.log(userInfo)
 
     useEffect(() => {
         const id = order.users_id;
 
         const fetchData = async () => {
             try {
-                const response = await axios.get(`${API_URL_BASE}/api/users/get/${id}`,
-                {
+                const response = await axios.get(`${API_URL_BASE}/api/users/get/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                }
-                );
+                });
                 setUserInfo(response.data);
             } catch (error) {
                 console.error(error);
@@ -49,7 +47,7 @@ function OrderModal({ order, closeModal }) {
         };
 
         fetchData();
-    }, []);
+    }, [order.users_id, token]);
 
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center bg-black bg-opacity-50">
@@ -64,10 +62,10 @@ function OrderModal({ order, closeModal }) {
                             <div>
                                 {resultadoFinal.map((product, index) => (
                                     <div key={index} className="mb-4 flex items-center">
-                                        <img className="w-12 h-12 mr-4 rounded-full" src={`${API_URL_BASE}/${product.imagen}`} alt={`Product ${index}`} />
+                                        <img className="w-12 h-12 mr-4 rounded-full" src={product.imagen} alt={`Product ${index}`} />
                                         <div>
                                             <p className="text-lg">{`${product.cantidad} X ${product.nombre}`}</p>
-                                            <p className="text-gray-500">{`$ ${product.preciotodal}`}</p>
+                                            <p className="text-gray-500">{`$ ${product.preciototal.toFixed(2)}`}</p>
                                         </div>
                                     </div>
                                 ))}
@@ -76,7 +74,7 @@ function OrderModal({ order, closeModal }) {
                         </div>
                         <div className="bg-gray-100 p-6 rounded-lg shadow-md">
                             <h3 className="text-xl font-semibold mb-4">Customer Information</h3>
-                            {userInfo && (
+                            {userInfo && userInfo.length > 0 && (
                                 <div>
                                     <p className="mb-2 text-lg">
                                         <span className="font-semibold">Name:</span> {userInfo[0].name}
@@ -90,9 +88,8 @@ function OrderModal({ order, closeModal }) {
                                     <p className="mb-2 text-lg">
                                         <span className="font-semibold">Address:</span> 123 Main Street, Cityville
                                     </p>
-                                    {/* Espacio para el mapa (puedes renderizar el mapa aquí) */}
                                     <div className="mt-4 h-40 bg-gray-300 rounded-lg">
-                                    <img src="https://res.cloudinary.com/doqyrz0sg/image/upload/v1705872273/mapa_sjtf8t.png" alt="Map Example" className="mt-4 h-40 rounded-lg" />
+                                        <img src="https://res.cloudinary.com/doqyrz0sg/image/upload/v1705872273/mapa_sjtf8t.png" alt="Map Example" className="mt-4 h-40 rounded-lg" />
                                     </div>
                                 </div>
                             )}

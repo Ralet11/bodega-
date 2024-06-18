@@ -23,7 +23,7 @@ const Orders = () => {
     finished: [],
   });
 
-  const socket = socketIOClient("https://localhost");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +50,7 @@ const Orders = () => {
 
         console.log(response.data)
 
-        response.data.forEach((order) => {
+        response.data.orders.forEach((order) => {
           const status = order.status;
           if (status in ordersByStatus) {
             ordersByStatus[status].push(order);
@@ -85,22 +85,29 @@ const Orders = () => {
   }, []);
 
   const handleAcceptOrder = async (orderId) => {
+   
+  
     console.log("cambiando estado");
+  
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
-      await axios.put(`${API_URL_BASE}/api/orders/accept/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+      await axios.put(
+        `${API_URL_BASE}/api/orders/accept/${orderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
       // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         const orderToUpdateIndex = updatedOrders["new order"].findIndex(
           (order) => order.id === orderId
         );
-
+  
         if (orderToUpdateIndex !== -1) {
           const orderToUpdate = JSON.parse(
             JSON.stringify(updatedOrders["new order"][orderToUpdateIndex])
@@ -109,7 +116,7 @@ const Orders = () => {
           updatedOrders.accepted.push(orderToUpdate);
           updatedOrders["new order"].splice(orderToUpdateIndex, 1);
         }
-
+  
         return updatedOrders;
       });
     } catch (error) {
@@ -121,11 +128,13 @@ const Orders = () => {
     console.log("cambiando estado");
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "sending"
-      await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
       // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
@@ -154,11 +163,13 @@ const Orders = () => {
     console.log("cambiando estado");
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "finished"
-      await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
       // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
