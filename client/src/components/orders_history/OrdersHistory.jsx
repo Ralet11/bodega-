@@ -11,7 +11,7 @@ const { API_URL_BASE } = getParamsEnv();
 
 const HistorialVentas = () => {
     const activeShop = useSelector((state) => state.activeShop);
-    const token = useSelector((state) => state?.client.token)
+    const token = useSelector((state) => state?.client.token);
 
     const [orders, setOrders] = useState({
         "new order": [],
@@ -28,17 +28,19 @@ const HistorialVentas = () => {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                }
-                );
+                });
 
                 const ordersByStatus = {
                     "new order": [],
-                    accepted: [],
-                    sending: [],
-                    finished: [],
+                    "accepted": [],
+                    "sending": [],
+                    "finished": [],
                 };
 
-                response.data.forEach((order) => {
+                console.log(response.data)
+
+                response.data.orders.forEach((order) => {
+                    console.log(order)
                     const status = order.status;
                     if (status in ordersByStatus) {
                         ordersByStatus[status].push(order);
@@ -52,7 +54,9 @@ const HistorialVentas = () => {
         };
 
         fetchData();
-    }, [activeShop]);
+    }, [activeShop, token]);
+
+    console.log(orders)
 
     const formatDateTime = (dateTimeString) => {
         const dateTime = new Date(dateTimeString);
@@ -71,10 +75,10 @@ const HistorialVentas = () => {
     return (
         <div className='ml-5 md:ml-20 mt-20'>
             <div className="pb-5 text-center">
-                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Order History</h3>
+                <h3 className="text-lg md:text-2xl font-bold mt-2 text-gray-800">Order History</h3>
                 <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
             </div>
-            <div className='px-2  md:ml-20 md:pl-20 w-full md:w-4/5'>
+            <div className='px-2 md:ml-20 md:pl-20 w-full md:w-4/5'>
                 <div className="overflow-x-auto">
                     <Table className="min-w-full text-center text-sm font-light">
                         <TableHead className="bg-gray-50">
@@ -104,27 +108,27 @@ const HistorialVentas = () => {
                         </TableHead>
                         <TableBody>
                             {orders.finished.map((order, index) => (
-                                <TableRow key={order.id}>
-                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 dark:text-white px-3 py-2">
+                                <TableRow key={order.id} className="bg-white border-b hover:bg-gray-50">
+                                    <TableCell className="whitespace-nowrap font-medium text-gray-900 px-3 py-2">
                                         {index + 1}
                                     </TableCell>
-                                    <TableCell className="px-3 py-2">
+                                    <TableCell className="px-3 py-2 text-gray-500">
                                         {formatDateTime(order.date_time)}
                                     </TableCell>
-                                    <TableCell className="px-3 py-2">
-                                        Nombre usuario
+                                    <TableCell className="px-3 py-2 text-gray-500">
+                                        {order.users_id}
                                     </TableCell>
                                     <TableCell className="px-3 py-2">
-                                        <DocumentTextIcon className="h-6 w-6 text-blue-500 ml-[60px]" />
+                                        <DocumentTextIcon className="h-6 w-6 text-blue-500 mx-auto" />
                                     </TableCell>
-                                    <TableCell className="px-3 py-2">
+                                    <TableCell className="px-3 py-2 text-gray-500">
                                         {order.total_price}
                                     </TableCell>
-                                    <TableCell className="px-3 py-2">
-                                        Credit Card
+                                    <TableCell className="px-3 py-2 text-gray-500">
+                                        Credit Card {/* Placeholder */}
                                     </TableCell>
-                                    <TableCell className="px-3 py-2">
-                                        User Address
+                                    <TableCell className="px-3 py-2 text-gray-500">
+                                        {order.local_id} {/* Assuming this is the address or use order.address if available */}
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -133,7 +137,6 @@ const HistorialVentas = () => {
                 </div>
             </div>
         </div>
-
     );
 }
 

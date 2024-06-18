@@ -51,3 +51,23 @@ export const updateUser = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+export const addSubscription = async (req, res) => {
+  const userId = req.user.userId
+   try {
+     const user = await User.findByPk(userId);
+   
+     if (!user) {
+       return res.status(404).json({ message: 'Usuario no encontrado' });
+     }
+ 
+     user.subscription = 1
+
+     await user.save();
+
+     res.status(200).json(user);
+ 
+   } catch (error) {
+    console.error('Error al actualizar el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+   }
+ }
