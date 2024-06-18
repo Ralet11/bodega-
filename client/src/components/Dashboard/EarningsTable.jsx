@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, PieChart, Pie, Cell
-} from 'recharts';
+import EarningsBarChart from './charts/EarningsBarChart';
+import QuantityAreaChart from './charts/QuantityAreaChart';
+import OrdersPieChart from './charts/OrdersPieChart';
 
 const EarningsTable = ({ filteredItemTotals, shopName, filterPeriod }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -34,8 +34,6 @@ const EarningsTable = ({ filteredItemTotals, shopName, filterPeriod }) => {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
   return (
     <div className="mt-4">
@@ -100,53 +98,13 @@ const EarningsTable = ({ filteredItemTotals, shopName, filterPeriod }) => {
       {/* Gráficos */}
       <div className="mt-4 flex flex-wrap -mx-2">
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={filteredData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="total" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+          <EarningsBarChart data={filteredData} />
         </div>
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Total Quantity by Item</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={filteredData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="quantity" stroke="#8884d8" fill="#8884d8" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <QuantityAreaChart data={filteredData} />
         </div>
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Orders by Item</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={filteredData}
-                dataKey="ordersCount"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {filteredData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+          <OrdersPieChart data={filteredData} />
         </div>
       </div>
     </div>
