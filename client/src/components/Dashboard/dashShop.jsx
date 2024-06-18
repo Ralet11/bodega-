@@ -4,9 +4,12 @@ import EarningsTable from './EarningsTable';
 import OrdersTable from './OrdersTable';
 import OrderDetailsModal from './OrderDetailsModal';
 import FilterButtons from './FilterButtons';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, PieChart, Pie, Cell
-} from 'recharts';
+import SalesLineChart from './charts/SalesLineChart';
+import SalesScatterChart from './charts/SalesScatterChart';
+import OrdersBarChart from './charts/OrdersBarChart';
+import SalesPieChart from './charts/SalesPieChart';
+import ContributionAreaChart from './charts/ContributionAreaChart';
+import { formatCurrency, formatQuantity } from './utils'; // Asegúrate de que la ruta sea correcta
 
 const ShopsComponent = ({ shops, ordersData }) => {
   const [filteredOrdersData, setFilteredOrdersData] = useState(ordersData);
@@ -21,40 +24,47 @@ const ShopsComponent = ({ shops, ordersData }) => {
   const filterOrders = (period) => {
     setFilterPeriod(period);
 
-    if (!selectedShop) return;
-
     const now = new Date();
-    const newFilteredData = { ...filteredOrdersData };
-    const filteredOrders = ordersData[selectedShop].orders.filter(order => {
-      const orderDate = new Date(order.date_time);
-      switch (period) {
-        case 'day':
-          return orderDate.toDateString() === now.toDateString();
-        case 'month':
-          return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
-        case 'trimester':
-          const currentQuarter = Math.floor((now.getMonth() + 3) / 3);
-          const orderQuarter = Math.floor((orderDate.getMonth() + 3) / 3);
-          return orderQuarter === currentQuarter && orderDate.getFullYear() === now.getFullYear();
-        case 'semester':
-          const currentSemester = now.getMonth() < 6 ? 1 : 2;
-          const orderSemester = orderDate.getMonth() < 6 ? 1 : 2;
-          return orderSemester === currentSemester && orderDate.getFullYear() === now.getFullYear();
-        case 'year':
-          return orderDate.getFullYear() === now.getFullYear();
-        default:
-          return true;
-      }
+    const newFilteredData = {};
+
+    Object.keys(ordersData).forEach(shopId => {
+      const filteredOrders = ordersData[shopId].orders.filter(order => {
+        const orderDate = new Date(order.date_time);
+        switch (period) {
+          case 'day':
+            return orderDate.toDateString() === now.toDateString();
+          case 'month':
+            return orderDate.getMonth() === now.getMonth() && orderDate.getFullYear() === now.getFullYear();
+          case 'trimester':
+            const currentQuarter = Math.floor((now.getMonth() + 3) / 3);
+            const orderQuarter = Math.floor((orderDate.getMonth() + 3) / 3);
+            return orderQuarter === currentQuarter && orderDate.getFullYear() === now.getFullYear();
+          case 'semester':
+            const currentSemester = now.getMonth() < 6 ? 1 : 2;
+            const orderSemester = orderDate.getMonth() < 6 ? 1 : 2;
+            return orderSemester === currentSemester && orderDate.getFullYear() === now.getFullYear();
+          case 'year':
+            return orderDate.getFullYear() === now.getFullYear();
+          default:
+            return true;
+        }
+      });
+
+      // Calculate sales and contribution for filtered orders
+      const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
+      const quantity = filteredOrders.reduce((sum, order) => {
+        return sum + order.order_details.details.reduce((qSum, item) => qSum + item.quantity, 0);
+      }, 0);
+      const ordersCount = filteredOrders.length;
+
+      newFilteredData[shopId] = { sales, quantity, ordersCount, orders: filteredOrders };
     });
 
-    // Calculate sales and contribution for filtered orders
-    const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-    const ordersCount = filteredOrders.length;
-
-    newFilteredData[selectedShop] = { sales, ordersCount, orders: filteredOrders };
-
     setFilteredOrdersData(newFilteredData);
-    filterItemTotals(newFilteredData[selectedShop]);
+
+    if (selectedShop) {
+      filterItemTotals(newFilteredData[selectedShop]);
+    }
   };
 
   const filterItemTotals = (filteredShopData) => {
@@ -109,6 +119,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
   }, [ordersData]);
 
   const totalSales = Object.values(filteredOrdersData).reduce((sum, shop) => sum + shop.sales, 0);
+  const totalQuantity = Object.values(filteredOrdersData).reduce((sum, shop) => sum + shop.quantity, 0);
 
   const ordersListData = Object.keys(filteredOrdersData).map(shopId => ({
     name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
@@ -127,6 +138,29 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
 
+  // Datos para el gráfico de líneas (ejemplo)
+  const salesLineData = Object.keys(filteredOrdersData).flatMap(shopId => {
+    return filteredOrdersData[shopId].orders.map(order => ({
+      date: order.date_time.split('T')[0], // Extrayendo solo la fecha
+      sales: parseFloat(order.total_price), // Precio total del pedido
+      quantity: order.order_details.details.reduce((sum, item) => sum + item.quantity, 0), // Cantidad total de items en el pedido
+    }));
+  });
+
+  // Datos para el gráfico de dispersión (ejemplo)
+  const salesScatterData = Object.keys(filteredOrdersData).flatMap(shopId => {
+    return filteredOrdersData[shopId].orders.flatMap(order => {
+      return order.order_details.details.map(item => ({
+        price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")), // Precio del producto
+        quantity: item.quantity, // Cantidad vendida
+      }));
+    });
+  });
+
+  // Calcular el total de ventas y cantidades
+  const totalSalesAmount = salesLineData.reduce((acc, data) => acc + data.sales, 0);
+  const totalSalesQuantity = salesLineData.reduce((acc, data) => acc + data.quantity, 0);
+
   return (
     <div className="container mx-auto p-4">
       <div className="text-center">
@@ -141,59 +175,31 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
       <div className="mt-4 flex flex-wrap -mx-2">
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Orders by Shop</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={ordersListData} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="name" />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="ordersCount" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
+          <OrdersBarChart data={ordersListData} />
         </div>
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Contribution to Total Sales</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={contributionData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="contribution" stroke="#8884d8" fill="#8884d8" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <ContributionAreaChart data={contributionData} />
         </div>
         <div className="w-full md:w-1/3 px-2">
-          <h2 className="text-xl font-bold mb-4">Sales by Shop</h2>
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={pieChartData}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                fill="#8884d8"
-                label
-              >
-                {pieChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
+          <SalesPieChart data={pieChartData} />
         </div>
       </div>
-
+      
+      <div className="mt-4 flex flex-wrap -mx-2">
+        <div className="w-full md:w-1/2 px-2">
+          <h2 className="text-xl font-bold mb-4">Sales Trend (Total Sales: {formatCurrency(totalSalesAmount)}, Total Quantity: {formatQuantity(totalSalesQuantity)})</h2>
+          <SalesLineChart data={salesLineData} totalSalesAmount={totalSalesAmount} />
+        </div>
+        <div className="w-full md:w-1/2 px-2">
+          <h2 className="text-xl font-bold mb-4">Sales vs Quantity</h2>
+          <SalesScatterChart data={salesScatterData} />
+        </div>
+      </div>
+      
+      <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
       {selectedShop && (
         <>
-          <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
+          
           <EarningsTable
             filteredItemTotals={filteredItemTotals}
             shopName={shops.find(shop => shop.id === selectedShop)?.name}
