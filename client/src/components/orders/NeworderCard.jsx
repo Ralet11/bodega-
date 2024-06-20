@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 
-const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
+const NewOrderCard = ({ order, handleAcceptOrder, time, handleRejectOrder }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const token = useSelector((state) => state?.client.token)
@@ -149,7 +149,7 @@ const NewOrderCard = ({ order, handleAcceptOrder, time }) => {
             <span className="tooltip" style={tooltipStyles}></span>
           </span>
         </div>
-        <div onClick={() => handleRejectOrder()} onMouseEnter={(e) => showTooltip(e, "Reject")} onMouseLeave={(e) => hideTooltip(e)}>
+        <div onClick={() => handleRejectOrder(order.id)} onMouseEnter={(e) => showTooltip(e, "Reject")} onMouseLeave={(e) => hideTooltip(e)}>
           <span style={iconStyles}>
             <XCircleIcon className="h-7 w-7 inline text-red-500" />
             <span className="tooltip" style={tooltipStyles}></span>

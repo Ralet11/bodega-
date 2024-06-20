@@ -94,16 +94,18 @@ export const createOrder = async (req, res) => {
   const id = req.user.userId
   const io = getIo()
   const users_id = id
+
+  
   
 
-  console.log(oder_details, "order details")
+  console.log(local_id, "local")
 
   try {
     const newOrder = await Order.create({
       delivery_fee,
       total_price,
       order_details: oder_details,
-      local_id: 1,
+      local_id: local_id,
       users_id,
       status,
       date_time,
@@ -150,7 +152,8 @@ export const finishOrder = async (req, res) => {
     await order.update({ status: 'finished' });
 
     // Emitir evento de finalización de pedido a través de Socket.IO
-    io.emit('finishOrder', { id });
+
+    io.emit('changeOrderState', { status: 'finished' });
 
     res.status(200).json(order);
   } catch (error) {
@@ -198,5 +201,29 @@ export const getByOrderId = async (req, res) => {
   } catch (error) {
     console.error('Error fetching order:', error);
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+export const rejectOrder = async (req, res) => {
+  const { id } = req.body;
+  const io = getIo()
+  console.log(req.body, "body")
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    await order.update({ status: 'rejected' });
+
+    // Emitir evento de finalización de pedido a través de Socket.IO
+
+    io.emit('changeOrderState', { status: 'rejected' });
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error al finalizar el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
   }
 };

@@ -7,6 +7,7 @@ import { FRONTEND_URL, SSK } from '../config.js';
 import Local from '../models/local.js';
 import { sendEmailWithProducts } from '../functions/sendEmail.js';
 import Distributor from '../models/distributor.model.js';
+import User from '../models/user.js';
 
 const stripe = new Stripe(SSK);
 
@@ -259,3 +260,4 @@ const supplierData = suppliers.map(supplier => ({
     res.status(500).json({ message: 'Error actualizando el balance del cliente', error });
   }
 };
+

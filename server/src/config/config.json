@@ -1,8 +1,8 @@
 {
   "development": {
     "username": "postgres",
-    "password": "root",
-    "database": "bodega",
+    "password": "admin",
+    "database": "app_base",
     "host": "localhost",
     "dialect": "postgres"
   },
