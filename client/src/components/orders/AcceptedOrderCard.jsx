@@ -11,7 +11,7 @@ import { useSelector } from "react-redux";
 
 const {API_URL_BASE} = getParamsEnv(); 
 
-const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
+const AcceptedOrderCard = ({ order, handleSendOrder, time, handleRejectOrder }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState()
   const token = useSelector((state) => state?.client.token)
@@ -90,6 +90,7 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
     return null;
   }
 
+
   return (
     <div  style={cardStyles}>
       <div style={headerStyles}>
@@ -119,7 +120,7 @@ const AcceptedOrderCard = ({ order, handleSendOrder, time }) => {
             <PlayCircleIcon className="h-6 w-6 inline text-green-500" />
           </span>
         </div>
-        <div onClick={() => handleRejectOrder()}>
+        <div onClick={() => handleRejectOrder(order.id)}>
           <span style={iconStyles}>
             <XCircleIcon className="h-7 w-7 inline text-red-500" />
           </span>

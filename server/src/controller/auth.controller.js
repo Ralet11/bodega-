@@ -114,7 +114,8 @@ export const registerUser = async (req, res) => {
       birthDate: newUser.birthDate,
       id: newUser.id,
       address: newUser.address,
-      subscription: newUser.subscription
+      subscription: newUser.subscription,
+      balance: newUser.balance
     };
 
     const token = jwt.sign({ userId: newUser.id }, "secret_key", { expiresIn: "1h" });
@@ -155,7 +156,8 @@ export const loginUser = async (req, res) => {
       birthDate: user.birthDate,
       id: user.id,
       address: user.address,
-      subscription: user.subscription
+      subscription: user.subscription,
+      balance: user.balance
     };
 
     console.log(user, "address del user")
