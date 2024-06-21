@@ -4,7 +4,7 @@ import Order from '../models/order.js';
 import { getIo } from '../socket.js';
 
 const accountSid = 'AC0905023d05304d16ef0f446444e8ac9a'; // Reemplaza con tu Account SID
-const authToken = '01f0f22d4401c12c52b715fa289d40ee'; // Reemplaza con tu Auth Token
+const authToken = '403bb174c2dd915467f32f829db2dde7'; // Reemplaza con tu Auth Token
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {
