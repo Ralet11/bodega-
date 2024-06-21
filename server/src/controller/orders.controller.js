@@ -58,7 +58,7 @@ export const acceptOrder = async (req, res) => {
     await order.update({ status: 'accepted' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit('changeOrderState', { status: 'accepted' });
+    io.emit('changeOrderState', { status: 'accepted', orderId: id });
 
     res.status(200).json(order);
   } catch (error) {
@@ -80,7 +80,7 @@ export const sendOrder = async (req, res) => {
     await order.update({ status: 'sending' });
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit('changeOrderState', { status: 'sending' });
+    io.emit('changeOrderState', { status: 'sending', orderId: id });
 
     res.status(200).json(order);
   } catch (error) {
@@ -149,11 +149,11 @@ export const finishOrder = async (req, res) => {
       return res.status(404).json({ message: 'Pedido no encontrado' });
     }
 
-    await order.update({ status: 'finished' });
+    await order.update({ status: 'finished', orderId: id });
 
     // Emitir evento de finalización de pedido a través de Socket.IO
 
-    io.emit('changeOrderState', { status: 'finished' });
+    io.emit('changeOrderState', { status: 'finished', orderId: id });
 
     res.status(200).json(order);
   } catch (error) {
@@ -215,7 +215,7 @@ export const rejectOrder = async (req, res) => {
       return res.status(404).json({ message: 'Pedido no encontrado' });
     }
 
-    await order.update({ status: 'rejected' });
+    await order.update({ status: 'rejected', orderId: id });
 
     // Emitir evento de finalización de pedido a través de Socket.IO
 
