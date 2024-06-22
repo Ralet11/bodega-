@@ -64,6 +64,25 @@ const ShopsComponent = ({ shops, ordersData, selectedShop, selectedProduct }) =>
 
     if (selectedShop && selectedShop !== 'all') {
       filterItemTotals(newFilteredData[selectedShop]);
+    } else {
+      const allFilteredOrders = Object.values(newFilteredData).flatMap(shopData => shopData.orders);
+      const newFilteredItemTotals = {};
+      allFilteredOrders.forEach(order => {
+        order.order_details.forEach(item => {
+          if (!newFilteredItemTotals[item.id]) {
+            newFilteredItemTotals[item.id] = {
+              name: item.name,
+              total: 0,
+              quantity: 0,
+              ordersCount: 0
+            };
+          }
+          newFilteredItemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity;
+          newFilteredItemTotals[item.id].quantity += item.quantity;
+          newFilteredItemTotals[item.id].ordersCount += 1;
+        });
+      });
+      setFilteredItemTotals(newFilteredItemTotals);
     }
   };
 
@@ -92,14 +111,14 @@ const ShopsComponent = ({ shops, ordersData, selectedShop, selectedProduct }) =>
   const showAllOrders = () => {
     setFilterPeriod('Historical Data');
     setFilteredOrdersDataForCharts(ordersData);
-    if (selectedShop && selectedShop !== 'all') {
-      filterItemTotals(ordersData[selectedShop]);
-    }
+    setFilteredItemTotals({});
   };
 
   const selectShop = (shopId) => {
     setCurrentPage(1); // Reset current page to 1 when a new shop is selected
-    filterOrders(filterPeriod); // Apply the current filter
+    if (filterPeriod !== 'Historical Data') {
+      filterOrders(filterPeriod);
+    }
   };
 
   const handleSeeDetails = (orderDetails, orderId) => {
@@ -201,13 +220,13 @@ const ShopsComponent = ({ shops, ordersData, selectedShop, selectedProduct }) =>
       {(selectedShop || selectedProduct) ? (
         <>
           <div className="mt-4 flex flex-wrap -mx-2">
-            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2">
               <OrdersBarChart data={Array.isArray(ordersListData) ? ordersListData : []} />
             </div>
-            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2">
               <ContributionAreaChart data={Array.isArray(contributionData) ? contributionData : []} />
             </div>
-            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+            <div className="w-full md:w-1/2 lg:w-1/3 px-2">
               <SalesPieChart data={Array.isArray(pieChartData) ? pieChartData : []} />
             </div>
           </div>
