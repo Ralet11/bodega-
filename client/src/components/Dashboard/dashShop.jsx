@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ShopTable from './ShopTable';
 import EarningsTable from './EarningsTable';
 import OrdersTable from './OrdersTable';
 import OrderDetailsModal from './OrderDetailsModal';
@@ -9,13 +8,15 @@ import SalesScatterChart from './charts/SalesScatterChart';
 import OrdersBarChart from './charts/OrdersBarChart';
 import SalesPieChart from './charts/SalesPieChart';
 import ContributionAreaChart from './charts/ContributionAreaChart';
+import EarningsBarChart from './charts/EarningsBarChart';
+import QuantityAreaChart from './charts/QuantityAreaChart';
+import OrdersPieChart from './charts/OrdersPieChart';
 import { formatCurrency, formatQuantity } from './utils'; // Asegúrate de que la ruta sea correcta
 
-const ShopsComponent = ({ shops, ordersData }) => {
+const ShopsComponent = ({ shops, ordersData, selectedShop, selectedProduct }) => {
   const [filteredOrdersData, setFilteredOrdersData] = useState(ordersData);
-  const [selectedShop, setSelectedShop] = useState(null);
+  const [filteredOrdersDataForCharts, setFilteredOrdersDataForCharts] = useState(ordersData);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
-  const [itemTotals, setItemTotals] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredItemTotals, setFilteredItemTotals] = useState({});
   const [filterPeriod, setFilterPeriod] = useState('Historical Data');
@@ -50,7 +51,6 @@ const ShopsComponent = ({ shops, ordersData }) => {
         }
       });
 
-      // Calculate sales and contribution for filtered orders
       const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
       const quantity = filteredOrders.reduce((sum, order) => {
         return sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0);
@@ -60,16 +60,16 @@ const ShopsComponent = ({ shops, ordersData }) => {
       newFilteredData[shopId] = { sales, quantity, ordersCount, orders: filteredOrders };
     });
 
-    setFilteredOrdersData(newFilteredData);
+    setFilteredOrdersDataForCharts(newFilteredData);
 
-    if (selectedShop) {
+    if (selectedShop && selectedShop !== 'all') {
       filterItemTotals(newFilteredData[selectedShop]);
     }
   };
 
   const filterItemTotals = (filteredShopData) => {
     const newFilteredItemTotals = {};
-    const orders = filteredShopData.orders;
+    const orders = filteredShopData.orders || [];
     orders.forEach(order => {
       order.order_details.forEach(item => {
         if (!newFilteredItemTotals[item.id]) {
@@ -91,15 +91,13 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   const showAllOrders = () => {
     setFilterPeriod('Historical Data');
-    setFilteredOrdersData(ordersData);
-    if (selectedShop) {
+    setFilteredOrdersDataForCharts(ordersData);
+    if (selectedShop && selectedShop !== 'all') {
       filterItemTotals(ordersData[selectedShop]);
     }
   };
 
   const selectShop = (shopId) => {
-    setSelectedShop(shopId);
-    setSelectedOrderDetails([]);
     setCurrentPage(1); // Reset current page to 1 when a new shop is selected
     filterOrders(filterPeriod); // Apply the current filter
   };
@@ -116,105 +114,152 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   useEffect(() => {
     setFilteredOrdersData(ordersData);
+    setFilteredOrdersDataForCharts(ordersData);
   }, [ordersData]);
 
-  const totalSales = Object.values(filteredOrdersData).reduce((sum, shop) => sum + shop.sales, 0);
-  const totalQuantity = Object.values(filteredOrdersData).reduce((sum, shop) => sum + shop.quantity, 0);
+  useEffect(() => {
+    if (selectedShop) {
+      if (selectedShop === 'all') {
+        const allOrdersData = Object.values(ordersData).reduce((acc, shopData) => {
+          return {
+            sales: acc.sales + shopData.sales,
+            quantity: acc.quantity + shopData.quantity,
+            ordersCount: acc.ordersCount + shopData.ordersCount,
+            orders: [...acc.orders, ...shopData.orders]
+          };
+        }, { sales: 0, quantity: 0, ordersCount: 0, orders: [] });
 
-  const ordersListData = Object.keys(filteredOrdersData).map(shopId => ({
+        setFilteredOrdersData({ all: allOrdersData });
+        filterItemTotals(allOrdersData);
+      } else {
+        const newFilteredData = {
+          [selectedShop]: ordersData[selectedShop]
+        };
+        setFilteredOrdersData(newFilteredData);
+        filterItemTotals(ordersData[selectedShop]);
+      }
+    } else {
+      setFilteredOrdersData(ordersData);
+    }
+  }, [selectedShop, ordersData]);
+
+  useEffect(() => {
+    if (selectedProduct) {
+      const newFilteredData = {};
+      Object.keys(ordersData).forEach(shopId => {
+        const filteredOrders = ordersData[shopId].orders.filter(order => {
+          return order.order_details.some(item => item.id === selectedProduct);
+        });
+        newFilteredData[shopId] = { orders: filteredOrders };
+      });
+      setFilteredOrdersData(newFilteredData);
+    } else {
+      setFilteredOrdersData(ordersData);
+    }
+  }, [selectedProduct, ordersData]);
+
+  const totalSales = Object.values(filteredOrdersDataForCharts).reduce((sum, shop) => sum + shop.sales, 0);
+  const totalQuantity = Object.values(filteredOrdersDataForCharts).reduce((sum, shop) => sum + shop.quantity, 0);
+
+  const ordersListData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
     name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    ordersCount: filteredOrdersData[shopId].ordersCount
+    ordersCount: filteredOrdersDataForCharts[shopId].ordersCount || 0
   }));
 
-  const contributionData = Object.keys(filteredOrdersData).map(shopId => ({
+  const contributionData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
     name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    contribution: (filteredOrdersData[shopId].sales / totalSales) * 100
+    contribution: (filteredOrdersDataForCharts[shopId].sales / totalSales) * 100 || 0
   }));
 
-  const pieChartData = Object.keys(filteredOrdersData).map(shopId => ({
+  const pieChartData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
     name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    value: filteredOrdersData[shopId].sales
+    value: filteredOrdersDataForCharts[shopId].sales || 0
   }));
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
-
-  // Datos para el gráfico de líneas (ejemplo)
   const salesLineData = Object.keys(filteredOrdersData).flatMap(shopId => {
-    return filteredOrdersData[shopId].orders.map(order => ({
-      date: order.date_time.split('T')[0], // Extrayendo solo la fecha
-      sales: parseFloat(order.total_price), // Precio total del pedido
-      quantity: order.order_details.reduce((sum, item) => sum + item.quantity, 0), // Cantidad total de items en el pedido
+    return (filteredOrdersData[shopId]?.orders || []).map(order => ({
+      date: order.date_time.split('T')[0],
+      sales: parseFloat(order.total_price),
+      quantity: order.order_details.reduce((sum, item) => sum + item.quantity, 0),
     }));
   });
 
-  
-
-  // Datos para el gráfico de dispersión (ejemplo)
   const salesScatterData = Object.keys(filteredOrdersData).flatMap(shopId => {
-    return filteredOrdersData[shopId].orders.flatMap(order => {
+    return (filteredOrdersData[shopId]?.orders || []).flatMap(order => {
       return order.order_details.map(item => ({
-        price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")), // Precio del producto
-        quantity: item.quantity, // Cantidad vendida
+        price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")),
+        quantity: item.quantity,
       }));
     });
   });
 
-  // Calcular el total de ventas y cantidades
   const totalSalesAmount = salesLineData.reduce((acc, data) => acc + data.sales, 0);
   const totalSalesQuantity = salesLineData.reduce((acc, data) => acc + data.quantity, 0);
 
   return (
     <div className="container mx-auto p-4">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold">Shops</h1>
-      </div>
-      <ShopTable
-        shops={shops}
-        filteredOrdersData={filteredOrdersData}
-        totalSales={totalSales}
-        selectShop={selectShop}
-      />
-
-      <div className="mt-4 flex flex-wrap -mx-2">
-        <div className="w-full md:w-1/3 px-2">
-          <OrdersBarChart data={ordersListData} />
-        </div>
-        <div className="w-full md:w-1/3 px-2">
-          <ContributionAreaChart data={contributionData} />
-        </div>
-        <div className="w-full md:w-1/3 px-2">
-          <SalesPieChart data={pieChartData} />
-        </div>
-      </div>
-      
-      <div className="mt-4 flex flex-wrap -mx-2">
-        <div className="w-full md:w-1/2 px-2">
-          <h2 className="text-xl font-bold mb-4">Sales Trend (Total Sales: {formatCurrency(totalSalesAmount)}, Total Quantity: {formatQuantity(totalSalesQuantity)})</h2>
-          <SalesLineChart data={salesLineData} totalSalesAmount={totalSalesAmount} totalSalesQuantity={totalSalesQuantity} />
-        </div>
-        <div className="w-full md:w-1/2 px-2">
-          <h2 className="text-xl font-bold mb-4">Sales vs Quantity</h2>
-          <SalesScatterChart data={salesScatterData} />
-        </div>
-      </div>
-      
-      <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
-      {selectedShop && (
+      {(selectedShop || selectedProduct) ? (
         <>
-          
-          <EarningsTable
-            filteredItemTotals={filteredItemTotals}
-            shopName={shops.find(shop => shop.id === selectedShop)?.name}
-            filterPeriod={filterPeriod}
-          />
-          <OrdersTable
-            filteredOrdersData={filteredOrdersData}
-            selectedShop={selectedShop}
-            shops={shops}
-            filterPeriod={filterPeriod}
-            handleSeeDetails={handleSeeDetails}
-          />
+          <div className="mt-4 flex flex-wrap -mx-2">
+            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+              <OrdersBarChart data={Array.isArray(ordersListData) ? ordersListData : []} />
+            </div>
+            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+              <ContributionAreaChart data={Array.isArray(contributionData) ? contributionData : []} />
+            </div>
+            <div className="w-full md:w-1/2 lg:w-1/4 px-2">
+              <SalesPieChart data={Array.isArray(pieChartData) ? pieChartData : []} />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap -mx-2">
+            <div className="w-full md:w-1/2 px-2">
+              <h2 className="text-xl font-bold mb-4">Sales Trend (Total Sales: {formatCurrency(totalSalesAmount)}, Total Quantity: {formatQuantity(totalSalesQuantity)})</h2>
+              <SalesLineChart data={Array.isArray(salesLineData) ? salesLineData : []} totalSalesAmount={totalSalesAmount} totalSalesQuantity={totalSalesQuantity} />
+            </div>
+            <div className="w-full md:w-1/2 px-2">
+              <h2 className="text-xl font-bold mb-4">Sales vs Quantity</h2>
+              <SalesScatterChart data={Array.isArray(salesScatterData) ? salesScatterData : []} />
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap -mx-2">
+            <div className="w-full md:w-1/3 px-2">
+              <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
+              <EarningsBarChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+            </div>
+            <div className="w-full md:w-1/3 px-2">
+              <h2 className="text-xl font-bold mb-4">Total Quantity by Item</h2>
+              <QuantityAreaChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+            </div>
+            <div className="w-full md:w-1/3 px-2">
+              <h2 className="text-xl font-bold mb-4">Orders by Item</h2>
+              <OrdersPieChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+            </div>
+          </div>
+
+          <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
+          {selectedShop && selectedShop !== 'all' && (
+            <>
+              <EarningsTable
+                filteredItemTotals={filteredItemTotals}
+                shopName={shops.find(shop => shop.id === selectedShop)?.name}
+                filterPeriod={filterPeriod}
+              />
+              <OrdersTable
+                filteredOrdersData={filteredOrdersData}
+                selectedShop={selectedShop}
+                shops={shops}
+                filterPeriod={filterPeriod}
+                handleSeeDetails={handleSeeDetails}
+              />
+            </>
+          )}
         </>
+      ) : (
+        <div className="text-center text-xl font-bold mt-4">
+          Please select a shop or product to see the data.
+        </div>
       )}
 
       <OrderDetailsModal

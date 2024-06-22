@@ -1,39 +1,30 @@
 import React from 'react';
-import {
-  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend
-} from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#FFD700', '#A9A9A9', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d', '#ffc658'];
-
-const SalesPieChart = ({ data }) => (
-  <div className="bg-gray-800 shadow-lg rounded-lg p-8">
-    <h2 className="text-2xl font-bold text-yellow-400 mb-6">Sales by Shop</h2>
-    <div className="bg-gray-700 bg-opacity-20 p-6 rounded-lg backdrop-filter backdrop-blur-lg">
-      <ResponsiveContainer width="100%" height={400}>
+const SalesPieChart = ({ data, colors = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'] }) => {
+  return (
+    <div style={{ width: '100%', height: 200 }}>
+      <ResponsiveContainer>
         <PieChart>
           <Pie
             data={data}
-            dataKey="value"
-            nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={100}
+            labelLine={false}
+            outerRadius={80}
             fill="#8884d8"
-            label
+            dataKey="value"
           >
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Pie>
-          <Tooltip 
-            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderColor: 'gray-200' }}
-            itemStyle={{ color: 'black' }}
-          />
-          <Legend wrapperStyle={{ color: 'white' }} />
+          <Tooltip />
+          <Legend />
         </PieChart>
       </ResponsiveContainer>
     </div>
-  </div>
-);
+  );
+};
 
 export default SalesPieChart;

@@ -95,18 +95,7 @@ const EarningsTable = ({ filteredItemTotals, shopName, filterPeriod }) => {
         </button>
       </div>
 
-      {/* Gráficos */}
-      <div className="mt-4 flex flex-wrap -mx-2">
-        <div className="w-full md:w-1/3 px-2">
-          <EarningsBarChart data={filteredData} />
-        </div>
-        <div className="w-full md:w-1/3 px-2">
-          <QuantityAreaChart data={filteredData} />
-        </div>
-        <div className="w-full md:w-1/3 px-2">
-          <OrdersPieChart data={filteredData} />
-        </div>
-      </div>
+      
     </div>
   );
 };
