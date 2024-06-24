@@ -1,29 +1,99 @@
-import React from 'react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts';
-import { formatCurrency } from '../utils';
-import { formatQuantity } from '../utils';
+import React, { useState } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
-const SalesLineChart = ({ data, totalSalesAmount, totalSalesQuantity }) => (
-  <div className="bg-gray-800 shadow-lg rounded-lg p-8">
-    <h2 className="text-2xl font-bold text-yellow-400 mb-6">Sales Trend (Total Sales: {formatCurrency(totalSalesAmount)}, Total Quantity: {formatQuantity(totalSalesQuantity)})</h2>
-    <div className="bg-gray-700 bg-opacity-20 p-6 rounded-lg backdrop-filter backdrop-blur-lg">
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-current text-gray-500" />
-          <XAxis dataKey="date" className="text-gray-300" />
-          <YAxis className="text-gray-300" />
-          <Tooltip 
-            contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderColor: 'gray-200' }}
-            itemStyle={{ color: 'black' }}
+const SalesLineChart = ({ data, totalSalesAmount, totalSalesQuantity }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+  const styles = {
+    container: {
+      
+      backgroundColor: '#f8f9fa',
+      padding: '20px',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      border: '1px solid #ddd',
+      fontFamily: 'Arial, sans-serif',
+      transition: 'transform 0.3s ease',
+      transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+      position: 'relative',
+      overflow: 'visible',
+    },
+    chartShadow: {
+      filter: 'drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.2))',
+    },
+    xAxis: {
+      fontSize: '14px',
+      fontWeight: 'bold',
+      fill: '#666',
+    },
+    yAxis: {
+      fontSize: '14px',
+      fontWeight: 'bold',
+      fill: '#666',
+    },
+    tooltip: {
+      backgroundColor: '#fff',
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      fontSize: '12px',
+      color: '#666',
+    },
+    legend: {
+      fontSize: '14px',
+      color: '#666',
+      fontWeight: 'bold',
+      cursor: 'pointer',
+      transition: 'transform 0.2s',
+      marginTop: '10px',
+    },
+    legendHover: {
+      transform: 'scale(1.1)',
+    },
+  };
+
+  return (
+    <div
+      style={styles.container}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <ResponsiveContainer>
+        <LineChart
+          data={data}
+          margin={{ top: 40, right: 30, left: 20, bottom: 20 }}
+          style={styles.chartShadow}
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" />
+          <XAxis dataKey="date" tick={{ fill: '#666', fontWeight: 'bold' }} />
+          <YAxis tick={{ fill: '#666', fontWeight: 'bold' }} />
+          <Tooltip contentStyle={styles.tooltip} />
+          <Legend
+            wrapperStyle={styles.legend}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            formatter={(value) => (
+              <span
+                title={`Esta es la ${value} en el periodo seleccionado`}
+                style={isHovered ? { ...styles.legend, ...styles.legendHover } : styles.legend}
+              >
+                {value}
+              </span>
+            )}
           />
-          <Line type="monotone" dataKey="sales" stroke="#FFD700" strokeWidth={3} />
-          <Line type="monotone" dataKey="quantity" stroke="#A9A9A9" strokeWidth={3} />
+          <Line type="monotone" dataKey="sales" stroke="#8884d8" />
+          <Line type="monotone" dataKey="quantity" stroke="#82ca9d" />
         </LineChart>
       </ResponsiveContainer>
     </div>
-  </div>
-);
+  );
+};
 
 export default SalesLineChart;
