@@ -245,6 +245,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
 };
 
 const groupShopsByCategory = (shops) => {
+  console.log(shops, "shops by cat")
   return shops.reduce((acc, shop) => {
     const categoryId = shop.dataValues.locals_categories_id;
     if (!acc[`${categoryId}`]) {
@@ -304,5 +305,45 @@ export const getShopsByClientId = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener locales por cliente:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
+
+export const changeRating = async (req, res) => {
+  const { rating, id } = req.body;
+
+  console.log(rating, "rating");
+
+  if (rating < 0.00 || rating > 5.00) {
+    return res.status(400).json({ message: 'Invalid rating value. It must be between 0.00 and 5.00.' });
+  }
+
+  try {
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: 'Local not found' });
+    }
+
+    // Asegurarse de que ratingSum y ratingCount no sean undefined
+    const currentRatingSum = local.ratingSum || 0;
+    const currentRatingCount = local.ratingCount || 0;
+
+    // Actualizar la suma de calificaciones y el conteo
+    const newRatingSum = currentRatingSum + rating;
+    const newRatingCount = currentRatingCount + 1;
+
+    console.log(local);
+
+    // Calcular el nuevo promedio
+    const newRating = newRatingSum / newRatingCount;
+    console.log(newRating, "newRating");
+
+    // Actualizar el local con los nuevos valores
+    await local.update({ rating: newRating, ratingSum: newRatingSum, ratingCount: newRatingCount });
+
+    res.status(200).json({ message: 'Rating updated successfully', newRating });
+  } catch (error) {
+    console.error('Error updating rating:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

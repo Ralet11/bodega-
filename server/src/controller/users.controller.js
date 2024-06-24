@@ -76,7 +76,7 @@ export const addSubscription = async (req, res) => {
   
   const {price} = req.body
   const userId = req.user.userId
-  console.log("holaaa")
+
 
   try {
     const user = await User.findOne({where: {id: userId}})
@@ -86,6 +86,29 @@ export const addSubscription = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
     const newBalance =(user.balance + price)
+
+    user.balance = newBalance
+
+    await user.save()
+
+    res.status(200).json(user)
+
+  } catch (error) {
+    res.status(500).json(error)
+    console.log(error)
+  }
+}
+
+export const removeUserBalance = async (req, res) => {
+  const {newBalance} = req.body
+  const userId = req.user.userId
+  try {
+    const user = await User.findOne({where: {id: userId}})
+
+    if (!user) {
+      console.log("error")
+      return res.status(404).json({ error: "User not found" });
+    }
 
     user.balance = newBalance
 
