@@ -90,7 +90,7 @@ export const sendOrder = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
-  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type } = req.body;
+  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi } = req.body;
   const id = req.user.userId
   const io = getIo()
   const users_id = id
@@ -109,11 +109,12 @@ export const createOrder = async (req, res) => {
       users_id,
       status,
       date_time,
-      type
+      type,
+      pi
     });
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-  io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type });
+  io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi });
 
     res.status(201).json({ message: 'Pedido creado exitosamente', newOrder });
   } catch (error) {
@@ -219,7 +220,7 @@ export const rejectOrder = async (req, res) => {
 
     // Emitir evento de finalización de pedido a través de Socket.IO
 
-    io.emit('changeOrderState', { status: 'rejected' });
+    io.emit('changeOrderState', { status: 'rejected', orderId: id });
 
     res.status(200).json(order);
   } catch (error) {

@@ -261,3 +261,31 @@ const supplierData = suppliers.map(supplier => ({
   }
 };
 
+export const createRefund = async (req, res) => {
+  const { pi, amount } = req.body;
+  console.log(amount, "amoutn")
+
+  if (!pi) {
+    return res.status(400).json({ error: 'PaymentIntent ID is required' });
+  }
+
+  // Convert the amount to cents
+ 
+
+  if (isNaN(amount) || amount <= 0) {
+    return res.status(400).json({ error: 'Invalid amount provided' });
+  }
+
+  try {
+    const refund = await stripe.refunds.create({
+      payment_intent: pi,
+      amount: amount, // La cantidad a reembolsar en centavos.
+    });
+
+    console.log('Refund successful:', refund);
+    res.status(200).json(refund);
+  } catch (error) {
+    console.error('Error creating refund:', error);
+    res.status(500).json({ error: 'Failed to create refund', details: error.message });
+  }
+};
