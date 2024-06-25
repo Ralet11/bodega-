@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useMediaQuery } from 'react-responsive';
-import { CurrencyDollarIcon, StarIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, Dot } from 'recharts';
 import axios from 'axios';
 import { getParamsEnv } from './../../functions/getParamsEnv';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ShopsComponent from './dashShop';
-import ShopSelector from './newConcept/ShopSelector';
-import ProductSelector from './newConcept/ProductSelector';
 
 const Dashboard = () => {
   const [shops, setShops] = useState([]);
@@ -19,8 +12,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  const [selectedShop, setSelectedShop] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const token = useSelector((state) => state?.client.token);
   const clientId = useSelector((state) => state?.client.client.id);
   const { API_URL_BASE } = getParamsEnv();
@@ -76,14 +67,6 @@ const Dashboard = () => {
     }
   }, [token, clientId, API_URL_BASE]);
 
-  const handleSelectShop = (shopId) => {
-    setSelectedShop(shopId);
-  };
-
-  const handleSelectProduct = (productId) => {
-    setSelectedProduct(productId);
-  };
-
   if (loading) {
     return <Skeleton count={5} />;
   }
@@ -98,9 +81,12 @@ const Dashboard = () => {
         <h1 className="text-4xl font-bold mb-2 animate-pulse">Welcome to Bodega Dashboard</h1>
         <p className="text-lg">Manage your shops and orders efficiently</p>
       </div>
-      <ShopSelector shops={shops} onSelectShop={handleSelectShop} />
-      <ProductSelector products={products} onSelectProduct={handleSelectProduct} />
-      <ShopsComponent shops={shops} ordersData={ordersData} selectedShop={selectedShop} selectedProduct={selectedProduct} />
+      
+      <ShopsComponent
+        shops={shops}
+        ordersData={ordersData}
+        products={products}
+      />
     </div>
   );
 };
