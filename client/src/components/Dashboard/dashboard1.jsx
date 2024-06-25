@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useMediaQuery } from 'react-responsive';
-import { CurrencyDollarIcon, StarIcon, ShoppingBagIcon } from '@heroicons/react/24/solid';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area, Dot } from 'recharts';
-import axios from 'axios';
+
 import { getParamsEnv } from './../../functions/getParamsEnv';
 import { useSelector } from 'react-redux';
-import dayjs from 'dayjs';
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ShopsComponent from './dashShop';

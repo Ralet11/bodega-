@@ -182,3 +182,14 @@ export const getByLocalId = async (req, res) => {
     res.status(500).json({ error: 'Error al buscar productos por IDs locales' });
   }
 };
+
+export const getByProductId = async (req, res) => {
+  const {id} = req.body
+  try {
+    const product = await Product.findByPk(id)
+    res.status(200).json(product)
+  } catch (error) {
+   res.status(500).json(error)
+   console.log(error) 
+  }
+}

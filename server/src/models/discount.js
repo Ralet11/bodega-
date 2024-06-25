@@ -2,6 +2,8 @@ import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
 
 import Local from './local.js';
+import Product from './product.js';
+import Category from './category.js';
 
 const Discount = sequelize.define('discount', {
   id: {
@@ -12,14 +14,6 @@ const Discount = sequelize.define('discount', {
   },
   productName: {
     type: DataTypes.STRING(45),
-    allowNull: false
-  },
-  initialPrice: {
-    type: DataTypes.FLOAT,
-    allowNull: false
-  },
-  discountPrice: {
-    type: DataTypes.FLOAT,
     allowNull: false
   },
   limitDate: {
@@ -36,22 +30,92 @@ const Discount = sequelize.define('discount', {
   },
   local_id: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'Local',
+      key: 'id'
+    }
   },
   percentage: {
     type: DataTypes.INTEGER,
     allowNull: true
   },
+  fixedValue: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
   order_details: {
     type: DataTypes.JSON,
     allowNull: false
+  },
+  product_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Product',
+      key: 'id'
+    }
+  },
+  category_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    references: {
+      model: 'Category',
+      key: 'id'
+    }
+  },
+  usageLimit: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 1
+  },
+  timesUsed: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    defaultValue: 0
+  },
+  active: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  description: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  discountType: {
+    type: DataTypes.ENUM('percentage', 'fixed'),
+    allowNull: false,
+    defaultValue: 'percentage'
+  },
+  minPurchaseAmount: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  maxDiscountAmount: {
+    type: DataTypes.FLOAT,
+    allowNull: true
+  },
+  conditions: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  delivery: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+      defaultValue: 0,
+      validate: {
+        isIn: [[0, 1, 2]]
+      }
   }
 }, {
   tableName: 'discounts',
   timestamps: false
 });
 
-// Definición de la relación con la tabla de locales
+// Definición de las relaciones con las tablas de Local, Product y Category
 Discount.belongsTo(Local, { foreignKey: 'local_id', as: 'local' });
+Discount.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
+Discount.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
 
 export default Discount;
