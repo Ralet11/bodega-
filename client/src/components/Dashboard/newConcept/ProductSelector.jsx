@@ -48,6 +48,10 @@ const ProductSelector = ({ products, onSelectProduct }) => {
     },
   };
 
+  if (!products || products.length === 0) {
+    return <div>No products available</div>;
+  }
+
   return (
     <div style={styles.container}>
       <h2 className="text-center text-2xl font-bold">These are your Products</h2>
