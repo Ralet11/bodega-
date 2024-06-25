@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
-
-import User from './user.js'
+import User from './user.js';
 import Discount from './discount.js';
 
+// Definición del modelo UserDiscount
 const UserDiscount = sequelize.define('user_discount', {
   id: {
     type: DataTypes.INTEGER,
@@ -12,28 +12,39 @@ const UserDiscount = sequelize.define('user_discount', {
     allowNull: false
   },
   discount_id: {
-    type: DataTypes.INTEGER, // Cambiado a INTEGER para coincidir con el tipo de dato en la tabla de descuentos
+    type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: Discount, // Hace referencia al modelo de la tabla de descuentos
-      key: 'id' // Clave primaria en la tabla de descuentos
+      model: Discount,
+      key: 'id'
     }
   },
   user_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: User, // Hace referencia al modelo de la tabla de usuarios
-      key: 'id' // Clave primaria en la tabla de usuarios
+      model: User,
+      key: 'id'
     }
+  },
+  used: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false // Por defecto, el descuento no ha sido usado
   }
 }, {
-  tableName: 'user_discounts', // Nombre de la tabla cambiado para reflejar su relación con los usuarios
+  tableName: 'user_discounts',
   timestamps: false
 });
 
 // Definir relaciones
-User.belongsToMany(Discount, { through: UserDiscount, foreignKey: 'user_id' }); // Relación muchos a muchos entre User y Discount a través de UserDiscount
-Discount.belongsToMany(User, { through: UserDiscount, foreignKey: 'discount_id' }); // Relación muchos a muchos entre Discount y User a través de UserDiscount
+User.belongsToMany(Discount, { through: UserDiscount, foreignKey: 'user_id' });
+Discount.belongsToMany(User, { through: UserDiscount, foreignKey: 'discount_id' });
 
-export default UserDiscount;
+UserDiscount.belongsTo(Discount, { foreignKey: 'discount_id' });
+UserDiscount.belongsTo(User, { foreignKey: 'user_id' });
+
+Discount.hasMany(UserDiscount, { foreignKey: 'discount_id' });
+User.hasMany(UserDiscount, { foreignKey: 'user_id' });
+
+export default UserDiscount
