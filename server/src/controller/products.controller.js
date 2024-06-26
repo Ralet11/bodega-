@@ -182,3 +182,28 @@ export const getByLocalId = async (req, res) => {
     res.status(500).json({ error: 'Error al buscar productos por IDs locales' });
   }
 };
+
+
+export const getProductsByClientId = async (req, res) => {
+  const { id } = req.params; // Obtener el clientId de los parámetros de la ruta
+
+  try {
+    // Verificar si el clientId está presente en la consulta
+    if (!id) {
+      return res.status(400).json({ message: "Client ID is required" });
+    }
+
+    // Obtener los productos asociados al clientId
+    const products = await Product.findAll({
+      where: {
+        clientId: id,
+        state: "1" // Considera solo productos activos
+      }
+    });
+
+    res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products by client ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

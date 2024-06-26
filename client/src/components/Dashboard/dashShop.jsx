@@ -3,34 +3,25 @@ import EarningsTable from './EarningsTable';
 import OrdersTable from './OrdersTable';
 import OrderDetailsModal from './OrderDetailsModal';
 import FilterButtons from './FilterButtons';
-import SalesLineChart from './charts/SalesLineChart';
-import SalesScatterChart from './charts/SalesScatterChart';
-import OrdersBarChart from './charts/OrdersBarChart';
-import SalesPieChart from './charts/SalesPieChart';
-import ContributionAreaChart from './charts/ContributionAreaChart';
 import EarningsBarChart from './charts/EarningsBarChart';
 import QuantityAreaChart from './charts/QuantityAreaChart';
 import OrdersPieChart from './charts/OrdersPieChart';
 import HistoricalDataSection from './Sections/HistoricalDataSection';
 import ShopSelectorSection from './Sections/ShopSelectorSection';
-import ProductSelectorSection from './Sections/ProductSelectorSection';
 import { formatCurrency, formatQuantity } from './utils'; // Asegúrate de que la ruta sea correcta
-import ProductIndicators from './Indicators/ProductIndicators';
 import ShopIndicators from './Indicators/ShopIndicators';
-const ShopsComponent = ({ shops, ordersData, products }) => {
+
+const ShopsComponent = ({ shops, ordersData }) => {
   const [selectedShop, setSelectedShop] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState(null);
   const [filteredOrdersData, setFilteredOrdersData] = useState(ordersData);
   const [filteredOrdersDataForCharts, setFilteredOrdersDataForCharts] = useState(ordersData);
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredItemTotals, setFilteredItemTotals] = useState({});
   const [filterPeriod, setFilterPeriod] = useState('Historical Data');
-  const [currentPage, setCurrentPage] = useState(1);
 
   const filterOrders = (period) => {
     setFilterPeriod(period);
-
     const now = new Date();
     const newFilteredData = {};
 
@@ -58,20 +49,22 @@ const ShopsComponent = ({ shops, ordersData, products }) => {
       });
 
       const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-      const quantity = filteredOrders.reduce((sum, order) => {
-        return sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0);
-      }, 0);
+      const quantity = filteredOrders.reduce((sum, order) => sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0), 0);
       const ordersCount = filteredOrders.length;
 
       newFilteredData[shopId] = { sales, quantity, ordersCount, orders: filteredOrders };
     });
 
     setFilteredOrdersDataForCharts(newFilteredData);
+    updateFilteredItemTotals(newFilteredData);
+    setFilteredOrdersData(newFilteredData);
+  };
 
+  const updateFilteredItemTotals = (data) => {
     if (selectedShop && selectedShop !== 'all') {
-      filterItemTotals(newFilteredData[selectedShop]);
+      filterItemTotals(data[selectedShop]);
     } else {
-      const allFilteredOrders = Object.values(newFilteredData).flatMap(shopData => shopData.orders);
+      const allFilteredOrders = Object.values(data).flatMap(shopData => shopData.orders);
       const newFilteredItemTotals = {};
       allFilteredOrders.forEach(order => {
         order.order_details.forEach(item => {
@@ -90,9 +83,6 @@ const ShopsComponent = ({ shops, ordersData, products }) => {
       });
       setFilteredItemTotals(newFilteredItemTotals);
     }
-
-    // Actualizar filteredOrdersData también
-    setFilteredOrdersData(newFilteredData);
   };
 
   const filterItemTotals = (filteredShopData) => {
@@ -121,98 +111,16 @@ const ShopsComponent = ({ shops, ordersData, products }) => {
     setFilterPeriod('Historical Data');
     setFilteredOrdersDataForCharts(ordersData);
     setFilteredOrdersData(ordersData);
-
-    if (selectedShop && selectedShop !== 'all') {
-      const shopData = ordersData[selectedShop];
-      const newFilteredItemTotals = {};
-      shopData.orders.forEach(order => {
-        order.order_details.forEach(item => {
-          if (!newFilteredItemTotals[item.id]) {
-            newFilteredItemTotals[item.id] = {
-              name: item.name,
-              total: 0,
-              quantity: 0,
-              ordersCount: 0
-            };
-          }
-          newFilteredItemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity;
-          newFilteredItemTotals[item.id].quantity += item.quantity;
-          newFilteredItemTotals[item.id].ordersCount += 1;
-        });
-      });
-      setFilteredItemTotals(newFilteredItemTotals);
-    } else {
-      const allOrders = Object.values(ordersData).flatMap(shopData => shopData.orders);
-      const newFilteredItemTotals = {};
-      allOrders.forEach(order => {
-        order.order_details.forEach(item => {
-          if (!newFilteredItemTotals[item.id]) {
-            newFilteredItemTotals[item.id] = {
-              name: item.name,
-              total: 0,
-              quantity: 0,
-              ordersCount: 0
-            };
-          }
-          newFilteredItemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity;
-          newFilteredItemTotals[item.id].quantity += item.quantity;
-          newFilteredItemTotals[item.id].ordersCount += 1;
-        });
-      });
-      setFilteredItemTotals(newFilteredItemTotals);
-    }
+    updateFilteredItemTotals(ordersData);
   };
 
   const selectShop = (shopId) => {
-    setCurrentPage(1); // Reset current page to 1 when a new shop is selected
     setSelectedShop(shopId);
     if (filterPeriod !== 'Historical Data') {
       filterOrders(filterPeriod);
     } else {
       showAllOrders();
     }
-  };
-
-  const selectProduct = (productId) => {
-    setCurrentPage(1); // Reset current page to 1 when a new product is selected
-    setSelectedProduct(productId);
-
-    const newFilteredData = {};
-    Object.keys(ordersData).forEach(shopId => {
-      const filteredOrders = ordersData[shopId].orders.filter(order => {
-        return order.order_details.some(item => item.id === productId);
-      });
-
-      const sales = filteredOrders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
-      const quantity = filteredOrders.reduce((sum, order) => {
-        return sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0);
-      }, 0);
-      const ordersCount = filteredOrders.length;
-
-      newFilteredData[shopId] = { sales, quantity, ordersCount, orders: filteredOrders };
-    });
-
-    setFilteredOrdersDataForCharts(newFilteredData);
-
-    const allFilteredOrders = Object.values(newFilteredData).flatMap(shopData => shopData.orders);
-    const newFilteredItemTotals = {};
-    allFilteredOrders.forEach(order => {
-      order.order_details.forEach(item => {
-        if (!newFilteredItemTotals[item.id]) {
-          newFilteredItemTotals[item.id] = {
-            name: item.name,
-            total: 0,
-            quantity: 0,
-            ordersCount: 0
-          };
-        }
-        newFilteredItemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, "")) * item.quantity;
-        newFilteredItemTotals[item.id].quantity += item.quantity;
-        newFilteredItemTotals[item.id].ordersCount += 1;
-      });
-    });
-
-    setFilteredItemTotals(newFilteredItemTotals);
   };
 
   const handleSeeDetails = (orderDetails, orderId) => {
@@ -256,86 +164,34 @@ const ShopsComponent = ({ shops, ordersData, products }) => {
     }
   }, [selectedShop, ordersData]);
 
-  useEffect(() => {
-    if (selectedProduct) {
-      const newFilteredData = {};
-      Object.keys(ordersData).forEach(shopId => {
-        const filteredOrders = ordersData[shopId].orders.filter(order => {
-          return order.order_details.some(item => item.id === selectedProduct);
-        });
-        newFilteredData[shopId] = { orders: filteredOrders };
-      });
-      setFilteredOrdersData(newFilteredData);
-    } else {
-      setFilteredOrdersData(ordersData);
-    }
-  }, [selectedProduct, ordersData]);
-
   const totalSales = Object.values(filteredOrdersDataForCharts).reduce((sum, shop) => sum + shop.sales, 0);
   const totalQuantity = Object.values(filteredOrdersDataForCharts).reduce((sum, shop) => sum + shop.quantity, 0);
-
-  const ordersListData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
-    name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    ordersCount: filteredOrdersDataForCharts[shopId].ordersCount || 0
-  }));
-
-  const contributionData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
-    name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    contribution: (filteredOrdersDataForCharts[shopId].sales / totalSales) * 100 || 0
-  }));
-
-  const pieChartData = Object.keys(filteredOrdersDataForCharts).map(shopId => ({
-    name: shops.find(shop => shop.id === parseInt(shopId))?.name || 'Unknown',
-    value: filteredOrdersDataForCharts[shopId].sales || 0
-  }));
-
-  const salesLineData = Object.keys(filteredOrdersData).flatMap(shopId => {
-    return (filteredOrdersData[shopId]?.orders || []).map(order => ({
-      date: order.date_time.split('T')[0],
-      sales: parseFloat(order.total_price),
-      quantity: order.order_details.reduce((sum, item) => sum + item.quantity, 0),
-    }));
-  });
-
-  const salesScatterData = Object.keys(filteredOrdersData).flatMap(shopId => {
-    return (filteredOrdersData[shopId]?.orders || []).flatMap(order => {
-      return order.order_details.map(item => ({
-        price: parseFloat(item.price.replace(/[^0-9.-]+/g, "")),
-        quantity: item.quantity,
-      }));
-    });
-  });
-
-  const totalSalesAmount = salesLineData.reduce((acc, data) => acc + data.sales, 0);
-  const totalSalesQuantity = salesLineData.reduce((acc, data) => acc + data.quantity, 0);
 
   return (
     <div className="container mx-auto p-4">
       <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} />
-      
       <HistoricalDataSection ordersData={ordersData} />
-
       <ShopSelectorSection shops={shops} onSelectShop={selectShop} />
-      
+
       {selectedShop && (
         <>
           <div className="mt-4 flex flex-wrap -mx-2">
             <div className="w-full md:w-1/3 px-2">
               <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
-              <EarningsBarChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+              <EarningsBarChart data={Object.values(filteredItemTotals)} />
             </div>
             <div className="w-full md:w-1/3 px-2">
               <h2 className="text-xl font-bold mb-4">Total Quantity by Item</h2>
-              <QuantityAreaChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+              <QuantityAreaChart data={Object.values(filteredItemTotals)} />
             </div>
             <div className="w-full md:w-1/3 px-2">
               <h2 className="text-xl font-bold mb-4">Orders by Item</h2>
-              <OrdersPieChart data={Array.isArray(Object.values(filteredItemTotals)) ? Object.values(filteredItemTotals) : []} />
+              <OrdersPieChart data={Object.values(filteredItemTotals)} />
             </div>
           </div>
 
           <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
-          {selectedShop && selectedShop !== 'all' && (
+          {selectedShop !== 'all' && (
             <>
               <EarningsTable
                 filteredItemTotals={filteredItemTotals}
@@ -351,14 +207,6 @@ const ShopsComponent = ({ shops, ordersData, products }) => {
               />
             </>
           )}
-        </>
-      )}
-
-      <ProductSelectorSection products={products} onSelectProduct={selectProduct} />
-      
-      {selectedProduct && (
-        <>
-          <ProductIndicators ordersData={ordersData} selectedProduct={selectedProduct} />
         </>
       )}
 

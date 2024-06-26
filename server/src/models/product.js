@@ -1,7 +1,8 @@
 import { DataTypes, Sequelize } from 'sequelize';
 import sequelize from '../database.js';
 
-import Category from './category.js'; // Suponiendo que tengas un modelo de Categoría en otro archivo
+import Category from './category.js';
+import Client from './client.js'; // Importar el modelo Client
 
 const Product = sequelize.define('product', {
   id: {
@@ -30,6 +31,10 @@ const Product = sequelize.define('product', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  clientId: { // Nuevo campo clientId
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   state: {
     type: DataTypes.STRING(255),
     defaultValue: null
@@ -39,7 +44,8 @@ const Product = sequelize.define('product', {
   timestamps: false
 });
 
-// Definición de la relación con la tabla de categorías
+// Definición de las relaciones
 Product.belongsTo(Category, { foreignKey: 'categories_id', as: 'category' });
+Product.belongsTo(Client, { foreignKey: 'clientId', as: 'client' }); // Nueva relación
 
 export default Product;
