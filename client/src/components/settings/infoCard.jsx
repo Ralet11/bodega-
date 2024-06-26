@@ -28,6 +28,7 @@ function InfoCard({ shopData, setShopData }) {
     address: '',
     img: null,
     nationality: '',
+    service_options: ['0', '1'],
   });
   const token = useSelector((state) => state?.client.token);
   const [selectedImage, setSelectedImage] = useState({ img: shopData ? shopData.image : defaultImageUrl });
@@ -47,6 +48,7 @@ function InfoCard({ shopData, setShopData }) {
       img: shopData.img,
       category: shopData.category || "",
       nationality: shopData.nationality || "",
+      service_options: shopData.service_options || ["0", "1"],
     });
     const selectedCountry = countryOptions.find(option => option.value === shopData.nationality);
     setPhonePrefix(selectedCountry ? selectedCountry.code : '');
@@ -142,6 +144,34 @@ function InfoCard({ shopData, setShopData }) {
     setPhonePrefix(selectedOption.code);
   };
 
+  const handleServiceChange = async (service, checked) => {
+    try {
+      const url = `${API_URL_BASE}/api/local/${checked ? 'addService' : 'removeService'}/${newShop.id}`;
+      const response = await axios.post(url, { serviceToAdd: service, serviceToRemove: service }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log(response)
+      if (response.status === 200) {
+        const updatedServices = checked
+          ? [...newShop.service_options, service]
+          : newShop.service_options.filter(option => option !== service);
+        setNewShop({
+          ...newShop,
+          service_options: updatedServices,
+        });
+        toast.success(`Service ${checked ? 'added' : 'removed'} successfully`);
+      } else {
+        toast.error(`Error ${checked ? 'adding' : 'removing'} service`);
+        console.error(`Error ${checked ? 'adding' : 'removing'} service`);
+      }
+    } catch (error) {
+      toast.error(`Error ${checked ? 'adding' : 'removing'} service`);
+      console.error(`Error ${checked ? 'adding' : 'removing'} service`, error);
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-lg transition-transform transform hover:scale-105">
       <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6">
@@ -219,6 +249,44 @@ function InfoCard({ shopData, setShopData }) {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="mb-4">
+              <label htmlFor="services" className="block text-gray-500 text-sm font-medium mb-2">
+                Services:
+              </label>
+              <div>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={newShop.service_options.includes('0')}
+                    onChange={(e) => handleServiceChange('0', e.target.checked)}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Pick-up</span>
+                </label>
+              </div>
+              <div>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={newShop.service_options.includes('1')}
+                    onChange={(e) => handleServiceChange('1', e.target.checked)}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Delivery</span>
+                </label>
+              </div>
+              <div>
+                <label className="inline-flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={newShop.service_options.includes('2')}
+                    onChange={(e) => handleServiceChange('2', e.target.checked)}
+                    className="form-checkbox"
+                  />
+                  <span className="ml-2">Order-in</span>
+                </label>
+              </div>
             </div>
             <button
               onClick={handleChangeShop}
