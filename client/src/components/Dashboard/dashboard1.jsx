@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ShopsComponent from './dashShop';
+import ProductsComponent from './dashProducts'; // Import the new component
 
 const Dashboard = () => {
   const [shops, setShops] = useState([]);
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
+  const [view, setView] = useState(null); // State to manage the current view
   const token = useSelector((state) => state?.client.token);
   const clientId = useSelector((state) => state?.client.client.id);
   const { API_URL_BASE } = getParamsEnv();
@@ -19,7 +21,8 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchShopsAndProducts = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/local/byClientId`, {
+        // Fetch shops data
+        const shopsResponse = await axios.get(`${API_URL_BASE}/api/local/byClientId`, {
           headers: {
             authorization: `Bearer ${token}`
           },
@@ -27,9 +30,10 @@ const Dashboard = () => {
             clients_id: clientId
           }
         });
-        setShops(response.data.locals);
+        setShops(shopsResponse.data.locals);
 
-        const ordersRequests = response.data.locals.map((shop) =>
+        // Fetch orders data for each shop
+        const ordersRequests = shopsResponse.data.locals.map((shop) =>
           axios.get(`${API_URL_BASE}/api/orders/get/${shop.id}`, {
             headers: {
               authorization: `Bearer ${token}`
@@ -39,24 +43,24 @@ const Dashboard = () => {
 
         const ordersResponses = await Promise.all(ordersRequests);
         const ordersData = {};
-        const productsMap = new Map();
-
         ordersResponses.forEach((ordersResponse, index) => {
-          ordersData[response.data.locals[index].id] = ordersResponse.data;
-          ordersResponse.data.orders.forEach(order => {
-            order.order_details.forEach(item => {
-              if (!productsMap.has(item.id)) {
-                productsMap.set(item.id, item); // Use Map to store unique items by id
-              }
-            });
-          });
+          ordersData[shopsResponse.data.locals[index].id] = ordersResponse.data;
         });
 
         setOrdersData(ordersData);
-        setProducts(Array.from(productsMap.values())); // Convert Map values to array
+
+        // Fetch products data for the client
+        const productsResponse = await axios.get(`${API_URL_BASE}/api/products/getByClientId/${clientId}`, {
+          headers: {
+            authorization: `Bearer ${token}`
+          }
+        });
+
+        setProducts(productsResponse.data); // Assuming the response is an array of products
+
       } catch (error) {
-        console.error('Error fetching the shops data', error);
-        setError('Failed to fetch shops data');
+        console.error('Error fetching the data', error);
+        setError('Failed to fetch data');
       } finally {
         setLoading(false);
       }
@@ -81,12 +85,36 @@ const Dashboard = () => {
         <h1 className="text-4xl font-bold mb-2 animate-pulse">Welcome to Bodega Dashboard</h1>
         <p className="text-lg">Manage your shops and orders efficiently</p>
       </div>
-      
-      <ShopsComponent
-        shops={shops}
-        ordersData={ordersData}
-        products={products}
-      />
+
+      <div className="flex justify-center mb-6">
+        <button
+          className={`px-4 py-2 mr-2 ${view === 'shops' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+          onClick={() => setView('shops')}
+        >
+          Shops
+        </button>
+        <button
+          className={`px-4 py-2 ${view === 'products' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
+          onClick={() => setView('products')}
+        >
+          Products
+        </button>
+      </div>
+
+      {view === 'shops' && (
+        <ShopsComponent
+          shops={shops}
+          ordersData={ordersData}
+          products={products}
+        />
+      )}
+      {view === 'products' && (
+        <ProductsComponent
+          shops={shops}
+          ordersData={ordersData}
+          products={products}
+        />
+      )}
     </div>
   );
 };
