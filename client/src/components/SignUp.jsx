@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import { getParamsEnv } from "../functions/getParamsEnv";
 import Input from "../ui_bodega/Input";
 import image1 from './../assets/image1.jpg';
+import toast from "react-hot-toast";
+
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -101,22 +103,30 @@ const SignUp = ({ setSelected, setLogged }) => {
         const response = await axios.post(`${API_URL_BASE}/api/auth/register`, formData);
 
         if (response.data.data.created === 'ok') {
+          toast.success('Account created successfully');
           setLogged(true);
           setSelected(true);
         }
       } catch (error) {
         let errorMessage = '';
-        if (error.response.data.message.includes('users_Email_key')) {
-          errorMessage = 'Email already in use';
-        } else if (error.response.data.message.includes('users_UserName_key')) {
-          errorMessage = 'UserName already in use';
-        } else if (error.response.data.message.includes('users_Phone_key')) {
-          errorMessage = 'Phone already in use';
+        if (error.response && error.response.data && error.response.data.message) {
+          if (error.response.data.message.includes('users_Email_key')) {
+            errorMessage = 'Email already in use';
+          } else if (error.response.data.message.includes('users_UserName_key')) {
+            errorMessage = 'UserName already in use';
+          } else if (error.response.data.message.includes('users_Phone_key')) {
+            errorMessage = 'Phone already in use';
+          } else {
+            errorMessage = 'There was an error in the registration, please check the fields and try again.';
+          }
         } else {
           errorMessage = 'There was an error in the registration, please check the fields and try again.';
         }
+        toast.error(errorMessage);
         console.error('Error submitting data to the server:', error);
       }
+    } else {
+      toast.error('Please fix the errors in the form before submitting');
     }
   };
 

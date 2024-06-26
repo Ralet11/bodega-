@@ -4,7 +4,7 @@ import Order from '../models/order.js';
 import { getIo } from '../socket.js';
 
 const accountSid = 'AC0905023d05304d16ef0f446444e8ac9a'; // Reemplaza con tu Account SID
-const authToken = '363bc7637f8dd2c587799f50ef134710'; // Reemplaza con tu Auth Token
+const authToken = '403bb174c2dd915467f32f829db2dde7'; // Reemplaza con tu Auth Token
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {
@@ -12,7 +12,7 @@ export const makeCall = (req, res) => {
 
   client.calls
     .create({
-      url: `https://aae0-190-7-248-15.ngrok-free.app/api/twilio/voice?orderId=${orderId}`,
+      url: `https://44ee-190-7-248-15.ngrok-free.app/api/twilio/voice?orderId=${orderId}`,
       to: to,
       from: '+12295973706',
     })
@@ -32,7 +32,7 @@ export const voiceResponse = (req, res) => {
 
   response.gather({
     numDigits: 1,
-    action: `https://aae0-190-7-248-15.ngrok-free.app/api/twilio/handle-key?orderId=${orderId}`,
+    action: `https://44ee-190-7-248-15.ngrok-free.app/api/twilio/handle-key?orderId=${orderId}`,
     method: 'POST',
   });
 

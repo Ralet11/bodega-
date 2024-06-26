@@ -1,6 +1,6 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.addColumn('users', 'subscription', {
+    await queryInterface.addColumn('local', 'ratingCount', {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0
@@ -8,6 +8,7 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.removeColumn('users', 'subscription');
+    await queryInterface.removeColumn('local', 'ratingSum');
+    await queryInterface.removeColumn('local', 'ratingCount');
   }
 };

@@ -53,6 +53,25 @@ const Local = sequelize.define('local', {
   locals_categories_id: {
     type: DataTypes.INTEGER,
     defaultValue: null
+  },
+  rating: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0.00,
+    validate: {
+      min: 0.00,
+      max: 5.00
+    }
+  },
+  ratingSum: {
+    type: DataTypes.FLOAT,
+    allowNull: false,
+    defaultValue: 0.00
+  },
+  ratingCount: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0
   }
 }, {
   tableName: 'local',

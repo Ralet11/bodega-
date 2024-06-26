@@ -207,3 +207,15 @@ export const getProductsByClientId = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const getByProductId = async (req, res) => {
+  const {id} = req.body
+  try {
+    const product = await Product.findByPk(id)
+    res.status(200).json(product)
+  } catch (error) {
+   res.status(500).json(error)
+   console.log(error) 
+  }
+}
+

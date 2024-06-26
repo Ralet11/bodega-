@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 import OrderModal from "../modal/OrderModal";
 
-const SendindOrderCard = ({ order, handleFinishOrder, time }) => {
+const SendindOrderCard = ({ order, handleFinishOrder, time, handleRejectOrder }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -91,7 +91,7 @@ const SendindOrderCard = ({ order, handleFinishOrder, time }) => {
             <CheckBadgeIcon className="h-6 w-6 inline text-green-500" />
           </span>
         </div>
-        <div onClick={() => handleFinishOrder()}>
+        <div onClick={() => handleRejectOrder(order.id)}>
           <span style={iconStyles}>
             <XCircleIcon className="h-7 w-7 inline text-red-500" />
           </span>

@@ -48,7 +48,7 @@ const Orders = () => {
           finished: [],
         };
 
-        console.log(response.data)
+        console.log(response.data);
 
         response.data.orders.forEach((order) => {
           const status = order.status;
@@ -85,10 +85,8 @@ const Orders = () => {
   }, []);
 
   const handleAcceptOrder = async (orderId) => {
-   
-  
     console.log("cambiando estado");
-  
+
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
       await axios.put(
@@ -100,14 +98,14 @@ const Orders = () => {
           },
         }
       );
-  
+
       // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         const orderToUpdateIndex = updatedOrders["new order"].findIndex(
           (order) => order.id === orderId
         );
-  
+
         if (orderToUpdateIndex !== -1) {
           const orderToUpdate = JSON.parse(
             JSON.stringify(updatedOrders["new order"][orderToUpdateIndex])
@@ -116,7 +114,7 @@ const Orders = () => {
           updatedOrders.accepted.push(orderToUpdate);
           updatedOrders["new order"].splice(orderToUpdateIndex, 1);
         }
-  
+
         return updatedOrders;
       });
     } catch (error) {
@@ -194,12 +192,42 @@ const Orders = () => {
     }
   };
 
+  const handleRejectOrder = async (orderId) => {
+    try {
+      await axios.post(`${API_URL_BASE}/api/orders/rejected`,
+        { id: orderId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      // Actualiza localmente el estado de la orden eliminándola de cualquier array en el que esté presente
+      setOrders((prevOrders) => {
+        const updatedOrders = { ...prevOrders };
+        ["new order", "accepted", "sending"].forEach((status) => {
+          const orderIndex = updatedOrders[status].findIndex(
+            (order) => order.id === orderId
+          );
+          if (orderIndex !== -1) {
+            updatedOrders[status].splice(orderIndex, 1);
+          }
+        });
+        return updatedOrders;
+      });
+    } catch (error) {
+      console.error("Error rejecting order:", error);
+    }
+  };
+  
+
   return (
     <div className="ml-5 md:ml-20 mt-20">
-       <div className="pb-5 text-center">
-                <h3 className="text-lg md:text-2xl  font-bold mt-2 text-gray-800">Orders</h3>
-                <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
-            </div>
+      <div className="pb-5 text-center">
+        <h3 className="text-lg md:text-2xl font-bold mt-2 text-gray-800">Orders</h3>
+        <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-5 md:ml-20 pl-5 md:pl-10">
         {["new order", "accepted", "sending"].map((status, index) => (
           <div
@@ -244,6 +272,8 @@ const Orders = () => {
                         handleAcceptOrder={handleAcceptOrder}
                         date={date}
                         time={time}
+                        handleFinishOrder={handleFinishOrder}
+                        handleRejectOrder={handleRejectOrder}
                       />
                     ) : status === "accepted" ? (
                       <AcceptedOrderCard
@@ -251,6 +281,7 @@ const Orders = () => {
                         handleSendOrder={handleSendOrder}
                         date={date}
                         time={time}
+                        handleRejectOrder={handleRejectOrder}
                       />
                     ) : (
                       <SendindOrderCard
@@ -258,6 +289,7 @@ const Orders = () => {
                         handleFinishOrder={handleFinishOrder}
                         date={date}
                         time={time}
+                        handleRejectOrder={handleRejectOrder}
                       />
                     )}
                   </div>
