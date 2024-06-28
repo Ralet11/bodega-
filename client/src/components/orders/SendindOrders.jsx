@@ -7,7 +7,7 @@ import {
 } from "@heroicons/react/24/solid";
 import OrderModal from "../modal/OrderModal";
 
-const SendindOrderCard = ({ order, handleFinishOrder, time, handleRejectOrder }) => {
+const SendingOrderCard = ({ order, handleFinishOrder, time, handleRejectOrder }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const openModal = () => {
@@ -55,35 +55,37 @@ const SendindOrderCard = ({ order, handleFinishOrder, time, handleRejectOrder })
   };
 
   const iconStyles = {
-    color: "#ffffff", // Color del icono
-    marginRight: "5px", // Espacio entre el icono y el texto
+    color: "#ffffff",
+    marginRight: "5px",
   };
-  
 
-  
+  const formatOrderCode = (code) => {
+    const upperCaseCode = code.toUpperCase();
+    return `${upperCaseCode.slice(0, 3)}-${upperCaseCode.slice(3, 6)}`;
+  };
 
   return (
     <div style={cardStyles}>
       <div style={headerStyles}>
-        <h3 style={orderNumberStyles}>Order N°: {order.id}</h3>
-        <span style={statusStyles}>{order.status}</span>
+        <h3 style={orderNumberStyles}>
+          Order N°: {order.id} - {formatOrderCode(order.code)}
+        </h3>
+        <span style={statusStyles}>{order.type}</span>
       </div>
       <div style={{ flex: 1 }}>
         <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "8px" }}>
-          <span>user: Nombre usuario</span>
+          <span>User: Nombre usuario</span>
           <span className="ml-[80px]">Address:</span>
         </p>
         <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "8px" }}>
-        <span>Total: { Number(order.total_price).toFixed(2)}</span>
+          <span>Total: {Number(order.total_price).toFixed(2)}</span>
           <span className="ml-[95px]">Payment Method: Credit Card</span>
         </p>
       </div>
       <div className="flex gap-5">
         <div onClick={() => openModal()}>
           <span style={iconStyles}>
-          <DocumentTextIcon className="h-6 w-6 inline text-blue-500 cursor-pointer" />
-
-
+            <DocumentTextIcon className="h-6 w-6 inline text-blue-500 cursor-pointer" />
           </span>
         </div>
         <div onClick={() => handleFinishOrder(order.id)}>
@@ -103,4 +105,4 @@ const SendindOrderCard = ({ order, handleFinishOrder, time, handleRejectOrder })
   );
 };
 
-export default SendindOrderCard;
+export default SendingOrderCard;

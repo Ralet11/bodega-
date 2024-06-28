@@ -4,6 +4,7 @@ import User from '../models/user.js';
 import { getIo } from '../socket.js';
 import Local from '../models/local.js';
 import DistOrder from '../models/distOrders.model.js';
+import cryptoRandomString from 'crypto-random-string';
 
 
 export const getByLocalId = async (req, res) => {
@@ -91,30 +92,31 @@ export const sendOrder = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi } = req.body;
-  const id = req.user.userId
-  const io = getIo()
-  const users_id = id
-
+  const id = req.user.userId;
+  const io = getIo();
+  const users_id = id;
   
-  
+  // Generar el código alfanumérico de 6 dígitos
+  const code = cryptoRandomString({length: 6, type: 'alphanumeric'});
 
-  console.log(local_id, "local")
+  console.log(local_id, "local");
 
   try {
     const newOrder = await Order.create({
       delivery_fee,
       total_price,
       order_details: oder_details,
-      local_id: local_id,
+      local_id,
       users_id,
       status,
       date_time,
       type,
-      pi
+      pi,
+      code // Añadir el código generado a la nueva orden
     });
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-  io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi });
+    io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi, code });
 
     res.status(201).json({ message: 'Pedido creado exitosamente', newOrder });
   } catch (error) {
