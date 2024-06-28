@@ -43,8 +43,12 @@ const Order = sequelize.define('order', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  pi: {  // Nueva columna añadida
+  pi: {
     type: DataTypes.STRING,
+    allowNull: false
+  },
+  code: {  // Nuevo campo añadido
+    type: DataTypes.STRING(6),
     allowNull: false
   }
 }, {
