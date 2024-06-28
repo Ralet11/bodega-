@@ -72,6 +72,21 @@ const Local = sequelize.define('local', {
     type: DataTypes.INTEGER,
     allowNull: false,
     defaultValue: 0
+  },
+  delivery: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  pickUp: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
+  },
+  orderIn: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   tableName: 'local',

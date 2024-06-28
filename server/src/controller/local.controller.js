@@ -347,3 +347,88 @@ export const changeRating = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+
+export const addService = async (req, res) => {
+  const { id } = req.params;
+  const { serviceToAdd } = req.body;
+
+  console.log(serviceToAdd, "Servicio a agregar");
+
+  try {
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: 'Local no encontrado' });
+    }
+
+    // Actualizar el campo correspondiente basado en el servicio a agregar
+    if (serviceToAdd === "0") {
+      local.pickUp = true;
+    } else if (serviceToAdd === "1") {
+      local.delivery = true;
+    } else if (serviceToAdd === "2") {
+      local.orderIn = true;
+    } else {
+      return res.status(400).json({ message: 'Formato de servicio a agregar inválido.' });
+    }
+
+    await local.save();
+
+    // Volver a buscar el local actualizado desde la base de datos
+    const localActualizado = await Local.findByPk(id);
+
+    if (localActualizado) {
+      console.log(localActualizado, "Local actualizado");
+      res.status(200).json({ message: 'Servicio agregado exitosamente', local: localActualizado });
+    } else {
+      res.status(500).json({ message: 'No se pudo recuperar el local actualizado.' });
+    }
+
+  } catch (error) {
+    console.error('Error al agregar servicio:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+export const removeService = async (req, res) => {
+  const { id } = req.params;
+  const { serviceToRemove } = req.body;
+
+  console.log(serviceToRemove, "Servicio a eliminar");
+
+  try {
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: 'Local no encontrado' });
+    }
+
+    // Actualizar el campo correspondiente basado en el servicio a eliminar
+    if (serviceToRemove === "0") {
+      local.pickUp = false;
+    } else if (serviceToRemove === "1") {
+      local.delivery = false;
+    } else if (serviceToRemove === "2") {
+      local.orderIn = false;
+    } else {
+      return res.status(400).json({ message: 'Formato de servicio a eliminar inválido.' });
+    }
+
+    await local.save();
+
+    // Volver a buscar el local actualizado desde la base de datos
+    const localActualizado = await Local.findByPk(id);
+
+    if (localActualizado) {
+      console.log(localActualizado, "Local actualizado");
+      res.status(200).json({ message: 'Servicio eliminado exitosamente', local: localActualizado });
+    } else {
+      res.status(500).json({ message: 'No se pudo recuperar el local actualizado.' });
+    }
+
+  } catch (error) {
+    console.error('Error al eliminar servicio:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+}

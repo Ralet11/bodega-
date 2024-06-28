@@ -178,14 +178,14 @@ export const addDiscountToUser = async (req, res) => {
 
 export const useDiscountUser = async (req, res) => {
   const userId = req.user.userId;
-  const { discountId } = req.body;
+  const { id } = req.body;
 
   try {
     // Verificar si el descuento ya ha sido agregado al usuario
     let userDiscount = await UserDiscount.findOne({
       where: {
         user_id: userId,
-        discount_id: discountId
+        discount_id: id
       }
     });
 
@@ -197,7 +197,7 @@ export const useDiscountUser = async (req, res) => {
       // Si no existe, agregarlo con el estado 'used' en true
       userDiscount = await UserDiscount.create({
         user_id: userId,
-        discount_id: discountId,
+        discount_id: id,
         used: true
       });
     }

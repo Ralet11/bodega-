@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating } from "../controller/local.controller.js"
+import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService } from "../controller/local.controller.js"
 
 const router = Router()
 
@@ -17,5 +17,7 @@ router.get('/:localId/categories', getLocalCategoriesAndProducts);
 router.get('/getShopsOrderByCat', getShopsOrderByCat)
 router.get('/byClientId', getShopsByClientId);
 router.post('/rating', changeRating);
+router.post('/addService/:id', middleware.auth, addService)
+router.post('/removeService/:id', middleware.auth, removeService)
 
 export default router
