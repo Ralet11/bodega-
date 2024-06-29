@@ -96,19 +96,37 @@ const Header = () => {
         </div>
 
         {isDistributorsCommerce && (
-          <div className='flex bg-white md:w-[800px] items-center justify-center shadow-lg'>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              onKeyPress={handleSearchKeyPress}
-              placeholder="Search products..."
-              className="w-full p-2 text-base sm:text-1xl border-none sm:w-auto md:w-[780px]"
-            />
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="m-2 w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-            </svg>
-          </div>
+          <div className='flex bg-white md:w-[600px] items-center justify-center shadow-lg rounded-full overflow-hidden'>
+  <input
+    type="text"
+    value={searchQuery}
+    onChange={handleSearchChange}
+    onKeyPress={handleSearchKeyPress}
+    placeholder="Search products..."
+    className="w-full p-2 text-sm sm:text-base border-none sm:w-auto md:w-[560px] focus:outline-none"
+    style={{
+      borderTopLeftRadius: '9999px',
+      borderBottomLeftRadius: '9999px',
+      transition: 'box-shadow 0.3s ease',
+    }}
+  />
+  <button className="m-1 p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition duration-300">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      strokeWidth={1.5}
+      stroke="currentColor"
+      className="w-5 h-5 text-gray-600"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+      />
+    </svg>
+  </button>
+</div>
         )}
 
         <div className={isDistributorsCommerce ? 'flex items-center justify-center space-x-4' : 'flex items-center md:ml-[85rem] justify-center space-x-4'}>
