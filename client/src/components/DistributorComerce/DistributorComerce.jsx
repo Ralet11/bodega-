@@ -98,7 +98,6 @@ const DistributorComerce = () => {
     autoplaySpeed: 2000
   };
 
-  // Function to group subcategories into chunks
   const chunkArray = (arr, chunkSize) => {
     const result = [];
     for (let i = 0; i < arr.length; i += chunkSize) {
@@ -107,7 +106,6 @@ const DistributorComerce = () => {
     return result;
   };
 
-  // Split the subcategories into groups of 10 (2 rows of 5)
   const groupedSubcategories = chunkArray(subcategories, 10);
 
   const handleSelectSubCategory = (id) => {
@@ -116,8 +114,6 @@ const DistributorComerce = () => {
     dispatch(setFindedProducts(filtered));
     navigate("/searchProducts");
   };
-
-  console.log(groupedSubcategories, "categories")
 
   return (
     <div className="flex flex-col items-center w-full bg-gray-200 pb-20">
@@ -133,7 +129,6 @@ const DistributorComerce = () => {
       </div>
       <div className="w-full max-w-6xl mt-8">
         <Slider {...sliderSettings}>
-
           {loading ? (
             <Skeleton count={1} height={200} />
           ) : (
@@ -142,11 +137,10 @@ const DistributorComerce = () => {
                 <div className="grid grid-cols-5 gap-4">
                   {group.map((subcategory, idx) => (
                     <div key={idx} onClick={() => handleSelectSubCategory(subcategory.id)} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300 transform hover:scale-105">
-                      <img className="w-full h-24 object-cover" src={subcategory.imagen} alt={subcategory.name} />
+                      <img className="w-full h-20 object-cover" src={subcategory.imagen} alt={subcategory.name} />
                       <div className="p-2">
                         <h3 className="font-bold text-xs text-gray-800">{subcategory.name}</h3>
                       </div>
-
                     </div>
                   ))}
                 </div>
@@ -171,32 +165,30 @@ const DistributorComerce = () => {
               Array.isArray(allProducts) && allProducts.map((product, index) => (
                 <div
                   key={index}
-                  className={`flex flex-col md:flex-row justify-center items-center w-[330px] md:w-full mb-2 border h-auto md:max-h-[15rem] bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
+                  className={`flex flex-col md:flex-row justify-center items-center w-[280px] md:w-full mb-4 border h-auto md:max-h-[12rem] bg-white rounded-lg overflow-hidden shadow-md transition-transform transform hover:scale-105 hover:shadow-lg ${hoveredIndex === index ? 'shadow-lg' : ''}`}
                   onMouseEnter={() => handleHover(index)}
                   onMouseLeave={() => handleHover(-1)}
                   onClick={() => goToDetail(product)}
                 >
                   <div className="relative w-full md:w-1/3 overflow-hidden">
                     <img
-                      className="w-full h-32 md:h-full object-cover transition-transform duration-500 transform hover:scale-110"
+                      className="w-full h-24 md:h-full object-cover transition-transform duration-500 transform hover:scale-110"
                       src={hoveredIndex === index ? product.image2 : product.image1}
                       alt={product.name}
                     />
                   </div>
                   <div className="p-4 flex flex-col justify-between w-full">
-                    <h3 className="font-semibold text-sm md:text-xl text-gray-800 mb-2">{product.name}</h3>
-                    <p className="text-gray-700 text-base md:text-lg font-bold mb-2">${product.price.toFixed(2)}</p>
-                    <p className="text-xs md:text-sm text-red-500 mb-2">
-                      <span className="line-through">${(product.price * 1.1).toFixed(2)}</span> 10% OFF
-                    </p>
-                    <p className="text-xs md:text-sm hidden md:block text-gray-500 mb-4">{product.description}</p>
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-4">
-                      <p className="text-xs text-gray-500">Tienda del Producto</p>
-                      {product.freeShipping && (
-                        <p className="text-green-500 text-xs md:text-sm ml-0 md:ml-2">Envío gratis</p>
-                      )}
+                    <h3 className="font-semibold text-sm md:text-lg text-gray-800 mb-2">{product.name}</h3>
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-2">
+                      <p className="text-3xl font-bold text-gray-700">${product.price.toFixed(2)}</p>
+                      <span className="line-through text-gray-400 text-md">${(product.price * 1.1).toFixed(2)}</span>
+                      <span className="text-red-500 text-lg font-bold">10% OFF</span>
                     </div>
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+                    <p className="text-xs text-gray-500 mb-4 text-center">{product.store}</p>
+                    {product.freeShipping && (
+                      <p className="text-green-500 text-xs font-semibold text-center">Free delivery</p>
+                    )}
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mt-4">
                       <button className="py-1 md:py-2 px-2 md:px-4 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition duration-300 mb-2 md:mb-0">
                         Add to Cart
                       </button>

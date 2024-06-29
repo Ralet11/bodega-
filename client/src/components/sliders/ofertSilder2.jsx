@@ -16,7 +16,21 @@ const CustomNextArrow = (props) => {
     <div
       className={`${className} next-arrow`}
       onClick={onClick}
-      style={{ display: 'block', background: '#00000066', borderRadius: '50%' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#00000066',
+        borderRadius: '50%',
+        width: '25px',
+        height: '25px',
+        position: 'absolute',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        right: '10px',
+        zIndex: 1,
+        cursor: 'pointer',
+      }}
     />
   );
 };
@@ -27,7 +41,21 @@ const CustomPrevArrow = (props) => {
     <div
       className={`${className} prev-arrow`}
       onClick={onClick}
-      style={{ display: 'block', background: '#00000066', borderRadius: '50%' }}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#00000066',
+        borderRadius: '50%',
+        width: '25px',
+        height: '25px',
+        position: 'absolute',
+        top: '50%',
+        transform: 'translateY(-50%)',
+        left: '10px',
+        zIndex: 1,
+        cursor: 'pointer',
+      }}
     />
   );
 };
@@ -70,8 +98,8 @@ const ProductSlider = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 5,
-    slidesToScroll: 1,
+    slidesToShow: 4,
+    slidesToScroll: 4, // Cambiado a 4 para avanzar 4 productos a la vez
     dotsClass: "slick-dots slick-thumb",
     customPaging: (i) => <button>{i + 1}</button>,
     appendDots: dots => (
@@ -86,7 +114,7 @@ const ProductSlider = () => {
         breakpoint: 1024,
         settings: {
           slidesToShow: 3,
-          slidesToScroll: 1,
+          slidesToScroll: 3, // Cambiado a 3 para avanzar 3 productos a la vez
           infinite: true,
           dots: true
         }
@@ -94,44 +122,53 @@ const ProductSlider = () => {
       {
         breakpoint: 600,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1,
+          slidesToShow: 2,
+          slidesToScroll: 2, // Cambiado a 2 para avanzar 2 productos a la vez
           initialSlide: 2
         }
       },
       {
         breakpoint: 480,
         settings: {
-          slidesToShow: 3,
-          slidesToScroll: 1
+          slidesToShow: 1,
+          slidesToScroll: 1 // Mantener 1 para dispositivos pequeños
         }
       }
     ]
   };
 
   return (
-    <div className="p-4 rounded-lg w-[90%] md:w-[79%] pb-6 md:pb-10 mt-10 bg-white relative">
-      <h2 className="text-lg font-bold mb-2">Best offers</h2>
+    <div className="p-4 rounded-lg w-[90%] md:w-[75%] pb-6 md:pb-8 mt-10 bg-gray-100 relative shadow-2xl border border-gray-200">
+      <h2 className="text-2xl font-bold mb-4 text-center text-gray-800">Best offers</h2>
       <Slider {...settings}>
         {products.map((product, index) => (
           <div
             key={index}
-            className="bg-white rounded-lg shadow-lg p-2 transition-transform transform hover:scale-105 cursor-pointer flex flex-col"
+            className="bg-white rounded-lg shadow-lg p-3 transition-transform transform hover:scale-105 cursor-pointer flex flex-col border border-gray-100 hover:shadow-2xl"
             onClick={() => goToDetail(product)}
-            style={{ height: '250px' }}
+            style={{ height: '400px', maxHeight: '400px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '10px', borderRadius: '10px' }}
           >
-            <img src={product.image1} alt={product.name} className="w-full h-20 md:h-40 object-cover rounded-t-lg" />
-            <div className="p-2 flex-grow flex flex-col justify-between">
-              <h3 className="text-xs font-semibold mb-1">{product.name}</h3>
-              <p className="text-sm font-bold text-gray-700 mb-2">${product.price.toLocaleString()}</p>
-              {product.discount > 0 && (
-                <p className="text-xs text-red-500 mb-1">
-                  <span className="line-through">${(product.price * 1.1).toFixed(2)}</span> 10% OFF
-                </p>
-              )}
-              <p className="text-xs text-gray-500 mb-1">{product.store}</p>
+            <div style={{ flex: '1 0 auto', marginBottom: '10px' }}>
+              <img
+                src={product.image1}
+                alt={product.name}
+                className="w-full h-32 object-cover rounded-lg"
+                style={{ marginBottom: '10px' }}
+              />
+              <h3 className="text-lg font-bold text-center text-gray-800">{product.name}</h3>
+            </div>
+            <div style={{ flex: '1 0 auto' }}>
+              <div className="flex flex-col items-start mb-2">
+                <span className="text-xs font-bold text-gray-700 mb-1">PRODUCT PRICE</span>
+                <div className="flex items-center justify-between w-full">
+                  <p className="text-xl font-bold text-gray-700">${product.price.toLocaleString()}</p>
+                  <span className="line-through text-gray-400 text-sm">${(product.price * 1.1).toLocaleString()}</span>
+                  <span className="text-red-500 text-lg font-bold">10% OFF</span>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500 mb-2 text-center">{product.store}</p>
               {product.freeShipping && (
-                <p className="text-green-500 text-xs font-semibold">Free delivery</p>
+                <p className="text-green-500 text-xs font-semibold text-center">Free delivery</p>
               )}
             </div>
           </div>

@@ -1,5 +1,6 @@
 import Discount from "../models/discount.js";
 import Local from "../models/local.js";
+import Product from "../models/product.js";
 import UserDiscount from "../models/userDiscount.js";
 
 export const getAll = async (req, res) => {
@@ -103,13 +104,17 @@ export const getByLocalId = async (req, res) => {
       return res.status(404).json({ message: "Local not found" });
     }
 
-
-
-    // Obtener los descuentos asociados al local
+    // Obtener los descuentos asociados al local e incluir los productos
     const discounts = await Discount.findAll({
       where: {
         local_id: id
-      }
+      },
+      include: [
+        {
+          model: Product,
+          as: 'product'
+        }
+      ]
     });
 
     console.log(discounts);
