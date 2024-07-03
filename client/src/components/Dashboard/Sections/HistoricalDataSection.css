@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.historical-data-section {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Roboto', sans-serif;
+  margin-top: 20px;
+}
+
+.section-title {
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.charts-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.chart-item {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 15px;
+  flex: 1;
+  min-width: 280px;
+  max-width: 480px;
+  box-sizing: border-box;
+  height: 400px; /* Increased height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-item > div {
+  width: 100%; /* Ensure the chart takes the full width of its container */
+  height: 100%; /* Ensure the chart takes the full height of its container */
+}
+
+@media (max-width: 768px) {
+  .chart-item {
+    flex: 1 1 100%;
+  }
+}

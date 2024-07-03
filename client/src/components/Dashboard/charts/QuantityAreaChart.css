@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+.quantity-area-chart-container {
+  width: 480px;
+  height: 350px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  font-family: 'Roboto', sans-serif;
+  transition: transform 0.3s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.quantity-area-chart-container.hover {
+  transform: scale(1.05);
+}
+
+.chart-shadow {
+  filter: drop-shadow(5px 5px 10px rgba(0, 0, 0, 0.2));
+}
+
+.x-axis {
+  font-size: 14px;
+  font-weight: bold;
+  fill: #666;
+}
+
+.y-axis {
+  font-size: 14px;
+  font-weight: bold;
+  fill: #666;
+}
+
+.tooltip {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #666;
+}
+
+.legend {
+  font-size: 14px;
+  color: #666;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+  margin-top: 10px;
+}
+
+.legend-hover {
+  transform: scale(1.1);
+}

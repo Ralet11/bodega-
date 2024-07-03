@@ -54,226 +54,122 @@ async function insertarDatos(jsonData) {
 // Ejemplo de uso con tu nuevo JSON:
 const jsonData = [
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/3417/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/fume-12ct-blue-razz-energy-drink-3417?category=459",
-        "product_name": ".FUME 12CT BLUE RAZZ ENERGY DRINK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12922/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/dutch-leaf-palma-2pk60-1-49-12922?page=3&category=1",
+        "product_name": "DUTCH LEAF PALMA 2PK60 $1.49"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25766/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/show-leaf-2-for-1-29-15-ct-25766?category=1",
-        "product_name": "SHOW LEAF 2 FOR $1.29 15 CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12921/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/dutch-leaf-gold-2pk60-1-49-12921?page=3&category=1",
+        "product_name": "DUTCH LEAF GOLD 2PK60 $1.49"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25757/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-blk-2-for-1-49-25757?category=1",
-        "product_name": "SWISHER BLK 2 FOR $1.49"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12920/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/dutch-2-for-1-29-diamond-fusion-12920?page=3&category=1",
+        "product_name": "DUTCH 2 FOR $1.29 DIAMOND FUSION"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25734/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-1-39-casino-25ct-25734?category=1",
-        "product_name": "BLACK & MILD $1.39 CASINO 25CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12919/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-sweet-slam-12919?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK SWEET SLAM"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25733/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/blunt-ville-25-ct-1-29-25733?category=1",
-        "product_name": "BLUNT VILLE 25 CT $1.29"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12918/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-blueberry-beast-12918?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK BLUEBERRY BEAST"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25700/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/big-dog-2-for-1-99-20ct-25700?category=1",
-        "product_name": "BIG DOG 2 FOR $1.99 20CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12917/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-grape-jam-slam-12917?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK GRAPE JAM SLAM"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25650/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/hi-fi-5-for-0-99-15-ct-25650?category=1",
-        "product_name": "HI-FI 5 FOR $0.99 15 CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12916/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-crushin-cream-12916?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK CRUSHIN CREAM"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25633/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/true-wraps-5-pk-80-25633?category=1",
-        "product_name": "TRUE WRAPS 5 PK 80"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12915/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-strawbrother-12915?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK STRAWBROTHER"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25568/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-0-99-25ct-25568?category=1",
-        "product_name": "BLACK & MILD $0.99 25CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12914/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-hulkariginal-12914?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK HULKARIGINAL"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/25480/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-hell-yea-honey-25480?category=1",
-        "product_name": "HULKAMANIA 10PK HELL YEA HONEY"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12913/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-bandana-banana-12913?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK BANDANA BANANA"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/23632/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/loose-leaf-20-2-packs-cookies-cream-23632?category=1",
-        "product_name": "LOOSE LEAF 20-2 PACKS COOKIES & CREAM"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12912/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/hulkamania-10pk-wild-white-grape-12912?page=3&category=1",
+        "product_name": "HULKAMANIA 10PK WILD WHITE GRAPE"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/23631/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/loose-leaf-8-5-packs-russian-cream-23631?category=1",
-        "product_name": "LOOSE LEAF 8-5 PACKS RUSSIAN CREAM"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12736/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/backwoods-5-pk-40-zaza-gas-house-12736?page=3&category=1",
+        "product_name": "BACKWOODS 5 PK 40 ZAZA GAS HOUSE"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/23456/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/city-life-5-for-1-29-23456?category=1",
-        "product_name": "CITY LIFE 5 FOR $1.29"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12701/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/al-capone-10-10pk-12701?page=3&category=1",
+        "product_name": "AL CAPONE 10-10PK"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/23426/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-leaf-2-49-10-3pk-23426?category=1",
-        "product_name": "SWISHER LEAF $2.49 10-3PK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12700/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/al-capone-60-2pk-12700?page=3&category=1",
+        "product_name": "AL CAPONE 60-2PK"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/22396/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/lil-leaf-3-for-2-99-22396?category=1",
-        "product_name": "LIL LEAF 3 FOR $2.99"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12695/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/astro-leaf-12-3ct-3-for-2-99-12695?page=3&category=1",
+        "product_name": "ASTRO LEAF 12-3CT 3 FOR $2.99"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/22395/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/lil-leaf-10-5ct-22395?category=1",
-        "product_name": "LIL LEAF 10-5CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12693/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/backwoods-24-ct-12693?page=3&category=1",
+        "product_name": "BACKWOODS 24 CT"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/22387/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/gt-hd-reserve-3-15pk-22387?category=1",
-        "product_name": "GT HD RESERVE 3-15PK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12692/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/backwoods-3-pk-30-12692?page=3&category=1",
+        "product_name": "BACKWOODS 3 PK 30"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/22087/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-1-39-jazz-wood-tip-25ct-22087?category=1",
-        "product_name": "BLACK & MILD $1.39 JAZZ  WOOD TIP 25CT"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12691/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/backwoods-5-pk-40-12691?page=4&category=1",
+        "product_name": "BACKWOODS 5 PK 40"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/22009/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/show-2-for-0-99-z-palma-big-22009?category=1",
-        "product_name": "SHOW 2 FOR $0.99 Z PALMA BIG"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12690/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-1-19-25ct-12690?page=4&category=1",
+        "product_name": "BLACK & MILD $1.19 25CT"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21790/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/gt-4-kings-watermelon-grape-4-for-1-19-15-pk-21790?category=1",
-        "product_name": "GT 4 KINGS WATERMELON GRAPE 4 FOR $1.19 15 PK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12689/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-10-5pk-12689?page=4&category=1",
+        "product_name": "BLACK & MILD 10-5PK"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21789/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/gt-4-kings-blueberry-pineapple-4-for-1-19-15-pk-21789?category=1",
-        "product_name": "GT 4 KINGS BLUEBERRY PINEAPPLE 4 FOR $1.19 15 PK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12688/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-25ct-12688?page=4&category=1",
+        "product_name": "BLACK & MILD 25CT"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21788/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/gt-4-kings-black-sweet-4-for-0-99-15-pk-21788?page=2&category=1",
-        "product_name": "GT 4 KINGS BLACK SWEET 4 FOR $0.99 15 PK"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12687/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/black-mild-filter-tip-10-5pk-2-49-12687?page=4&category=1",
+        "product_name": "BLACK & MILD FILTER TIP 10-5PK $2.49"
     },
     {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21749/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/blunt-ville-25-ct-natural-deluxe-21749?page=2&category=1",
-        "product_name": "BLUNT VILLE 25 CT NATURAL DELUXE"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21566/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/loose-leaf-8-5-packs-honey-bourbon-21566?page=2&category=1",
-        "product_name": "LOOSE LEAF 8-5 PACKS HONEY BOURBON"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21215/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/garcia-y-vega-30ct-upr-english-corona-21215?page=2&category=1",
-        "product_name": "GARCIA Y VEGA 30CT UPR ENGLISH CORONA"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/21213/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/white-owl-15pk-2-for-0-99-platinum-21213?page=2&category=1",
-        "product_name": "WHITE OWL 15PK 2 FOR $0.99 PLATINUM"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/20179/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/white-owl-mini-3-for-1-29-20179?page=2&category=1",
-        "product_name": "WHITE OWL MINI 3 FOR $1.29"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/20170/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-sweet-twin-pack-little-cigars-100s-200ct-20170?page=2&category=1",
-        "product_name": "SWISHER SWEET TWIN PACK LITTLE CIGARS 100S-200CT"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/20133/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/pom-pom-3-for-1-19-20133?page=2&category=1",
-        "product_name": "POM POM 3 FOR $1.19"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/20132/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/pom-pom-3-for-0-99-20132?page=2&category=1",
-        "product_name": "POM POM 3 FOR $0.99"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17385/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/zig-zag-leaf-2-for-1-29-17385?page=2&category=1",
-        "product_name": "ZIG ZAG LEAF 2 FOR $1.29"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17358/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-sweet-legend-2-for-1-49-17358?page=2&category=1",
-        "product_name": "SWISHER SWEET LEGEND 2 FOR $1.49"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17357/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-sweet-little-cigar-100s-200ct-17357?page=2&category=1",
-        "product_name": "SWISHER SWEET LITTLE CIGAR 100S-200CT"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17353/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-10-3pk-leaf-2-49-17353?page=2&category=1",
-        "product_name": "SWISHER 10-3PK LEAF $2.49"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17351/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/swisher-10-3pk-leaf-17351?page=2&category=1",
-        "product_name": "SWISHER 10-3PK LEAF"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17300/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/old-ranch-5-pk-40-17300?page=2&category=1",
-        "product_name": "OLD RANCH 5 PK 40"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17245/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/gt-hd-2-for-0-99-big-15pk-17245?page=2&category=1",
-        "product_name": "GT HD 2 FOR $0.99 BIG 15PK"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17235/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/game-2-for-0-99-17235?page=2&category=1",
-        "product_name": "GAME 2 FOR $0.99"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17226/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/fiesta-5-for-0-99-15ct-17226?page=2&category=1",
-        "product_name": "FIESTA 5 FOR $0.99 15CT"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17219/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/dutch-leaf-pure-2pk60-1-29-17219?page=2&category=1",
-        "product_name": "DUTCH LEAF PURE 2PK60 $1.29"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17186/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/blackwood-wraps-8-5-packs-17186?page=2&category=1",
-        "product_name": "BLACKWOOD WRAPS 8-5 PACKS"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/17184/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/big-dog-8-5ct-17184?page=2&category=1",
-        "product_name": "BIG DOG 8-5CT"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/15605/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/garcia-vega-english-corona-tube-4-pk-20-ct-15605?page=2&category=1",
-        "product_name": "GARCIA VEGA ENGLISH CORONA TUBE 4 PK/20 CT"
-    },
-    {
-        "image_link": "https://www.nepawholesale.com/web/image/product.template/12923/image_512",
-        "details_link": "https://www.nepawholesale.com/es_DO/shop/dutch-leaf-tropical-2pk60-1-49-12923?page=2&category=1",
-        "product_name": "DUTCH LEAF TROPICAL 2PK60 $1.49"
+        "image_link": "https://www.nepawholesale.com/web/image/product.template/12686/image_512",
+        "details_link": "https://www.nepawholesale.com/es_DO/shop/blunt-ville-25-ct-12686?page=4&category=1",
+        "product_name": "BLUNT VILLE 25 CT"
     }
 ]
+
 
 
 insertarDatos(jsonData).catch(err => console.error('Error general:', err));

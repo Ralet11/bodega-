@@ -17,7 +17,7 @@ sequelize.sync({ force: false }).then(() => {
   const httpsServer = http.createServer( app);
   httpsServer.listen(80, () => {
     initializeSocket(httpsServer)
-    console.log('Servidor HTTPS está escuchando en el puerto 443');
+    console.log('Servidor HTTPS está escuchando en el puerto 80');
   }); 
    
   }).catch(error => {

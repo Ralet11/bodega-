@@ -8,8 +8,9 @@ import QuantityAreaChart from './charts/QuantityAreaChart';
 import OrdersPieChart from './charts/OrdersPieChart';
 import HistoricalDataSection from './Sections/HistoricalDataSection';
 import ShopSelectorSection from './Sections/ShopSelectorSection';
-import { formatCurrency, formatQuantity } from './utils'; // Asegúrate de que la ruta sea correcta
+import { formatCurrency, formatQuantity } from './utils';
 import ShopIndicators from './Indicators/ShopIndicators';
+import './ShopsComponent.css';
 
 const ShopsComponent = ({ shops, ordersData }) => {
   const [selectedShop, setSelectedShop] = useState(null);
@@ -168,24 +169,24 @@ const ShopsComponent = ({ shops, ordersData }) => {
   const totalQuantity = Object.values(filteredOrdersDataForCharts).reduce((sum, shop) => sum + shop.quantity, 0);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="shops-component-container">
       <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} />
       <HistoricalDataSection ordersData={ordersData} />
       <ShopSelectorSection shops={shops} onSelectShop={selectShop} />
 
       {selectedShop && (
         <>
-          <div className="mt-4 flex flex-wrap -mx-2">
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
+          <div className="charts-container">
+            <div className="chart">
+              <h2 className="chart-title">Earnings by Item</h2>
               <EarningsBarChart data={Object.values(filteredItemTotals)} />
             </div>
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Total Quantity by Item</h2>
+            <div className="chart">
+              <h2 className="chart-title">Total Quantity by Item</h2>
               <QuantityAreaChart data={Object.values(filteredItemTotals)} />
             </div>
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Orders by Item</h2>
+            <div className="chart">
+              <h2 className="chart-title">Orders by Item</h2>
               <OrdersPieChart data={Object.values(filteredItemTotals)} />
             </div>
           </div>

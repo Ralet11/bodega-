@@ -3,6 +3,7 @@ import OrdersBarChart from '../charts/OrdersBarChart';
 import ContributionAreaChart from '../charts/ContributionAreaChart';
 import SalesPieChart from '../charts/SalesPieChart';
 import FilterButtons from '../FilterButtons';
+import './HistoricalDataSection.css';
 
 const HistoricalDataSection = ({ ordersData }) => {
   const [filteredOrdersData, setFilteredOrdersData] = useState(ordersData);
@@ -76,15 +77,15 @@ const HistoricalDataSection = ({ ordersData }) => {
 
   return (
     <div className="historical-data-section">
-      <h2 className="text-2xl font-bold mb-4">Historical Data</h2>
-      <div className="mt-4 flex flex-wrap -mx-2">
-        <div className="w-full md:w-1/2 lg:w-1/3 px-2">
+      <h2 className="section-title">Shops Graphics</h2>
+      <div>
+        <div >
           <OrdersBarChart data={Array.isArray(ordersListData) ? ordersListData : []} />
         </div>
-        <div className="w-full md:w-1/2 lg:w-1/3 px-2">
+        <div >
           <ContributionAreaChart data={Array.isArray(contributionData) ? contributionData : []} />
         </div>
-        <div className="w-full md:w-1/2 lg:w-1/3 px-2">
+        <div >
           <SalesPieChart data={Array.isArray(pieChartData) ? pieChartData : []} />
         </div>
       </div>

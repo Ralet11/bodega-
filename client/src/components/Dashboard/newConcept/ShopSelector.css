@@ -1,0 +1,38 @@
+.shop-selector-container {
+    margin: 16px 0;
+    text-align: center;
+  }
+  
+  .shop-selector-button-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 16px;
+  }
+  
+  .shop-selector-button {
+    margin: 8px;
+    width: 100px;
+    height: 100px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .shop-selector-button-hover {
+    transform: scale(1.1);
+    background-color: #e0e0e0;
+  }
+  

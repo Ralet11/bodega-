@@ -1,22 +1,22 @@
 {
   "development": {
     "username": "postgres",
-    "password": "admin",
-    "database": "app_base",
+    "password": "root",
+    "database": "bodega",
     "host": "localhost",
     "dialect": "postgres"
   },
   "test": {
     "username": "postgres",
-    "password": "admin",
-    "database": "app_base",
+    "password": "root",
+    "database": "bodega",
     "host": "localhost",
     "dialect": "postgres"
   },
   "production": {
     "username": "postgres",
-    "password": "admin",
-    "database": "app_base",
+    "password": "root",
+    "database": "bodega",
     "host": "localhost",
     "dialect": "postgres"
   }
