@@ -10,8 +10,6 @@ const Landing = () => {
   const token = useSelector((state) => state?.client?.token);
   const navigate = useNavigate()
 
-
-
   useEffect(() => {
     if (token) {
       navigate('/dashboard');

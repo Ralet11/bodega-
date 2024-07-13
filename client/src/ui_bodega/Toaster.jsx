@@ -38,6 +38,14 @@ const ToasterConfig = () => {
               fontWeight: 'bold',
             },
           },
+          warning: { // Nueva configuración de estilo para las notificaciones de advertencia (naranja)
+            duration: 3000,
+            style: {
+              background: '#FFA500',
+              color: '#fff',
+              fontWeight: 'bold',
+            },
+          },
         }}
       />
     </div>

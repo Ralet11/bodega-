@@ -1,8 +1,8 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
-
 import Category from './category.js';
 import Client from './client.js'; // Importar el modelo Client
+import Extra from './extra.js'; // Importar el modelo Extra
 
 const Product = sequelize.define('product', {
   id: {
@@ -47,5 +47,6 @@ const Product = sequelize.define('product', {
 // Definición de las relaciones
 Product.belongsTo(Category, { foreignKey: 'categories_id', as: 'category' });
 Product.belongsTo(Client, { foreignKey: 'clientId', as: 'client' }); // Nueva relación
+Product.belongsToMany(Extra, { through: 'productExtras', as: 'extras', foreignKey: 'productId' });
 
 export default Product;

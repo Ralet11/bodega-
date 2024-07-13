@@ -49,6 +49,8 @@ function OrderModal({ order, closeModal }) {
         fetchData();
     }, [order.users_id, token]);
 
+    console.log(userInfo)
+
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white w-full max-w-3xl mx-auto rounded-lg overflow-hidden shadow-lg">

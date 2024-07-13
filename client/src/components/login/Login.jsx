@@ -110,7 +110,7 @@ const Login = ({setSelected, setError, newError, setNewError}) => {
 
         <div className="relative bg-black bg-opacity-20 z-0 min-w-0 break-words border-0 shadow-soft-xl rounded-2xl bg-clip-border w-full md:w-4/12 h-auto md:h-[600px] filter brightness-75 contrast-125 p-4 md:p-0">
           <div className="p-6 mb-0 text-center border-b-0 rounded-t-2xl">
-            <h5 className="text-center text-3xl md:text-6xl font-bold leading-9 tracking-tight text-white p-6 md:p-12 filter brightness-110">Login with</h5>
+            <h5 className="text-center text-3xl md:text-6xl font-bold leading-9 tracking-tight text-white p-6 md:p-12 filter brightness-110">Login</h5>
           </div>
           <div className="flex flex-wrap hidden justify-center md:px-3 -mx-3 sm:px-6 xl:px-12">
             <div className="w-6/12 md:w-3/12 max-w-full px-1 ml-auto flex-0 mb-2 md:mb-0">

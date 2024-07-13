@@ -2,6 +2,8 @@ import Discount from "../models/discount.js";
 import Local from "../models/local.js";
 import Product from "../models/product.js";
 import UserDiscount from "../models/userDiscount.js";
+import Extra from "../models/extra.js";
+import ExtraOption from "../models/extraOption.model.js";
 
 export const getAll = async (req, res) => {
  
@@ -104,7 +106,7 @@ export const getByLocalId = async (req, res) => {
       return res.status(404).json({ message: "Local not found" });
     }
 
-    // Obtener los descuentos asociados al local e incluir los productos
+    // Obtener los descuentos asociados al local e incluir los productos, extras y opciones de extras
     const discounts = await Discount.findAll({
       where: {
         local_id: id
@@ -112,7 +114,18 @@ export const getByLocalId = async (req, res) => {
       include: [
         {
           model: Product,
-          as: 'product'
+          as: 'product',
+          include: [
+            {
+              model: Extra,
+              as: 'extras',
+              through: { attributes: [] }, // Excluir columnas de la tabla de unión
+              include: {
+                model: ExtraOption,
+                as: 'options'
+              }
+            }
+          ]
         }
       ]
     });

@@ -4,6 +4,9 @@ import { Op } from 'sequelize';
 import Client from "../models/client.js";
 import Category from "../models/category.js";
 import Product from "../models/product.js";
+import nodemailer from 'nodemailer';
+import Extra from "../models/extra.js"; 
+import ExtraOption from "../models/extraOption.model.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -209,19 +212,30 @@ export const addShop = async (req, res) => {
 
 
 export const getLocalCategoriesAndProducts = async (req, res) => {
-
-  const localId = req.params.localId
+  const localId = req.params.localId;
 
   try {
-    // Obtén todas las categorías que pertenecen al local_id
     const categories = await Category.findAll({
-      where: { local_id: localId }
+      where: { local_id: localId, state: '1' }
     });
 
-    // Formatea los datos para la estructura deseada
     const formattedData = await Promise.all(categories.map(async category => {
       const products = await Product.findAll({
-        where: { categories_id: category.id }
+        where: {
+          categories_id: category.id,
+          state: '1'  // Asegúrate de que state sea un número
+        },
+        include: [
+          {
+            model: Extra,
+            as: 'extras',
+            include: {
+              model: ExtraOption,
+              as: 'options'
+            },
+            through: { attributes: [] }
+          }
+        ]
       });
 
       return {
@@ -230,19 +244,29 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
         products: products.map(product => ({
           id: product.id,
           name: product.name,
-          price: `$${product.price.toFixed(3)}`,
+          price: product.price.toFixed(2),  // Corrección en la interpolación de la variable price
           description: product.description,
           image: product.img,
+          extras: product.extras.map(extra => ({
+            id: extra.id,
+            name: extra.name,
+            options: extra.options.map(option => ({
+              name: option.name,
+              price: option.price
+            })),
+            required: extra.required
+          }))
         }))
       };
     }));
 
-    res.status(200).json({categories: formattedData });
+    res.status(200).json({ categories: formattedData });
   } catch (error) {
     console.error('Error fetching local data:', error);
-    res.status(500).json(error)
+    res.status(500).json(error);
   }
 };
+
 
 const groupShopsByCategory = (shops) => {
   console.log(shops, "shops by cat")
@@ -260,7 +284,7 @@ export const getShopsOrderByCat = async (req, res) => {
   try {
     const shops = await Local.findAll({
       where: {
-        status: '1',
+        status: '2',
       },
     });
 
@@ -432,3 +456,44 @@ export const removeService = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 }
+
+let transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: "proyectoapptrader@gmail.com",  // Replace with your Gmail address from environment variables
+    pass: "eozh tjoi bdod hwiz"  // Replace with your Gmail password or app-specific password from environment variables
+  }
+});
+
+export const sendCertificate = async (req, res) => {
+  const { file } = req;
+  const { email, id } = req.body; // Asumiendo que el correo del destinatario viene en el cuerpo de la solicitud
+  
+  console.log(email, "email")
+  if (!file) {
+    return res.status(400).send('No file uploaded.');
+  }
+
+  const mailOptions = {
+    from: 'proyectoapptrader@gmail.com', // Reemplaza con tu correo electrónico
+    to: email,
+    subject: 'Certificate',
+    text: `Here is the certificate for your shop. Shop number: ${id}`,
+    attachments: [
+      {
+        filename: file.originalname,
+        content: file.buffer,
+        encoding: 'base64'
+      }
+    ]
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+      return res.status(500).send('Error sending email');
+    }
+    console.log('Email sent:', info.response);
+    res.status(200).send('Email sent successfully');
+  });
+};

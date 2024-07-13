@@ -48,10 +48,7 @@ export default function ContactForm() {
 
   return (
     <div className="mt-20 pb-20 h-screen">
-      <div className="pb-5 text-center">
-        <h3 className="text-lg md:text-2xl font-bold mt-2 text-gray-800">Contact</h3>
-        <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
-      </div>
+      
       <div className="flex pb-20 bg-gray-200 justify-center p-4 md:p-8">
         <form
           onSubmit={handleSubmit}

@@ -96,7 +96,7 @@ function App() {
               link="/orders"
             />
             <SidebarItem icon={<ShoppingBagIcon className="w-2" />} text="Market" link="/distributorsCommerce" />
-            <SidebarItem icon={<WalletIcon className="w-2" />} text="History" link="/history" />
+            {/* <SidebarItem icon={<WalletIcon className="w-2" />} text="History" link="/history" /> */}
             <SidebarItem icon={<TicketIcon className="w-2" />} text="Discounts" link="/discounts" />
             <SidebarItem icon={<BuildingStorefrontIcon className="w-2" />} text="Shops" link="/shops" />
             <SidebarItem icon={<PhoneIcon className="w-2" />} text="Contact" link="/contact" />

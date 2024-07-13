@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getByCategoryId, addProduct, deleteById, updateById, getByLocalId, getProductsByClientId, getByProductId } from "../controller/products.controller.js";
+import { getByCategoryId, addProduct, deleteById, updateById, getByLocalId, getProductsByClientId, getByProductId, saveExtras, uploadExcelToCategory } from "../controller/products.controller.js";
 import { methods as middleware } from "../middleware.js";
 const router = Router()
 
@@ -12,6 +12,7 @@ router.get('/getByLocalId/:id', middleware.auth, getByLocalId)
 router.get('/getByClientId/:id', middleware.auth, getProductsByClientId) // Nueva ruta para obtener productos por clientId
 
 router.post('/getByProductId', middleware.auth, getByProductId)
-
+router.put('/update-extras', middleware.auth, saveExtras )
+router.post('/excellUploadInCatgeory/:id', middleware.auth, uploadExcelToCategory)
 
 export default router
