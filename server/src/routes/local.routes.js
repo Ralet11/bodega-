@@ -1,7 +1,10 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService } from "../controller/local.controller.js"
+import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate } from "../controller/local.controller.js"
+import multer from 'multer';
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const router = Router()
 
 router.get("/get", middleware.auth, getByClientId);
@@ -19,5 +22,6 @@ router.get('/byClientId', getShopsByClientId);
 router.post('/rating', changeRating);
 router.post('/addService/:id', middleware.auth, addService)
 router.post('/removeService/:id', middleware.auth, removeService)
+router.post('/uploadCertificate/', middleware.auth, upload.single('certificate'), sendCertificate)
 
 export default router

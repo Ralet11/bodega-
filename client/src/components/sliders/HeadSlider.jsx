@@ -17,28 +17,23 @@ const HeadSlider = () => {
 
     const sliderItems = [
         {
-            image: 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1716867149/Green_and_Yellow_Simple_Clean_Shoes_Sale_Banner_chica_tsondi.jpg',
+            image: 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1719847074/fume_cejexw.png',
             title: 'Top Quality Products',
             description: 'Find the best products here.'
         },
         {
-            image: 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1716867149/Green_and_Yellow_Simple_Clean_Shoes_Sale_Banner_chica_tsondi.jpg',
+            image: 'https://www.nepawholesale.com/web/image/187806-603577af/1905x538px%20Premium%20Cigars_5_16%20copy%204.webp',
             title: 'Wide Range of Categories',
             description: 'Explore products across various categories.'
-        },
-        {
-            image: 'https://res.cloudinary.com/doqyrz0sg/image/upload/v1716867149/Green_and_Yellow_Simple_Clean_Shoes_Sale_Banner_chica_tsondi.jpg',
-            title: 'Best Prices Guaranteed',
-            description: 'Get the best deals on top products.'
         }
     ];
 
     return (
-        <div className="w-full bg-gradient-to-b md:mt-14 from-[#F2BB26] pb-5 to-gray-200 p-3 mx-auto">
+        <div className="w-full bg-gradient-to-b md:mt-10  md:ml-8 from-[#F2BB26] pb-5 to-gray-200 p-3 mx-auto">
             <Slider {...settings}>
                 {sliderItems.map((item, index) => (
                     <div key={index} className="flex w-full mx-auto justify-center items-center md:h-[34rem]">
-                        <img src={item.image} alt={item.title} className="h-full md:w-[85%] mx-auto w-full object-fit rounded-lg" />
+                        <img src={item.image} alt={item.title} className="h-full md:w-[85%] mx-auto w-full object-contain rounded-lg" />
                     </div>
                 ))}
             </Slider>

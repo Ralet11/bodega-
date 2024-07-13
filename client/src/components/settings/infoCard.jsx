@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import ToasterConfig from '../../ui_bodega/Toaster';
 import toast from 'react-hot-toast';
-import Select from 'react-select';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 
@@ -12,7 +11,6 @@ const { API_URL_BASE } = getParamsEnv();
 
 const defaultImageUrl = 'https://via.placeholder.com/300';
 
-// Lista de países con características adicionales
 const countryOptions = [
   { value: 'AR', label: 'Argentina', code: '+54' },
   { value: 'BR', label: 'Brazil', code: '+55' },
@@ -105,7 +103,7 @@ function InfoCard({ shopData, setShopData }) {
           }
         });
         if (response.status === 200) {
-          toast.success("Image uploaded successfully"); // Mostrar Toast de éxito
+          toast.success("Image uploaded successfully");
           console.log('Image uploaded successfully');
         } else {
           console.error('Error uploading image');
@@ -125,7 +123,7 @@ function InfoCard({ shopData, setShopData }) {
         }
       });
       if (response.status === 200) {
-        toast.success("Shop information updated successfully"); // Mostrar Toast de éxito
+        toast.success("Shop information updated successfully");
       } else {
         toast.error("Error updating shop information");
         console.error('Error updating shop information');
@@ -173,11 +171,11 @@ function InfoCard({ shopData, setShopData }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-lg transition-transform transform hover:scale-105">
-      <div className="flex flex-col md:flex-row items-center space-y-6 md:space-y-0 md:space-x-6">
-        <div className="flex-1 p-4">
+    <div className="max-w-3xl mx-auto p-4 bg-white rounded-lg shadow-lg">
+      <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4">
+        <div className="flex-1 p-2">
           <div
-            className="w-full h-64 rounded-lg overflow-hidden cursor-pointer transition-transform duration-300 hover:scale-105 relative group shadow-lg"
+            className="w-full h-48 rounded-lg overflow-hidden cursor-pointer relative group shadow-md"
             onClick={handleImageClick}
           >
             <img
@@ -186,7 +184,7 @@ function InfoCard({ shopData, setShopData }) {
               className="object-cover w-full h-full rounded-lg"
             />
             <div className="absolute inset-0 bg-black bg-opacity-25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="text-white font-bold">Change Image</span>
+              <span className="text-white font-bold text-xs">Change Image</span>
             </div>
           </div>
           <input
@@ -199,16 +197,16 @@ function InfoCard({ shopData, setShopData }) {
           <button
             onClick={handleImageUpload}
             disabled={!imageChanged}
-            className={`mt-4 w-full text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 ${imageChanged ? 'bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800' : 'bg-gray-400 cursor-not-allowed'}`}
+            className={`mt-4 w-full text-white font-bold py-1 px-2 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 ${imageChanged ? 'bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800' : 'bg-gray-400 cursor-not-allowed'}`}
           >
             Save Image
           </button>
         </div>
-        <div className="flex-1 p-4">
-          <h2 className="text-3xl font-semibold mb-4 text-gray-800">Shop Information</h2>
+        <div className="flex-1 p-2">
+          <h2 className="text-lg font-semibold mb-2 text-gray-800">Shop Information</h2>
           <form>
-            <div className="mb-4">
-              <label htmlFor="name" className="block text-gray-500 text-sm font-medium mb-2">
+            <div className="mb-2">
+              <label htmlFor="name" className="block text-gray-500 text-xs font-medium mb-1">
                 Name:
               </label>
               <input
@@ -217,22 +215,22 @@ function InfoCard({ shopData, setShopData }) {
                 name="name"
                 value={newShop.name}
                 onChange={handleInputChange}
-                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full py-1 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="phone" className="block text-gray-500 text-sm font-medium mb-2">
+            <div className="mb-2">
+              <label htmlFor="phone" className="block text-gray-500 text-xs font-medium mb-1">
                 Phone:
               </label>
               <PhoneInput
                 country={'us'}
                 value={newShop.phone}
                 onChange={handlePhoneChange}
-                inputClass="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                inputClass="w-full py-1 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
               />
             </div>
-            <div className="mb-4">
-              <label htmlFor="category" className="block text-gray-500 text-sm font-medium mb-2">
+            <div className="mb-2">
+              <label htmlFor="category" className="block text-gray-500 text-xs font-medium mb-1">
                 Category:
               </label>
               <select
@@ -240,7 +238,7 @@ function InfoCard({ shopData, setShopData }) {
                 name="category"
                 value={newShop.category}
                 onChange={handleInputChange}
-                className="w-full py-2 px-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full py-1 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
               >
                 <option value="" disabled>Select a category</option>
                 {categories.map((category) => (
@@ -250,8 +248,8 @@ function InfoCard({ shopData, setShopData }) {
                 ))}
               </select>
             </div>
-            <div className="mb-4">
-              <label htmlFor="services" className="block text-gray-500 text-sm font-medium mb-2">
+            <div className="mb-2">
+              <label htmlFor="services" className="block text-gray-500 text-xs font-medium mb-1">
                 Services:
               </label>
               <div>
@@ -260,9 +258,9 @@ function InfoCard({ shopData, setShopData }) {
                     type="checkbox"
                     checked={newShop.service_options.includes('0')}
                     onChange={(e) => handleServiceChange('0', e.target.checked)}
-                    className="form-checkbox"
+                    className="form-checkbox text-xs"
                   />
-                  <span className="ml-2">Pick-up</span>
+                  <span className="ml-1 text-xs">Pick-up</span>
                 </label>
               </div>
               <div>
@@ -271,9 +269,9 @@ function InfoCard({ shopData, setShopData }) {
                     type="checkbox"
                     checked={newShop.service_options.includes('1')}
                     onChange={(e) => handleServiceChange('1', e.target.checked)}
-                    className="form-checkbox"
+                    className="form-checkbox text-xs"
                   />
-                  <span className="ml-2">Delivery</span>
+                  <span className="ml-1 text-xs">Delivery</span>
                 </label>
               </div>
               <div>
@@ -282,16 +280,16 @@ function InfoCard({ shopData, setShopData }) {
                     type="checkbox"
                     checked={newShop.service_options.includes('2')}
                     onChange={(e) => handleServiceChange('2', e.target.checked)}
-                    className="form-checkbox"
+                    className="form-checkbox text-xs"
                   />
-                  <span className="ml-2">Order-in</span>
+                  <span className="ml-1 text-xs">Order-in</span>
                 </label>
               </div>
             </div>
             <button
               onClick={handleChangeShop}
               type="button"
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300"
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-1 px-2 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 text-xs"
             >
               Save
             </button>

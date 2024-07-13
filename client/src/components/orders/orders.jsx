@@ -84,6 +84,8 @@ const Orders = () => {
     };
   }, []);
 
+  console.log(orders)
+
   const handleAcceptOrder = async (orderId) => {
     console.log("cambiando estado");
 

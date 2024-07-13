@@ -3,6 +3,10 @@ import Product from '../models/product.js';
 import { Op } from 'sequelize';
 import Local from '../models/local.js';
 import Order from '../models/order.js';
+import Extra from '../models/extra.js';
+import ProductExtra from '../models/productextra.js';
+import xlsx from 'xlsx';
+import ExtraOption from '../models/extraOption.model.js';
 
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
@@ -13,6 +17,15 @@ export const getByCategoryId = async (req, res) => {
       where: {
         categories_id: categoryId,
         state: "1" // Considera solo productos activos
+      },
+      include: {
+        model: Extra,
+        as: 'extras',
+        include: {
+          model: ExtraOption,
+          as: 'options' // Esto asume que has definido la relación con alias 'options' en Extra
+        },
+        through: { attributes: [] } // Esto excluye los atributos de la tabla intermedia (productExtras)
       }
     });
 
@@ -24,9 +37,11 @@ export const getByCategoryId = async (req, res) => {
 };
 
 export const addProduct = async (req, res) => {
-  const { name, price, description, img, category_id } = req.body;
+  const { name, price, description, img, category_id, extras } = req.body;
+  const clientId = req.user.clientId;
 
-  console.log(req.body)
+  console.log(extras);
+  console.log(req.body);
 
   try {
     // Crea un nuevo producto utilizando el modelo Product
@@ -36,10 +51,57 @@ export const addProduct = async (req, res) => {
       description,
       img: `${img}`,
       categories_id: category_id,
-      state: 1 // Se establece el estado activo por defecto
+      state: 1,
+      clientId
     });
 
-    res.status(201).json(newProduct);
+    // Array para almacenar los extras creados para la respuesta
+    const createdExtras = [];
+
+    // Iterar sobre cada extra y crear las entradas correspondientes
+    for (const extra of extras) {
+      const { name, options, required } = extra;
+
+      // Crea el extra
+      const newExtra = await Extra.create({
+        name,
+        required
+      });
+
+      // Crear opciones para el extra
+      for (const option of options) {
+        await ExtraOption.create({
+          name: option.name,
+          price: option.price,
+          extra_id: newExtra.id
+        });
+      }
+
+      // Crea la relación ProductExtra
+      await ProductExtra.create({
+        productId: newProduct.id,
+        extraId: newExtra.id
+      });
+
+      // Agregar el extra creado al array
+      createdExtras.push(newExtra);
+    }
+
+    // Recupera el nuevo producto con sus extras para la respuesta
+    const productWithExtras = await Product.findOne({
+      where: { id: newProduct.id },
+      include: {
+        model: Extra,
+        as: 'extras',
+        include: {
+          model: ExtraOption,
+          as: 'options' // Esto asume que has definido la relación con alias 'options'
+        },
+        through: { attributes: [] }
+      }
+    });
+
+    res.status(201).json(productWithExtras);
   } catch (error) {
     console.error('Error al añadir producto:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
@@ -219,3 +281,152 @@ export const getByProductId = async (req, res) => {
   }
 }
 
+
+
+
+export const saveExtras = async (req, res) => {
+  const { extras, productId } = req.body;
+  console.log(req.body);
+
+  try {
+    // Verificar si el producto existe
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Producto no encontrado" });
+    }
+
+    // Eliminar las relaciones existentes en ProductExtra
+    await ProductExtra.destroy({
+      where: { productId }
+    });
+
+    // Crear un array para almacenar los extras creados
+    const createdExtras = [];
+
+    // Iterar sobre los extras recibidos para crear/actualizar
+    for (const extra of extras) {
+      const { id, name, required, options } = extra; // options es un array de { name, price }
+
+      let newExtra;
+
+      if (id) {
+        // Si el extra ya existe, actualizarlo
+        newExtra = await Extra.findByPk(id);
+        if (newExtra) {
+          await newExtra.update({
+            name,
+            required
+          });
+        }
+      } else {
+        // Si el extra no existe, crearlo
+        newExtra = await Extra.create({
+          name,
+          required
+        });
+      }
+
+      // Eliminar las opciones existentes para este extra
+      await ExtraOption.destroy({
+        where: { extra_id: newExtra.id }
+      });
+
+      // Crear nuevas opciones para este extra
+      for (const option of options) {
+        await ExtraOption.create({
+          name: option.name,
+          price: option.price,
+          extra_id: newExtra.id
+        });
+      }
+
+      // Crear la relación ProductExtra
+      await ProductExtra.create({
+        productId,
+        extraId: newExtra.id
+      });
+
+      // Agregar el extra creado/actualizado al array
+      createdExtras.push(newExtra);
+    }
+
+    // Recuperar el producto con sus extras actualizados
+    const productWithExtras = await Product.findOne({
+      where: { id: productId },
+      include: {
+        model: Extra,
+        as: 'extras',
+        include: {
+          model: ExtraOption,
+          as: 'options' // Esto asume que has definido la relación con alias 'options'
+        },
+        through: { attributes: [] }
+      }
+    });
+
+    res.status(200).json(productWithExtras);
+  } catch (error) {
+    console.error('Error al guardar extras:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+
+export const uploadExcelToCategory = async (req, res) => {
+  try {
+      const categoryId = req.params.id;
+      const clientId = req.user.clientId;
+
+      if (!req.files || Object.keys(req.files).length === 0) {
+          return res.status(400).send('No files were uploaded.');
+      }
+
+      const excelFile = req.files.file;
+      const workbook = xlsx.read(excelFile.data);
+      const sheetNameList = workbook.SheetNames;
+      const sheet = workbook.Sheets[sheetNameList[0]];
+
+      // Encuentra la primera fila con datos
+      const range = xlsx.utils.decode_range(sheet['!ref']);
+      let startRow = range.s.r; // Fila de inicio
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+          let cell = sheet[xlsx.utils.encode_cell({ r: R, c: range.s.c })];
+          if (cell && cell.v) {
+              startRow = R;
+              break;
+          }
+      }
+
+      // Convierte la hoja en un objeto JSON comenzando desde la fila detectada
+      const products = xlsx.utils.sheet_to_json(sheet, { range: startRow });
+
+      let createdProducts = [];
+      let failedProducts = [];
+
+      for (const product of products) {
+          try {
+              const createdProduct = await Product.create({
+                  name: product.name,
+                  price: product.price,
+                  description: product.description,
+                  img: product.img,
+                  categories_id: categoryId,
+                  clientId: clientId,
+                  state: '1'  // Estado por defecto
+              });
+              createdProducts.push(createdProduct.name);
+          } catch (error) {
+              console.error('Error creating product:', product.name, error);
+              failedProducts.push(product.name);
+          }
+      }
+
+      res.status(200).json({
+          createdProducts: createdProducts,
+          failedProducts: failedProducts
+      });
+  } catch (error) {
+      console.error('Error uploading file:', error);
+      res.status(500).send('Error uploading file');
+  }
+};

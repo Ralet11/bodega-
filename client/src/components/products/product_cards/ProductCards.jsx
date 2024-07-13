@@ -2,9 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import ProductCard from './ProductCard';
-import { PlusCircle, Trash } from 'lucide-react';
+import { PlusCircle, Trash, Upload } from 'lucide-react';
 import { getParamsEnv } from '../../../functions/getParamsEnv';
 import { useSelector } from 'react-redux';
+import UploadExcelModal from '../../modal/UploadExcelModal';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -21,6 +22,7 @@ function ProductCards({
   setShowNewProductModal,
 }) {
   const token = useSelector((state) => state?.client.token);
+  const [showUploadExcelModal, setShowUploadExcelModal] = useState(false);
 
   const handleClick = (product) => {
     handleCardClick(product);
@@ -30,8 +32,11 @@ function ProductCards({
     setShowNewProductModal(true);
   };
 
+  const handleOpenUploadExcelModal = () => {
+    setShowUploadExcelModal(true);
+  };
+
   const handleDeleteCategory = () => {
-    // Mostrar una ventana de confirmación antes de borrar la categoría
     const confirmDeleteCategory = window.confirm(
       '¿Estás seguro que quieres borrar la categoría?'
     );
@@ -45,13 +50,10 @@ function ProductCards({
         })
         .then((response) => {
           console.log('Categoría eliminada:', response.data);
-          // Actualiza las categorías en el estado después de eliminar
           setCategories((prevCategories) =>
             prevCategories.filter((category) => category.id !== category_id)
           );
 
-          // Verifica si la categoría eliminada es la categoría seleccionada,
-          // y si lo es, establece selectedCategory en null
           if (selectedCategory === category_id) {
             setSelectedCategory(null);
           }
@@ -67,35 +69,42 @@ function ProductCards({
   );
 
   return (
-    <div className="p-4">
-      <div className="flex flex-col md:flex-row gap-4 mb-4">
+    <div className="p-2">
+      <div className="flex flex-col md:flex-row gap-2 mb-2">
         <input
           type="text"
           placeholder="Buscar por nombre"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-3 py-2 placeholder-gray-400 text-gray-700 relative bg-white rounded-full text-sm border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[300px]"
+          className="px-2 py-1 placeholder-gray-400 text-gray-700 relative bg-white rounded-full text-xs border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[200px]"
         />
 
         <span
           onClick={handleOpenNewProducModal}
-          className="text-black-500 hover:text-green-700 font-bold py-2 px-4 rounded-full cursor-pointer flex items-center"
+          className="text-black-500 hover:text-green-700 font-bold py-1 px-2 rounded-full cursor-pointer flex items-center"
         >
-          <PlusCircle className="w-5 h-5 mr-2" />
-          <p className="text-sm">Add Item</p>
+          <PlusCircle className="w-4 h-4 mr-1" />
+          <p className="text-xs">Add Item</p>
         </span>
         <span
           onClick={handleDeleteCategory}
-          className="text-black-500 hover:text-red-700 font-bold py-2 px-4 rounded-full cursor-pointer flex items-center"
+          className="text-black-500 hover:text-red-700 font-bold py-1 px-2 rounded-full cursor-pointer flex items-center"
         >
-          <Trash className="w-5 h-5 mr-2" />
-          <p className="text-sm">Delete Category</p>
+          <Trash className="w-4 h-4 mr-1" />
+          <p className="text-xs">Delete Category</p>
+        </span>
+        <span
+          onClick={handleOpenUploadExcelModal}
+          className="text-black-500 hover:text-blue-700 font-bold py-1 px-2 rounded-full cursor-pointer flex items-center"
+        >
+          <Upload className="w-4 h-4 mr-1" />
+          <p className="text-xs">Upload Excel</p>
         </span>
       </div>
-      <div className="min-h-[500px] max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500">
-        <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+      <div className="min-h-[300px] max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-blue-500">
+        <div className="flex flex-wrap gap-1 justify-center md:justify-start">
           {filteredProducts.length === 0 ? (
-            <p>No hay productos disponibles</p>
+            <p className="text-xs">No hay productos disponibles</p>
           ) : (
             filteredProducts.map((product) => (
               <ProductCard
@@ -108,6 +117,14 @@ function ProductCards({
           )}
         </div>
       </div>
+      {showUploadExcelModal && (
+        <UploadExcelModal
+          show={showUploadExcelModal}
+          handleClose={() => setShowUploadExcelModal(false)}
+          
+          selectedCategory={selectedCategory}
+        />
+      )}
     </div>
   );
 }
@@ -123,6 +140,7 @@ ProductCards.propTypes = {
   setCategories: PropTypes.func.isRequired,
   setSelectedCategory: PropTypes.func.isRequired,
   selectedCategory: PropTypes.number,
+  setShowNewProductModal: PropTypes.func.isRequired,
 };
 
 export default ProductCards;

@@ -106,7 +106,7 @@ const DistributorComerce = () => {
     return result;
   };
 
-  const groupedSubcategories = chunkArray(subcategories, 10);
+  const groupedSubcategories = Array.isArray(subcategories) ? chunkArray(subcategories, 10) : [];
 
   const handleSelectSubCategory = (id) => {
     const filtered = allProducts.filter(product => product.subcategory_id === id);
@@ -172,7 +172,7 @@ const DistributorComerce = () => {
                 >
                   <div className="relative w-full md:w-1/3 overflow-hidden">
                     <img
-                      className="w-full h-24 md:h-full object-cover transition-transform duration-500 transform hover:scale-110"
+                      className="w-full h-32 object-contain md:w-full md:h-32 transition-transform duration-500 transform hover:scale-110"
                       src={hoveredIndex === index ? product.image2 : product.image1}
                       alt={product.name}
                     />
