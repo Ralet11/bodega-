@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import { EMAIL_PASS, EMAIL_USER } from '../config.js';
 
 
-export const sendContactEmail = async (name, email, message) => {
+export const sendContactEmail = async (name, email, phone, message) => {
 
   
    
@@ -71,6 +71,7 @@ export const sendContactEmail = async (name, email, message) => {
           <h3>Contact Information</h3>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
           <h3>Message</h3>
           <p>${message}</p>
         </div>

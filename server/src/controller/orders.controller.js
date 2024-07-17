@@ -91,11 +91,11 @@ export const sendOrder = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
-  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi } = req.body;
+  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi, savings } = req.body;
   const id = req.user.userId;
   const io = getIo();
   const users_id = id;
-  
+
   // Generar el código alfanumérico de 6 dígitos
   const code = cryptoRandomString({length: 6, type: 'alphanumeric'});
 
@@ -115,10 +115,19 @@ export const createOrder = async (req, res) => {
       code // Añadir el código generado a la nueva orden
     });
 
+    // Actualizar el savings del usuario
+    const user = await User.findByPk(id);
+    if (user) {
+      user.savings += savings; // Asumiendo que savings se suma al valor actual
+      await user.save();
+    } else {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
     // Emitir evento de nuevo pedido a través de Socket.IO
     io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi, code });
 
-    res.status(201).json({ message: 'Pedido creado exitosamente', newOrder });
+    res.status(201).json({ message: 'Pedido creado exitosamente', newOrder, userUpdate: user });
   } catch (error) {
     console.error('Error al crear el pedido:', error);
     res.status(500).json({ message: 'Error interno del servidor' });

@@ -4,16 +4,17 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
 import { getParamsEnv } from "../functions/getParamsEnv";
 import Input from "../ui_bodega/Input";
-import image1 from './../assets/image1.jpg';
 import toast from "react-hot-toast";
-
+import TermsModal from "./TermsAndConditions";
 
 const { API_URL_BASE } = getParamsEnv();
 
 const SignUp = ({ setSelected, setLogged }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState({});
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -49,6 +50,10 @@ const SignUp = ({ setSelected, setLogged }) => {
       ...errors,
       [name]: error,
     });
+  };
+
+  const handleCheckboxChange = (e) => {
+    setTermsAccepted(e.target.checked);
   };
 
   const validateForm = () => {
@@ -88,6 +93,11 @@ const SignUp = ({ setSelected, setLogged }) => {
 
     if (!formData.address) {
       errors.address = 'Address is required';
+      isValid = false;
+    }
+
+    if (!termsAccepted) {
+      errors.terms = 'You must accept the terms and conditions';
       isValid = false;
     }
 
@@ -175,18 +185,26 @@ const SignUp = ({ setSelected, setLogged }) => {
                     <Input onChange={handleInputChange} id="address" placeholder="Enter your address" type="address" name="address" />
                     {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
                   </div>
+                  <div className="w-full px-3 mb-4">
+                    <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={handleCheckboxChange} />
+                    <label className="text-white ml-2" htmlFor="terms">
+                      I have read and accept the <span className="text-yellow-300 cursor-pointer" onClick={() => setIsTermsModalOpen(true)}>terms and conditions of Bodega Store</span>.
+                    </label>
+                    {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
+                  </div>
                   <div className="text-center relative w-full">
-                    <button onClick={handleSubmit} type="submit" className={`w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none ${hasErrors ? 'cursor-not-allowed opacity-50' : 'hover:bg-indigo-600'}`} disabled={hasErrors}>
+                    <button onClick={handleSubmit} type="submit" className={`w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none ${!termsAccepted ? 'cursor-not-allowed opacity-50' : 'hover:bg-indigo-600'}`} disabled={!termsAccepted}>
                       <span className="text-white hover:text-black">Sign up</span>
                     </button>
                   </div>
-                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Don't have an account? <a onClick={goLogin} className="font-bold cursor-pointer text-white hover:text-indigo-800">Log in</a></p>
+                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Already have an account? <a onClick={goLogin} className="font-bold cursor-pointer text-white hover:text-indigo-800">Log in</a></p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      {isTermsModalOpen && <TermsModal show={isTermsModalOpen} preHandleClose={() => setIsTermsModalOpen(false)} />}
     </div>
   );
 };

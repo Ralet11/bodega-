@@ -157,7 +157,8 @@ export const loginUser = async (req, res) => {
       id: user.id,
       address: user.address,
       subscription: user.subscription,
-      balance: user.balance
+      balance: user.balance,
+      savings: user.savings
     };
 
     console.log(user, "address del user")
