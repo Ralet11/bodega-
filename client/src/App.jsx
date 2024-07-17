@@ -29,6 +29,7 @@ import axios from 'axios';
 import { getParamsEnv } from './functions/getParamsEnv.js';
 import Loader from './components/Loader'; // Importa el nuevo componente Loader
 import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
+import PrivacyPolicy from './components/PoliciPrivacy.jsx';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -37,7 +38,7 @@ function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = useSelector((state) => state?.client?.token);
-  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop';
+  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const socket = socketIOClient("http://localhost:80");
@@ -124,6 +125,7 @@ function App() {
         <Route path='/create-shop' element={<CreateFirstShop />}></Route>
         <Route path='/contact' element={<ContactForm />}></Route>
         <Route path='/searchProducts' element={<FindedProducts />}></Route>
+        <Route path='/privacyPolicy' element={<PrivacyPolicy />}></Route>
       </Routes>
     </div>
   );

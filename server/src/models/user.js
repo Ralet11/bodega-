@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
 
 const User = sequelize.define('user', {
@@ -37,6 +37,15 @@ const User = sequelize.define('user', {
     type: DataTypes.FLOAT(10, 2),
     allowNull: false,
     defaultValue: 0.00
+  },
+  savings: {
+    type: DataTypes.FLOAT(10, 2),
+    allowNull: false,
+    defaultValue: 0.00
+  },
+  stripeCustomerId: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
 }, {
   tableName: 'users',
