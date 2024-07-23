@@ -176,3 +176,31 @@ export const loginUser = async (req, res) => {
     res.status(500).json({ error: true, message: error.message });
   }
 };
+
+export const loginGuest = async (req, res) => {
+  try {
+    const guestPayload = { role: 'guest' };
+    const token = jwt.sign(guestPayload, "secret_key", { expiresIn: '24h' });
+
+    const guestData = {
+      name: 'Guest',
+      email: null,
+      phone: null,
+      address: null,
+      id: 'guest',
+      role: 'guest',
+      balance: 0
+    };
+
+    res.json({
+      error: false,
+      data: {
+        token,
+        client: guestData,
+        message: "Logged in as guest"
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};

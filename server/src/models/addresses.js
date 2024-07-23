@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
 
 import User from './user.js'; // Suponiendo que tengas un modelo de User en otro archivo
@@ -15,11 +15,11 @@ const Address = sequelize.define('address', {
     allowNull: false
   },
   name: {
-    type: Sequelize.STRING(100),
+    type: DataTypes.STRING(100),
     allowNull: false
   },
   formatted_address: {
-    type: Sequelize.STRING(255),
+    type: DataTypes.STRING(255),
     allowNull: false
   }
 }, {
@@ -28,6 +28,11 @@ const Address = sequelize.define('address', {
 });
 
 // Definición de la relación con la tabla de usuarios
-Address.belongsTo(User, { foreignKey: 'users_id', as: 'user' });
+Address.belongsTo(User, { 
+  foreignKey: 'users_id', 
+  as: 'user',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 
 export default Address;

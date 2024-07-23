@@ -1,4 +1,7 @@
+import Address from "../models/addresses.js";
+import Order from "../models/order.js";
 import User from "../models/user.js";
+import sequelize from "../database.js";
 
 export const getUserById = async (req, res) => {
   const userId = req.params.id;
@@ -121,3 +124,67 @@ export const removeUserBalance = async (req, res) => {
     console.log(error)
   }
 }
+
+const deleteUserAddresses = async (userId) => {
+  try {
+    await Address.destroy({
+      where: {
+        users_id: userId
+      }
+    });
+    console.log(`Direcciones del usuario ${userId} eliminadas correctamente.`);
+  } catch (error) {
+    console.error(`Error al eliminar las direcciones del usuario ${userId}:`, error);
+    throw new Error(`Error al eliminar las direcciones del usuario ${userId}`);
+  }
+};
+
+const deleteUserOrders = async (userId) => {
+  try {
+    await Order.destroy({
+      where: {
+        users_id: userId
+      }
+    });
+    console.log(`Órdenes del usuario ${userId} eliminadas correctamente.`);
+  } catch (error) {
+    console.error(`Error al eliminar las órdenes del usuario ${userId}:`, error);
+    throw new Error(`Error al eliminar las órdenes del usuario ${userId}`);
+  }
+};
+
+const deleteUserAccount = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+    await user.destroy();
+    console.log(`Usuario ${userId} eliminado correctamente.`);
+  } catch (error) {
+    console.error(`Error al eliminar el usuario ${userId}:`, error);
+    throw new Error(`Error al eliminar el usuario ${userId}`);
+  }
+};
+
+
+export const deleteUser = async (req, res) => {
+  const userId = req.user.userId; // Supongo que estás obteniendo el userId del token de autenticación
+
+  try {
+    // Eliminar direcciones del usuario
+    await deleteUserAddresses(userId);
+
+    // Eliminar órdenes del usuario
+    await deleteUserOrders(userId);
+
+    // Eliminar usuario
+    await deleteUserAccount(userId);
+
+    res.status(200).json({ message: 'Usuario eliminado correctamente' });
+  } catch (error) {
+    console.error('Error al eliminar el usuario:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+

@@ -1,5 +1,5 @@
 import { DataTypes } from 'sequelize';
-import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
+import sequelize from '../database.js'; 
 
 const User = sequelize.define('user', {
   id: {
