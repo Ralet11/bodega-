@@ -8,7 +8,6 @@ import Local from '../models/local.js';
 import { sendEmailWithProducts } from '../functions/sendEmail.js';
 import Distributor from '../models/distributor.model.js';
 import User from '../models/user.js';
-import UserBodegaProSubs from '../models/userBodegaProSub.model.js';
 
 const stripe = new Stripe(SSK);
 
@@ -291,81 +290,90 @@ export const createRefund = async (req, res) => {
   }
 };
 
-export const createBodegaProSubscription = async (req, res) => {
-  const { priceId } = req.body;
-
-  const userId = req.user.userId
-
-  try {
-    // Retrieve or create a Stripe customer
-    let customer;
-    const user = await User.findByPk(userId);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    try {
-      customer = await stripe.customers.retrieve(user.stripeCustomerId);
-    } catch (error) {
-      if (error.raw && error.raw.code === 'resource_missing') {
-        customer = await stripe.customers.create({
-          email: user.email,
-          name: user.name,
-        });
-
-        user.stripeCustomerId = customer.id;
-        await user.save();
-      } else {
-        throw error;
-      }
-    }
-
-    // Create a subscription
-    const subscription = await stripe.subscriptions.create({
-      customer: customer.id,
-      items: [{ price: priceId }],
-      payment_behavior: 'default_incomplete',
-      payment_settings: { save_default_payment_method: 'on_subscription' },
-      expand: ['latest_invoice.payment_intent'],
-    });
-
-    // Save subscription details to UserBodegaProSubs table
-    await UserBodegaProSubs.create({
-      user_id: userId,
-      subscription_id: subscription.id,
-    });
-
-    res.send({
-      subscriptionId: subscription.id,
-      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
-    });
-  } catch (error) {
-    console.error('Error creating subscription:', error);
-    res.status(500).json({ error: 'Failed to create subscription', details: error.message });
-  }
-};
-
-export const cancelBodegaProSubscription = async (req, res) => {
+export const createSubscriptionCheckout = async (req, res) => {
+  const { productId } = req.body;
   const userId = req.user.userId;
 
   try {
-    const userSubscription = await UserBodegaProSubs.findOne({ where: { user_id: userId } });
+    // Retrieve the user from the database
+    const user = await User.findByPk(userId);
 
-    if (!userSubscription) {
-      return res.status(404).json({ message: 'Subscription not found' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    const subscription = await stripe.subscriptions.update(
-      userSubscription.subscription_id,
-      {
-        cancel_at_period_end: true,
-      }
-    );
+    // Create a customer in Stripe if not already created
+    let customer;
+    if (!user.stripeCustomerId) {
+      customer = await stripe.customers.create({
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      });
 
-    res.status(200).json({ message: 'Subscription cancellation scheduled successfully', subscription });
+      // Save the Stripe customer ID in the database
+      user.stripeCustomerId = customer.id;
+      await user.save();
+    } else {
+      customer = await stripe.customers.retrieve(user.stripeCustomerId);
+    }
+
+    // Create the checkout session
+    const session = await stripe.checkout.sessions.create({
+      customer: customer.id,
+      payment_method_types: ['card'],
+      line_items: [{
+        price: productId,
+        quantity: 1,
+      }],
+      mode: 'subscription',
+      success_url: `${FRONTEND_URL}/successSubscription?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${FRONTEND_URL}/cancelSubscription`,
+    });
+
+    // Store the subscription_id in the new table
+    await UserBodegaProSubs.create({
+      user_id: userId,
+      subscription_id: session.subscription
+    });
+
+    res.status(201).json({ sessionId: session.id });
   } catch (error) {
-    console.error('Error canceling subscription:', error);
+    console.error('Error creating subscription checkout session:', error);
+    res.status(500).json({ error: 'Failed to create subscription checkout session', details: error.message });
+  }
+};
+
+export const cancelSubscription = async (req, res) => {
+  const { subscriptionId } = req.body;
+  const userId = req.user.userId;
+
+  try {
+    // Retrieve the user from the database
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Cancel the subscription
+    const subscription = await stripe.subscriptions.del(subscriptionId);
+
+    // Remove the subscription from UserBodegaProSubs table
+    await UserBodegaProSubs.destroy({
+      where: {
+        user_id: userId,
+        subscription_id: subscriptionId
+      }
+    });
+
+    // Update the user's subscription status in the database
+    user.subscription = 0;
+    await user.save();
+
+    res.status(200).json({ message: 'Subscription cancelled successfully', subscription });
+  } catch (error) {
+    console.error('Error cancelling subscription:', error);
     res.status(500).json({ error: 'Failed to cancel subscription', details: error.message });
   }
 };

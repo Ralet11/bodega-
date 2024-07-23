@@ -1,4 +1,4 @@
-import { DataTypes, Sequelize } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
 
 import User from './user.js'; // Suponiendo que tengas un modelo de User en otro archivo
@@ -47,7 +47,7 @@ const Order = sequelize.define('order', {
     type: DataTypes.STRING,
     allowNull: false
   },
-  code: {  // Nuevo campo añadido
+  code: {
     type: DataTypes.STRING(6),
     allowNull: false
   }
@@ -57,9 +57,19 @@ const Order = sequelize.define('order', {
 });
 
 // Definición de la relación con la tabla de users
-Order.belongsTo(User, { foreignKey: 'users_id', as: 'user' });
+Order.belongsTo(User, { 
+  foreignKey: 'users_id', 
+  as: 'user',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE'
+});
 
 // Definición de la relación con la tabla de local
-Order.belongsTo(Local, { foreignKey: 'local_id', as: 'local' });
+Order.belongsTo(Local, { 
+  foreignKey: 'local_id', 
+  as: 'local',
+  onDelete: 'SET NULL',
+  onUpdate: 'CASCADE'
+});
 
 export default Order;
