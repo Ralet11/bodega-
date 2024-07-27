@@ -34,10 +34,7 @@ import balanceRequestRouter from "./routes/balanceRequest.routes.js";
 import subcategoriesRouter from './routes/subcategories.routes.js'
 import brandsRouter from './routes/brands.routes.js'
 import twilioRouter from './routes/twilio.routes.js'
-import fileUpload from 'express-fileupload';
-import path from 'path';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+
 
 
 const app = express();
@@ -58,9 +55,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Ruta del webhook de Stripe antes de los otros middleware
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename)
-app.use('/.well-known/pki-validation', express.static(path.join(__dirname, '.well-known/pki-validation')));
+
+
 app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
   const sig = request.headers["stripe-signature"];
   
@@ -177,7 +173,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
 // Middleware general para otras rutas
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb" }));
-app.use(fileUpload());
+
 
 // Rutas
 app.use('/uploads', express.static('uploads'));

@@ -107,23 +107,22 @@ function Shops() {
     }
   }, [dispatch, client.client.id, token]);
 
-  // Filtrar las tiendas con status='1'
   const activeShops = client.locals.filter(local => local.status !== '0');
 
   return (
-    <div className="container h-screen bg-gray-200 w-full pb-20 mx-auto md:py-8 mt-12 px-5 lg:px-20">
-      <div className="md:pb-5 text-center">
-        <h3 className="text-lg md:text-2xl font-bold md:mt-2 text-gray-800">Your Shops</h3>
-        <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
+    <div className="container h-screen bg-gray-200 w-full pb-10 mx-auto md:py-4 mt-8 px-4 lg:px-10 text-sm">
+      <div className="md:pb-4 text-center">
+        <h3 className="text-base md:text-lg font-bold md:mt-2 text-gray-800">Your Shops</h3>
+        <hr className="my-2 border-t border-gray-300 mx-auto w-1/2" />
       </div>
-      <div className="grid md:ml-16 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid md:ml-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {loading ? (
           [...Array(4)].map((_, index) => (
-            <div key={index} className="bg-white max-w-sm rounded-lg overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl cursor-pointer transform transition duration-300 hover:scale-105">
-              <Skeleton height={192} />
-              <div className="px-6 py-4">
-                <Skeleton height={30} width="80%" />
-                <Skeleton height={20} width="60%" />
+            <div key={index} className="bg-white max-w-xs rounded-lg overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl cursor-pointer transform transition duration-300 hover:scale-105">
+              <Skeleton height={144} />
+              <div className="px-4 py-2">
+                <Skeleton height={20} width="80%" />
+                <Skeleton height={15} width="60%" />
               </div>
             </div>
           ))
@@ -132,7 +131,7 @@ function Shops() {
             <div
               onClick={() => selectLocal(local.id)}
               key={index}
-              className={`bg-white max-w-sm rounded-lg overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl cursor-pointer transform transition duration-300 hover:scale-105 relative ${local.status === '1' ? 'border-yellow-500' : ''}`}
+              className={`bg-white max-w-xs rounded-lg overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl cursor-pointer transform transition duration-300 hover:scale-105 relative ${local.status === '1' ? 'border-yellow-500' : ''}`}
             >
               {local.status === '1' && (
                 <div className="absolute top-0 left-0 bg-yellow-500 text-white text-xs font-bold px-2 py-1 rounded-br-lg">
@@ -142,27 +141,27 @@ function Shops() {
               <img
                 src={local.img}
                 alt={local.name}
-                className="w-full h-48 object-cover"
+                className="w-full h-36 object-cover"
               />
-              <div className="px-6 py-4">
-                <div className="font-bold text-xs md:text-xl mb-2 text-gray-900">{local.name}</div>
-                <p className="text-gray-700 text-xs md:text-lg">{local.address}</p>
+              <div className="px-4 py-2">
+                <div className="font-bold text-xs md:text-base mb-1 text-gray-900">{local.name}</div>
+                <p className="text-gray-700 text-xs md:text-sm">{local.address}</p>
               </div>
             </div>
           ))
         )}
       </div>
-      <div className="mt-6 flex justify-center gap-4">
+      <div className="mt-4 pb-30 flex justify-center gap-2">
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex font-bold items-center gap-2 px-5 py-3 bg-blue-500 text-white rounded-md focus:outline-none hover:bg-blue-400 transform transition duration-300 hover:scale-105"
+          className="flex font-bold items-center gap-1 px-4 py-2 bg-blue-500 text-white rounded-md focus:outline-none hover:bg-blue-400 transform transition duration-300 hover:scale-105 text-xs"
         >
-          <PlusCircleIcon className="h-6 w-6" />
+          <PlusCircleIcon className="h-5 w-5" />
           Add New Shop
         </button>
         <button
           onClick={() => setIsDeleteModalOpen(true)}
-          className="flex font-bold items-center gap-2 px-5 py-3 bg-red-500 text-white rounded-md focus:outline-none hover:bg-red-400 transform transition duration-300 hover:scale-105"
+          className="flex font-bold items-center gap-1 px-4 py-2 bg-red-500 text-white rounded-md focus:outline-none hover:bg-red-400 transform transition duration-300 hover:scale-105 text-xs"
         >
           Delete Shop
         </button>
@@ -171,7 +170,7 @@ function Shops() {
       {isAddModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Add New Shop</h2>
+            <h2 className="text-lg font-bold mb-4">Add New Shop</h2>
             <form onSubmit={handleSubmitAdd}>
               <div className="mb-4">
                 <label className="block text-gray-700">Name</label>
@@ -242,7 +241,7 @@ function Shops() {
       {isDeleteModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Delete Shop</h2>
+            <h2 className="text-lg font-bold mb-4">Delete Shop</h2>
             <form onSubmit={handleSubmitDelete}>
               <div className="mb-4">
                 <label className="block text-gray-700">Select Shop to Delete</label>

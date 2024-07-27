@@ -285,7 +285,10 @@ export const getShopsOrderByCat = async (req, res) => {
     const shops = await Local.findAll({
       where: {
         status: '2',
-      },
+        locals_categories_id: {
+          [Op.notIn]: [1, 2]
+        }
+      }
     });
 
     const groupedShops = groupShopsByCategory(shops);
@@ -295,7 +298,7 @@ export const getShopsOrderByCat = async (req, res) => {
     console.log(error);
     res.status(500).send('Server Error');
   }
-};
+}
 
 export const getShopsByClientId = async (req, res) => {
   try {

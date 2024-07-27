@@ -143,13 +143,13 @@ function Settings() {
       icon: Square3Stack3DIcon,
       desc: (
         <div className="w-full min-h-[200px] p-4 rounded">
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 p-5">
-            <div className="w-full lg:w-1/2 min-h-[400px] rounded-lg bg-white text-white">
-              <div className="p-5 w-full lg:w-full max-h-[50px]">
+          <div className="flex flex-col lg:flex-row gap-2 lg:gap-4 p-2">
+            <div className="w-full lg:w-1/2 min-h-[300px] rounded-lg bg-white text-white">
+              <div className="p-2 w-full lg:w-full max-h-[50px]">
                 <AddressMap shopData={shopData} setShopData={setShopData} latLong={latLong} />
               </div>
             </div>
-            <div className="w-full lg:w-1/2 min-h-[400px]">
+            <div className="w-full lg:w-1/2 min-h-[300px]">
               <InfoCard shopData={shopData} setShopData={setShopData} />
             </div>
           </div>
@@ -167,12 +167,12 @@ function Settings() {
   return (
     <div className="bg-gray-200 mt-20 md:w-11/12 lg:w-4/5 pb-20 md:m-auto md:pt-10 relative">
       <Tabs value="Settings"> {/* Set "Settings" as the default tab */}
-        <TabsHeader className="flex w-full md:w-2/3 m-auto relative z-10">
+        <TabsHeader className="flex w-full md:w-2/3 md:pt-20 m-auto relative z-10">
           {data.map(({ label, value, icon }) => (
             <Tab key={value} value={value} className="flex-1">
               <div className="flex items-center gap-2">
-                {React.createElement(icon, { className: "w-5 h-5" })}
-                <span className="text-sm">{label}</span>
+                {React.createElement(icon, { className: "w-4 h-4" })}
+                <span className="text-xs">{label}</span>
               </div>
             </Tab>
           ))}
@@ -185,18 +185,18 @@ function Settings() {
           ))}
         </TabsBody>
       </Tabs>
-      <div className="bg-white p-4 rounded-lg shadow-lg mt-4">
-        <h2 className="text-lg font-semibold mb-4 text-gray-800">Upload Certificates</h2>
-        <div className="grid grid-cols-1 gap-4">
+      <div className="bg-white p-2 rounded-lg shadow-lg mt-4">
+        <h2 className="text-base font-semibold mb-2 text-gray-800">Upload Certificates</h2>
+        <div className="grid grid-cols-1 gap-2">
           {['resaleCertificate', 'tobaccoLicense', 'fein', 'pictureId'].map((type, index) => (
             <div key={index} className="flex flex-col gap-1">
-              <label className="block text-gray-500 text-sm font-medium">
+              <label className="block text-gray-500 text-xs font-medium">
                 {type === 'resaleCertificate' && 'Resale Certificate *'}
                 {type === 'tobaccoLicense' && 'Cigar/Tobacco/Cigarette/OTP License *'}
                 {type === 'fein' && 'FEIN# *'}
                 {type === 'pictureId' && 'Official Picture ID *'}
               </label>
-              <input type="file" onChange={(e) => handleCertificateChange(e, type)} className="text-sm" />
+              <input type="file" onChange={(e) => handleCertificateChange(e, type)} className="text-xs" />
               <p className="text-xs text-gray-600">
                 {type === 'resaleCertificate' && 'Upload re-sale certificate here.'}
                 {type === 'tobaccoLicense' && 'Upload copies of your license here.'}
@@ -205,7 +205,7 @@ function Settings() {
               </p>
               <button
                 onClick={() => handleCertificateUpload(type)}
-                className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-1 px-2 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 text-sm"
+                className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-1 px-2 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 text-xs"
               >
                 Upload {type}
               </button>

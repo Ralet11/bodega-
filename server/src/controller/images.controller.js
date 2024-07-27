@@ -11,18 +11,21 @@ cloudinary.config({
 });
 
 export const updateImage = async (req, res) => {
+  console.log('File received1:', req.file);
+  
   try {
     const { id, action } = req.body;
+    
+    console.log('File received2:', req.file);
 
- 
-    const fileContent = req.file.buffer.toString('base64')
-
-    if (!fileContent) {
+    if (!req.file) {
       res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
       return;
     }
 
-    console.log("3")
+    const fileContent = req.file.buffer.toString('base64');
+
+    console.log('Base64 file content:', fileContent.substring(0, 30) + '...'); // Mostrar solo el inicio del contenido para evitar log largos
 
     let modelToUpdate;
 
@@ -35,18 +38,16 @@ export const updateImage = async (req, res) => {
         modelToUpdate = Product;
         break;
 
-      // Agrega casos adicionales para otras acciones si es necesario
-
       default:
         res.status(400).json({ error: 'Acción no válida' });
         return;
     }
 
-  
-
     const uploadResult = await cloudinary.uploader.upload(`data:${req.file.mimetype};base64,${fileContent}`, {
-      folder: 'action'
-  });
+      folder: action
+    });
+
+    console.log('Upload result:', uploadResult);
 
     const imageUrl = uploadResult.secure_url;
 
@@ -56,9 +57,8 @@ export const updateImage = async (req, res) => {
 
   } catch (err) {
     console.error('Error en la función updateImage:', err);
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: err.message });
   }
-  console.log("papa");
 };
 
 export const uploadBalanceImage = async (req, res) => {

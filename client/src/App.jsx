@@ -30,6 +30,7 @@ import { getParamsEnv } from './functions/getParamsEnv.js';
 import Loader from './components/Loader'; // Importa el nuevo componente Loader
 import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
 import PrivacyPolicy from './components/PoliciPrivacy.jsx';
+import DeleteInfoUserForm from './components/DeleteInfoUsers.jsx';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -38,10 +39,10 @@ function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = useSelector((state) => state?.client?.token);
-  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy';
+  const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy' && location.pathname !== '/deleteUserInfoForm';
   const [orderNotificationCount, setOrderNotificationCount] = useState(0);
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -126,6 +127,7 @@ function App() {
         <Route path='/contact' element={<ContactForm />}></Route>
         <Route path='/searchProducts' element={<FindedProducts />}></Route>
         <Route path='/privacyPolicy' element={<PrivacyPolicy />}></Route>
+        <Route path='/deleteUserInfoForm' element={<DeleteInfoUserForm />}></Route>
       </Routes>
     </div>
   );
