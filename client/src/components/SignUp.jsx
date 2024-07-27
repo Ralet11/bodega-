@@ -9,7 +9,7 @@ import TermsModal from "./TermsAndConditions";
 
 const { API_URL_BASE } = getParamsEnv();
 
-const SignUp = ({ setSelected, setLogged }) => {
+const SignUpForm = ({ setSelected, setLogged }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -118,19 +118,9 @@ const SignUp = ({ setSelected, setLogged }) => {
           setSelected(true);
         }
       } catch (error) {
-        let errorMessage = '';
+        let errorMessage = 'There was an error in the registration, please check the fields and try again.';
         if (error.response && error.response.data && error.response.data.message) {
-          if (error.response.data.message.includes('users_Email_key')) {
-            errorMessage = 'Email already in use';
-          } else if (error.response.data.message.includes('users_UserName_key')) {
-            errorMessage = 'UserName already in use';
-          } else if (error.response.data.message.includes('users_Phone_key')) {
-            errorMessage = 'Phone already in use';
-          } else {
-            errorMessage = 'There was an error in the registration, please check the fields and try again.';
-          }
-        } else {
-          errorMessage = 'There was an error in the registration, please check the fields and try again.';
+          errorMessage = error.response.data.message;
         }
         toast.error(errorMessage);
         console.error('Error submitting data to the server:', error);
@@ -144,69 +134,95 @@ const SignUp = ({ setSelected, setLogged }) => {
     setSelected(true);
   };
 
-  const hasErrors = Object.values(errors).some(error => error) || Object.values(formData).some(field => !field);
-
   return (
-    <div className="w-full h-full bg-yellow-400">
-      <div className="flex justify-center items-center min-h-screen bg-yellow-400 bg-custom-img" style={{ backgroundRepeat: 'no-repeat', backgroundPosition: 'center' }}>
-        <div className="flex flex-col justify-center items-center min-h-screen bg-cover">
-          <div className="w-full max-w-md px-4 mx-auto mt-0 md:flex-0 shrink-0">
-            <div className="flex flex-col gap-3 justify-center items-center px-3 mx-auto mt-0 md:flex-0 shrink-0">
-              <div className="relative flex flex-col min-w-0 break-words bg-black bg-opacity-20 border-0 shadow-soft-xl rounded-2xl bg-clip-border p-10">
-                <h1 className="text-2xl font-bold mb-6 text-center text-white">Create Your Account</h1>
-                <div className="flex flex-wrap justify-center">
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="name">Name</label>
-                    <Input onChange={handleInputChange} id="name" placeholder="Enter your name" type="name" name="name" />
-                    {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="email">Email</label>
-                    <Input onChange={handleInputChange} id="email" placeholder="Enter your email" type="email" name="email" />
-                    {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="password">Password</label>
-                    <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" />
-                    {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="confirmPassword">Confirm Password</label>
-                    <Input onChange={handleInputChange} id="confirmPassword" placeholder="Confirm your password" type="password" name="confirmPassword" />
-                    {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="phone">Phone</label>
-                    <Input onChange={handleInputChange} id="phone" placeholder="Enter your phone" type="phone" name="phone" />
-                    {errors.phone && <p className="text-red-500 text-sm mt-1">{errors.phone}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <label className="text-white" htmlFor="address">Address</label>
-                    <Input onChange={handleInputChange} id="address" placeholder="Enter your address" type="address" name="address" />
-                    {errors.address && <p className="text-red-500 text-sm mt-1">{errors.address}</p>}
-                  </div>
-                  <div className="w-full px-3 mb-4">
-                    <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={handleCheckboxChange} />
-                    <label className="text-white ml-2" htmlFor="terms">
-                      I have read and accept the <span className="text-yellow-300 cursor-pointer" onClick={() => setIsTermsModalOpen(true)}>terms and conditions of Bodega Store</span>.
-                    </label>
-                    {errors.terms && <p className="text-red-500 text-sm mt-1">{errors.terms}</p>}
-                  </div>
-                  <div className="text-center relative w-full">
-                    <button onClick={handleSubmit} type="submit" className={`w-full bg-yellow-500 text-white p-3 rounded-md focus:outline-none ${!termsAccepted ? 'cursor-not-allowed opacity-50' : 'hover:bg-indigo-600'}`} disabled={!termsAccepted}>
-                      <span className="text-white hover:text-black">Sign up</span>
-                    </button>
-                  </div>
-                  <p className="mt-4 mb-0 leading-normal text-white text-sm">Already have an account? <a onClick={goLogin} className="font-bold cursor-pointer text-white hover:text-indigo-800">Log in</a></p>
-                </div>
-              </div>
-            </div>
-          </div>
+    <>
+      <h2 className="text-lg md:text-xl font-semibold mb-4">Create Your Account</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="name"
+            value={formData.name}
+            onChange={handleInputChange}
+            placeholder="Name"
+            type="text"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
-      </div>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            placeholder="E-mail"
+            type="email"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+        </div>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="phone"
+            value={formData.phone}
+            onChange={handleInputChange}
+            placeholder="Phone"
+            type="tel"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+        </div>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="address"
+            value={formData.address}
+            onChange={handleInputChange}
+            placeholder="Address"
+            type="text"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
+        </div>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            placeholder="Password"
+            type="password"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+        </div>
+        <div className="mb-2 md:mb-3 relative">
+          <Input
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleInputChange}
+            placeholder="Confirm Password"
+            type="password"
+            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+          />
+          {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
+        </div>
+        <div className="mb-2 md:mb-3 flex items-center">
+          <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={handleCheckboxChange} />
+          <label className="text-gray-600 ml-2" htmlFor="terms">
+            I have read and accept the <span className="text-yellow-500 cursor-pointer hover:underline" onClick={() => setIsTermsModalOpen(true)}>terms and conditions of Bodega Store</span>.
+          </label>
+          {errors.terms && <p className="text-red-500 text-xs mt-1">{errors.terms}</p>}
+        </div>
+        <button
+          type="submit"
+          className={`w-full bg-yellow-500 text-white font-bold py-2 rounded-md hover:bg-yellow-600 transition duration-200 ${!termsAccepted ? 'cursor-not-allowed opacity-50' : ''}`}
+          disabled={!termsAccepted}
+        >
+          CREATE ACCOUNT
+        </button>
+        <p className="mt-2 md:mt-4 mb-0 leading-normal text-gray-600 text-sm">Already have an account? <a className="font-bold cursor-pointer text-yellow-500 hover:text-yellow-600" onClick={goLogin}>Log in</a></p>
+      </form>
       {isTermsModalOpen && <TermsModal show={isTermsModalOpen} preHandleClose={() => setIsTermsModalOpen(false)} />}
-    </div>
+    </>
   );
 };
 
-export default SignUp;
+export default SignUpForm;

@@ -1,11 +1,11 @@
 import axios from "axios";
 import { useState } from "react";
 import { useSelector } from 'react-redux';
-import { getParamsEnv } from './../../functions/getParamsEnv.js';
+import { getParamsEnv } from "../functions/getParamsEnv";
 
 const { API_URL_BASE } = getParamsEnv();
 
-export default function ContactForm() {
+export default function DeleteInfoUserForm() {
   const token = useSelector((state) => state?.client.token);
   const [formData, setFormData] = useState({
     name: "",
@@ -32,7 +32,7 @@ export default function ContactForm() {
         }
       });
 
-      console.log(response);
+      console.log(response)
 
       if (response.statusText === "OK") {
         alert("Email sent successfully!");
@@ -46,60 +46,60 @@ export default function ContactForm() {
   };
 
   return (
-    <div className="mt-16 pb-16 h-screen">
-      <div className="flex pb-16 bg-gray-200 justify-center p-6">
+    <div className="mt-20 pb-20 h-screen">
+      <div className="flex pb-20 bg-gray-200 justify-center p-4 md:p-8">
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-5 rounded-lg shadow-lg w-full max-w-xs md:max-w-md border-t-4 border-yellow-400"
+          className="bg-white p-6 md:p-8 rounded-lg shadow-lg w-full max-w-sm md:max-w-4xl border-t-4 border-yellow-400"
         >
-          <h2 className="text-lg font-bold mb-4 text-center text-gray-800">Contact Us</h2>
-          <p className="text-sm text-center text-gray-600 mb-4">
-            Send us your inquiry, we will respond as soon as possible.
+          <p className="text-gray-800 mb-4">
+            You can send us an email to request the deletion of all your data from Bodega App. The data will be deleted immediately, the account will be closed, and you will receive a confirmation email.
           </p>
-          <div className="mb-3">
-            <label className="block text-gray-700 text-sm">Name</label>
+          <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 text-center text-gray-800">Contact Us</h2>
+          <div className="mb-3 md:mb-4">
+            <label className="block text-gray-700 text-sm md:text-base">Name</label>
             <input
               type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
           </div>
-          <div className="mb-3">
-            <label className="block text-gray-700 text-sm">Email *</label>
+          <div className="mb-3 md:mb-4">
+            <label className="block text-gray-700 text-sm md:text-base">Email *</label>
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
               required
             />
           </div>
-          <div className="mb-3">
-            <label className="block text-gray-700 text-sm">Phone Number</label>
+          <div className="mb-3 md:mb-4">
+            <label className="block text-gray-700 text-sm md:text-base">Phone Number</label>
             <input
               type="text"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm">Message</label>
+          <div className="mb-4 md:mb-6">
+            <label className="block text-gray-700 text-sm md:text-base">Message</label>
             <textarea
               name="message"
               value={formData.message}
               onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded h-24 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              className="w-full px-2 md:px-3 py-1 md:py-2 border border-gray-300 rounded h-24 md:h-32 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400"
             ></textarea>
           </div>
           <div className="text-center">
             <button
               type="submit"
-              className="px-4 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm"
+              className="px-4 md:px-6 py-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
             >
               SEND
             </button>

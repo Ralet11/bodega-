@@ -17,7 +17,7 @@ router.get('/getAllShops', getAllShops)
 router.post('/add', middleware.auth, addShop)
 router.get('/getByClient', getByClientId)
 router.get('/:localId/categories', getLocalCategoriesAndProducts);
-router.get('/getShopsOrderByCat', getShopsOrderByCat)
+router.get('/app/getShopsOrderByCat', getShopsOrderByCat)
 router.get('/byClientId', getShopsByClientId);
 router.post('/rating', changeRating);
 router.post('/addService/:id', middleware.auth, addService)
