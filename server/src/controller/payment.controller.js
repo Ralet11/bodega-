@@ -8,6 +8,7 @@ import Local from '../models/local.js';
 import { sendEmailWithProducts } from '../functions/sendEmail.js';
 import Distributor from '../models/distributor.model.js';
 import User from '../models/user.js';
+import UserBodegaProSubs from '../models/userBodegaProSub.model.js'
 
 const stripe = new Stripe(SSK);
 
@@ -291,7 +292,7 @@ export const createRefund = async (req, res) => {
 };
 
 export const createSubscriptionCheckout = async (req, res) => {
-  const { productId } = req.body;
+  const { priceId } = req.body;
   const userId = req.user.userId;
 
   try {
@@ -318,29 +319,26 @@ export const createSubscriptionCheckout = async (req, res) => {
       customer = await stripe.customers.retrieve(user.stripeCustomerId);
     }
 
-    // Create the checkout session
-    const session = await stripe.checkout.sessions.create({
+    // Create the subscription
+    const subscription = await stripe.subscriptions.create({
       customer: customer.id,
-      payment_method_types: ['card'],
-      line_items: [{
-        price: productId,
-        quantity: 1,
-      }],
-      mode: 'subscription',
-      success_url: `${FRONTEND_URL}/successSubscription?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${FRONTEND_URL}/cancelSubscription`,
+      items: [{ price: priceId }],
+      payment_behavior: 'default_incomplete',
+      expand: ['latest_invoice.payment_intent'],
     });
 
-    // Store the subscription_id in the new table
+    const paymentIntent = subscription.latest_invoice.payment_intent;
+
+    // Create entry in UserBodegaProSubs table
     await UserBodegaProSubs.create({
       user_id: userId,
-      subscription_id: session.subscription
+      subscription_id: subscription.id,
     });
 
-    res.status(201).json({ sessionId: session.id });
+    res.status(201).json({ clientSecret: paymentIntent.client_secret, subscriptionId: subscription.id });
   } catch (error) {
-    console.error('Error creating subscription checkout session:', error);
-    res.status(500).json({ error: 'Failed to create subscription checkout session', details: error.message });
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ error: 'Failed to create subscription', details: error.message });
   }
 };
 
