@@ -1,4 +1,3 @@
-
 import { Op } from 'sequelize';
 import Client from '../models/client.js';
 import PayMethod from '../models/pay_method.js';
@@ -15,8 +14,6 @@ const stripe = new Stripe(SSK);
 export const tryIntent = async (req, res) => {
   const { finalPrice } = req.body;
   console.log(req.body);
-
-
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -102,7 +99,6 @@ export const checkoutDistPayment = async (req, res) => {
   const { products, customerInfo, orderData, shop } = req.body; // Agregar orderId a la petición
   const { name, email, id, phone} = customerInfo;
 
-
   const idConfirm = req.user.clientId
 
   if (id !== idConfirm) {
@@ -155,7 +151,6 @@ export const checkoutDistPayment = async (req, res) => {
     const orderDataString = JSON.stringify(orderData);
     const uniqueProviderIds = [...new Set(products.map(product => product.id_proveedor))];
 
-
     // Crear la sesión de pago en Stripe
     const session = await stripe.checkout.sessions.create({
       customer: customer.id,
@@ -171,7 +166,7 @@ export const checkoutDistPayment = async (req, res) => {
           customer: customer.id,
           localData: JSON.stringify(localData.id),
           providerIds: JSON.stringify(uniqueProviderIds)
-           // Almacenar la información de la orden como una cadena JSON
+          // Almacenar la información de la orden como una cadena JSON
         }
       }
     });
@@ -183,9 +178,7 @@ export const checkoutDistPayment = async (req, res) => {
   }
 }
 
-
 export const checkoutBodegaDistPayment = async (req, res) => {
-  
   const { remainingBalance, clientId, orderData, localId } = req.body;
 
   const idConfirm = req.user.clientId
@@ -200,30 +193,28 @@ export const checkoutBodegaDistPayment = async (req, res) => {
     id_proveedor: item.DistProduct.id_proveedor,
     quantity: item.quantity,
     price: item.DistProduct.price
-}));
+  }));
 
-// Extraer todos los proveedores únicos
- const uniqueSuppliers = [...new Set(productDetails.map(item => item.id_proveedor))];
+  // Extraer todos los proveedores únicos
+  const uniqueSuppliers = [...new Set(productDetails.map(item => item.id_proveedor))];
 
- const suppliers = await Distributor.findAll({
-  where: {
+  const suppliers = await Distributor.findAll({
+    where: {
       id: uniqueSuppliers
-  }
-})
+    }
+  });
 
-const supplierData = suppliers.map(supplier => ({
-  id: supplier.id,
-  name: supplier.name,
-  phone: supplier.phone,
-  email: supplier.email,
-  address: supplier.address
-}));
+  const supplierData = suppliers.map(supplier => ({
+    id: supplier.id,
+    name: supplier.name,
+    phone: supplier.phone,
+    email: supplier.email,
+    address: supplier.address
+  }));
 
-  
   try {
     // Encuentra al cliente por su ID
     const client = await Client.findByPk(clientId);
-
 
     // Si el cliente no existe, devuelve un error
     if (!client) {
@@ -235,7 +226,6 @@ const supplierData = suppliers.map(supplier => ({
       id: client.id,
       phone: client.phone
     };
-
 
     // Actualiza el balance del cliente
     client.balance = remainingBalance;
@@ -250,7 +240,7 @@ const supplierData = suppliers.map(supplier => ({
       id: local.id
     };
 
-    await sendEmailWithProducts(productDetails, clientData, localData, supplierData )
+    await sendEmailWithProducts(productDetails, clientData, localData, supplierData)
     console.log("email send succesfully")
 
     // Devuelve una respuesta exitosa
@@ -271,8 +261,6 @@ export const createRefund = async (req, res) => {
   }
 
   // Convert the amount to cents
- 
-
   if (isNaN(amount) || amount <= 0) {
     return res.status(400).json({ error: 'Invalid amount provided' });
   }
@@ -343,9 +331,8 @@ export const createSubscriptionCheckout = async (req, res) => {
 };
 
 export const cancelSubscription = async (req, res) => {
-  const { subscriptionId } = req.body;
   const userId = req.user.userId;
-
+  console.log("1")
   try {
     // Retrieve the user from the database
     const user = await User.findByPk(userId);
@@ -353,9 +340,24 @@ export const cancelSubscription = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
+    console.log("2")
+    // Retrieve the subscriptionId from UserBodegaProSubs table
+    const userSubscription = await UserBodegaProSubs.findOne({
+      where: {
+        user_id: userId
+      }
+    });
+
+    if (!userSubscription) {
+      return res.status(404).json({ error: 'Subscription not found' });
+    }
+
+    const subscriptionId = userSubscription.subscription_id;
 
     // Cancel the subscription
-    const subscription = await stripe.subscriptions.del(subscriptionId);
+    const subscription = await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true
+    });
 
     // Remove the subscription from UserBodegaProSubs table
     await UserBodegaProSubs.destroy({
