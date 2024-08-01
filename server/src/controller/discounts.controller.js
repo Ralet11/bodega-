@@ -5,6 +5,7 @@ import UserDiscount from "../models/userDiscount.js";
 import Extra from "../models/extra.js";
 import ExtraOption from "../models/extraOption.model.js";
 
+
 export const getAll = async (req, res) => {
  
 
@@ -93,6 +94,7 @@ export const getDiscountsByUser = async (req, res) => {
     res.status(400).json(error);
   }
 };
+
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
   const idConfirm = req.user.clientId; // El clientId del usuario autenticado
@@ -132,6 +134,72 @@ export const getByLocalId = async (req, res) => {
 
     console.log(discounts);
     res.status(200).json(discounts);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Error al buscar descuentos por ID del local' });
+  }
+};
+
+
+export const getByLocalIdApp = async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.userId; // El clientId del usuario autenticado
+
+
+  try {
+    // Buscar el local para verificar el clientId
+    const local = await Local.findByPk(id);
+
+    if (!local) {
+      return res.status(404).json({ message: "Local not found" });
+    }
+
+    // Obtener los descuentos asociados al local e incluir los productos, extras y opciones de extras
+    const discounts = await Discount.findAll({
+      where: {
+        local_id: id
+      },
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          include: [
+            {
+              model: Extra,
+              as: 'extras',
+              through: { attributes: [] }, // Excluir columnas de la tabla de unión
+              include: {
+                model: ExtraOption,
+                as: 'options'
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    // Obtener los descuentos guardados por el usuario
+    const savedDiscounts = await UserDiscount.findAll({
+      where: {
+        user_id: userId,
+        discount_id: discounts.map(discount => discount.id)
+      },
+      attributes: ['discount_id']
+    });
+
+    // Convertir la lista de descuentos guardados a un conjunto para fácil búsqueda
+    const savedDiscountIds = new Set(savedDiscounts.map(d => d.discount_id));
+
+    // Agregar el campo `saved` a los descuentos
+    const discountsWithSavedFlag = discounts.map(discount => {
+      return {
+        ...discount.toJSON(), // Convertir el modelo a JSON para poder agregar el campo
+        saved: savedDiscountIds.has(discount.id)
+      };
+    });
+
+    console.log(discountsWithSavedFlag);
+    res.status(200).json(discountsWithSavedFlag);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Error al buscar descuentos por ID del local' });
