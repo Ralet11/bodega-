@@ -84,16 +84,12 @@ export default function ProductModal({
   };
 
   const handleImageUpload = async (productId) => {
-    console.log(newProduct.img, "imagen")
     if (newProduct.img) {
       const formData = new FormData();
       formData.append('id', productId);
       formData.append('action', 'product');
       formData.append('file', newProduct.img);
-  
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
+
       try {
         const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
           headers: {
@@ -101,9 +97,7 @@ export default function ProductModal({
             'Content-Type': 'multipart/form-data',
           },
         });
-  
-        console.log('Response from server:', response);
-  
+
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {
@@ -114,7 +108,6 @@ export default function ProductModal({
       }
     }
   };
-  
 
   const handleCreateProduct = async (e) => {
     e.preventDefault();
@@ -143,7 +136,6 @@ export default function ProductModal({
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log('Producto creado:', response.data);
 
       await handleImageUpload(response.data.id);
 
@@ -189,7 +181,6 @@ export default function ProductModal({
       {show && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
-
           <div className="bg-white w-full max-w-2xl mx-2 md:mx-auto rounded-lg shadow-lg relative max-h-screen overflow-auto">
             <div className="bg-blue-400 p-2 rounded-t-lg">
               <h2 className="text-sm font-semibold text-white">Add Product</h2>
@@ -250,7 +241,6 @@ export default function ProductModal({
                     Save Product
                   </button>
                 </div>
-
                 <div className="bg-gray-100 p-2 rounded-lg shadow-md flex flex-col justify-center items-center">
                   {image && (
                     <img
@@ -271,7 +261,6 @@ export default function ProductModal({
                   </div>
                 </div>
               </form>
-
               <div className="p-2">
                 <h3 className="text-xs font-semibold mb-2">Product Extras</h3>
                 {extras.map((extra, extraIndex) => (

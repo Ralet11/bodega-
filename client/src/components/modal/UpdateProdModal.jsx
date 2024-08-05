@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { PhotoIcon } from '@heroicons/react/24/solid';
 import axios from "axios";
@@ -15,18 +15,15 @@ export default function UpDateProductModal({
   aux,
   setAux
 }) {
-  // Initialize a state to hold the edited product
   const [editedProduct, setEditedProduct] = useState(selectedProduct);
   const token = useSelector((state) => state?.client.token);
 
-  // Whenever selectedProduct changes, update the editedProduct state
   useEffect(() => {
     setEditedProduct(selectedProduct);
   }, [selectedProduct]);
 
   const onSubmit = (e) => {
     e.preventDefault();
-    console.log(editedProduct, "enviando")
     handleUpdate(editedProduct);
   };
 
@@ -39,7 +36,7 @@ export default function UpDateProductModal({
     const response = await fetch(blobUrl);
     const blob = await response.blob();
     const filename = 'image.png';
-    const type = 'image/png'; // Especifica el tipo MIME de la imagen
+    const type = 'image/png'; 
     return new File([blob], filename, { type });
   }
 
@@ -70,7 +67,6 @@ export default function UpDateProductModal({
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Create a URL for the selected image
       const imageUrl = URL.createObjectURL(file);
       setEditedProduct({
         ...editedProduct,
@@ -152,7 +148,6 @@ export default function UpDateProductModal({
                       </button>
                     </form>
                   </div>
-
                   <div className="bg-gray-100 p-4 rounded-lg shadow-md">
                     <div className="mt-[-10px] w-[300px] h-[300px] rounded overflow-hidden shadow-lg mt-5 bg-white">
                       <img
@@ -194,4 +189,6 @@ UpDateProductModal.propTypes = {
   handleClose: PropTypes.func.isRequired,
   handleUpdate: PropTypes.func.isRequired,
   selectedProduct: PropTypes.object,
+  aux: PropTypes.bool.isRequired,
+  setAux: PropTypes.func.isRequired,
 };
