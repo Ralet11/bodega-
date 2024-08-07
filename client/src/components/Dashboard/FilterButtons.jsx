@@ -1,14 +1,51 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const FilterButtons = ({ filterOrders, showAllOrders }) => {
+  const [selected, setSelected] = useState(null);
+
+  const handleButtonClick = (period) => {
+    setSelected(period);
+    filterOrders(period);
+  };
+
   return (
-    <div className="mt-4 flex space-x-2">
-      <button onClick={() => filterOrders('day')} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Day</button>
-      <button onClick={() => filterOrders('month')} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Month</button>
-      <button onClick={() => filterOrders('trimester')} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Trimester</button>
-      <button onClick={() => filterOrders('semester')} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Semester</button>
-      <button onClick={() => filterOrders('year')} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Year</button>
-      <button onClick={showAllOrders} className="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-blue-600 transition-colors duration-200">Historical Data</button>
+    <div className="mt-4 flex justify-center space-x-2">
+      <button
+        onClick={() => handleButtonClick('day')}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'day' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Day
+      </button>
+      <button
+        onClick={() => handleButtonClick('month')}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'month' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Month
+      </button>
+      <button
+        onClick={() => handleButtonClick('trimester')}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'trimester' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Trimester
+      </button>
+      <button
+        onClick={() => handleButtonClick('semester')}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'semester' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Semester
+      </button>
+      <button
+        onClick={() => handleButtonClick('year')}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'year' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Year
+      </button>
+      <button
+        onClick={() => { setSelected('historical'); showAllOrders(); }}
+        className={`text-sm font-semibold px-4 py-2 rounded-md border border-black transition-colors duration-200 ${selected === 'historical' ? 'bg-[#F2BB26] text-white' : 'bg-transparent text-black hover:bg-[#F2BB26] hover:text-white'}`}
+      >
+        Historical Data
+      </button>
     </div>
   );
 };

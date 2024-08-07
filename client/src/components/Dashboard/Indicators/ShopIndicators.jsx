@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ChartBarIcon, ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import FilterButtons from '../FilterButtons';
 
 const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
@@ -39,14 +40,29 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
     <div className="shop-indicators mt-4">
       <h2 className="text-2xl font-bold mb-4">Shop Indicators</h2>
       <FilterButtons filterOrders={filterOrders} showAllOrders={filterOrders.bind(null, 'Historical Data')} />
-      <div className="grid grid-cols-2 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {indicators.map((indicator, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="text-lg font-semibold">Shop {indicator.shopId}</h3>
-            <p className="text-xl">Total Sales: {indicator.totalSales.toFixed(2)}</p>
-            <p className="text-xl">Total Quantity Sold: {indicator.totalQuantity}</p>
-            <p className="text-xl">Total Orders: {indicator.totalOrders}</p>
-            <p className="text-xl">Avg Sales per Order: {indicator.avgSalesPerOrder.toFixed(2)}</p>
+          <div key={index} className="bg-white p-4 rounded-lg shadow-lg transform transition-transform hover:scale-105">
+            <div className="flex items-center mb-3">
+              <ShoppingBagIcon className="h-8 w-8 text-blue-500" />
+              <h3 className="text-md font-semibold text-gray-800 ml-3">Shop {indicator.shopId}</h3>
+            </div>
+            <div className="flex items-center mb-1">
+              <CurrencyDollarIcon className="h-5 w-5 text-green-500" />
+              <p className="text-md text-gray-700 ml-2">Total Sales: ${indicator.totalSales.toFixed(2)}</p>
+            </div>
+            <div className="flex items-center mb-1">
+              <ShoppingCartIcon className="h-5 w-5 text-yellow-500" />
+              <p className="text-md text-gray-700 ml-2">Total Quantity Sold: {indicator.totalQuantity}</p>
+            </div>
+            <div className="flex items-center mb-1">
+              <ChartBarIcon className="h-5 w-5 text-red-500" />
+              <p className="text-md text-gray-700 ml-2">Total Orders: {indicator.totalOrders}</p>
+            </div>
+            <div className="flex items-center">
+              <ChartBarIcon className="h-5 w-5 text-purple-500" />
+              <p className="text-md text-gray-700 ml-2">Avg Sales per Order: ${indicator.avgSalesPerOrder.toFixed(2)}</p>
+            </div>
           </div>
         ))}
       </div>

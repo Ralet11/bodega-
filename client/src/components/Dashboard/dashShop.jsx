@@ -170,12 +170,12 @@ const ShopsComponent = ({ shops, ordersData }) => {
   return (
     <div className="container mx-auto p-4">
       <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} />
-      <HistoricalDataSection ordersData={ordersData} />
+      {/* <HistoricalDataSection ordersData={ordersData} /> */}
       <ShopSelectorSection shops={shops} onSelectShop={selectShop} />
 
       {selectedShop && (
         <>
-          <div className="mt-4 flex flex-wrap -mx-2">
+          {/* <div className="mt-4 flex flex-wrap -mx-2">
             <div className="w-full md:w-1/3 px-2">
               <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
               <EarningsBarChart data={Object.values(filteredItemTotals)} />
@@ -189,7 +189,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
               <OrdersPieChart data={Object.values(filteredItemTotals)} />
             </div>
           </div>
-
+ */}
           <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
           {selectedShop !== 'all' && (
             <>

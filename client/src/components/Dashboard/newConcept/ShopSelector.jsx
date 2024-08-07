@@ -24,14 +24,14 @@ const ShopSelector = ({ shops, onSelectShop }) => {
     },
     button: {
       margin: '8px',
-      width: '100px',
-      height: '100px',
+      width: '80px', // Ajuste del ancho del botón
+      height: '40px', // Ajuste de la altura del botón
       backgroundColor: '#f8f9fa',
-      borderRadius: '8px',
+      borderRadius: '4px', // Ajuste del radio de borde
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       border: '1px solid #ddd',
       fontFamily: 'Arial, sans-serif',
-      fontSize: '14px',
+      fontSize: '12px', // Ajuste del tamaño de la fuente
       fontWeight: 'bold',
       color: '#666',
       cursor: 'pointer',
@@ -43,14 +43,13 @@ const ShopSelector = ({ shops, onSelectShop }) => {
       textAlign: 'center',
     },
     buttonHover: {
-      transform: 'scale(1.1)', // Ajuste para hacer el botón más grande al pasar el ratón
+      transform: 'scale(1.05)', // Ajuste para hacer el botón más grande al pasar el ratón
       backgroundColor: '#e0e0e0',
     },
   };
 
   return (
     <div style={styles.container}>
-      <h2 className="text-center text-2xl font-bold">Welcome to your Shops</h2>
       <div style={styles.buttonContainer}>
         <button
           style={{

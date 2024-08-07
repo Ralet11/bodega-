@@ -6,6 +6,7 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 import ShopsComponent from './dashShop';
 import ProductsComponent from './dashProducts'; // Import the new component
+import './dashboard.css'
 
 const Dashboard = () => {
   const [shops, setShops] = useState([]);
@@ -13,7 +14,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  const [view, setView] = useState(null); // State to manage the current view
+  const [view, setView] = useState('shops'); // State to manage the current view
   const token = useSelector((state) => state?.client.token);
   const clientId = useSelector((state) => state?.client.client.id);
   const { API_URL_BASE } = getParamsEnv();
@@ -81,24 +82,24 @@ const Dashboard = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <div className="text-center bg-blue-500 text-white p-6 mb-6 rounded-lg shadow-lg" style={{ marginTop: '120px' }}>
-        <h1 className="text-4xl font-bold mb-2 animate-pulse">Welcome to Bodega Dashboard</h1>
-        <p className="text-lg">Manage your shops and orders efficiently</p>
+      <div className="text-center bg-gray-200 text-black p-6 mb-6 rounded-lg shadow-lg" style={{ marginTop: '120px' }}>
+        <h1 className="text-4xl font-bold mb-2 fade-in">Welcome to Bodega Dashboard</h1>
+        <p className="text-lg fade-in">Manage your shops and orders efficiently</p>
       </div>
 
       <div className="flex justify-center mb-6">
-        <button
+        {/* <button
           className={`px-4 py-2 mr-2 ${view === 'shops' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
           onClick={() => setView('shops')}
         >
           Shops
-        </button>
-        <button
+        </button> */}
+        {/* <button
           className={`px-4 py-2 ${view === 'products' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
           onClick={() => setView('products')}
         >
           Products
-        </button>
+        </button> */}
       </div>
 
       {view === 'shops' && (

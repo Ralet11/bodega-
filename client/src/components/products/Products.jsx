@@ -43,6 +43,7 @@ function Products() {
         if (Array.isArray(response.data)) {
           setCategories(response.data);
           if (response.data.length > 0) {
+            setSelectedCategory(response.data[0].id); // Selecciona la primera categoría por defecto
             setShowTutorial(false);
           }
         } else {
@@ -107,6 +108,9 @@ function Products() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setCategories(response.data);
+      if (response.data.length > 0) {
+        setSelectedCategory(response.data[0].id); // Selecciona la primera categoría por defecto después de agregar una nueva
+      }
     } catch (error) {
       console.error('Error al crear la categoría:', error);
     }
@@ -210,42 +214,37 @@ function Products() {
       <div className="w-full max-w-6xl">
         <div className="pb-2 mt-10">
           <div className="flex justify-between items-center mb-4">
-            <input
-              type="text"
-              placeholder="Buscar por nombre"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-2 py-1 placeholder-gray-400 text-gray-700 bg-white rounded-full text-xs border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[200px]"
-            />
+        
             <div className="flex space-x-2">
               <button
-                className="flex items-center space-x-1 px-2 py-1 text-xs text-green-500 font-semibold border border-green-500 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200"
+                className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
                 onClick={handleAddCategory}
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>Add Category</span>
               </button>
+              
               <button
-                className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200"
-                onClick={() => setShowNewProductModal(true)}
-              >
-                <PlusCircle className="w-4 h-4" />
-                <span>Add Item</span>
-              </button>
-              <button
-                className="flex items-center space-x-1 px-2 py-1 text-xs text-red-500 font-semibold border border-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors duration-200"
+                className="flex items-center space-x-1 px-2 py-1 text-xs text-red-500 font-semibold border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
                 onClick={() => handleDeleteCategory(selectedCategory)}
               >
                 <Trash className="w-4 h-4" />
                 <span>Delete Category</span>
               </button>
-              <button
-                className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200"
-                onClick={() => setShowExtrasModal(true)}
-              >
-                <span>Upload Excel</span>
-              </button>
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {categories.map((category) => (
+              <div
+                key={category.id}
+                className={`cursor-pointer p-2 border rounded-md shadow-sm transition-colors duration-200 ${
+                  category.id === selectedCategory ? 'border-yellow-400' : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onClick={() => handleIconClick(category.id)}
+              >
+                <span className="text-sm">{category.name}</span>
+              </div>
+            ))}
           </div>
           <hr className="my-4 border-t border-gray-300 mx-auto w-full" />
         </div>
@@ -281,21 +280,21 @@ function Products() {
               </div>
               <div className="flex space-x-2">
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
                   onClick={openEditProduct}
                 >
                   <PencilIcon className="w-4 h-4" />
                   <span>Edit</span>
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs text-red-500 font-semibold border border-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors duration-200"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs text-red-500 font-semibold border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
                   onClick={deleteProduct}
                 >
                   <Trash className="w-4 h-4" />
                   <span>Delete</span>
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                  className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
                   onClick={() => setShowExtrasModal(true)}
                 >
                   <span>Extras</span>

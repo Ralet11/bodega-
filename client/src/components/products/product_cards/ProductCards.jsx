@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 import ProductCard from './ProductCard';
 import UploadExcelModal from '../../modal/UploadExcelModal';
 import { getParamsEnv } from '../../../functions/getParamsEnv';
@@ -59,21 +60,15 @@ function ProductCards({
         />
         <div className="flex space-x-2">
           <button
-            className="flex items-center space-x-1 px-2 py-1 text-xs text-green-500 font-semibold border border-green-500 rounded-md hover:bg-green-500 hover:text-white transition-colors duration-200"
+            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
             onClick={handleOpenNewProductModal}
           >
             <PlusCircle className="w-4 h-4" />
             <span>Add Item</span>
           </button>
+          
           <button
-            className="flex items-center space-x-1 px-2 py-1 text-xs text-red-500 font-semibold border border-red-500 rounded-md hover:bg-red-500 hover:text-white transition-colors duration-200"
-            onClick={handleDeleteCategory}
-          >
-            <Trash className="w-4 h-4" />
-            <span>Delete category</span>
-          </button>
-          <button
-            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md hover:bg-blue-500 hover:text-white transition-colors duration-200"
+            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
             onClick={handleOpenUploadExcelModal}
           >
             <Upload className="w-4 h-4" />
