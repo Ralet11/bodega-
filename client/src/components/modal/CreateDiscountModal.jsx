@@ -133,20 +133,20 @@ const CreateDiscountModal = ({
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
       >
-        <div className="w-11/12 max-w-3xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-200">
+        <div className="w-11/12 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">
               Add New Discount
             </h1>
             <XCircleIcon
               onClick={closeModal}
-              className="cursor-pointer w-6 h-6 text-gray-800 dark:text-gray-200 hover:text-red-600"
+              className="cursor-pointer w-5 h-5 text-gray-800 dark:text-gray-200 hover:text-red-600"
             />
           </div>
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Discount Name
                 </label>
                 <input
@@ -155,18 +155,18 @@ const CreateDiscountModal = ({
                   name="productName"
                   value={discount.productName}
                   placeholder="Discount name"
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Discount Type
                 </label>
                 <select
                   name="discountType"
                   value={discount.discountType}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                 >
                   <option value="percentage">Percentage</option>
                   <option value="fixedValue">Fixed Value</option>
@@ -174,7 +174,7 @@ const CreateDiscountModal = ({
               </div>
               {discount.discountType === "percentage" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                     Discount Percentage
                   </label>
                   <input
@@ -183,13 +183,13 @@ const CreateDiscountModal = ({
                     name="percentage"
                     value={discount.percentage}
                     placeholder="Discount percentage"
-                    className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                   />
                 </div>
               )}
               {discount.discountType === "fixedValue" && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                     Fixed Value
                   </label>
                   <input
@@ -198,12 +198,12 @@ const CreateDiscountModal = ({
                     name="fixedValue"
                     value={discount.fixedValue}
                     placeholder="Fixed value"
-                    className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                   />
                 </div>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Expiration Date
                 </label>
                 <input
@@ -212,11 +212,11 @@ const CreateDiscountModal = ({
                   name="limitDate"
                   value={discount.limitDate}
                   placeholder="Expiration date"
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Image Link
                 </label>
                 <input
@@ -225,25 +225,25 @@ const CreateDiscountModal = ({
                   name="image"
                   value={discount.image}
                   placeholder="Image link"
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                 />
-                <div className="mt-2">
+                <div className="mt-1">
                   <img
-                    className="w-24 h-24 rounded-md object-cover"
+                    className="w-16 h-16 rounded-md object-cover"
                     src={discount.image}
                     alt="Product"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Order Type
                 </label>
                 <select
                   name="delivery"
                   value={discount.delivery}
                   onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
                 >
                   <option value="0">Pick-up / Delivery</option>
                   <option value="1">Order-in</option>
@@ -251,7 +251,7 @@ const CreateDiscountModal = ({
                 </select>
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                   Description
                 </label>
                 <textarea
@@ -259,17 +259,17 @@ const CreateDiscountModal = ({
                   name="description"
                   value={discount.description}
                   placeholder="Description"
-                  className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200"
-                  rows="4"
+                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
+                  rows="3"
                 ></textarea>
               </div>
             </div>
-            <div className="relative mb-6">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <div className="relative mb-4">
+              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
                 Selected Products
               </label>
               <div
-                className="mt-1 block w-full px-4 py-2 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 text-xs"
                 onClick={() => setIsSelectOpen(!isSelectOpen)}
               >
                 {isSelectOpen ? "Close" : "Open"} Product Select
@@ -277,7 +277,7 @@ const CreateDiscountModal = ({
               {isSelectOpen && (
                 <select
                   onChange={handleProductSelect}
-                  className="absolute mt-2 w-full border border-gray-300 rounded-md shadow-lg bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200"
+                  className="absolute mt-2 w-full border border-gray-300 rounded-md shadow-lg bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 text-xs"
                   multiple
                   style={{ zIndex: 999 }}
                 >
@@ -292,12 +292,12 @@ const CreateDiscountModal = ({
                 {selectedProducts.map((selectedProduct) => (
                   <span
                     key={selectedProduct.id}
-                    className="flex items-center bg-gray-200 dark:bg-gray-800 px-3 py-1 rounded-full text-sm font-medium text-gray-700 dark:text-gray-200 mr-2 mb-2"
+                    className="flex items-center bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 mr-1 mb-1"
                   >
                     {selectedProduct.name}
                     <button
                       onClick={() => removeSelectedProduct(selectedProduct)}
-                      className="ml-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-600"
+                      className="ml-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-600"
                     >
                       x
                     </button>
@@ -310,7 +310,7 @@ const CreateDiscountModal = ({
                 <button
                   type="submit"
                   disabled={disableSubmit}
-                  className="px-4 py-2 w-full sm:w-auto bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400"
+                  className="px-3 py-1 w-full sm:w-auto bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 text-xs"
                 >
                   Create New Discount
                 </button>
