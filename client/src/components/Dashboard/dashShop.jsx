@@ -13,20 +13,38 @@ import ShopIndicators from './Indicators/ShopIndicators';
 
 const ShopsComponent = ({ shops, ordersData }) => {
   const [selectedShop, setSelectedShop] = useState(null);
-  const [filteredOrdersData, setFilteredOrdersData] = useState(ordersData);
-  const [filteredOrdersDataForCharts, setFilteredOrdersDataForCharts] = useState(ordersData);
+  const [filteredOrdersData, setFilteredOrdersData] = useState({});
+  const [filteredOrdersDataForCharts, setFilteredOrdersDataForCharts] = useState({});
   const [selectedOrderDetails, setSelectedOrderDetails] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filteredItemTotals, setFilteredItemTotals] = useState({});
   const [filterPeriod, setFilterPeriod] = useState('Historical Data');
+
+  useEffect(() => {
+    const ordersDataWithShopNames = {};
+    Object.keys(ordersData).forEach(shopId => {
+      const shopName = shops.find(shop => shop.id === shopId)?.name || 'Unknown Shop';
+      const ordersWithShopName = ordersData[shopId].orders.map(order => ({
+        ...order,
+        shopName
+      }));
+      ordersDataWithShopNames[shopId] = {
+        ...ordersData[shopId],
+        orders: ordersWithShopName,
+        shopName // Add the shop name to the shop data object
+      };
+    });
+    setFilteredOrdersData(ordersDataWithShopNames);
+    setFilteredOrdersDataForCharts(ordersDataWithShopNames);
+  }, [ordersData, shops]);
 
   const filterOrders = (period) => {
     setFilterPeriod(period);
     const now = new Date();
     const newFilteredData = {};
 
-    Object.keys(ordersData).forEach(shopId => {
-      const filteredOrders = ordersData[shopId].orders.filter(order => {
+    Object.keys(filteredOrdersData).forEach(shopId => {
+      const filteredOrders = filteredOrdersData[shopId].orders.filter(order => {
         const orderDate = new Date(order.date_time);
         switch (period) {
           case 'day':
@@ -52,7 +70,13 @@ const ShopsComponent = ({ shops, ordersData }) => {
       const quantity = filteredOrders.reduce((sum, order) => sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0), 0);
       const ordersCount = filteredOrders.length;
 
-      newFilteredData[shopId] = { sales, quantity, ordersCount, orders: filteredOrders };
+      newFilteredData[shopId] = { 
+        sales, 
+        quantity, 
+        ordersCount, 
+        orders: filteredOrders,
+        shopName: filteredOrdersData[shopId].shopName // Add the shop name to the filtered data
+      };
     });
 
     setFilteredOrdersDataForCharts(newFilteredData);
@@ -109,9 +133,9 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   const showAllOrders = () => {
     setFilterPeriod('Historical Data');
-    setFilteredOrdersDataForCharts(ordersData);
-    setFilteredOrdersData(ordersData);
-    updateFilteredItemTotals(ordersData);
+    setFilteredOrdersDataForCharts(filteredOrdersData);
+    setFilteredOrdersData(filteredOrdersData);
+    updateFilteredItemTotals(filteredOrdersData);
   };
 
   const selectShop = (shopId) => {
@@ -137,6 +161,8 @@ const ShopsComponent = ({ shops, ordersData }) => {
     setFilteredOrdersData(ordersData);
     setFilteredOrdersDataForCharts(ordersData);
   }, [ordersData]);
+
+console.log(ordersData, "ordersda")
 
   useEffect(() => {
     if (selectedShop) {
@@ -170,26 +196,10 @@ const ShopsComponent = ({ shops, ordersData }) => {
   return (
     <div className="container mx-auto p-4">
       <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} />
-      {/* <HistoricalDataSection ordersData={ordersData} /> */}
       <ShopSelectorSection shops={shops} onSelectShop={selectShop} />
 
       {selectedShop && (
         <>
-          {/* <div className="mt-4 flex flex-wrap -mx-2">
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Earnings by Item</h2>
-              <EarningsBarChart data={Object.values(filteredItemTotals)} />
-            </div>
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Total Quantity by Item</h2>
-              <QuantityAreaChart data={Object.values(filteredItemTotals)} />
-            </div>
-            <div className="w-full md:w-1/3 px-2">
-              <h2 className="text-xl font-bold mb-4">Orders by Item</h2>
-              <OrdersPieChart data={Object.values(filteredItemTotals)} />
-            </div>
-          </div>
- */}
           <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
           {selectedShop !== 'all' && (
             <>

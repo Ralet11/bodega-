@@ -31,6 +31,7 @@ import Loader from './components/Loader'; // Importa el nuevo componente Loader
 import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
 import PrivacyPolicy from './components/PoliciPrivacy.jsx';
 import DeleteInfoUserForm from './components/DeleteInfoUsers.jsx';
+import ErrorPage from './components/ErrorView.jsx'
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -39,14 +40,18 @@ function App() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const token = useSelector((state) => state?.client?.token);
+  const activeShop = useSelector((state) => state.activeShop);
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy' && location.pathname !== '/deleteUserInfoForm';
-  const [orderNotificationCount, setOrderNotificationCount] = useState(0);
+  const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
   const [loading, setLoading] = useState(true);
   const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
-      setOrderNotificationCount((prevCount) => prevCount + 1);
+      setOrderNotificationCounts((prevCounts) => ({
+        ...prevCounts,
+        [data.local_id]: (prevCounts[data.local_id] || 0) + 1,
+      }));
       dispatch(setNewOrder(true));
     });
 
@@ -54,22 +59,25 @@ function App() {
       socket.off("newOrder");
     };
   }, [dispatch]);
+  console.log(activeShop, "activeshop")
+  console.log(orderNotificationCounts[activeShop], "not")
 
   const handleOrdersClick = () => {
-    setOrderNotificationCount(0);
+    setOrderNotificationCounts((prevCounts) => ({
+      ...prevCounts,
+      [activeShop]: 0,
+    }));
   };
-
   useEffect(() => {
+    
+
     const fetchCategories = async () => {
       const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
-      console.log(response.data, "llamando categorias");
       dispatch(setCategories(response.data));
     };
 
     fetchCategories();
-  }, [dispatch]);
 
-  useEffect(() => {
     const protectedRoutes = [
       '/dashboard', '/products', '/shops', '/orders', 
       '/history', '/settings', '/discounts', 
@@ -81,7 +89,7 @@ function App() {
     if (!token && protectedRoutes.includes(location.pathname)) {
       navigate("/login");
     }
-  }, [token, location.pathname, navigate]);
+  }, [dispatch, token, location.pathname, navigate, activeShop]);
 
   return (
     <div className="flex flex-col h-screen">
@@ -93,7 +101,7 @@ function App() {
             <SidebarItem
               icon={<BellAlertIcon className="w-2" />}
               text="Orders"
-              notificationCount={orderNotificationCount}
+              notificationCount={orderNotificationCounts[activeShop] || 0}
               onClick={handleOrdersClick}
               link="/orders"
             />
@@ -128,6 +136,7 @@ function App() {
         <Route path='/searchProducts' element={<FindedProducts />}></Route>
         <Route path='/privacyPolicy' element={<PrivacyPolicy />}></Route>
         <Route path='/deleteUserInfoForm' element={<DeleteInfoUserForm />}></Route>
+        <Route path='*' element={<ErrorPage />}></Route> 
       </Routes>
     </div>
   );

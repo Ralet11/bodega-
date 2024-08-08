@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { ChartBarIcon, ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
 import FilterButtons from '../FilterButtons';
+import { useSelector } from 'react-redux';
 
 const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
   const [indicators, setIndicators] = useState([]);
+  const activeShop = useSelector((state) => state.activeShop);
+
+  console.log(activeShop, "shop")
+  console.log(ordersData, "data")
 
   useEffect(() => {
     const calculateIndicators = (data) => {
