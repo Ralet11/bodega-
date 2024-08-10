@@ -44,7 +44,7 @@ function App() {
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy' && location.pathname !== '/deleteUserInfoForm';
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     socket.on("newOrder", (data) => {
@@ -105,12 +105,12 @@ function App() {
               onClick={handleOrdersClick}
               link="/orders"
             />
-            <SidebarItem icon={<ShoppingBagIcon className="w-2" />} text="Market" link="/distributorsCommerce" />
+           {/*  <SidebarItem icon={<ShoppingBagIcon className="w-2" />} text="Market" link="/distributorsCommerce" /> */}
             {/* <SidebarItem icon={<WalletIcon className="w-2" />} text="History" link="/history" /> */}
             <SidebarItem icon={<TicketIcon className="w-2" />} text="Discounts" link="/discounts" />
             <SidebarItem icon={<BuildingStorefrontIcon className="w-2" />} text="Shops" link="/shops" />
             <SidebarItem icon={<PhoneIcon className="w-2" />} text="Contact" link="/contact" />
-            <SidebarItem icon={<RectangleStackIcon className="w-2" />} text="Your buys" link="/distHistoryBuy" />
+            {/* <SidebarItem icon={<RectangleStackIcon className="w-2" />} text="Your buys" link="/distHistoryBuy" /> */}
           </Sidebar>
           <Header className="header" />
         </>

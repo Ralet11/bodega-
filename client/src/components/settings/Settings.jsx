@@ -155,13 +155,13 @@ function Settings() {
           </div>
         </div>
       )
-    },
+    }/* ,
     {
       label: "Balance",
       value: "Balance",
       icon: StarIcon,
       desc: <Balance />
-    }
+    } */
   ];
 
   return (

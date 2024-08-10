@@ -86,16 +86,6 @@ const SignUpForm = ({ setSelected, setLogged }) => {
       isValid = false;
     }
 
-    if (!formData.phone) {
-      errors.phone = 'Phone is required';
-      isValid = false;
-    }
-
-    if (!formData.address) {
-      errors.address = 'Address is required';
-      isValid = false;
-    }
-
     if (!termsAccepted) {
       errors.terms = 'You must accept the terms and conditions';
       isValid = false;
@@ -139,51 +129,35 @@ const SignUpForm = ({ setSelected, setLogged }) => {
       <h2 className="text-lg md:text-xl font-semibold mb-4">Create Your Account</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-2 md:mb-3 relative">
+        <label className="text-gray-600" htmlFor="email">Name</label>
           <Input
+            label="Name"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            placeholder="Name"
+            placeholder="Enter your name"
             type="text"
             className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
         <div className="mb-2 md:mb-3 relative">
+        <label className="text-gray-600" htmlFor="email">Email</label>
           <Input
+            label="E-mail"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            placeholder="E-mail"
+            placeholder="Enter email"
             type="email"
             className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
-        <div className="mb-2 md:mb-3 relative">
+       <div className="mb-2 md:mb-3 relative">
+       <label className="text-gray-600" htmlFor="email">Password</label>
           <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleInputChange}
-            placeholder="Phone"
-            type="tel"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
-          />
-          {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
-        </div>
-        <div className="mb-2 md:mb-3 relative">
-          <Input
-            name="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            placeholder="Address"
-            type="text"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
-          />
-          {errors.address && <p className="text-red-500 text-xs mt-1">{errors.address}</p>}
-        </div>
-        <div className="mb-2 md:mb-3 relative">
-          <Input
+            label="Password"
             name="password"
             value={formData.password}
             onChange={handleInputChange}
@@ -194,7 +168,9 @@ const SignUpForm = ({ setSelected, setLogged }) => {
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
         </div>
         <div className="mb-2 md:mb-3 relative">
+        <label className="text-gray-600" htmlFor="email">Confirm Password</label>
           <Input
+            label="Confirm Password"
             name="confirmPassword"
             value={formData.confirmPassword}
             onChange={handleInputChange}

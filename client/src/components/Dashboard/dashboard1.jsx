@@ -7,6 +7,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import ShopsComponent from './dashShop';
 import ProductsComponent from './dashProducts'; // Import the new component
 import './dashboard.css'
+import DashboardSkeleton from '../DashboardSkeleton';
 
 const Dashboard = () => {
   const [shops, setShops] = useState([]);
@@ -73,12 +74,14 @@ const Dashboard = () => {
   }, [token, clientId, API_URL_BASE]);
 
   if (loading) {
-    return <Skeleton count={5} />;
+    return <DashboardSkeleton count={5} />;
   }
 
   if (error) {
     return <div className="text-red-500">{error}</div>;
   }
+
+  console.log(shops, "shops")
 
   return (
     <div className="container mx-auto p-4">

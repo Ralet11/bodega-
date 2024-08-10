@@ -3,12 +3,13 @@ import Local from '../models/local.js';
 import User from '../models/user.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { sendWelcomeEmail } from '../functions/SendWelcomeEmail.js';
 
 export const registerClient = async (req, res) => {
   try {
-    const { name, email, password, address, phone } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!name || !email || !password || !address || !phone) {
+    if (!name || !email || !password) {
       return res.status(400).json({ message: "Bad Request. Please fill all fields." });
     }
 
@@ -18,16 +19,13 @@ export const registerClient = async (req, res) => {
       return res.status(400).json({ message: "Email already in use" });
     }
 
-    // Check if client with the same phone number already exists
-    const existingPhoneClient = await Client.findOne({ where: {phone: phone} });
-    if (existingPhoneClient) {
-      return res.status(400).json({ message: "Phone number already in use" });
-    }
+ 
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newClient = await Client.create({ name, email, password: hashedPassword, address, phone });
+    const newClient = await Client.create({ name, email, password: hashedPassword });
 
+    await sendWelcomeEmail(name, email)
     res.json({
       error: false,
       data: {
