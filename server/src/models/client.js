@@ -1,45 +1,45 @@
-import { DataTypes, Sequelize } from 'sequelize';
-import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
+import { DataTypes } from 'sequelize';
+import sequelize from '../database.js';
 
 const Client = sequelize.define('client', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true,
-    allowNull: false
+    allowNull: false,
   },
   name: {
     type: DataTypes.STRING(45),
-    allowNull: false
+    allowNull: false,
   },
   email: {
     type: DataTypes.STRING(45),
-    allowNull: false
+    allowNull: false,
   },
   password: {
     type: DataTypes.STRING(150),
-    allowNull: false
+    allowNull: false,
   },
   address: {
     type: DataTypes.STRING(45),
-    allowNull: false
+    allowNull: true,
   },
   phone: {
     type: DataTypes.STRING(45),
-    defaultValue: null
+    allowNull: true,
+    defaultValue: null,
   },
   pay_methods: {
     type: DataTypes.JSON,
-    defaultValue: null
+    defaultValue: null,
   },
   balance: {
     type: DataTypes.FLOAT,
-    allowNull: true
-  }
-   }
-, {
+    allowNull: true,
+  },
+}, {
   tableName: 'clients',
-  timestamps: false
+  timestamps: false,
 });
 
 export default Client;

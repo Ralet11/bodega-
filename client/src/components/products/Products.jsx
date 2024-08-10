@@ -10,7 +10,7 @@ import ProductModal from '../modal/ProductModal';
 import ExtrasModal from '../modal/ExtrasModal';
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import FloatingTutorialCard from '../TutorialCard';
-import 'animate.css'; // Importa animate.css
+import 'animate.css';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -210,9 +210,9 @@ function Products() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-4">
-      <div className="w-full max-w-6xl">
-        <div className="pb-2 mt-10">
+    <div className="flex flex-col items-center justify-start w-full h-full p-4">
+      <div className="w-full max-w-6xl mt-20">
+        <div className="pb-2">
           <div className="flex justify-between items-center mb-4">
         
             <div className="flex space-x-2">
@@ -238,7 +238,7 @@ function Products() {
               <div
                 key={category.id}
                 className={`cursor-pointer p-2 border rounded-md shadow-sm transition-colors duration-200 ${
-                  category.id === selectedCategory ? 'border-yellow-400' : 'border-gray-300 hover:border-gray-400'
+                  category.id === selectedCategory ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
                 }`}
                 onClick={() => handleIconClick(category.id)}
               >

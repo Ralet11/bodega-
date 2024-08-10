@@ -24,7 +24,7 @@ export default function ProductModal({
     img: null,
   });
   const [image, setImage] = useState(null);
-  const [extras, setExtras] = useState([{ name: '', options: [{ name: '', price: 0 }], required: false }]);
+  const [extras, setExtras] = useState([]); // Inicializamos extras como un array vacío
   const [errors, setErrors] = useState([]);
 
   const handleInputChange = (e) => {
@@ -155,7 +155,7 @@ export default function ProductModal({
         category_id: selectedCategory,
         img: null,
       });
-      setExtras([{ name: '', options: [{ name: '', price: 0 }], required: false }]);
+      setExtras([]); // Restablece extras a un array vacío
       setErrors([]);
     } catch (error) {
       console.error('Error al crear el producto:', error);
@@ -172,7 +172,7 @@ export default function ProductModal({
       category_id: selectedCategory,
       img: null,
     });
-    setExtras([{ name: '', options: [{ name: '', price: 0 }], required: false }]);
+    setExtras([]); // Restablece extras a un array vacío
     setErrors([]);
   };
 

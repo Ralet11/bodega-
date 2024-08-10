@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import NewOrderCard from "./NeworderCard";
 import AcceptedOrderCard from "./AcceptedOrderCard";
-import SendindOrderCard from "./SendindOrders";
+import SendingOrderCard from "./SendindOrders";
 import socketIOClient from "socket.io-client";
 import { setNewOrder } from "../../redux/actions/actions";
 import { getParamsEnv } from "../../functions/getParamsEnv";
@@ -23,7 +23,7 @@ const Orders = () => {
     finished: [],
   });
 
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,8 +48,6 @@ const Orders = () => {
           finished: [],
         };
 
-        console.log(response.data);
-
         response.data.orders.forEach((order) => {
           const status = order.status;
           if (status in ordersByStatus) {
@@ -64,31 +62,24 @@ const Orders = () => {
     };
 
     fetchData();
-  }, [activeShop]);
+  }, [activeShop, token, API_URL_BASE]);
 
   useEffect(() => {
     // Listen for the "newOrder" event
     socket.on("newOrder", (data) => {
-      console.log("entro nueva orden");
-      setOrders((prevOrders) => {
-        return {
-          ...prevOrders,
-          "new order": [...prevOrders["new order"], data],
-        };
-      });
+      setOrders((prevOrders) => ({
+        ...prevOrders,
+        "new order": [data, ...prevOrders["new order"]],
+      }));
     });
 
     // Clean up the WebSocket listener when the component unmounts
     return () => {
       socket.off("newOrder");
     };
-  }, []);
-
-  console.log(orders)
+  }, [socket]);
 
   const handleAcceptOrder = async (orderId) => {
-    console.log("cambiando estado");
-
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
       await axios.put(
@@ -109,11 +100,11 @@ const Orders = () => {
         );
 
         if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = JSON.parse(
-            JSON.stringify(updatedOrders["new order"][orderToUpdateIndex])
-          );
-          orderToUpdate.status = "accepted";
-          updatedOrders.accepted.push(orderToUpdate);
+          const orderToUpdate = {
+            ...updatedOrders["new order"][orderToUpdateIndex],
+            status: "accepted",
+          };
+          updatedOrders.accepted.unshift(orderToUpdate);
           updatedOrders["new order"].splice(orderToUpdateIndex, 1);
         }
 
@@ -125,7 +116,6 @@ const Orders = () => {
   };
 
   const handleSendOrder = async (orderId) => {
-    console.log("cambiando estado");
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "sending"
       await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`,
@@ -144,11 +134,11 @@ const Orders = () => {
         );
 
         if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = JSON.parse(
-            JSON.stringify(updatedOrders["accepted"][orderToUpdateIndex])
-          );
-          orderToUpdate.status = "sending";
-          updatedOrders.sending.push(orderToUpdate);
+          const orderToUpdate = {
+            ...updatedOrders["accepted"][orderToUpdateIndex],
+            status: "sending",
+          };
+          updatedOrders.sending.unshift(orderToUpdate);
           updatedOrders["accepted"].splice(orderToUpdateIndex, 1);
         }
 
@@ -160,7 +150,6 @@ const Orders = () => {
   };
 
   const handleFinishOrder = async (orderId) => {
-    console.log("cambiando estado");
     try {
       // Realiza una solicitud al servidor para cambiar el estado de la orden a "finished"
       await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`,
@@ -179,11 +168,11 @@ const Orders = () => {
         );
 
         if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = JSON.parse(
-            JSON.stringify(updatedOrders["sending"][orderToUpdateIndex])
-          );
-          orderToUpdate.status = "finished";
-          updatedOrders.finished.push(orderToUpdate);
+          const orderToUpdate = {
+            ...updatedOrders["sending"][orderToUpdateIndex],
+            status: "finished",
+          };
+          updatedOrders.finished.unshift(orderToUpdate);
           updatedOrders["sending"].splice(orderToUpdateIndex, 1);
         }
 
@@ -222,7 +211,6 @@ const Orders = () => {
       console.error("Error rejecting order:", error);
     }
   };
-  
 
   return (
     <div className="ml-5 md:ml-20 mt-20">
@@ -239,11 +227,13 @@ const Orders = () => {
             <h3 className="text-base font-semibold mt-2">
               {status === "new order"
                 ? "New"
-                : status.charAt(0).toUpperCase() + status.slice(1)}
+                : status === "accepted"
+                ? "Accepted"
+                : "Ready"}
             </h3>
             <hr className="mb-5" />
             <div className="max-h-[500px] overflow-y-auto">
-              {orders[status].map((order, orderIndex) => {
+              {[...orders[status]].reverse().map((order, orderIndex) => {
                 const dateTimeString = order.date_time;
                 const dateTime = new Date(dateTimeString);
                 dateTime.setUTCHours(dateTime.getUTCHours() - 3);
@@ -286,7 +276,7 @@ const Orders = () => {
                         handleRejectOrder={handleRejectOrder}
                       />
                     ) : (
-                      <SendindOrderCard
+                      <SendingOrderCard
                         order={order}
                         handleFinishOrder={handleFinishOrder}
                         date={date}

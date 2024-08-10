@@ -195,12 +195,12 @@ console.log(ordersData, "ordersda")
 
   return (
     <div className="container mx-auto p-4">
-      <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} />
+      <ShopIndicators ordersData={filteredOrdersData} filterPeriod={filterPeriod} filterOrders={filterOrders} shops={shops} />
       <ShopSelectorSection shops={shops} onSelectShop={selectShop} />
 
       {selectedShop && (
         <>
-          <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} />
+{/*           <FilterButtons filterOrders={filterOrders} showAllOrders={showAllOrders} /> */}
           {selectedShop !== 'all' && (
             <>
               <EarningsTable

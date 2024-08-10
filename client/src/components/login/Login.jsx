@@ -48,7 +48,7 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
 
         console.log(clientData.locals);
 
-        if (clientData.locals.length === 0) {
+        if (clientData.locals.length === 0 || clientData.locals.every(local => local.status == 0)) {
           dispatch(loginSuccess(clientData));
           dispatch(getCategories());
           navigate(`/create-shop`);

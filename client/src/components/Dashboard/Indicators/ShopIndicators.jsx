@@ -3,17 +3,15 @@ import { ChartBarIcon, ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon } f
 import FilterButtons from '../FilterButtons';
 import { useSelector } from 'react-redux';
 
-const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
+const ShopIndicators = ({ ordersData, filterPeriod, filterOrders, shops }) => {
   const [indicators, setIndicators] = useState([]);
   const activeShop = useSelector((state) => state.activeShop);
-
-  console.log(activeShop, "shop")
-  console.log(ordersData, "data")
 
   useEffect(() => {
     const calculateIndicators = (data) => {
       return Object.keys(data).map(shopId => {
         const shopData = data[shopId];
+        const shopInfo = shops.find(shop => shop.id === parseInt(shopId)); // Encuentra el nombre del shop basado en shopId
         const totalSales = shopData.orders.reduce((sum, order) => sum + parseFloat(order.total_price), 0);
         const totalQuantity = shopData.orders.reduce((sum, order) => {
           return sum + order.order_details.reduce((qSum, item) => qSum + item.quantity, 0);
@@ -23,6 +21,7 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
 
         return {
           shopId,
+          shopName: shopInfo ? shopInfo.name : 'Unknown Shop', // Añade el nombre del shop
           totalSales,
           totalQuantity,
           totalOrders,
@@ -35,7 +34,7 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
       const newIndicators = calculateIndicators(ordersData);
       setIndicators(newIndicators);
     }
-  }, [ordersData, filterPeriod]);
+  }, [ordersData, filterPeriod, shops]);
 
   if (indicators.length === 0) {
     return <div className="text-center text-xl font-bold mt-4">No data available for shops.</div>;
@@ -47,10 +46,15 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders }) => {
       <FilterButtons filterOrders={filterOrders} showAllOrders={filterOrders.bind(null, 'Historical Data')} />
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {indicators.map((indicator, index) => (
-          <div key={index} className="bg-white p-4 rounded-lg shadow-lg transform transition-transform hover:scale-105">
+          <div
+            key={index}
+            className={`p-4 rounded-lg shadow-lg transform transition-transform hover:scale-105 ${
+              indicator.shopId == activeShop ? 'bg-yellow-100' : 'bg-white'
+            }`}
+          >
             <div className="flex items-center mb-3">
               <ShoppingBagIcon className="h-8 w-8 text-blue-500" />
-              <h3 className="text-md font-semibold text-gray-800 ml-3">Shop {indicator.shopId}</h3>
+              <h3 className="text-md font-semibold text-gray-800 ml-3">{indicator.shopName}</h3>
             </div>
             <div className="flex items-center mb-1">
               <CurrencyDollarIcon className="h-5 w-5 text-green-500" />
