@@ -55,6 +55,11 @@ const Order = sequelize.define('order', {
     type: DataTypes.STRING,
     allowNull: true,
     defaultValue: null
+  },
+  deliveryInstructions: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
 }, {
   tableName: 'orders',

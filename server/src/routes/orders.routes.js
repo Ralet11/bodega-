@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { acceptOrder, getByLocalId, sendOrder, getByOrderId, createOrder, rejectOrder, getOrderUser, finishOrder, getOrdersByUser } from "../controller/orders.controller.js";
+import { acceptOrder, getByLocalId, sendOrder, getByOrderId, createOrder, rejectOrder, getOrderUser, finishOrder, getOrdersByUser, acceptOrderByEmail } from "../controller/orders.controller.js";
 import { methods } from "../middleware.js";
 import { createRefund } from "../controller/payment.controller.js";
 
@@ -15,6 +15,7 @@ router.get('/getByUser/:id',methods.auth, getOrdersByUser )
 router.post('/getByLocalDay', methods.auth, )
 router.get('/getByOrderId/:orderId',methods.auth, getByOrderId )
 router.post('/rejected', methods.auth, rejectOrder)
+router.get('/acceptByEmail/:id', acceptOrderByEmail)
 
 
 export default router
