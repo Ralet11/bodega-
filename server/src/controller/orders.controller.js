@@ -5,6 +5,8 @@ import { getIo } from '../socket.js';
 import Local from '../models/local.js';
 import DistOrder from '../models/distOrders.model.js';
 import cryptoRandomString from 'crypto-random-string';
+import Client from '../models/client.js';
+import { sendNewOrderEmail } from '../functions/SendNewOrderEmail.js';
 
 
 export const getByLocalId = async (req, res) => {
@@ -91,15 +93,24 @@ export const sendOrder = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
-  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi, savings, deliveryAddress } = req.body;
+  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi, savings, deliveryAddressAndInstructions, originalDeliveryFee, tip } = req.body;
+  
+console.log(deliveryAddressAndInstructions, "delivery y instruc")
+
+  const deliveryAddress = deliveryAddressAndInstructions.address
+  const deliveryInstructions = deliveryAddressAndInstructions.instructions
+  
   const id = req.user.userId;
   const io = getIo();
   const users_id = id;
 
+  const local = await Local.findOne({where: {id: local_id}})
+
+  const client = await Client.findByPk(local.clients_id)
+
+ 
   // Generar el código alfanumérico de 6 dígitos
   const code = cryptoRandomString({length: 6, type: 'alphanumeric'});
-
-  console.log(local_id, "local");
 
   try {
     const newOrder = await Order.create({
@@ -113,8 +124,14 @@ export const createOrder = async (req, res) => {
       type,
       pi,
       code,
-      deliveryAddress
+      deliveryAddress,
+      deliveryInstructions
+  
     });
+
+  
+
+    sendNewOrderEmail(newOrder, client.email, originalDeliveryFee, tip, deliveryInstructions)
 
     // Actualizar el savings del usuario
     const user = await User.findByPk(id);
@@ -238,5 +255,90 @@ export const rejectOrder = async (req, res) => {
   } catch (error) {
     console.error('Error al finalizar el pedido:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+};
+
+export const acceptOrderByEmail = async (req, res) => {
+  const { id } = req.params;
+  const io = getIo();
+  console.log("Esto es el id: ", id);
+
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).send(`
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Order Not Found</title>
+          <style>
+            body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
+            .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+            .error { color: red; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1 class="error">Order Not Found</h1>
+            <p>The order with ID ${id} could not be found.</p>
+          </div>
+        </body>
+        </html>
+      `);
+    }
+
+    await order.update({ status: 'accepted' });
+
+    // Emitir evento de cambio de estado del pedido a través de Socket.IO
+    io.emit('changeOrderState', { status: 'accepted', orderId: id });
+    console.log("Order accepted");
+
+    return res.status(200).send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Order Accepted</title>
+        <style>
+          body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
+          .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+          .success { color: green; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1 class="success">Order Accepted</h1>
+          <p>The order with ID ${id} has been successfully accepted.</p>
+        </div>
+      </body>
+      </html>
+    `);
+  } catch (error) {
+    console.error('Error al aceptar el pedido:', error);
+    return res.status(500).send(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Server Error</title>
+        <style>
+          body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
+          .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
+          .error { color: red; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1 class="error">Server Error</h1>
+          <p>There was an error processing your request. Please try again later.</p>
+        </div>
+      </body>
+      </html>
+    `);
   }
 };

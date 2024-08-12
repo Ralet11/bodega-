@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { changeShop } from '../../redux/actions/actions';
 import { PlusCircle, Trash, PencilIcon } from 'lucide-react';
 import ProductCards from './product_cards/ProductCards';
+import ProductSkeletonLoader from '../ProductSkeleton';
 import CategoryModal from '../modal/CategoryModal';
 import UpDateProductModal from '../modal/UpdateProdModal';
 import ProductModal from '../modal/ProductModal';
@@ -24,6 +25,7 @@ function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [products, setProducts] = useState([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true); // Estado para manejar la carga
   const [showUpdateProduct, setShowUpdateProduct] = useState(false);
   const [showNewProductModal, setShowNewProductModal] = useState(false);
   const [showExtrasModal, setShowExtrasModal] = useState(false);
@@ -59,6 +61,7 @@ function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       if (selectedCategory !== null) {
+        setIsLoadingProducts(true); // Inicia la carga
         try {
           const response = await axios.get(`${API_URL_BASE}/api/products/get/${selectedCategory}`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -73,6 +76,8 @@ function Products() {
           }
         } catch (error) {
           console.error('Error fetching products:', error);
+        } finally {
+          setIsLoadingProducts(false); // Finaliza la carga
         }
       }
     };
@@ -251,22 +256,30 @@ function Products() {
         <div className="flex flex-col lg:flex-row gap-4">
           {selectedCategory !== null && (
             <div className="flex-1 bg-gray-100 p-4 rounded-lg shadow-md">
-              <ProductCards
-                selectedCategory={selectedCategory}
-                products={products}
-                setProducts={setProducts}
-                setSelectedCategory={setSelectedCategory}
-                setCategories={setCategories}
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                handleCardClick={handleCardClick}
-                selectedProduct={selectedProduct}
-                setShowNewProductModal={setShowNewProductModal}
-                showDetails={showDetails}
-              />
+              {isLoadingProducts ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <ProductSkeletonLoader key={index} />
+                  ))}
+                </div>
+              ) : (
+                <ProductCards
+                  selectedCategory={selectedCategory}
+                  products={products}
+                  setProducts={setProducts}
+                  setSelectedCategory={setSelectedCategory}
+                  setCategories={setCategories}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  handleCardClick={handleCardClick}
+                  selectedProduct={selectedProduct}
+                  setShowNewProductModal={setShowNewProductModal}
+                  showDetails={showDetails}
+                />
+              )}
             </div>
           )}
-          {selectedProduct && (
+          {selectedProduct && !isLoadingProducts && (
             <div className="flex-none w-full lg:w-[300px] bg-white p-4 rounded-lg shadow-lg">
               <img
                 src={selectedProduct.img}

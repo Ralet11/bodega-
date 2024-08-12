@@ -11,6 +11,8 @@ function OrderModal({ order, closeModal }) {
     const token = useSelector((state) => state?.client.token);
     const googleMapsApiKey = "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE"; // Reemplaza esto con tu nueva clave de API de Google Maps
 
+    const instructions = order.deliveryInstructions; // Cambiado a order.deliveryInstructions
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -89,9 +91,16 @@ function OrderModal({ order, closeModal }) {
                                         <span className="font-semibold">Phone:</span> {userInfo.phone}
                                     </p>
                                     {order.type === "Delivery" && (
-                                        <p className="mb-2 text-sm">
-                                            <span className="font-semibold">Delivery Address:</span> {order.deliveryAddress}
-                                        </p>
+                                        <>
+                                            <p className="mb-2 text-sm">
+                                                <span className="font-semibold">Delivery Address:</span> {order.deliveryAddress}
+                                            </p>
+                                            {instructions && (
+                                                <p className="mb-2 text-sm">
+                                                    <span className="font-semibold">Instructions:</span> {instructions}
+                                                </p>
+                                            )}
+                                        </>
                                     )}
                                     <div className="mt-4 h-32 bg-gray-300 rounded-lg overflow-hidden">
                                         {mapUrl ? (

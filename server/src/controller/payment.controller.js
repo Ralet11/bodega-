@@ -20,8 +20,8 @@ export const tryIntent = async (req, res) => {
       amount: finalPrice,
       currency: 'usd',
       automatic_payment_methods: {
-        enabled: true
-      }
+        enabled: true, // Esto permite habilitar Apple Pay y Google Pay
+      },
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });
