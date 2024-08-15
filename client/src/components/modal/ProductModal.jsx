@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { PhotoIcon, TrashIcon } from '@heroicons/react/24/solid';
+import { PhotoIcon, TrashIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import { useSelector } from 'react-redux';
 import axios from 'axios';
@@ -24,8 +24,11 @@ export default function ProductModal({
     img: null,
   });
   const [image, setImage] = useState(null);
-  const [extras, setExtras] = useState([]); // Inicializamos extras como un array vacío
+  const [extras, setExtras] = useState([]);
   const [errors, setErrors] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false); // State to manage tooltip visibility
+  const [deleteExtraTooltip, setDeleteExtraTooltip] = useState(null); // Tooltip for delete extra
+  const [deleteOptionTooltip, setDeleteOptionTooltip] = useState(null); // Tooltip for delete option
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -155,10 +158,10 @@ export default function ProductModal({
         category_id: selectedCategory,
         img: null,
       });
-      setExtras([]); // Restablece extras a un array vacío
+      setExtras([]);
       setErrors([]);
     } catch (error) {
-      console.error('Error al crear el producto:', error);
+      console.error('Error creating product:', error);
     }
   };
 
@@ -172,7 +175,7 @@ export default function ProductModal({
       category_id: selectedCategory,
       img: null,
     });
-    setExtras([]); // Restablece extras a un array vacío
+    setExtras([]);
     setErrors([]);
   };
 
@@ -237,9 +240,6 @@ export default function ProductModal({
                       />
                     </label>
                   </div>
-                  <button className="bg-blue-400 text-white py-1 px-2 rounded hover:bg-blue-600 w-full mt-2 text-xs" type="submit">
-                    Save Product
-                  </button>
                 </div>
                 <div className="bg-gray-100 p-2 rounded-lg shadow-md flex flex-col justify-center items-center">
                   {image && (
@@ -262,10 +262,30 @@ export default function ProductModal({
                 </div>
               </form>
               <div className="p-2">
-                <h3 className="text-xs font-semibold mb-2">Product Extras</h3>
+                <div className="flex items-center mb-2"> {/* Aligning info button next to Product Extras title */}
+                  <h3 className="text-xs font-semibold">Product Extras</h3>
+                  <div
+                    className="relative ml-2"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                  >
+                    <InformationCircleIcon className="h-5 w-5 text-blue-500 cursor-pointer" />
+                    {showTooltip && (
+                      <div className="absolute left-full top-0 ml-2 bg-gray-200 text-gray-700 text-xs p-2 rounded shadow-lg w-64 z-10">
+                        To add extras:
+                        <ul className="list-disc pl-4">
+                          <li>Enter the extra name (e.g., "Select your flavor").</li>
+                          <li>Check the box if this extra is required for the customer.</li>
+                          <li>Add options for the extra, with their name and additional price.</li>
+                          <li>You can add as many options as you need.</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
                 {extras.map((extra, extraIndex) => (
                   <div key={extraIndex} className="mb-2 border border-gray-200 rounded-lg p-2">
-                    <div className="flex justify-between items-center mb-2">
+                    <div className="flex justify-between items-center mb-2 relative">
                       <input
                         type="text"
                         placeholder="Extra Name (e.g., Select Your Flavor)"
@@ -275,10 +295,17 @@ export default function ProductModal({
                       />
                       <button
                         type="button"
+                        onMouseEnter={() => setDeleteExtraTooltip(extraIndex)}
+                        onMouseLeave={() => setDeleteExtraTooltip(null)}
                         onClick={() => removeExtra(extraIndex)}
-                        className="ml-1 text-red-500 hover:text-red-700"
+                        className="ml-1 text-red-500 hover:text-red-700 relative"
                       >
                         <TrashIcon className="h-4 w-4" />
+                        {deleteExtraTooltip === extraIndex && (
+                          <div className="absolute top-full mt-1 bg-gray-200 text-gray-700 text-xs p-1 rounded shadow-lg z-10">
+                            Delete Extra
+                          </div>
+                        )}
                       </button>
                     </div>
                     {errors[extraIndex]?.name && (
@@ -295,7 +322,7 @@ export default function ProductModal({
                       </label>
                     </div>
                     {extra.options.map((option, optionIndex) => (
-                      <div key={optionIndex} className="flex items-center mb-1 space-x-2">
+                      <div key={optionIndex} className="flex items-center mb-1 space-x-2 relative">
                         <input
                           type="text"
                           placeholder="Option Name (e.g., Mango, Apple)"
@@ -303,7 +330,7 @@ export default function ProductModal({
                           onChange={(e) => handleOptionChange(extraIndex, optionIndex, 'name', e.target.value)}
                           className="w-full p-1 border border-gray-300 rounded text-xs"
                         />
-                        <label className="block text-gray-700 text-xs">Added price</label>
+                        <label className="block text-gray-700 text-xs">Added price ($)</label>
                         <input
                           type="number"
                           placeholder="Price"
@@ -315,10 +342,17 @@ export default function ProductModal({
                         />
                         <button
                           type="button"
+                          onMouseEnter={() => setDeleteOptionTooltip(optionIndex)}
+                          onMouseLeave={() => setDeleteOptionTooltip(null)}
                           onClick={() => removeOption(extraIndex, optionIndex)}
-                          className="ml-1 text-red-500 hover:text-red-700"
+                          className="ml-1 text-red-500 hover:text-red-700 relative"
                         >
                           <TrashIcon className="h-4 w-4" />
+                          {deleteOptionTooltip === optionIndex && (
+                            <div className="absolute top-full mt-1 bg-gray-200 text-gray-700 text-xs p-1 rounded shadow-lg z-10">
+                              Delete Option
+                            </div>
+                          )}
                         </button>
                       </div>
                     ))}
@@ -339,7 +373,12 @@ export default function ProductModal({
                   onClick={addExtra}
                   className="bg-blue-400 text-white py-1 px-2 rounded hover:bg-blue-600 text-xs"
                 >
-                  Add Extra
+                  Add New Extra
+                </button>
+              </div>
+              <div onClick={handleCreateProduct} className="bg-gray-100 px-3 py-2 flex justify-end rounded-b-lg">
+                <button className="bg-blue-400 text-white py-1 px-2 rounded hover:bg-blue-600 w-full mt-2 text-xs" type="submit">
+                    Save Product
                 </button>
               </div>
             </div>

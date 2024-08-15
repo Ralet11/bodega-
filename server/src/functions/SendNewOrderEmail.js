@@ -8,11 +8,11 @@ export const sendNewOrderEmail = async (order, clientEmail, originalDeliveryFee,
 
   const { order_details, status, date_time, deliveryAddress, type, id, total_price } = order;
 
-  // Convertir originalDeliveryFee y tip a números si no lo son
+  // Convert originalDeliveryFee and tip to numbers if they are not
   const deliveryFee = parseFloat(originalDeliveryFee) || 0;
   const tipAmount = parseFloat(tip) || 0;
 
-  // Construir el contenido HTML para los ítems en formato de tabla
+  // Build the HTML content for the items in a table format
   const itemsHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
@@ -34,15 +34,26 @@ export const sendNewOrderEmail = async (order, clientEmail, originalDeliveryFee,
             <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">$${item.price}</td>
           </tr>
+          ${item.selectedExtras ? `
+          <tr>
+            <td colspan="4" style="border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 12px;">
+              <strong>Extras:</strong>
+              <ul>
+                ${Object.keys(item.selectedExtras).map(extraKey => `
+                  <li>${item.selectedExtras[extraKey].name}: $${item.selectedExtras[extraKey].price.toFixed(2)}</li>
+                `).join('')}
+              </ul>
+            </td>
+          </tr>` : ''}
         `).join('')}
       </tbody>
     </table>
   `;
 
-  // URL de tu backend para aceptar la orden
-  const acceptOrderURL = `http://localhost:80/api/orders/acceptByEmail/${id}`; // Reemplaza con la URL de tu API
+  // URL of your backend to accept the order
+  const acceptOrderURL = `http://localhost:80/api/orders/acceptByEmail/${id}`; // Replace with your API URL
 
-  // Sección de información de entrega, propina e instrucciones
+  // Section for delivery, tip, and instructions information
   const deliveryTipHTML = `
     <div style="margin-top: 20px;">
       <h4 style="margin-bottom: 10px;">Delivery & Tip Information</h4>
@@ -68,7 +79,7 @@ export const sendNewOrderEmail = async (order, clientEmail, originalDeliveryFee,
     </div>
   `;
 
-  // Sección de información del pedido
+  // Section for order information
   const orderInfoHTML = `
     <div style="margin-top: 20px;">
       <h4 style="margin-bottom: 10px;">Order Information</h4>

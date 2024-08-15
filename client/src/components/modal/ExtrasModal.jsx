@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { TrashIcon } from '@heroicons/react/24/solid';
+import { TrashIcon, InformationCircleIcon } from '@heroicons/react/24/solid';
 
 const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
   const [editedExtras, setEditedExtras] = useState([]);
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [deleteExtraTooltip, setDeleteExtraTooltip] = useState(null); // Tooltip for delete extra
+  const [deleteOptionTooltip, setDeleteOptionTooltip] = useState(null); // Tooltip for delete option
 
   useEffect(() => {
     setEditedExtras(extras);
@@ -62,8 +65,28 @@ const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="fixed inset-0 bg-black opacity-50"></div>
       <div className="bg-white w-full max-w-md mx-4 md:mx-auto rounded-lg shadow-lg relative max-h-screen overflow-auto">
-        <div className="bg-blue-400 p-2 rounded-t-lg">
-          <h2 className="text-base font-semibold text-white">Edit Extras</h2>
+        <div className="bg-blue-400 p-2 rounded-t-lg flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <h2 className="text-base font-semibold text-white">Edit Extras</h2>
+            <div
+              className="relative"
+              onMouseEnter={() => setShowTooltip(true)}
+              onMouseLeave={() => setShowTooltip(false)}
+            >
+              <InformationCircleIcon className="h-5 w-5 text-white cursor-pointer" />
+              {showTooltip && (
+                <div className="absolute left-full top-0 ml-2 bg-gray-200 text-gray-700 text-xs p-2 rounded shadow-lg w-64 z-10">
+                  To edit extras:
+                  <ul className="list-disc pl-4">
+                    <li>Enter the extra name.</li>
+                    <li>Check the box if this extra is required for the customer.</li>
+                    <li>Add options for the extra, with their name and additional price.</li>
+                    <li>You can add as many options as you need.</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
         <div className="p-2 overflow-y-auto max-h-[60vh]">
           {editedExtras?.map((extra, index) => (
@@ -79,11 +102,17 @@ const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
                   />
                 </h3>
                 <button
+                  onMouseEnter={() => setDeleteExtraTooltip(index)}
+                  onMouseLeave={() => setDeleteExtraTooltip(null)}
                   onClick={() => removeExtra(index)}
-                  className="text-red-500 hover:text-red-700"
-                  style={{ fontSize: '16px' }}
+                  className="text-red-500 hover:text-red-700 relative"
                 >
                   <TrashIcon className="w-4 h-4" />
+                  {deleteExtraTooltip === index && (
+                    <div className="absolute top-full mt-1 bg-gray-200 text-gray-700 text-xs p-1 rounded shadow-lg z-10">
+                      Delete Extra
+                    </div>
+                  )}
                 </button>
               </div>
               <div className="flex items-center mb-1">
@@ -97,7 +126,7 @@ const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
               </div>
               <ul className="list-disc list-inside">
                 {extra.options.map((option, optionIndex) => (
-                  <li key={optionIndex} className="flex items-center mb-1 space-x-2">
+                  <li key={optionIndex} className="flex items-center mb-1 space-x-2 relative">
                     <label className="block text-gray-700 text-xs w-full">
                       Option {optionIndex + 1}
                       <input
@@ -109,7 +138,7 @@ const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
                       />
                     </label>
                     <label className="block text-gray-700 text-xs">
-                      Added price
+                      Added price ($)
                       <input
                         type="number"
                         placeholder="Price"
@@ -122,10 +151,17 @@ const ExtrasModal = ({ show, handleClose, extras, handleSaveExtras }) => {
                     </label>
                     <button
                       type="button"
+                      onMouseEnter={() => setDeleteOptionTooltip(optionIndex)}
+                      onMouseLeave={() => setDeleteOptionTooltip(null)}
                       onClick={() => removeOption(index, optionIndex)}
-                      className="ml-2 text-red-500 hover:text-red-700"
+                      className="ml-2 text-red-500 hover:text-red-700 relative"
                     >
                       <TrashIcon className="h-4 w-4" />
+                      {deleteOptionTooltip === optionIndex && (
+                        <div className="absolute top-full mt-1 bg-gray-200 text-gray-700 text-xs p-1 rounded shadow-lg z-10">
+                          Delete Option
+                        </div>
+                      )}
                     </button>
                   </li>
                 ))}

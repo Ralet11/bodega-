@@ -1,19 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { Tabs, TabsHeader, TabsBody, Tab, TabPanel } from "@material-tailwind/react";
-import { Square3Stack3DIcon, StarIcon } from "@heroicons/react/24/solid";
+import { Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import InfoCard from "./infoCard";
 import AddressMap from "./AddressMap";
 import { useSelector } from "react-redux";
 import axios from "axios";
 import { getParamsEnv } from "../../functions/getParamsEnv";
-import Balance from "../balanceBodega";
 import toast from 'react-hot-toast';
 
 const { API_URL_BASE } = getParamsEnv();
 
+const daysOfWeek = [
+  { day: "mon", open: "", close: "" },
+  { day: "tue", open: "", close: "" },
+  { day: "wed", open: "", close: "" },
+  { day: "thu", open: "", close: "" },
+  { day: "fri", open: "", close: "" },
+  { day: "sat", open: "", close: "" },
+  { day: "sun", open: "", close: "" },
+];
+
 function Settings() {
   const activeShop = useSelector((state) => state.activeShop);
   const client = useSelector((state) => state.client);
+  const token = client.token;
 
   const [shopData, setShopData] = useState({
     id: '',
@@ -39,6 +49,8 @@ function Settings() {
     pictureId: '',
   });
 
+  const [openingHours, setOpeningHours] = useState(daysOfWeek);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,7 +72,38 @@ function Settings() {
           lng: data.lng
         });
 
+        const fetchShopOpenHours = async () => {
+          try {
+            const response = await axios.post(
+              `${API_URL_BASE}/api/local/getAllShops`,
+              { localId: activeShop },
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const shopOpenHour = response.data;
+
+            // Mapeo de los datos obtenidos a los días de la semana
+            const updatedOpeningHours = openingHours.map(day => {
+              const matchedDay = shopOpenHour.find(openHour => openHour.day === day.day);
+              if (matchedDay) {
+                return {
+                  ...day,
+                  open: matchedDay.open_hour,
+                  close: matchedDay.close_hour,
+                };
+              }
+              return day;
+            });
+
+            setOpeningHours(updatedOpeningHours);
+
+          } catch (error) {
+            console.log(error);
+          }
+        };
+
         setFetchLatLong(true);
+        fetchShopOpenHours();
       } catch (error) {
         console.error('Error en la solicitud:', error);
       }
@@ -136,6 +179,35 @@ function Settings() {
     }
   };
 
+  const handleOpeningHoursChange = (day, field, value) => {
+    setOpeningHours((prevOpeningHours) =>
+      prevOpeningHours.map((d) =>
+        d.day === day ? { ...d, [field]: value } : d
+      )
+    );
+  };
+
+  const handleSaveOpeningHours = async () => {
+    try {
+      await axios.post(
+        `${API_URL_BASE}/api/local/updateOpeningHours`,
+        {
+          localId: shopData.id,
+          openingHours
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}` 
+          }
+        }
+      );
+      toast.success('Opening hours saved successfully');
+    } catch (error) {
+      console.error('Error saving opening hours:', error);
+      toast.error('Error saving opening hours');
+    }
+  };
+
   const data = [
     {
       label: "Settings",
@@ -153,20 +225,52 @@ function Settings() {
               <InfoCard shopData={shopData} setShopData={setShopData} />
             </div>
           </div>
+          
+          {/* New Section for Opening Hours */}
+          <div className="mt-4 bg-white p-4 rounded-lg shadow-lg">
+            <h2 className="text-base font-semibold mb-2 text-gray-800">Set Opening Hours</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {openingHours.map((day, index) => (
+                <div key={index} className="flex flex-col">
+                  <label className="text-gray-600 text-sm font-medium capitalize">{day.day}</label>
+                  <div className="flex gap-2">
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-500">Open Hour</label>
+                      <input
+                        type="time"
+                        value={day.open}
+                        onChange={(e) => handleOpeningHoursChange(day.day, 'open', e.target.value)}
+                        className="text-xs p-1 border rounded-lg"
+                      />
+                    </div>
+                    <div className="flex flex-col">
+                      <label className="text-xs text-gray-500">Close Hour</label>
+                      <input
+                        type="time"
+                        value={day.close}
+                        onChange={(e) => handleOpeningHoursChange(day.day, 'close', e.target.value)}
+                        className="text-xs p-1 border rounded-lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={handleSaveOpeningHours}
+              className="mt-4 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-300 text-xs"
+            >
+              Save Opening Hours
+            </button>
+          </div>
         </div>
       )
-    }/* ,
-    {
-      label: "Balance",
-      value: "Balance",
-      icon: StarIcon,
-      desc: <Balance />
-    } */
+    }
   ];
 
   return (
     <div className="bg-gray-200 mt-20 md:w-11/12 lg:w-4/5 pb-20 md:m-auto md:pt-10 relative">
-      <Tabs value="Settings"> {/* Set "Settings" as the default tab */}
+      <Tabs value="Settings">
         <TabsHeader className="flex w-full md:w-2/3 md:pt-20 m-auto relative z-10">
           {data.map(({ label, value, icon }) => (
             <Tab key={value} value={value} className="flex-1">

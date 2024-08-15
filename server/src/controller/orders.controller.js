@@ -93,6 +93,7 @@ export const sendOrder = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
+  console.log(req.body)
   const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi, savings, deliveryAddressAndInstructions, originalDeliveryFee, tip } = req.body;
   
 console.log(deliveryAddressAndInstructions, "delivery y instruc")

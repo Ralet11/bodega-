@@ -7,6 +7,7 @@ import Product from "../models/product.js";
 import nodemailer from 'nodemailer';
 import Extra from "../models/extra.js"; 
 import ExtraOption from "../models/extraOption.model.js";
+import ShopOpenHours from "../models/shopOpenHoursModel.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -168,7 +169,6 @@ export const addShop = async (req, res) => {
     const { name, address, phone, lat, lng, category, clientId } = req.body;
 
     const idConfirm = req.user.clientId;
-    console.log(idConfirm);
 
     // Verificar que todos los campos estén presentes
     if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
@@ -187,14 +187,29 @@ export const addShop = async (req, res) => {
       phone,
       lat,
       lng,
-      locals_categories_id: category, // Aquí se utiliza el mismo campo que en updateShop
+      locals_categories_id: category,
       clients_id: clientId
     });
 
-    // Obtener la tienda recién creada
+    // Crear entradas iniciales en ShopOpenHours para cada día de la semana
+    const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+    const openHourEntries = daysOfWeek.map(day => ({
+      local_id: newShop.id,
+      day: day,
+      open_hour: "00:00:00",  // Hora de apertura inicial
+      close_hour: "00:00:00"  // Hora de cierre inicial
+    }));
+
+    await ShopOpenHours.bulkCreate(openHourEntries);
+
+    // Obtener la tienda recién creada junto con los horarios
     const shop = await Local.findOne({
       where: {
         id: newShop.id
+      },
+      include: {
+        model: ShopOpenHours,
+        as: 'shopOpenHours'
       }
     });
 
@@ -288,7 +303,13 @@ export const getShopsOrderByCat = async (req, res) => {
         locals_categories_id: {
           [Op.notIn]: [1, 2]
         }
-      }
+      },
+      include: [
+        {
+          model: ShopOpenHours, // Incluye el modelo de los horarios de apertura
+          as: 'openingHours' // Alias para acceder a los horarios en la respuesta
+        }
+      ]
     });
 
     const groupedShops = groupShopsByCategory(shops);
@@ -299,7 +320,6 @@ export const getShopsOrderByCat = async (req, res) => {
     res.status(500).send('Server Error');
   }
 }
-
 export const getShopsByClientId = async (req, res) => {
   try {
     const token = req.headers.authorization;
@@ -325,7 +345,14 @@ export const getShopsByClientId = async (req, res) => {
     const locals = await Local.findAll({
       where: {
         clients_id: clientId
-      }
+      },
+      include: [
+        {
+          model: ShopOpenHours,
+          as: 'openingHours', // Asegúrate de que el alias coincida con el definido en la relación
+          attributes: ['day', 'open_hour', 'close_hour'] // Atributos que deseas incluir
+        }
+      ]
     });
 
     res.status(200).json({ locals, finded: "ok" });
@@ -499,4 +526,89 @@ export const sendCertificate = async (req, res) => {
     console.log('Email sent:', info.response);
     res.status(200).send('Email sent successfully');
   });
+};
+
+export const updateOpeningHours = async (req, res) => {
+  console.log(req.body)
+
+  const { localId, openingHours } = req.body; // Suponiendo que estás enviando el localId y el array de openingHours en el body
+  console.log(req.body)
+
+
+  try {
+    // Buscar el local por ID
+    const local = await Local.findByPk(localId);
+
+    // Verificar si el local existe
+    if (!local) {
+      return res.status(404).json({ message: 'Local no encontrado' });
+    }
+
+    // Verificar si el cliente tiene permiso para modificar este local
+    if (local.clients_id !== req.user.clientId) {
+      return res.status(403).json({ message: 'Acceso denegado. No tienes permiso para modificar este local.' });
+    }
+
+    // Buscar todas las entradas en ShopOpenHours para este local
+    const existingHours = await ShopOpenHours.findAll({
+      where: { local_id: localId }
+    });
+
+    // Actualizar cada entrada en ShopOpenHours con la nueva información
+    const updatePromises = existingHours.map((existingHour) => {
+      const updatedHour = openingHours.find((hour) => hour.day === existingHour.day);
+
+      if (updatedHour) {
+        return existingHour.update({
+          open_hour: updatedHour.open,
+          close_hour: updatedHour.close,
+        });
+      }
+
+      return null;
+    });
+
+    // Ejecutar todas las actualizaciones
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: 'Horarios de apertura actualizados exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar horarios de apertura:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+export const getOpeningHoursByLocalId = async (req, res) => {
+  console.log(req.body, "bodyys")
+  const { localId } = req.body;
+
+  try {
+    // Buscar el local por ID
+    const local = await Local.findByPk(localId);
+
+    // Verificar si el local existe
+    if (!local) {
+      return res.status(404).json({ message: 'Local no encontrado' });
+    }
+
+    // Verificar si el cliente tiene permiso para acceder a este local
+    if (local.clients_id !== req.user.clientId) {
+      return res.status(403).json({ message: 'Acceso denegado. No tienes permiso para ver los horarios de este local.' });
+    }
+
+    // Obtener los horarios de apertura por localId
+    const openingHours = await ShopOpenHours.findAll({
+      where: { local_id: localId }
+    });
+
+    // Verificar si se encontraron horarios
+    if (openingHours.length === 0) {
+      return res.status(404).json({ message: 'No se encontraron horarios para este local.' });
+    }
+
+    res.status(200).json(openingHours);
+  } catch (error) {
+    console.error('Error al obtener horarios de apertura:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 };
