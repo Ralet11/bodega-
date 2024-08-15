@@ -9,9 +9,9 @@ function OrderModal({ order, closeModal }) {
     const [userInfo, setUserInfo] = useState(null);
     const [mapUrl, setMapUrl] = useState(null);
     const token = useSelector((state) => state?.client.token);
-    const googleMapsApiKey = "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE"; // Reemplaza esto con tu nueva clave de API de Google Maps
+    const googleMapsApiKey = "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE"; // Replace this with your new Google Maps API key
 
-    const instructions = order.deliveryInstructions; // Cambiado a order.deliveryInstructions
+    const instructions = order.deliveryInstructions;
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -40,23 +40,6 @@ function OrderModal({ order, closeModal }) {
 
     const orderDetails = order.order_details || [];
 
-    const productDetails = orderDetails.reduce((acc, detail) => {
-        const { id, image, name, price, quantity } = detail;
-        if (!acc[name]) {
-            acc[name] = {
-                quantity: 0,
-                name: name,
-                image: image,
-                totalPrice: 0,
-            };
-        }
-        acc[name].quantity += quantity;
-        acc[name].totalPrice += parseFloat(price.replace(/[^0-9.-]+/g, ""));
-        return acc;
-    }, {});
-
-    const finalProductDetails = Object.values(productDetails);
-
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-white w-full max-w-3xl mx-auto rounded-lg overflow-hidden shadow-lg">
@@ -68,13 +51,22 @@ function OrderModal({ order, closeModal }) {
                         <div className="bg-gray-100 p-4 rounded-lg shadow-md overflow-y-auto max-h-80">
                             <h3 className="text-lg font-semibold mb-4">Product Details</h3>
                             <div>
-                                {finalProductDetails.map((product, index) => (
-                                    <div key={index} className="mb-2 flex items-center">
-                                        <img className="w-10 h-10 mr-3 rounded-full" src={product.image} alt={`Product ${index}`} />
-                                        <div>
-                                            <p className="text-sm">{`${product.quantity} X ${product.name}`}</p>
-                                            <p className="text-xs text-gray-500">{`$ ${product.totalPrice.toFixed(2)}`}</p>
+                                {orderDetails.map((product, index) => (
+                                    <div key={index} className="mb-4">
+                                        <div className="flex items-center">
+                                            <img className="w-10 h-10 mr-3 rounded-full" src={product.image} alt={`Product ${index}`} />
+                                            <div>
+                                                <p className="text-sm">{`${product.quantity} X ${product.name}`}</p>
+                                                <p className="text-xs text-gray-500">{`$ ${parseFloat(product.price).toFixed(2)}`}</p>
+                                            </div>
                                         </div>
+                                        {product.selectedExtras && (
+                                            <div className="ml-14 text-xs text-gray-500">
+                                                {Object.keys(product.selectedExtras).map((extraKey, i) => (
+                                                    <p key={i}>{`${product.selectedExtras[extraKey].name}: $${parseFloat(product.selectedExtras[extraKey].price).toFixed(2)}`}</p>
+                                                ))}
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                                 <p className="mt-4 text-lg font-semibold">Total Price: $ {Number(order.total_price).toFixed(2)}</p>
@@ -100,17 +92,20 @@ function OrderModal({ order, closeModal }) {
                                                     <span className="font-semibold">Instructions:</span> {instructions}
                                                 </p>
                                             )}
+                                            <div className="mt-4 h-32 bg-gray-300 rounded-lg overflow-hidden">
+                                                {mapUrl ? (
+                                                    <a href={mapUrl} target="_blank" rel="noopener noreferrer">
+                                                        <img src={mapUrl} alt="Delivery Map" className="h-full w-full object-cover" />
+                                                    </a>
+                                                ) : (
+                                                    <p className="text-sm text-gray-500">Loading map...</p>
+                                                )}
+                                            </div>
                                         </>
                                     )}
-                                    <div className="mt-4 h-32 bg-gray-300 rounded-lg overflow-hidden">
-                                        {mapUrl ? (
-                                            <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-                                                <img src={mapUrl} alt="Delivery Map" className="h-full w-full object-cover" />
-                                            </a>
-                                        ) : (
-                                            <p className="text-sm text-gray-500">Loading map...</p>
-                                        )}
-                                    </div>
+                                    {order.type !== "Delivery" && (
+                                        <p className="text-sm font-semibold">{`Order Type: ${order.type}`}</p>
+                                    )}
                                 </div>
                             )}
                         </div>

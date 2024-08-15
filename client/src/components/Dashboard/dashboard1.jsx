@@ -20,6 +20,8 @@ const Dashboard = () => {
   const clientId = useSelector((state) => state?.client.client.id);
   const { API_URL_BASE } = getParamsEnv();
 
+  
+
   useEffect(() => {
     const fetchShopsAndProducts = async () => {
       try {

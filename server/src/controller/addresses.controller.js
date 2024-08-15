@@ -14,6 +14,7 @@ export const getAddressesByUser = async (req, res) => {
 
 
 export const addAddressToUser = async (req, res) => {
+  console.log(req.body)
   const userId = req.user.userId;
   const {
     formatted_address,

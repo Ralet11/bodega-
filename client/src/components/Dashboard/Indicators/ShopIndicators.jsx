@@ -1,11 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { ChartBarIcon, ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline';
+import { ChartBarIcon, ShoppingBagIcon, ShoppingCartIcon, CurrencyDollarIcon, PencilIcon } from '@heroicons/react/24/outline';
 import FilterButtons from '../FilterButtons';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 const ShopIndicators = ({ ordersData, filterPeriod, filterOrders, shops }) => {
   const [indicators, setIndicators] = useState([]);
   const activeShop = useSelector((state) => state.activeShop);
+  const navigate = useNavigate();
+
+  const getCurrentDay = () => {
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    return days[new Date().getDay()];
+  };
+
+  const isShopOpen = (shop) => {
+    const currentDay = getCurrentDay();
+    const currentTime = new Date().toTimeString().split(' ')[0]; // Hora actual en formato HH:mm:ss
+    const openHours = shop.openingHours.find(hour => hour.day === currentDay);
+
+    if (openHours) {
+      return currentTime >= openHours.open_hour && currentTime <= openHours.close_hour;
+    }
+    return false;
+  };
+
+  const handleEditClick = (shopId) => {
+    navigate(`/settings`);
+  };
 
   useEffect(() => {
     const calculateIndicators = (data) => {
@@ -21,11 +43,12 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders, shops }) => {
 
         return {
           shopId,
-          shopName: shopInfo ? shopInfo.name : 'Unknown Shop', // Añade el nombre del shop
+          shopName: shopInfo ? shopInfo.name : 'Unknown Shop',
           totalSales,
           totalQuantity,
           totalOrders,
           avgSalesPerOrder,
+          isOpen: shopInfo ? isShopOpen(shopInfo) : false // Determina si la tienda está abierta
         };
       });
     };
@@ -52,9 +75,24 @@ const ShopIndicators = ({ ordersData, filterPeriod, filterOrders, shops }) => {
               indicator.shopId == activeShop ? 'bg-yellow-100' : 'bg-white'
             }`}
           >
-            <div className="flex items-center mb-3">
-              <ShoppingBagIcon className="h-8 w-8 text-blue-500" />
-              <h3 className="text-md font-semibold text-gray-800 ml-3">{indicator.shopName}</h3>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center">
+                <ShoppingBagIcon className="h-8 w-8 text-blue-500" />
+                <h3 className="text-md font-semibold text-gray-800 ml-3">{indicator.shopName}</h3>
+                <span className={`ml-3 px-2 py-1 rounded-full text-xs font-semibold ${
+                  indicator.isOpen ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {indicator.isOpen ? 'Open' : 'Closed'}
+                </span>
+              </div>
+              {indicator.shopId == activeShop && (
+                <button
+                  className="text-blue-500 hover:text-blue-700 transition-colors duration-200"
+                  onClick={() => handleEditClick(indicator.shopId)}
+                >
+                  <PencilIcon className="h-5 w-5" />
+                </button>
+              )}
             </div>
             <div className="flex items-center mb-1">
               <CurrencyDollarIcon className="h-5 w-5 text-green-500" />

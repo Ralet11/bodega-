@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate } from "../controller/local.controller.js"
+import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate, updateOpeningHours, getOpeningHoursByLocalId } from "../controller/local.controller.js"
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -23,5 +23,7 @@ router.post('/rating', changeRating);
 router.post('/addService/:id', middleware.auth, addService)
 router.post('/removeService/:id', middleware.auth, removeService)
 router.post('/uploadCertificate/', middleware.auth, upload.single('certificate'), sendCertificate)
+router.post('/updateOpeningHours', middleware.auth, updateOpeningHours )
+router.post('/getAllShops',middleware.auth, getOpeningHoursByLocalId)
 
 export default router
