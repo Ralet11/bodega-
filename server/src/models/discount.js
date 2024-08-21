@@ -20,7 +20,7 @@ const Discount = sequelize.define('discount', {
     type: DataTypes.DATEONLY,
     allowNull: false
   },
-  image: {
+  img: {  // Cambiado de 'image' a 'img'
     type: DataTypes.STRING(255),
     allowNull: false
   },
@@ -103,10 +103,10 @@ const Discount = sequelize.define('discount', {
   delivery: {
     type: DataTypes.INTEGER,
     allowNull: false,
-      defaultValue: 0,
-      validate: {
-        isIn: [[0, 1, 2]]
-      }
+    defaultValue: 0,
+    validate: {
+      isIn: [[0, 1, 2]]
+    }
   }
 }, {
   tableName: 'discounts',
@@ -114,7 +114,7 @@ const Discount = sequelize.define('discount', {
 });
 
 // Definición de las relaciones con las tablas de Local, Product y Category
-Discount.belongsTo(Local, { foreignKey: 'local_id', as: 'local' });
+
 Discount.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 Discount.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
 

@@ -8,6 +8,7 @@ import nodemailer from 'nodemailer';
 import Extra from "../models/extra.js"; 
 import ExtraOption from "../models/extraOption.model.js";
 import ShopOpenHours from "../models/shopOpenHoursModel.js";
+import Discount from "../models/discount.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -610,5 +611,41 @@ export const getOpeningHoursByLocalId = async (req, res) => {
   } catch (error) {
     console.error('Error al obtener horarios de apertura:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
+  }
+};
+
+export const getShopsOrderByCatDiscount = async (req, res) => {
+  try {
+    const shops = await Local.findAll({
+      where: {
+        status: '2',
+        orderIn: true,
+        locals_categories_id: {
+          [Op.notIn]: [1, 2]
+        }
+      },
+      include: [
+        {
+          model: ShopOpenHours,
+          as: 'openingHours'
+        },
+        {
+          model: Discount,
+          as: 'discounts',
+          where: {
+            delivery: 0,
+            active: true // Solo descuentos activos
+          },
+          required: true // Solo traer locales que tengan descuentos activos
+        }
+      ]
+    });
+
+    const groupedShops = groupShopsByCategory(shops);
+    console.log(groupedShops, "sopcitos")
+    res.json(groupedShops);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send('Server Error');
   }
 };

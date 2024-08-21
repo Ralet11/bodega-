@@ -14,7 +14,6 @@ export const getAddressesByUser = async (req, res) => {
 
 
 export const addAddressToUser = async (req, res) => {
-  console.log(req.body)
   const userId = req.user.userId;
   const {
     formatted_address,
@@ -27,9 +26,7 @@ export const addAddressToUser = async (req, res) => {
 
   // Verificar si los campos obligatorios están presentes
   if (!formatted_address || !name || !houseNumber || !streetName || !postalCode) {
-    console.log(formatted_address, name, houseNumber, streetName, postalCode)
     return res.status(400).json({ error: 'Missing required address fields' });
-    
   }
 
   try {

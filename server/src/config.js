@@ -20,3 +20,5 @@ export const EMAIL_USER = process.env.EMAIL_USER || "proyectoapptrader@gmail.com
 export const EMAIL_PASS = process.env.EMAIL_PASS || "eozh tjoi bdod hwiz"
 export const SSK = process.env.SSK || 'sk_test_51OJV6vCtqRjqS5chtpxR0cKFJLK8jf3WRVchpsfCFZx3JdiyPV0xcHZgYbaJ70XYsmdkssJpHiwdCmEun6X7mThj00IB3NQI0C'
 export const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER || +12295973706
+
+//migraciones: img en discount, 

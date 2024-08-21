@@ -21,6 +21,22 @@ const Address = sequelize.define('address', {
   formatted_address: {
     type: DataTypes.STRING(255),
     allowNull: false
+  },
+  houseNumber: {
+    type: DataTypes.STRING(20),
+    allowNull: false
+  },
+  streetName: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  },
+  additionalDetails: {
+    type: DataTypes.STRING(255),
+    allowNull: true
+  },
+  postalCode: {
+    type: DataTypes.STRING(20),
+    allowNull: false
   }
 }, {
   tableName: 'adresses',

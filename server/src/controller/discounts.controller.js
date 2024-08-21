@@ -21,11 +21,31 @@ export const getAll = async (req, res) => {
 };
 
 export const createDiscount = async (req, res) => {
-  const { productName, shop_id, image, limitDate, percentage, fixedValue, order_details, product_id, category_id, usageLimit, description, discountType, minPurchaseAmount, maxDiscountAmount, conditions } = req.body;
-  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
+
+  console.log(req.body, "body")
+  const {
+    productName,
+    shop_id,
+    limitDate,
+    percentage,
+    fixedValue,
+    order_details,
+    product_id,
+    category_id,
+    usageLimit,
+    description,
+    discountType,
+    minPurchaseAmount,
+    maxDiscountAmount,
+    conditions,
+    delivery,
+    client_id
+  } = req.body;
+
+  console.log(delivery, "delivercito")
+  const idConfirm = req.user.clientId;
 
   try {
-    // Buscar el local para verificar el clientId
     const local = await Local.findByPk(shop_id);
 
     if (!local) {
@@ -36,25 +56,33 @@ export const createDiscount = async (req, res) => {
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
     }
 
-    // Crear el descuento
+
+    // Asegurarse de que los valores numéricos sean null o un número
+    const sanitizedPercentage = percentage === '' ? null : percentage;
+    const sanitizedFixedValue = fixedValue === '' ? null : fixedValue;
+    const sanitizedMinPurchaseAmount = minPurchaseAmount === '' ? null : minPurchaseAmount;
+    const sanitizedMaxDiscountAmount = maxDiscountAmount === '' ? null : maxDiscountAmount;
+
     const newDiscount = await Discount.create({
       productName,
       local_id: shop_id,
-      image,
+      img: "null",
       limitDate,
-      percentage,
-      fixedValue,
-      order_details,
+      percentage: sanitizedPercentage,
+      fixedValue: sanitizedFixedValue,
+      order_details: order_details, // Parsear el JSON
       product_id,
       category_id,
       usageLimit,
       description,
       discountType,
-      minPurchaseAmount,
-      maxDiscountAmount,
+      minPurchaseAmount: sanitizedMinPurchaseAmount,
+      maxDiscountAmount: sanitizedMaxDiscountAmount,
       conditions,
+      delivery,
       active: true,
-      timesUsed: 0
+      timesUsed: 0,
+      client_id
     });
 
     res.status(200).json({ newDiscount, created: "ok" });
@@ -64,6 +92,8 @@ export const createDiscount = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+
 
 export const getDiscountsByUser = async (req, res) => {
   console.log(req.user);
@@ -292,5 +322,45 @@ export const useDiscountUser = async (req, res) => {
   } catch (error) {
     console.error('Error updating user discount:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const getByCategory = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const discounts = await Discount.findAll({
+      where: {
+        category_id: id
+      },
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          include: [
+            {
+              model: Extra,
+              as: 'extras',
+              through: { attributes: [] }, // Excluir columnas de la tabla de unión
+              include: {
+                model: ExtraOption,
+                as: 'options'
+              }
+            }
+          ]
+        }
+      ]
+    });
+
+    // Verificar si se encontraron descuentos
+    if (discounts.length === 0) {
+      return res.status(404).json({ message: 'No discounts found for this category' });
+    }
+
+    // Responder con los descuentos encontrados
+    res.status(200).json(discounts);
+  } catch (error) {
+    console.error('Error fetching discounts:', error);
+    res.status(500).json({ message: 'Internal server error', error });
   }
 };

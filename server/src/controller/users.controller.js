@@ -103,6 +103,10 @@ export const addSubscription = async (req, res) => {
 }
 
 export const removeUserBalance = async (req, res) => {
+
+  console.log("removiendo balance")
+  
+  console.log(req.body)
   const {newBalance} = req.body
   const userId = req.user.userId
   try {

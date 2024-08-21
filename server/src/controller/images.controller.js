@@ -3,6 +3,7 @@ import Local from '../models/local.js';
 import Product from '../models/product.js';
 import cloudinary from '../cloudinaryConfig.js';
 import BalanceRequest from '../models/balanceRequest.model.js';
+import Discount from '../models/discount.js';
 
 cloudinary.config({
   cloud_name: "doqyrz0sg",
@@ -11,21 +12,20 @@ cloudinary.config({
 });
 
 export const updateImage = async (req, res) => {
-  console.log('File received1:', req.file);
-  
+  console.log('Request Body:', req.body);
+  console.log('File received:', req.file);  // Verifica si el archivo está presente
+
   try {
     const { id, action } = req.body;
-    
-    console.log('File received2:', req.file);
 
     if (!req.file) {
+      console.log('No file received');
       res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
       return;
     }
 
     const fileContent = req.file.buffer.toString('base64');
-
-    console.log('Base64 file content:', fileContent.substring(0, 30) + '...'); // Mostrar solo el inicio del contenido para evitar log largos
+    console.log('Base64 file content:', fileContent.substring(0, 30) + '...');
 
     let modelToUpdate;
 
@@ -36,6 +36,9 @@ export const updateImage = async (req, res) => {
 
       case 'product':
         modelToUpdate = Product;
+        break;
+      case 'discount':
+        modelToUpdate = Discount;
         break;
 
       default:
@@ -60,6 +63,7 @@ export const updateImage = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 export const uploadBalanceImage = async (req, res) => {
 

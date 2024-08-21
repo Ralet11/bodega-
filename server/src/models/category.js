@@ -32,6 +32,6 @@ const Category = sequelize.define('category', {
 });
 
 // Definición de la relación con la tabla de locales
-Category.belongsTo(Local, { foreignKey: 'local_id', as: 'local' });
+
 
 export default Category;
