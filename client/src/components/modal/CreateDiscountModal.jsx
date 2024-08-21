@@ -1,34 +1,55 @@
-import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import axios from "axios";
-import Loader from "../Loader";
-import { XCircleIcon } from "@heroicons/react/24/solid";
-import { getParamsEnv } from "../../functions/getParamsEnv";
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { XCircleIcon, PhotoIcon } from '@heroicons/react/24/solid';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import Loader from '../Loader';
+import { getParamsEnv } from '../../functions/getParamsEnv';
 
 const { API_URL_BASE } = getParamsEnv();
 
 const CreateDiscountModal = ({
+  show,
+  handleClose,
   aux,
   setAux,
-  setShowAddDiscountModal,
-  products
+  product
 }) => {
+  const token = useSelector((state) => state?.client.token);
   const shop_id = useSelector((state) => state?.activeShop);
+
   const [discount, setDiscount] = useState({
-    productName: "",
-    discountType: "percentage",
-    percentage: "",
-    fixedValue: "",
-    image: "",
-    limitDate: "",
-    description: "",
-    delivery: 2,
+    productName: product ? product.name : '',
+    discountType: 'percentage',
+    percentage: '',
+    fixedValue: '',
+    img: null,
+    limitDate: '',
+    description: '',
+    delivery: 0,  // Default to "Pick-up"
+    usageLimit: 1,
+    minPurchaseAmount: '',
+    maxDiscountAmount: '',
+    conditions: '',
+    order_details: [product ? product : {}]
   });
-  const [selectedProducts, setSelectedProducts] = useState([]);
+
+  const [imagePreview, setImagePreview] = useState(null);
   const [submitLoader, setSubmitLoader] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
-  const [isSelectOpen, setIsSelectOpen] = useState(false);
-  const token = useSelector((state) => state?.client.token);
+  const [errors, setErrors] = useState({});
+
+  console.log(discount, "discount")
+
+  useEffect(() => {
+    if (product) {
+      setDiscount((prevState) => ({
+        ...prevState,
+        productName: product.name,
+        order_details: [product]
+      }));
+    }
+  }, [product]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,70 +57,133 @@ const CreateDiscountModal = ({
       ...prevInfo,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: '',  // Clear the error message as the user types
+    }));
   };
 
-  const handleProductSelect = (e) => {
-    const { value } = e.target;
-    const val = JSON.parse(value);
-
-    setSelectedProducts((prevProducts) => [...prevProducts, val]);
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setDiscount((prevState) => ({
+        ...prevState,
+        img: file,
+      }));
+      setImagePreview(imageUrl);
+    }
   };
 
-  const removeSelectedProduct = (product) => {
-    setSelectedProducts((prevProducts) =>
-      prevProducts.filter((selectedProduct) => selectedProduct !== product)
-    );
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!discount.productName.trim()) newErrors.productName = 'Discount name is required';
+    if (discount.discountType === 'percentage' && !discount.percentage) newErrors.percentage = 'Percentage is required';
+    if (discount.discountType === 'fixedValue' && !discount.fixedValue) newErrors.fixedValue = 'Fixed value is required';
+    if (!discount.limitDate) newErrors.limitDate = 'Expiration date is required';
+    if (!discount.img) newErrors.img = 'Image is required';
+    if (!discount.usageLimit) newErrors.usageLimit = 'Usage limit is required';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
+
+  const handleImageUpload = async (discountId) => {
+    console.log(discountId)
+     if (discount.img) {
+      const formData = new FormData();
+      formData.append('id', discountId);
+      formData.append('action', 'discount');
+      formData.append('file', discount.img);
+
+      try {
+        const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.status === 200) {
+          console.log('Image uploaded successfully');
+        } else {
+          console.error('Error uploading image');
+        }
+      } catch (error) {
+        console.error('Error uploading image:', error);
+      }
+    } 
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       setDisableSubmit(true);
       setSubmitLoader(true);
-      const data = {
+
+      const discountData = {
         productName: discount.productName,
         discountType: discount.discountType,
-        percentage: discount.discountType === "percentage" ? discount.percentage : undefined,
-        fixedValue: discount.discountType === "fixedValue" ? discount.fixedValue : undefined,
-        image: discount.image,
+        percentage: discount.discountType === 'percentage' ? discount.percentage : '',
+        fixedValue: discount.discountType === 'fixedValue' ? discount.fixedValue : '',
         limitDate: discount.limitDate,
         description: discount.description,
-        shop_id,
+        shop_id: shop_id,
         delivery: discount.delivery,
-        order_details: [{ order_details: selectedProducts }],
-        product_id: selectedProducts[0].id
+        product_id: product.id,
+        usageLimit: discount.usageLimit,
+        minPurchaseAmount: discount.minPurchaseAmount,
+        maxDiscountAmount: discount.maxDiscountAmount,
+        conditions: discount.conditions,
+        order_details: discount.order_details, // Aquí se envía como un objeto normal
+        category_id: product.categories_id
       };
 
-      console.log(data)
+      if (discount.img) {
+        discountData.img = discount.img; // Añadimos la imagen si está presente
+      }
 
       const response = await axios.post(
         `${API_URL_BASE}/api/discounts/add`,
-        data,
+        discountData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json', // Enviar como JSON
           },
         }
       );
 
-      if (response.data.created === "ok") {
+      if (response.data.created === 'ok') {
+        console.log(response.data, "data de disc")
+        await handleImageUpload(response.data.newDiscount.id);
         setSubmitLoader(false);
         setAux(!aux);
         setTimeout(() => {
           closeModal();
           setDisableSubmit(false);
           setDiscount({
-            productName: "",
-            discountType: "percentage",
-            percentage: "",
-            fixedValue: "",
-            image:
-              "https://res.cloudinary.com/doyafxwje/image/upload/v1704906320/no-photo_yqbhu3.png",
-            limitDate: "",
-            description: "",
-            delivery: 2,
+            productName: product.name,
+            discountType: 'percentage',
+            percentage: '',
+            fixedValue: '',
+            img: null,
+            limitDate: '',
+            description: '',
+            delivery: 0,  // Reset to "Pick-up"
+            usageLimit: 1,
+            minPurchaseAmount: '',
+            maxDiscountAmount: '',
+            conditions: '',
+            order_details: [product]
           });
-          setSelectedProducts([]);
+          setImagePreview(null);
         }, 3000);
       } else {
         setDisableSubmit(false);
@@ -108,14 +192,14 @@ const CreateDiscountModal = ({
     } catch (error) {
       setDisableSubmit(false);
       setSubmitLoader(false);
-      const errorMessage = error.response
-        ? error.response.data
-        : "An error occurred";
+      const errorMessage = error.response ? error.response.data : 'An error occurred';
+      console.error('Error creating discount:', errorMessage);
     }
   };
 
+
   const closeModal = () => {
-    setShowAddDiscountModal(false);
+    handleClose();
   };
 
   useEffect(() => {
@@ -124,205 +208,182 @@ const CreateDiscountModal = ({
         closeModal();
       }
     };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
+    window.addEventListener('keydown', close);
+    return () => window.removeEventListener('keydown', close);
   }, []);
 
+  if (!product) return null;
+
   return (
-    <>
-      <div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
-      >
-        <div className="w-11/12 max-w-2xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-200">
-              Add New Discount
-            </h1>
-            <XCircleIcon
-              onClick={closeModal}
-              className="cursor-pointer w-5 h-5 text-gray-800 dark:text-gray-200 hover:text-red-600"
-            />
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Discount Name
-                </label>
-                <input
-                  onChange={handleChange}
-                  type="text"
-                  name="productName"
-                  value={discount.productName}
-                  placeholder="Discount name"
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Discount Type
-                </label>
-                <select
-                  name="discountType"
-                  value={discount.discountType}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                >
-                  <option value="percentage">Percentage</option>
-                  <option value="fixedValue">Fixed Value</option>
-                </select>
-              </div>
-              {discount.discountType === "percentage" && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                    Discount Percentage
-                  </label>
-                  <input
-                    onChange={handleChange}
-                    type="text"
-                    name="percentage"
-                    value={discount.percentage}
-                    placeholder="Discount percentage"
-                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                  />
-                </div>
-              )}
-              {discount.discountType === "fixedValue" && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                    Fixed Value
-                  </label>
-                  <input
-                    onChange={handleChange}
-                    type="text"
-                    name="fixedValue"
-                    value={discount.fixedValue}
-                    placeholder="Fixed value"
-                    className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                  />
-                </div>
-              )}
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Expiration Date
-                </label>
-                <input
-                  onChange={handleChange}
-                  type="date"
-                  name="limitDate"
-                  value={discount.limitDate}
-                  placeholder="Expiration date"
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Image Link
-                </label>
-                <input
-                  onChange={handleChange}
-                  type="text"
-                  name="image"
-                  value={discount.image}
-                  placeholder="Image link"
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                />
-                <div className="mt-1">
-                  <img
-                    className="w-16 h-16 rounded-md object-cover"
-                    src={discount.image}
-                    alt="Product"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Order Type
-                </label>
-                <select
-                  name="delivery"
-                  value={discount.delivery}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                >
-                  <option value="0">Pick-up / Delivery</option>
-                  <option value="1">Order-in</option>
-                  <option value="2">All</option>
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                  Description
-                </label>
-                <textarea
-                  onChange={handleChange}
-                  name="description"
-                  value={discount.description}
-                  placeholder="Description"
-                  className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-gray-200 text-xs"
-                  rows="3"
-                ></textarea>
-              </div>
+    <div>
+      {show && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white w-full max-w-2xl mx-2 md:mx-auto rounded-lg shadow-lg relative max-h-screen overflow-auto">
+            <div className="bg-blue-400 p-2 rounded-t-lg">
+              <h2 className="text-sm font-semibold text-white">Add Discount</h2>
             </div>
-            <div className="relative mb-4">
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300">
-                Selected Products
-              </label>
-              <div
-                className="mt-1 block w-full px-2 py-1 bg-white border border-gray-300 rounded-md shadow-sm cursor-pointer dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 text-xs"
-                onClick={() => setIsSelectOpen(!isSelectOpen)}
-              >
-                {isSelectOpen ? "Close" : "Open"} Product Select
-              </div>
-              {isSelectOpen && (
-                <select
-                  onChange={handleProductSelect}
-                  className="absolute mt-2 w-full border border-gray-300 rounded-md shadow-lg bg-white dark:bg-gray-800 dark:border-gray-600 dark:text-gray-200 text-xs"
-                  multiple
-                  style={{ zIndex: 999 }}
-                >
-                  {products.map((product) => (
-                    <option key={product.id} value={JSON.stringify(product)}>
-                      {product.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-              <div className="mt-2 flex flex-wrap">
-                {selectedProducts.map((selectedProduct) => (
-                  <span
-                    key={selectedProduct.id}
-                    className="flex items-center bg-gray-200 dark:bg-gray-800 px-2 py-1 rounded-full text-xs font-medium text-gray-700 dark:text-gray-200 mr-1 mb-1"
-                  >
-                    {selectedProduct.name}
-                    <button
-                      onClick={() => removeSelectedProduct(selectedProduct)}
-                      className="ml-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-600"
+            <div className="p-2">
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="bg-gray-100 p-2 rounded-lg shadow-md">
+                  <h3 className="text-sm font-semibold mb-2">Discount Details</h3>
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Discount Name</label>
+                    <input
+                      type="text"
+                      name="productName"
+                      placeholder="Enter discount name"
+                      value={discount.productName}
+                      onChange={handleChange}
+                      className="w-full p-1 border border-gray-300 rounded text-xs"
+                    />
+                    {errors.productName && <p className="text-red-500 text-xs">{errors.productName}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Discount Type</label>
+                    <select
+                      name="discountType"
+                      value={discount.discountType}
+                      onChange={handleChange}
+                      className="w-full p-1 border border-gray-300 rounded text-xs"
                     >
-                      x
-                    </button>
-                  </span>
-                ))}
+                      <option value="percentage">Percentage</option>
+                      <option value="fixedValue">Fixed Value</option>
+                    </select>
+                  </div>
+                  {discount.discountType === 'percentage' && (
+                    <div className="mb-2">
+                      <label className="block text-gray-700 text-xs">Percentage</label>
+                      <input
+                        type="number"
+                        name="percentage"
+                        placeholder="Enter percentage"
+                        value={discount.percentage}
+                        onChange={handleChange}
+                        className="w-full p-1 border border-gray-300 rounded text-xs"
+                      />
+                      {errors.percentage && <p className="text-red-500 text-xs">{errors.percentage}</p>}
+                    </div>
+                  )}
+                  {discount.discountType === 'fixedValue' && (
+                    <div className="mb-2">
+                      <label className="block text-gray-700 text-xs">Fixed Value</label>
+                      <input
+                        type="number"
+                        name="fixedValue"
+                        placeholder="Enter fixed value"
+                        value={discount.fixedValue}
+                        onChange={handleChange}
+                        className="w-full p-1 border border-gray-300 rounded text-xs"
+                      />
+                      {errors.fixedValue && <p className="text-red-500 text-xs">{errors.fixedValue}</p>}
+                    </div>
+                  )}
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Expiration Date</label>
+                    <input
+                      type="date"
+                      name="limitDate"
+                      placeholder="Enter expiration date"
+                      value={discount.limitDate}
+                      onChange={handleChange}
+                      className="w-full p-1 border border-gray-300 rounded text-xs"
+                    />
+                    {errors.limitDate && <p className="text-red-500 text-xs">{errors.limitDate}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Upload Image</label>
+                    <label className="flex items-center space-x-1 cursor-pointer">
+                      <PhotoIcon className="h-3 w-3 text-gray-500" />
+                      <span className="text-gray-500 text-xs">Choose file</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        name="img"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                    {errors.img && <p className="text-red-500 text-xs">{errors.img}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Usage Limit</label>
+                    <input
+                      type="number"
+                      name="usageLimit"
+                      placeholder="Enter usage limit"
+                      value={discount.usageLimit}
+                      onChange={handleChange}
+                      className="w-full p-1 border border-gray-300 rounded text-xs"
+                    />
+                    {errors.usageLimit && <p className="text-red-500 text-xs">{errors.usageLimit}</p>}
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-gray-700 text-xs">Order Type</label>
+                    <select
+                      name="delivery"
+                      value={discount.delivery}
+                      onChange={handleChange}
+                      className="w-full p-1 border border-gray-300 rounded text-xs"
+                    >
+                      <option value="1">Pick-up</option>
+                      <option value="2">Delivery</option>
+                      <option value="0">Order-in</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="bg-gray-100 p-2 rounded-lg shadow-md flex flex-col justify-center items-center">
+                  {imagePreview && (
+                    <img
+                      src={imagePreview}
+                      alt="Discount Preview"
+                      className="w-full h-16 md:h-20 rounded-lg object-cover mb-2"
+                    />
+                  )}
+                  <div className="text-center">
+                    <div className="font-bold text-xs mb-1">{discount.productName}</div>
+                    <hr className="my-1 border-gray-300" />
+                    <p className="text-gray-700 text-xs font-serif italic">
+                      {discount.description}
+                    </p>
+                    <hr className="my-1 border-gray-300" />
+                    <p className="text-gray-700 text-xs">
+                      {discount.discountType === 'percentage' ? `Percentage: ${discount.percentage}%` : `Fixed Value: $${discount.fixedValue}`}
+                    </p>
+                    <hr className="my-1 border-gray-300" />
+                    <div className="text-gray-700 text-xs">Selected Products:</div>
+                    <ul className="text-xs list-disc pl-4">
+                      {discount.order_details.map((item, index) => (
+                        <li key={index}>{item.name}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </form>
+              <div onClick={handleSubmit} className="bg-gray-100 px-3 py-2 flex justify-end rounded-b-lg">
+                <button className="bg-blue-400 text-white py-1 px-2 rounded hover:bg-blue-600 w-full mt-2 text-xs" type="submit" disabled={disableSubmit}>
+                    {submitLoader ? 'Saving...' : 'Save Discount'}
+                </button>
               </div>
             </div>
-            <div className="flex justify-center">
-              {!submitLoader ? (
-                <button
-                  type="submit"
-                  disabled={disableSubmit}
-                  className="px-3 py-1 w-full sm:w-auto bg-blue-600 text-white font-bold rounded-md shadow-md hover:bg-blue-700 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 text-xs"
-                >
-                  Create New Discount
-                </button>
-              ) : (
-                <Loader />
-              )}
+            <div className="bg-gray-100 px-3 py-2 flex justify-end rounded-b-lg">
+              <button onClick={closeModal} className="text-blue-500 hover:underline cursor-pointer text-xs">
+                Close
+              </button>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-    </>
+      )}
+    </div>
   );
+};
+
+CreateDiscountModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func.isRequired,
+  aux: PropTypes.bool.isRequired,
+  setAux: PropTypes.func.isRequired,
+  product: PropTypes.object.isRequired
 };
 
 export default CreateDiscountModal;
