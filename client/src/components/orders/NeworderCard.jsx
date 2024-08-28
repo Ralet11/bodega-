@@ -72,38 +72,38 @@ const NewOrderCard = ({ order, handleAcceptOrder, time, handleRejectOrder }) => 
   const timeDifference = (currentDateTime - orderDateTime) / (1000 * 60); // Diferencia en minutos
 
   return (
-    <div className="bg-white border border-gray-300 rounded-lg shadow-md p-4 mb-4 flex flex-col justify-between w-80 max-w-full">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="font-bold text-lg">
+    <div className="bg-white border border-gray-300 rounded-md shadow-sm p-2 mb-2 flex flex-col justify-between w-64 max-w-full">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="font-semibold text-sm">
           Order N°: {order.id} - {formatOrderCode(order.code)}
         </h3>
         <span
-          className={`px-2 py-1 rounded text-white text-sm ${
+          className={`px-1 py-0.5 rounded text-white text-xs ${
             order.type === "pick up" ? "bg-blue-400" : "bg-red-400"
           }`}
         >
           {order.type}
           {timeDifference > 15 && (
-            <ExclamationCircleIcon className="h-5 w-5 text-red-500 inline ml-2" />
+            <ExclamationCircleIcon className="h-4 w-4 text-red-500 inline ml-2" />
           )}
         </span>
       </div>
-      <div className="flex-1 mb-4">
-        <p className="text-sm text-gray-600 mb-1">
-          <span className="font-semibold">User:</span> {userData.name}
+      <div className="flex-1 mb-2">
+        <p className="text-xs text-gray-600 mb-1">
+          <span className="font-medium">User:</span> {userData.name}
         </p>
-        <p className="text-sm text-gray-600">
-          <span className="font-semibold">Total:</span> ${Number(order.total_price).toFixed(2)}
+        <p className="text-xs text-gray-600">
+          <span className="font-medium">Total:</span> ${Number(order.total_price).toFixed(2)}
         </p>
       </div>
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <div
           onClick={() => openModal()}
           onMouseEnter={(e) => showTooltip(e, "Detail")}
           onMouseLeave={(e) => hideTooltip(e)}
           className="relative cursor-pointer"
         >
-          <DocumentTextIcon className="h-6 w-6 text-blue-500" />
+          <DocumentTextIcon className="h-4 w-4 text-blue-500" />
           <span className="tooltip absolute bg-gray-700 text-white text-xs rounded py-1 px-2 hidden">Detail</span>
         </div>
         <div
@@ -112,7 +112,7 @@ const NewOrderCard = ({ order, handleAcceptOrder, time, handleRejectOrder }) => 
           onMouseLeave={(e) => hideTooltip(e)}
           className="relative cursor-pointer"
         >
-          <CheckCircleIcon className="h-6 w-6 text-green-500" />
+          <CheckCircleIcon className="h-4 w-4 text-green-500" />
           <span className="tooltip absolute bg-gray-700 text-white text-xs rounded py-1 px-2 hidden">Accept</span>
         </div>
         <div
@@ -121,10 +121,10 @@ const NewOrderCard = ({ order, handleAcceptOrder, time, handleRejectOrder }) => 
           onMouseLeave={(e) => hideTooltip(e)}
           className="relative cursor-pointer"
         >
-          <XCircleIcon className="h-6 w-6 text-red-500" />
+          <XCircleIcon className="h-4 w-4 text-red-500" />
           <span className="tooltip absolute bg-gray-700 text-white text-xs rounded py-1 px-2 hidden">Reject</span>
         </div>
-        <span className="ml-auto text-sm text-gray-500">{time}</span>
+        <span className="ml-auto text-xs text-gray-500">{time}</span>
       </div>
       {isModalOpen && <OrderModal order={order} closeModal={closeModal} />}
     </div>

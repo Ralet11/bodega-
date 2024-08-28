@@ -92,8 +92,9 @@ export const changeStatus = async (req, res) => {
 
 export const updateShop = async (req, res) => {
   const { id } = req.params;
-  const { name, phone, category, address, lat, lng, status } = req.body;
-
+  const { name, phone, category, address, lat, lng, status, Delivery, pickUp, orderIn } = req.body;
+  console.log(req.body, "body");
+  const {clientId} = req.user
   try {
     const local = await Local.findByPk(id);
 
@@ -101,9 +102,28 @@ export const updateShop = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
 
-    await local.update({ name, phone, locals_categories_id: category, address, lat, lng, status });
+    // Actualizar los campos del local
+    await local.update({
+      name,
+      phone,
+      locals_categories_id: category,
+      address,
+      lat,
+      lng,
+      status,
+      delivery: Delivery,    // Actualiza el campo de delivery
+      pickUp,      // Actualiza el campo de pickUp
+      orderIn      // Actualiza el campo de orderIn
+    });
 
-    res.status(200).json({ message: 'Información del local actualizada exitosamente' });
+    const locals = await Local.findAll({
+      where: {
+        clients_id: clientId
+      }
+    });
+
+
+    res.status(200).json({ message: 'Información del local actualizada exitosamente', locals });
   } catch (error) {
     console.error('Error al actualizar información del local:', error);
     res.status(500).json({ message: 'Error al actualizar información del local' });

@@ -49,6 +49,7 @@ function Settings() {
     pictureId: '',
   });
 
+  const googleMapsApiKey = 'AIzaSyAvritMA-llcdIPnOpudxQ4aZ1b5WsHHUc'
   const [openingHours, setOpeningHours] = useState(daysOfWeek);
 
   useEffect(() => {
@@ -56,6 +57,7 @@ function Settings() {
       try {
         const response = await axios.get(`${API_URL_BASE}/api/local/get/${activeShop}`);
         const data = response.data;
+        console.log(data, "data info")
         setShopData({
           id: data.id,
           name: data.name,
@@ -64,7 +66,11 @@ function Settings() {
           image: data.img,
           lat: data.lat,
           lng: data.lng,
-          category: data.locals_categories_id || ""
+          category: data.locals_categories_id || "",
+          Delivery: data.delivery,
+          pickUp: data.pickUp,
+          orderIn: data.orderIn,
+
         });
 
         setLatLong({
@@ -116,7 +122,7 @@ function Settings() {
     if (fetchLatLong) {
       const fetchData = async () => {
         try {
-          const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(shopData.address)}&key=${"YOUR_GOOGLE_API_KEY"}`);
+          const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(shopData.address)}&key=${googleMapsApiKey}`);
           const location = response.data.results[0].geometry.location;
           const lat = location.lat;
           const lng = location.lng;
@@ -222,7 +228,7 @@ function Settings() {
               </div>
             </div>
             <div className="w-full lg:w-1/2 min-h-[300px]">
-              <InfoCard shopData={shopData} setShopData={setShopData} />
+              <InfoCard shopData={shopData} client={client} setShopData={setShopData} />
             </div>
           </div>
           

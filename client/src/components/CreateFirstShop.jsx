@@ -27,7 +27,7 @@ const CreateFirstShop = () => {
   const navigate = useNavigate();
 
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE",
+    googleMapsApiKey: "AIzaSyAvritMA-llcdIPnOpudxQ4aZ1b5WsHHUc",
     libraries: ["places"]
   });
 

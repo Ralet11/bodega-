@@ -44,7 +44,7 @@ function DiscountCards({
       <div className="flex justify-between items-center mb-4">
         <input
           type="text"
-          placeholder="Buscar por nombre"
+          placeholder="Search by name"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-2 py-1 placeholder-gray-400 text-gray-700 bg-white rounded-full text-xs border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[200px]"
