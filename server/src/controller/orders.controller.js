@@ -343,3 +343,26 @@ export const acceptOrderByEmail = async (req, res) => {
     `);
   }
 };
+
+export const cancelOrder = async (req, res) => {
+  const id = req.params.id;
+  const io = getIo();
+  try {
+    const order = await Order.findByPk(id);
+
+    if (!order) {
+      return res.status(404).json({ message: 'Pedido no encontrado' });
+    }
+
+    await order.update({ status: 'cancelled' });
+
+    // Emitir evento de cambio de estado del pedido a través de Socket.IO
+    io.emit('changeOrderState', { status: 'cancelled', orderId: id });
+
+    res.status(200).json(order);
+  } catch (error) {
+    console.error('Error al cancelar el pedido:', error);
+    res.status(500).json({ message: 'Error interno del servidor.' });
+  }
+
+}

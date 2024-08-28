@@ -70,7 +70,7 @@ export const loginClient = async (req, res) => {
 
     console.log(locals)
 
-    const token = jwt.sign({ clientId: client.id }, "secret_key");
+    const token = jwt.sign({ clientId: client.id }, "secret_key", { expiresIn: '30d' });
 
     res.json({
       error: false,
@@ -161,7 +161,7 @@ export const loginUser = async (req, res) => {
 
     console.log(user, "address del user")
 
-    const token = jwt.sign({ userId: user.id }, "secret_key", { expiresIn: "1h" });
+    const token = jwt.sign({ userId: user.id }, "secret_key");
 
     res.json({
       error: false,

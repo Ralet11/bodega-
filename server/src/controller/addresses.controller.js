@@ -17,16 +17,16 @@ export const addAddressToUser = async (req, res) => {
   const userId = req.user.userId;
   const {
     formatted_address,
-    name,
-    houseNumber,
-    streetName,
-    additionalDetails,
-    postalCode
+    name = "",
+    houseNumber = "",
+    streetName = "",
+    additionalDetails = "",
+    postalCode = ""
   } = req.body;
 
-  // Verificar si los campos obligatorios están presentes
-  if (!formatted_address || !name || !houseNumber || !streetName || !postalCode) {
-    return res.status(400).json({ error: 'Missing required address fields' });
+  // Verificar si el campo obligatorio está presente
+  if (!formatted_address) {
+    return res.status(400).json({ error: 'Missing required field: formatted_address' });
   }
 
   try {
