@@ -9,7 +9,7 @@ function OrderModal({ order, closeModal }) {
     const [userInfo, setUserInfo] = useState(null);
     const [mapUrl, setMapUrl] = useState(null);
     const token = useSelector((state) => state?.client.token);
-    const googleMapsApiKey = "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE"; // Replace this with your new Google Maps API key
+    const googleMapsApiKey = "AIzaSyAvritMA-llcdIPnOpudxQ4aZ1b5WsHHUc"; // Replace this with your new Google Maps API key
 
     const instructions = order.deliveryInstructions;
 

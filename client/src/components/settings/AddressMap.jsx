@@ -10,7 +10,7 @@ const { API_URL_BASE } = getParamsEnv();
 
 export default function Index({ shopData, setShopData, latLong }) {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyB8fCVwRXbMe9FAxsrC5CsyfjzpHxowQmE",
+    googleMapsApiKey: "AIzaSyAvritMA-llcdIPnOpudxQ4aZ1b5WsHHUc",
     libraries: ["places"]
   });
 
@@ -106,7 +106,7 @@ function Map({ shopData, setShopData, latLong }) {
       const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json`, {
       params: {
         address: address,
-        key: "AIzaSyAfN8bzcreJthGqm_3BaeNC8GYiCAduQgU"
+        key: "AIzaSyAvritMA-llcdIPnOpudxQ4aZ1b5WsHHUc"
       }
       });
       const location = response.data.results[0].geometry.location;

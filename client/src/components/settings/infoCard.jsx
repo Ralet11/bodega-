@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getParamsEnv } from "../../functions/getParamsEnv";
-import ToasterConfig from '../../ui_bodega/Toaster';
 import toast from 'react-hot-toast';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
+import { setClientLocals } from '../../redux/actions/actions';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -18,35 +18,43 @@ const countryOptions = [
   // Agrega más países según sea necesario
 ];
 
-function InfoCard({ shopData, setShopData }) {
+function InfoCard({ shopData, setShopData, client }) {
   const [newShop, setNewShop] = useState({
     id: shopData.id,
-    name: '',
-    phone: '',
-    address: '',
-    img: null,
-    nationality: '',
-    service_options: ['0', '1'],
+    name: shopData.name || '',
+    phone: shopData.phone || '',
+    address: shopData.address || '',
+    img: shopData.img || null,
+    nationality: shopData.nationality || '',
+    Delivery: shopData.Delivery || false,
+    pickUp: shopData.pickUp || false,
+    orderIn: shopData.orderIn || false,
   });
+
   const token = useSelector((state) => state?.client.token);
-  const [selectedImage, setSelectedImage] = useState({ img: shopData ? shopData.image : defaultImageUrl });
+  const [selectedImage, setSelectedImage] = useState({ img: shopData.image || defaultImageUrl });
   const [imageChanged, setImageChanged] = useState(false);
   const categories = useSelector((state) => state.categories);
   const [phonePrefix, setPhonePrefix] = useState('');
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setSelectedImage({ img: shopData.image || defaultImageUrl });
   }, [shopData]);
 
+  console.log(shopData, 'shopData');
+
   useEffect(() => {
     setNewShop({
       id: shopData.id,
-      name: shopData.name,
-      phone: shopData.phone,
-      img: shopData.img,
+      name: shopData.name || '',
+      phone: shopData.phone || '',
+      img: shopData.img || null,
       category: shopData.category || "",
       nationality: shopData.nationality || "",
-      service_options: shopData.service_options || ["0", "1"],
+      Delivery: shopData.Delivery || false,
+      pickUp: shopData.pickUp || false,
+      orderIn: shopData.orderIn || false,
     });
     const selectedCountry = countryOptions.find(option => option.value === shopData.nationality);
     setPhonePrefix(selectedCountry ? selectedCountry.code : '');
@@ -104,7 +112,6 @@ function InfoCard({ shopData, setShopData }) {
         });
         if (response.status === 200) {
           toast.success("Image uploaded successfully");
-          console.log('Image uploaded successfully');
         } else {
           console.error('Error uploading image');
         }
@@ -123,6 +130,7 @@ function InfoCard({ shopData, setShopData }) {
         }
       });
       if (response.status === 200) {
+        dispatch(setClientLocals(response.data.locals));
         toast.success("Shop information updated successfully");
       } else {
         toast.error("Error updating shop information");
@@ -142,32 +150,11 @@ function InfoCard({ shopData, setShopData }) {
     setPhonePrefix(selectedOption.code);
   };
 
-  const handleServiceChange = async (service, checked) => {
-    try {
-      const url = `${API_URL_BASE}/api/local/${checked ? 'addService' : 'removeService'}/${newShop.id}`;
-      const response = await axios.post(url, { serviceToAdd: service, serviceToRemove: service }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      console.log(response)
-      if (response.status === 200) {
-        const updatedServices = checked
-          ? [...newShop.service_options, service]
-          : newShop.service_options.filter(option => option !== service);
-        setNewShop({
-          ...newShop,
-          service_options: updatedServices,
-        });
-        toast.success(`Service ${checked ? 'added' : 'removed'} successfully`);
-      } else {
-        toast.error(`Error ${checked ? 'adding' : 'removing'} service`);
-        console.error(`Error ${checked ? 'adding' : 'removing'} service`);
-      }
-    } catch (error) {
-      toast.error(`Error ${checked ? 'adding' : 'removing'} service`);
-      console.error(`Error ${checked ? 'adding' : 'removing'} service`, error);
-    }
+  const handleServiceChange = (serviceKey, checked) => {
+    setNewShop({
+      ...newShop,
+      [serviceKey]: checked,
+    });
   };
 
   return (
@@ -256,8 +243,8 @@ function InfoCard({ shopData, setShopData }) {
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
-                    checked={newShop.service_options.includes('0')}
-                    onChange={(e) => handleServiceChange('0', e.target.checked)}
+                    checked={newShop.pickUp}
+                    onChange={(e) => handleServiceChange('pickUp', e.target.checked)}
                     className="form-checkbox text-xs"
                   />
                   <span className="ml-1 text-xs">Pick-up</span>
@@ -267,8 +254,8 @@ function InfoCard({ shopData, setShopData }) {
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
-                    checked={newShop.service_options.includes('1')}
-                    onChange={(e) => handleServiceChange('1', e.target.checked)}
+                    checked={newShop.Delivery}
+                    onChange={(e) => handleServiceChange('Delivery', e.target.checked)}
                     className="form-checkbox text-xs"
                   />
                   <span className="ml-1 text-xs">Delivery</span>
@@ -278,8 +265,8 @@ function InfoCard({ shopData, setShopData }) {
                 <label className="inline-flex items-center">
                   <input
                     type="checkbox"
-                    checked={newShop.service_options.includes('2')}
-                    onChange={(e) => handleServiceChange('2', e.target.checked)}
+                    checked={newShop.orderIn}
+                    onChange={(e) => handleServiceChange('orderIn', e.target.checked)}
                     className="form-checkbox text-xs"
                   />
                   <span className="ml-1 text-xs">Order-in</span>

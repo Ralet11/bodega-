@@ -423,21 +423,33 @@ function Products() {
           )}
           {selectedDiscount && !isLoadingProducts && activeTab === 'discounts' && (
             <div className="flex-none w-full lg:w-[300px] bg-white p-4 rounded-lg shadow-lg">
-              <div className="mb-4">
-                <div className="font-bold text-lg mb-2">{selectedDiscount.name}</div>
-                <p className="text-gray-700 mb-2">Discount: {selectedDiscount.percentage}%</p>
-                <p className="text-gray-900 font-semibold">Applies to: {selectedDiscount.productName}</p>
-              </div>
-              <div className="flex space-x-1">
-                <button
-                  className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-red-500 font-medium border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
-                  onClick={() => handleDeleteDiscount(selectedDiscount.id)}
-                >
-                  <Trash className="w-3.5 h-3.5" />
-                  <span>Delete</span>
-                </button>
-              </div>
-            </div>
+  <img
+    src={selectedDiscount.img}
+    alt={selectedDiscount.name}
+    className="w-full h-40 object-cover rounded-lg mb-4"
+  />
+  <div className="mb-4">
+    <div className="font-bold text-xl text-gray-900 mb-2 flex items-center">
+      <span>{selectedDiscount.name}</span>
+      <span className="ml-auto bg-green-500 text-white text-sm font-semibold px-2 py-1 rounded-md">
+        {selectedDiscount.percentage}% OFF
+      </span>
+    </div>
+    <div className="text-gray-700 mb-2">
+      <p className="text-base font-medium">Applies to:</p>
+      <p className="text-lg text-gray-900 font-semibold">{selectedDiscount.productName}</p>
+    </div>
+  </div>
+  <div className="flex space-x-1">
+    <button
+      className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-red-500 font-medium border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
+      onClick={() => handleDeleteDiscount(selectedDiscount.id)}
+    >
+      <Trash className="w-3.5 h-3.5" />
+      <span>Delete</span>
+    </button>
+  </div>
+</div>
           )}
         </div>
       </div>

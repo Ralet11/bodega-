@@ -4,6 +4,7 @@ import axios from "axios";
 import NewOrderCard from "./NeworderCard";
 import AcceptedOrderCard from "./AcceptedOrderCard";
 import SendingOrderCard from "./SendindOrders";
+import OrderCard from "./OrderCads";
 import socketIOClient from "socket.io-client";
 import { setNewOrder } from "../../redux/actions/actions";
 import { getParamsEnv } from "../../functions/getParamsEnv";
@@ -21,9 +22,11 @@ const Orders = () => {
     accepted: [],
     sending: [],
     finished: [],
+    cancelled: [],
+    rejected: [],
   });
 
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -46,6 +49,8 @@ const Orders = () => {
           accepted: [],
           sending: [],
           finished: [],
+          cancelled: [],
+          rejected: [],
         };
 
         response.data.orders.forEach((order) => {
@@ -81,7 +86,6 @@ const Orders = () => {
 
   const handleAcceptOrder = async (orderId) => {
     try {
-      // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
       await axios.put(
         `${API_URL_BASE}/api/orders/accept/${orderId}`,
         {},
@@ -92,7 +96,6 @@ const Orders = () => {
         }
       );
 
-      // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         const orderToUpdateIndex = updatedOrders["new order"].findIndex(
@@ -117,7 +120,6 @@ const Orders = () => {
 
   const handleSendOrder = async (orderId) => {
     try {
-      // Realiza una solicitud al servidor para cambiar el estado de la orden a "sending"
       await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`,
         {},
         {
@@ -126,7 +128,6 @@ const Orders = () => {
           },
         });
 
-      // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         const orderToUpdateIndex = updatedOrders["accepted"].findIndex(
@@ -151,7 +152,6 @@ const Orders = () => {
 
   const handleFinishOrder = async (orderId) => {
     try {
-      // Realiza una solicitud al servidor para cambiar el estado de la orden a "finished"
       await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`,
         {},
         {
@@ -160,7 +160,6 @@ const Orders = () => {
           },
         });
 
-      // Actualiza localmente el estado de la orden cambiando su status
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         const orderToUpdateIndex = updatedOrders["sending"].findIndex(
@@ -194,7 +193,6 @@ const Orders = () => {
         }
       );
   
-      // Actualiza localmente el estado de la orden eliminándola de cualquier array en el que esté presente
       setOrders((prevOrders) => {
         const updatedOrders = { ...prevOrders };
         ["new order", "accepted", "sending"].forEach((status) => {
@@ -202,7 +200,8 @@ const Orders = () => {
             (order) => order.id === orderId
           );
           if (orderIndex !== -1) {
-            updatedOrders[status].splice(orderIndex, 1);
+            const [removedOrder] = updatedOrders[status].splice(orderIndex, 1);
+            updatedOrders.rejected.unshift(removedOrder);
           }
         });
         return updatedOrders;
@@ -218,7 +217,9 @@ const Orders = () => {
         <h3 className="text-lg md:text-2xl font-bold mt-2 text-gray-800">Orders</h3>
         <hr className="my-4 border-t border-gray-300 mx-auto w-1/2" />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ml-5 md:ml-20 pl-5 md:pl-10">
+      
+      {/* Primera fila: New, Accepted, Pick Up */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-20">
         {["new order", "accepted", "sending"].map((status, index) => (
           <div
             key={status}
@@ -229,10 +230,10 @@ const Orders = () => {
                 ? "New"
                 : status === "accepted"
                 ? "Accepted"
-                : "Ready"}
+                : "Pick up"}
             </h3>
             <hr className="mb-5" />
-            <div className="max-h-[500px] overflow-y-auto">
+            <div className="max-h-[300px] overflow-y-auto">
               {[...orders[status]].reverse().map((order, orderIndex) => {
                 const dateTimeString = order.date_time;
                 const dateTime = new Date(dateTimeString);
@@ -285,6 +286,47 @@ const Orders = () => {
                       />
                     )}
                   </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Segunda fila: Cancelled, Rejected, Finished */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-20">
+        {["cancelled", "rejected", "finished"].map((status, index) => (
+          <div
+            key={status}
+            className={`flex-1 ${index < 2 ? "md:border-r border-gray-300" : ""}`}
+          >
+            <h3 className="text-base font-semibold mt-2">
+              {status.charAt(0).toUpperCase() + status.slice(1)}
+            </h3>
+            <hr className="mb-5" />
+            <div className="max-h-[300px] overflow-y-auto">
+              {[...orders[status]].reverse().map((order, orderIndex) => {
+                const dateTimeString = order.date_time;
+                const dateTime = new Date(dateTimeString);
+                dateTime.setUTCHours(dateTime.getUTCHours() - 3);
+
+                const year = dateTime.getFullYear();
+                const month = String(dateTime.getMonth() + 1).padStart(2, "0");
+                const day = String(dateTime.getDate()).padStart(2, "0");
+                const date = `${year}-${month}-${day}`;
+
+                const hours = String(dateTime.getHours()).padStart(2, "0");
+                const minutes = String(dateTime.getMinutes()).padStart(2, "0");
+                const seconds = String(dateTime.getSeconds()).padStart(2, "0");
+                const time = `${hours}:${minutes}:${seconds}`;
+
+                return (
+                  <OrderCard
+                    key={order.id}
+                    order={order}
+                    time={time}
+                    status={status}
+                  />
                 );
               })}
             </div>
