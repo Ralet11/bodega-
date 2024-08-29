@@ -3,18 +3,22 @@ import { TWILIO_PHONE_NUMBER } from '../config.js';
 import Order from '../models/order.js';
 import { getIo } from '../socket.js';
 
-const accountSid = 'AC0905023d05304d16ef0f446444e8ac9a'; // Reemplaza con tu Account SID
-const authToken = '403bb174c2dd915467f32f829db2dde7'; // Reemplaza con tu Auth Token
+const accountSid = ; // Reemplaza con tu Account SID
+const authToken = ; // Reemplaza con tu Auth Token
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {
-  const { to, orderId } = req.body;
+  console.log(req.body, "body en make call")
+  const { to } = req.body;
+  const orderId = req.body.orderId.id;
 
-  client.calls
+  const ip = 'https://b3a2-190-246-136-112.ngrok-free.app'
+
+   client.calls
     .create({
-      url: `https://44ee-190-7-248-15.ngrok-free.app/api/twilio/voice?orderId=${orderId}`,
+      url: `${ip}/api/twilio/voice?orderId=${orderId}`,
       to: to,
-      from: '+12295973706',
+      from: '+18086384088',
     })
     .then(call => res.json({ callSid: call.sid }))
     .catch(error => {
@@ -32,7 +36,7 @@ export const voiceResponse = (req, res) => {
 
   response.gather({
     numDigits: 1,
-    action: `https://44ee-190-7-248-15.ngrok-free.app/api/twilio/handle-key?orderId=${orderId}`,
+    action: `${ip}/api/twilio/handle-key?orderId=${orderId}`,
     method: 'POST',
   });
 
