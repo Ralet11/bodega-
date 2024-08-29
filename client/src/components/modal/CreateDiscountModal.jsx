@@ -6,6 +6,7 @@ import axios from 'axios';
 import Loader from '../Loader';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 
+
 const { API_URL_BASE } = getParamsEnv();
 
 const CreateDiscountModal = ({
@@ -16,6 +17,7 @@ const CreateDiscountModal = ({
   product
 }) => {
   const token = useSelector((state) => state?.client.token);
+  const shops = useSelector((state) => state?.client.locals);
   const shop_id = useSelector((state) => state?.activeShop);
 
   const [discount, setDiscount] = useState({
@@ -26,7 +28,7 @@ const CreateDiscountModal = ({
     img: null,
     limitDate: '',
     description: '',
-    delivery: 0,  // Default to "Pick-up"
+    delivery: 1,  // Default to "Pick-up"
     usageLimit: 1,
     minPurchaseAmount: '',
     maxDiscountAmount: '',
@@ -37,9 +39,18 @@ const CreateDiscountModal = ({
   const [imagePreview, setImagePreview] = useState(null);
   const [submitLoader, setSubmitLoader] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
+  const [shop, setShop] = useState({});
   const [errors, setErrors] = useState({});
 
-  console.log(discount, "discount")
+  // Buscar el shop correspondiente al shop_id en la lista de shops
+  useEffect(() => {
+    const selectedShop = shops?.find((shop) => shop.id === shop_id);
+    if (selectedShop) {
+      setShop(selectedShop);
+    }
+  }, [shop_id, shops]);
+
+  console.log('Shop:', shop);
 
   useEffect(() => {
     if (product) {
@@ -85,13 +96,23 @@ const CreateDiscountModal = ({
     if (!discount.img) newErrors.img = 'Image is required';
     if (!discount.usageLimit) newErrors.usageLimit = 'Usage limit is required';
 
+    // Validar si se puede crear el descuento para el tipo de orden seleccionado
+    if (discount.delivery === 2 && !shop.delivery) {
+      newErrors.delivery = 'Delivery option is not available for this shop';
+    }
+    if (discount.delivery === 1 && !shop.pickUp) {
+      newErrors.delivery = 'Pick-up option is not available for this shop';
+    }
+    if (discount.delivery === 0 && !shop.orderIn) {
+      newErrors.delivery = 'Order-in option is not available for this shop';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleImageUpload = async (discountId) => {
-    console.log(discountId)
-     if (discount.img) {
+    if (discount.img) {
       const formData = new FormData();
       formData.append('id', discountId);
       formData.append('action', 'discount');
@@ -115,7 +136,6 @@ const CreateDiscountModal = ({
       }
     } 
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -141,12 +161,12 @@ const CreateDiscountModal = ({
         minPurchaseAmount: discount.minPurchaseAmount,
         maxDiscountAmount: discount.maxDiscountAmount,
         conditions: discount.conditions,
-        order_details: discount.order_details, // Aquí se envía como un objeto normal
+        order_details: discount.order_details,
         category_id: product.categories_id
       };
 
       if (discount.img) {
-        discountData.img = discount.img; // Añadimos la imagen si está presente
+        discountData.img = discount.img;
       }
 
       const response = await axios.post(
@@ -155,13 +175,12 @@ const CreateDiscountModal = ({
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json', // Enviar como JSON
+            'Content-Type': 'application/json',
           },
         }
       );
 
       if (response.data.created === 'ok') {
-        console.log(response.data, "data de disc")
         await handleImageUpload(response.data.newDiscount.id);
         setSubmitLoader(false);
         setAux(!aux);
@@ -176,7 +195,7 @@ const CreateDiscountModal = ({
             img: null,
             limitDate: '',
             description: '',
-            delivery: 0,  // Reset to "Pick-up"
+            delivery: 1,  // Reset to "Pick-up"
             usageLimit: 1,
             minPurchaseAmount: '',
             maxDiscountAmount: '',
@@ -196,7 +215,6 @@ const CreateDiscountModal = ({
       console.error('Error creating discount:', errorMessage);
     }
   };
-
 
   const closeModal = () => {
     handleClose();
@@ -326,10 +344,11 @@ const CreateDiscountModal = ({
                       onChange={handleChange}
                       className="w-full p-1 border border-gray-300 rounded text-xs"
                     >
-                      <option value="1">Pick-up</option>
-                      <option value="2">Delivery</option>
-                      <option value="0">Order-in</option>
+                      {shop.pickUp && <option value="1">Pick-up</option>}
+                      {shop.delivery && <option value="2">Delivery</option>}
+                      {shop.orderIn && <option value="0">Order-in</option>}
                     </select>
+                    {errors.delivery && <p className="text-red-500 text-xs">{errors.delivery}</p>}
                   </div>
                 </div>
                 <div className="bg-gray-100 p-2 rounded-lg shadow-md flex flex-col justify-center items-center">

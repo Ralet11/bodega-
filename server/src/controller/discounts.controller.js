@@ -6,6 +6,7 @@ import Extra from "../models/extra.js";
 import ExtraOption from "../models/extraOption.model.js";
 
 
+
 export const getAll = async (req, res) => {
  
 
@@ -84,6 +85,8 @@ export const createDiscount = async (req, res) => {
       timesUsed: 0,
       client_id
     });
+
+
 
     res.status(200).json({ newDiscount, created: "ok" });
 

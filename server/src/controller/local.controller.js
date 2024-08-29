@@ -9,6 +9,7 @@ import Extra from "../models/extra.js";
 import ExtraOption from "../models/extraOption.model.js";
 import ShopOpenHours from "../models/shopOpenHoursModel.js";
 import Discount from "../models/discount.js";
+import { getIo } from '../socket.js';
 
 export const getByClientId = async (req, res) => {
   try {
@@ -669,3 +670,13 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+export const syncLocal = async (req, res) => { 
+  const io = getIo();
+  
+  try {
+    io.emit('syncShops');
+    res.status(200).json({ message: 'Success sync' });  // Usa 'res' en lugar de 'req'
+  } catch (error) {
+    res.status(500).json({ message: 'Error interno del servidor' });  // Usa 'res' en lugar de 'req'
+  }
+}
