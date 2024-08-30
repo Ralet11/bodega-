@@ -231,7 +231,7 @@ export const addShop = async (req, res) => {
       },
       include: {
         model: ShopOpenHours,
-        as: 'shopOpenHours'
+        as: 'openingHours'
       }
     });
 
