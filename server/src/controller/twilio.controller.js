@@ -3,8 +3,7 @@ import { TWILIO_PHONE_NUMBER } from '../config.js';
 import Order from '../models/order.js';
 import { getIo } from '../socket.js';
 
-const accountSid = ; // Reemplaza con tu Account SID
-const authToken = ; // Reemplaza con tu Auth Token
+ // Reemplaza con tu Auth Token
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {
@@ -36,7 +35,7 @@ export const voiceResponse = (req, res) => {
 
   response.gather({
     numDigits: 1,
-    action: `${ip}/api/twilio/handle-key?orderId=${orderId}`,
+    action: `https://b3a2-190-246-136-112.ngrok-free.app/api/twilio/handle-key?orderId=${orderId}`,
     method: 'POST',
   });
 

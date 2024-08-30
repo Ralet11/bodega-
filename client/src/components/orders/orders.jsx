@@ -70,19 +70,20 @@ const Orders = () => {
   }, [activeShop, token, API_URL_BASE]);
 
   useEffect(() => {
-    // Listen for the "newOrder" event
-    socket.on("newOrder", (data) => {
+    const handleNewOrder = (data) => {
       setOrders((prevOrders) => ({
         ...prevOrders,
         "new order": [data, ...prevOrders["new order"]],
       }));
-    });
+    };
+
+    socket.on("newOrder", handleNewOrder);
 
     // Clean up the WebSocket listener when the component unmounts
     return () => {
-      socket.off("newOrder");
+      socket.off("newOrder", handleNewOrder);
     };
-  }, [socket]);
+  }, [socket, setOrders]);
 
   const handleAcceptOrder = async (orderId) => {
     try {

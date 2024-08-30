@@ -51,7 +51,7 @@ export const sendNewOrderEmail = async (order, clientEmail, originalDeliveryFee,
   `;
 
   // URL of your backend to accept the order
-  const acceptOrderURL = `http://3.15.211.38 /api/orders/acceptByEmail/${id}`; // Replace with your API URL
+  const acceptOrderURL = `http://3.15.211.38/api/orders/acceptByEmail/${id}`; // Replace with your API URL
 
   // Section for delivery, tip, and instructions information
   const deliveryTipHTML = `

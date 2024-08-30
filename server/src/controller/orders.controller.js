@@ -94,7 +94,7 @@ export const sendOrder = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   console.log(req.body)
-  const { delivery_fee, total_price, oder_details, local_id, status, date_time, type, pi, savings, deliveryAddressAndInstructions, originalDeliveryFee, tip } = req.body;
+  const { delivery_fee, total_price, order_details, local_id, status, date_time, type, pi, savings, deliveryAddressAndInstructions, originalDeliveryFee, tip } = req.body;
   
 console.log(deliveryAddressAndInstructions, "delivery y instruc")
 
@@ -117,7 +117,7 @@ console.log(deliveryAddressAndInstructions, "delivery y instruc")
     const newOrder = await Order.create({
       delivery_fee,
       total_price,
-      order_details: oder_details,
+      order_details: order_details,
       local_id,
       users_id,
       status,
@@ -144,7 +144,7 @@ console.log(deliveryAddressAndInstructions, "delivery y instruc")
     }
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-    io.emit('newOrder', { oder_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi, code });
+    io.emit(`newOrder`, { order_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi, code });
 
     res.status(201).json({ message: 'Pedido creado exitosamente', newOrder, userUpdate: user });
   } catch (error) {

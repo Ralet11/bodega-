@@ -47,7 +47,7 @@ function App() {
   const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
-    socket.on("newOrder", (data) => {
+    socket.on(`neworder-${activeShop}`, (data) => {
       setOrderNotificationCounts((prevCounts) => ({
         ...prevCounts,
         [data.local_id]: (prevCounts[data.local_id] || 0) + 1,
