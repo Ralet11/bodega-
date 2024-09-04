@@ -5,7 +5,7 @@ import axios from 'axios';
 import ProductCard from './ProductCard';
 import UploadExcelModal from '../../modal/UploadExcelModal';
 import { getParamsEnv } from '../../../functions/getParamsEnv';
-import { PlusCircle, Trash, Upload } from 'lucide-react';
+import { PlusCircle, Upload } from 'lucide-react';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -32,16 +32,15 @@ function ProductCards({
   };
 
   const handleDeleteCategory = async () => {
-    console.log('hola')
-      try {
-        await axios.delete(`${API_URL_BASE}/api/categories/hide/${selectedCategory}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setProducts([]);
-      } catch (error) {
-        console.error('Error al eliminar la categoría:', error);
-      }
-    
+    console.log('hola');
+    try {
+      await axios.delete(`${API_URL_BASE}/api/categories/hide/${selectedCategory}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts([]);
+    } catch (error) {
+      console.error('Error al eliminar la categoría:', error);
+    }
   };
 
   const filteredProducts = products.filter((product) =>
@@ -66,7 +65,7 @@ function ProductCards({
             <PlusCircle className="w-4 h-4" />
             <span>Add Item</span>
           </button>
-          
+
           <button
             className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
             onClick={handleOpenUploadExcelModal}

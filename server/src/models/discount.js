@@ -117,5 +117,6 @@ const Discount = sequelize.define('discount', {
 
 Discount.belongsTo(Product, { foreignKey: 'product_id', as: 'product' });
 Discount.belongsTo(Category, { foreignKey: 'category_id', as: 'category' });
+Product.hasMany(Discount, { foreignKey: 'product_id', as: 'discounts' });
 
 export default Discount;

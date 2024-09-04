@@ -49,7 +49,7 @@ function DiscountCards({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-2 py-1 placeholder-gray-400 text-gray-700 bg-white rounded-full text-xs border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[200px]"
         />
-        <div className="flex space-x-2">
+       {/*  <div className="flex space-x-2">
           <button
             className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
             onClick={handleOpenNewDiscountModal}
@@ -57,7 +57,7 @@ function DiscountCards({
             <PlusCircle className="w-4 h-4" />
             <span>Add Discount</span>
           </button>
-        </div>
+        </div> */}
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filteredDiscounts.length === 0 ? (

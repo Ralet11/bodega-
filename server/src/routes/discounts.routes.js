@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {  } from "../controller/products.controller.js";
-import { getAll, createDiscount, getDiscountsByUser, getByLocalId, getUserDiscounts, addDiscountToUser, useDiscountUser, getByLocalIdApp, getByCategory } from "../controller/discounts.controller.js";
+import { getAll, createDiscount, getDiscountsByUser, getByLocalId, getUserDiscounts, addDiscountToUser, useDiscountUser, getByLocalIdApp, getByCategory, deleteDiscount } from "../controller/discounts.controller.js";
 import { methods } from "../middleware.js";
 import { TimeoutError } from "sequelize";
 import multer from 'multer';
@@ -18,5 +18,6 @@ router.get('/userDiscount/:id', methods.auth, getUserDiscounts)
 router.post('/addToUser', methods.auth, addDiscountToUser)
 router.post('/useDiscount', methods.auth, useDiscountUser)
 router.get('/getByCat/:id', methods.auth, getByCategory)
+router.delete('/delete/:id', methods.auth, deleteDiscount)
 
 export default router

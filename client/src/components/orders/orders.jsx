@@ -26,65 +26,72 @@ const Orders = () => {
     rejected: [],
   });
 
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("hhttps://3.15.211.38");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!token) {
-          throw new Error("No token found");
-        }
-
-        const response = await axios.get(
-          `${API_URL_BASE}/api/orders/get/${activeShop}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const ordersByStatus = {
-          "new order": [],
-          accepted: [],
-          sending: [],
-          finished: [],
-          cancelled: [],
-          rejected: [],
-        };
-
-        response.data.orders.forEach((order) => {
-          const status = order.status;
-          if (status in ordersByStatus) {
-            ordersByStatus[status].push(order);
-          }
-        });
-
-        setOrders(ordersByStatus);
-      } catch (error) {
-        console.error("Error fetching data:", error);
+  // Función para hacer la llamada y traer todas las órdenes
+  const fetchOrders = async () => {
+    try {
+      if (!token) {
+        throw new Error("No token found");
       }
-    };
 
-    fetchData();
-  }, [activeShop, token, API_URL_BASE]);
+      const response = await axios.get(
+        `${API_URL_BASE}/api/orders/get/${activeShop}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
+      const ordersByStatus = {
+        "new order": [],
+        accepted: [],
+        sending: [],
+        finished: [],
+        cancelled: [],
+        rejected: [],
+      };
+
+      response.data.orders.forEach((order) => {
+        const status = order.status;
+        if (status in ordersByStatus) {
+          ordersByStatus[status].push(order);
+        }
+      });
+
+      setOrders(ordersByStatus);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  // Llamada inicial para cargar las órdenes
   useEffect(() => {
-    const handleNewOrder = (data) => {
-      setOrders((prevOrders) => ({
-        ...prevOrders,
-        "new order": [data, ...prevOrders["new order"]],
-      }));
+    fetchOrders();
+  }, [activeShop, token]);
+
+  // WebSocket listener para nuevas órdenes
+  useEffect(() => {
+    const handleNewOrder = async (data) => {
+      try {
+        // Vuelve a hacer la llamada al backend para actualizar todas las órdenes
+        await fetchOrders();
+        console.log("New order received and orders updated:", data);
+      } catch (error) {
+        console.error("Error fetching full order data:", error);
+      }
     };
 
     socket.on("newOrder", handleNewOrder);
 
-    // Clean up the WebSocket listener when the component unmounts
+    // Limpiar el listener cuando el componente se desmonte
     return () => {
       socket.off("newOrder", handleNewOrder);
     };
-  }, [socket, setOrders]);
+  }, [socket, token, activeShop]);
 
+  // Función para aceptar una orden
   const handleAcceptOrder = async (orderId) => {
     try {
       await axios.put(
@@ -97,28 +104,14 @@ const Orders = () => {
         }
       );
 
-      setOrders((prevOrders) => {
-        const updatedOrders = { ...prevOrders };
-        const orderToUpdateIndex = updatedOrders["new order"].findIndex(
-          (order) => order.id === orderId
-        );
-
-        if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = {
-            ...updatedOrders["new order"][orderToUpdateIndex],
-            status: "accepted",
-          };
-          updatedOrders.accepted.unshift(orderToUpdate);
-          updatedOrders["new order"].splice(orderToUpdateIndex, 1);
-        }
-
-        return updatedOrders;
-      });
+      // Después de aceptar la orden, recargar todas las órdenes
+      await fetchOrders();
     } catch (error) {
       console.error("Error accepting order:", error);
     }
   };
 
+  // Función para enviar una orden
   const handleSendOrder = async (orderId) => {
     try {
       await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`,
@@ -129,28 +122,14 @@ const Orders = () => {
           },
         });
 
-      setOrders((prevOrders) => {
-        const updatedOrders = { ...prevOrders };
-        const orderToUpdateIndex = updatedOrders["accepted"].findIndex(
-          (order) => order.id === orderId
-        );
-
-        if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = {
-            ...updatedOrders["accepted"][orderToUpdateIndex],
-            status: "sending",
-          };
-          updatedOrders.sending.unshift(orderToUpdate);
-          updatedOrders["accepted"].splice(orderToUpdateIndex, 1);
-        }
-
-        return updatedOrders;
-      });
+      // Después de enviar la orden, recargar todas las órdenes
+      await fetchOrders();
     } catch (error) {
       console.error("Error sending order:", error);
     }
   };
 
+  // Función para finalizar una orden
   const handleFinishOrder = async (orderId) => {
     try {
       await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`,
@@ -161,28 +140,14 @@ const Orders = () => {
           },
         });
 
-      setOrders((prevOrders) => {
-        const updatedOrders = { ...prevOrders };
-        const orderToUpdateIndex = updatedOrders["sending"].findIndex(
-          (order) => order.id === orderId
-        );
-
-        if (orderToUpdateIndex !== -1) {
-          const orderToUpdate = {
-            ...updatedOrders["sending"][orderToUpdateIndex],
-            status: "finished",
-          };
-          updatedOrders.finished.unshift(orderToUpdate);
-          updatedOrders["sending"].splice(orderToUpdateIndex, 1);
-        }
-
-        return updatedOrders;
-      });
+      // Después de finalizar la orden, recargar todas las órdenes
+      await fetchOrders();
     } catch (error) {
       console.error("Error finishing order:", error);
     }
   };
 
+  // Función para rechazar una orden
   const handleRejectOrder = async (orderId) => {
     try {
       await axios.post(`${API_URL_BASE}/api/orders/rejected`,
@@ -194,19 +159,8 @@ const Orders = () => {
         }
       );
   
-      setOrders((prevOrders) => {
-        const updatedOrders = { ...prevOrders };
-        ["new order", "accepted", "sending"].forEach((status) => {
-          const orderIndex = updatedOrders[status].findIndex(
-            (order) => order.id === orderId
-          );
-          if (orderIndex !== -1) {
-            const [removedOrder] = updatedOrders[status].splice(orderIndex, 1);
-            updatedOrders.rejected.unshift(removedOrder);
-          }
-        });
-        return updatedOrders;
-      });
+      // Después de rechazar la orden, recargar todas las órdenes
+      await fetchOrders();
     } catch (error) {
       console.error("Error rejecting order:", error);
     }
