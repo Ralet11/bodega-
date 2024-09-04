@@ -356,9 +356,7 @@ export const getByCategory = async (req, res) => {
     });
 
     // Verificar si se encontraron descuentos
-    if (discounts.length === 0) {
-      return res.status(404).json({ message: 'No discounts found for this category' });
-    }
+   
 
     // Responder con los descuentos encontrados
     res.status(200).json(discounts);
@@ -367,3 +365,22 @@ export const getByCategory = async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error });
   }
 };
+
+export const deleteDiscount = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const discount = await Discount.findByPk(id);
+
+    if (!discount) {
+      return res.status(404).json({ message: 'Discount not found' });
+    }
+
+    await discount.destroy();
+
+    res.status(200).json({ message: 'Discount deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting discount:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}

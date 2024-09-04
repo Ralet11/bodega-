@@ -72,16 +72,15 @@ function Products() {
         await axios.delete(`${API_URL_BASE}/api/discounts/delete/${discountId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        const response = await axios.get(`${API_URL_BASE}/api/discounts/get/${selectedCategory}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setDiscounts(response.data);
-        setSelectedDiscount(null); // Clear the selected discount after deletion
+        console.log("descuento borrado")
+        setAux(!aux);
       } catch (error) {
         console.error('Error al eliminar el descuento:', error);
       }
     }
   };
+
+  console.log(products, "prods")
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -135,7 +134,7 @@ function Products() {
     if (activeTab === 'discounts') {
       fetchDiscounts();
     }
-  }, [selectedCategory, token, activeTab]);
+  }, [selectedCategory, token, activeTab, aux]);
 
   // Effect to clear the selected product or discount when the tab changes
   useEffect(() => {
@@ -308,9 +307,8 @@ function Products() {
             {categories.map((category) => (
               <div
                 key={category.id}
-                className={`cursor-pointer p-2 border rounded-md shadow-sm transition-colors duration-200 ${
-                  category.id === selectedCategory ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
-                }`}
+                className={`cursor-pointer p-2 border rounded-md shadow-sm transition-colors duration-200 ${category.id === selectedCategory ? 'border-blue-500' : 'border-gray-300 hover:border-gray-400'
+                  }`}
                 onClick={() => handleIconClick(category.id)}
               >
                 <span className="text-sm">{category.name}</span>
@@ -320,17 +318,15 @@ function Products() {
           <div className="flex justify-center mb-4">
             <button
               onClick={() => setActiveTab('products')}
-              className={`px-2 py-1 rounded-l-full border text-xs ${
-                activeTab === 'products' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border-blue-500'
-              }`}
+              className={`px-2 py-1 rounded-l-full border text-xs ${activeTab === 'products' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border-blue-500'
+                }`}
             >
               Products
             </button>
             <button
               onClick={() => setActiveTab('discounts')}
-              className={`px-2 py-1 rounded-r-full border text-xs ${
-                activeTab === 'discounts' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border-blue-500'
-              }`}
+              className={`px-2 py-1 rounded-r-full border text-xs ${activeTab === 'discounts' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border-blue-500'
+                }`}
             >
               Discounts
             </button>
@@ -422,35 +418,48 @@ function Products() {
             </div>
           )}
           {selectedDiscount && !isLoadingProducts && activeTab === 'discounts' && (
-            <div className="flex-none w-full lg:w-[300px] bg-white p-4 rounded-lg shadow-lg">
-  <img
-    src={selectedDiscount.img}
-    alt={selectedDiscount.name}
-    className="w-full h-40 object-cover rounded-lg mb-4"
-  />
-  <div className="mb-4">
-    <div className="font-bold text-xl text-gray-900 mb-2 flex items-center">
-      <span>{selectedDiscount.name}</span>
-      <span className="ml-auto bg-green-500 text-white text-sm font-semibold px-2 py-1 rounded-md">
+  <div className="flex-none w-full lg:w-[300px] bg-white p-6 rounded-xl shadow-lg relative transition-transform transform hover:scale-105 hover:shadow-2xl">
+    {/* Image Section */}
+    <div className="mb-4 relative">
+      <img
+        src={selectedDiscount.img}
+        alt={selectedDiscount.productName}
+        className="w-full h-40 object-cover rounded-lg transition-opacity duration-200 hover:opacity-90"
+      />
+      {/* Discount Badge */}
+      <span className="absolute top-3 right-3 bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
         {selectedDiscount.percentage}% OFF
       </span>
     </div>
-    <div className="text-gray-700 mb-2">
-      <p className="text-base font-medium">Applies to:</p>
-      <p className="text-lg text-gray-900 font-semibold">{selectedDiscount.productName}</p>
+
+    {/* Product Details */}
+    <div className="text-left mb-4">
+      <h2 className="text-xl font-semibold text-gray-800 mb-2">{selectedDiscount.productName}</h2>
+
+      <div className="text-gray-600 text-sm mb-2">
+        Applies to:
+        <span className="block text-gray-900 text-base font-medium">{selectedDiscount.productName}</span>
+      </div>
+
+      {/* Display limitDate */}
+      <div className="text-gray-500 text-xs mt-4">
+        <p>Valid until:</p>
+        <p className="text-red-500 font-semibold">{new Date(selectedDiscount.limitDate).toLocaleDateString()}</p>
+      </div>
+    </div>
+
+    {/* Buttons */}
+    <div className="flex justify-start space-x-2">
+      <button
+        className="flex items-center space-x-2 px-3 py-1 text-xs text-red-500 font-medium border border-red-500 rounded-lg bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
+        onClick={() => handleDeleteDiscount(selectedDiscount.id)}
+      >
+        <Trash className="w-4 h-4" />
+        <span>Delete</span>
+      </button>
     </div>
   </div>
-  <div className="flex space-x-1">
-    <button
-      className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-red-500 font-medium border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
-      onClick={() => handleDeleteDiscount(selectedDiscount.id)}
-    >
-      <Trash className="w-3.5 h-3.5" />
-      <span>Delete</span>
-    </button>
-  </div>
-</div>
-          )}
+)}
         </div>
       </div>
       <CategoryModal
@@ -481,7 +490,7 @@ function Products() {
         extras={selectedProduct?.extras || []}
         handleSaveExtras={handleSaveExtras}
       />
-      {showTutorial && <FloatingTutorialCard onClose={() => setShowTutorial(false)} />}
+      
       <CreateDiscountModal
         show={showAddDiscountModal}
         handleClose={() => setShowAddDiscountModal(false)}

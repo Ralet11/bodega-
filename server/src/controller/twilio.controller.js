@@ -3,7 +3,8 @@ import { TWILIO_PHONE_NUMBER } from '../config.js';
 import Order from '../models/order.js';
 import { getIo } from '../socket.js';
 
- // Reemplaza con tu Auth Token
+const accountSid = 'AC0905023d05304d16ef0f446444e8ac9a'; // Reemplaza con tu Account SID
+const authToken = '8c40ced8c6a377cc6e3a5729a55fc134'; // Reemplaza con tu Auth Token
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {

@@ -7,6 +7,7 @@ import Extra from '../models/extra.js';
 import ProductExtra from '../models/productextra.js';
 import xlsx from 'xlsx';
 import ExtraOption from '../models/extraOption.model.js';
+import Discount from '../models/discount.js';
 
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
@@ -15,18 +16,25 @@ export const getByCategoryId = async (req, res) => {
     // Busca productos por categoría y estado utilizando el modelo Product
     const products = await Product.findAll({
       where: {
-        categories_id: categoryId,
+        categories_id: categoryId,  // Se mantiene `categories_id`
         state: "1" // Considera solo productos activos
       },
-      include: {
-        model: Extra,
-        as: 'extras',
-        include: {
-          model: ExtraOption,
-          as: 'options' // Esto asume que has definido la relación con alias 'options' en Extra
+      include: [
+        {
+          model: Extra,
+          as: 'extras',
+          include: {
+            model: ExtraOption,
+            as: 'options' // Esto asume que has definido la relación con alias 'options' en Extra
+          },
+          through: { attributes: [] } // Esto excluye los atributos de la tabla intermedia (productExtras)
         },
-        through: { attributes: [] } // Esto excluye los atributos de la tabla intermedia (productExtras)
-      }
+        {
+          model: Discount,
+          as: 'discounts', // Incluye los descuentos asociados al producto
+          required: false // Incluye productos incluso si no tienen descuentos
+        }
+      ]
     });
 
     res.status(200).json(products);
@@ -35,7 +43,6 @@ export const getByCategoryId = async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };
-
 export const addProduct = async (req, res) => {
   const { name, price, description, img, category_id, extras } = req.body;
   const clientId = req.user.clientId;

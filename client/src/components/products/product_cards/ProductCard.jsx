@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
+import { ShoppingBag, Gift } from 'lucide-react'; // Icons for extras and discounts
 
 const ProductCard = ({ product, isSelected, handleClick }) => {
   return (
@@ -19,6 +20,22 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
       <div className="text-center">
         <h2 className="text-sm font-semibold text-gray-800 mb-1">{product.name}</h2>
         <p className="text-sm text-gray-600 mb-1">${product.price.toFixed(2)}</p>
+
+        {/* Show icons for extras and discounts */}
+        <div className="flex justify-center space-x-2 mt-2">
+          {product.extras && product.extras.length > 0 && (
+            <div className="flex items-center">
+              <ShoppingBag className="w-4 h-4 text-blue-500" />
+              <span className="ml-1 text-xs text-gray-500">Extras</span>
+            </div>
+          )}
+          {product.discounts && product.discounts.length > 0 && (
+            <div className="flex items-center">
+              <Gift className="w-4 h-4 text-red-500" />
+              <span className="ml-1 text-xs text-gray-500">Discounts</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -31,6 +48,8 @@ ProductCard.propTypes = {
     price: PropTypes.number.isRequired,
     description: PropTypes.string.isRequired,
     img: PropTypes.string.isRequired,
+    extras: PropTypes.array, // Added for extras
+    discounts: PropTypes.array, // Added for discounts
   }).isRequired,
   isSelected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,
