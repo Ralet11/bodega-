@@ -7,7 +7,8 @@ import {
   SET_FINDED_PRODUCTS,
   SET_SUBCATEGORIES,
   SET_SELECTED_SUBCATEGORY,
-  SET_ALL_DIST_PRODUCTS
+  SET_ALL_DIST_PRODUCTS,
+  SET_CLIENT
 } from "../actions/actions";
 
 const initialState = {
@@ -156,6 +157,18 @@ const rootReducer = (state = initialState, action) => {
         ...state,
         allDistProducts: action.payload
       }
+      case SET_CLIENT:
+        return {
+          ...state,
+          client: {
+            ...state.client, // Mantenemos intactas otras propiedades como `token` y `locals`
+            client: {
+             
+              ...action.payload, // Sobrescribimos solo los datos nuevos en `client.client`
+            }
+          }
+        };
+      
     default:
       return state;
   }

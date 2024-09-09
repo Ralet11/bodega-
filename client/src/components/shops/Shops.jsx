@@ -13,10 +13,13 @@ const { API_URL_BASE } = getParamsEnv();
 
 function Shops() {
   const client = useSelector((state) => state.client);
+  console.log(client, "client in shop");
   const token = client.token;
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const categories = useSelector((state) => state.categories);
+
+  console.log(client, "client in shop");
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -139,7 +142,7 @@ function Shops() {
                 </div>
               )}
               <img
-                src={local.img}
+                src={local.logo}
                 alt={local.name}
                 className="w-full h-36 object-cover"
               />

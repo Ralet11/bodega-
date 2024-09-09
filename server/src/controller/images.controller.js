@@ -13,56 +13,66 @@ cloudinary.config({
 
 export const updateImage = async (req, res) => {
   console.log('Request Body:', req.body);
-  console.log('File received:', req.file);  // Verifica si el archivo está presente
+  console.log('File received:', req.files); // Verifica si se recibieron archivos
 
   try {
     const { id, action } = req.body;
 
-    if (!req.file) {
-      console.log('No file received');
-      res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
-      return;
+    if (!req.files || Object.keys(req.files).length === 0) {
+      console.log('No files received');
+      return res.status(400).json({ error: 'No se ha seleccionado ninguna imagen' });
     }
-
-    const fileContent = req.file.buffer.toString('base64');
-    console.log('Base64 file content:', fileContent.substring(0, 30) + '...');
 
     let modelToUpdate;
 
+    // Determinar el modelo en función de la acción
     switch (action) {
       case 'shop':
         modelToUpdate = Local;
         break;
-
       case 'product':
         modelToUpdate = Product;
         break;
       case 'discount':
         modelToUpdate = Discount;
         break;
-
       default:
-        res.status(400).json({ error: 'Acción no válida' });
-        return;
+        return res.status(400).json({ error: 'Acción no válida' });
     }
 
-    const uploadResult = await cloudinary.uploader.upload(`data:${req.file.mimetype};base64,${fileContent}`, {
-      folder: action
-    });
+    // Guardar las imágenes que fueron enviadas
+    let imageFields = ['logo', 'placeImage', 'deliveryImage'];
+    let updateData = {};
 
-    console.log('Upload result:', uploadResult);
+    for (let field of imageFields) {
+      if (req.files[field]) {
+        const file = req.files[field][0];
+        const fileContent = file.buffer.toString('base64');
 
-    const imageUrl = uploadResult.secure_url;
+        // Subir la imagen a Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(`data:${file.mimetype};base64,${fileContent}`, {
+          folder: action
+        });
 
-    await modelToUpdate.update({ img: imageUrl }, { where: { id } });
+        console.log(`Upload result for ${field}:`, uploadResult);
+        updateData[field] = uploadResult.secure_url; // Actualizar el campo correspondiente en la DB
+      }
+    }
 
-    res.status(200).json({ message: 'Imagen guardada con éxito', imageUrl });
+    // Si hay datos para actualizar, realizar la actualización en la base de datos
+    if (Object.keys(updateData).length > 0) {
+      await modelToUpdate.update(updateData, { where: { id } });
+      return res.status(200).json({ message: 'Imágenes guardadas con éxito', updateData });
+    } else {
+      return res.status(400).json({ error: 'No se proporcionaron imágenes válidas' });
+    }
 
   } catch (err) {
     console.error('Error en la función updateImage:', err);
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 };
+
 
 
 export const uploadBalanceImage = async (req, res) => {

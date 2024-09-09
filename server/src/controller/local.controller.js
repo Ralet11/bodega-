@@ -55,6 +55,10 @@ export const getById = async (req, res) => {
     const local = await Local.findOne({
       where: {
         id: id
+      },
+      include: {
+        model: ShopOpenHours,
+        as: 'openingHours'
       }
     });
 

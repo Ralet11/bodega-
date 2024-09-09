@@ -1,7 +1,7 @@
 //LOCAL SERVER
 
 
- import app from "./server.js";
+/*  import app from "./server.js";
 import sequelize from "./database.js";
 import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
@@ -22,12 +22,12 @@ sequelize.sync({ force: false }).then(() => {
    
   }).catch(error => {
     console.error('Unable to synchronize the models:', error);
-  }); 
+  });  */
 
 
   //PRODUCTION SERVER
 
-/*  import app from "./server.js";
+ import app from "./server.js";
 import sequelize from "./database.js";
 import https from 'https';
 import fs from 'fs';
@@ -48,4 +48,4 @@ sequelize.sync({ force: false }).then(() => {
   });
 }).catch(error => {
   console.error('Unable to synchronize the models:', error);
-}); */
+});

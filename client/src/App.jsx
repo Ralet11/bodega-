@@ -32,6 +32,7 @@ import FindedProducts from './components/DistributorComerce/FindedProducts.jsx';
 import PrivacyPolicy from './components/PoliciPrivacy.jsx';
 import DeleteInfoUserForm from './components/DeleteInfoUsers.jsx';
 import ErrorPage from './components/ErrorView.jsx'
+import ClientSettings from './components/settings/ClientSettings.jsx';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -44,7 +45,7 @@ function App() {
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy' && location.pathname !== '/deleteUserInfoForm';
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("https://3.15.211.38");
+  const socket = socketIOClient("http://localhost:80");
 
   useEffect(() => {
     socket.on(`neworder`, (data) => {
@@ -136,6 +137,7 @@ function App() {
         <Route path='/searchProducts' element={<FindedProducts />}></Route>
         <Route path='/privacyPolicy' element={<PrivacyPolicy />}></Route>
         <Route path='/deleteUserInfoForm' element={<DeleteInfoUserForm />}></Route>
+        <Route path='/clientSettings' element={<ClientSettings />}></Route>
         <Route path='*' element={<ErrorPage />}></Route> 
       </Routes>
     </div>

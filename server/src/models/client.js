@@ -37,6 +37,21 @@ const Client = sequelize.define('client', {
     type: DataTypes.FLOAT,
     allowNull: true,
   },
+  account_number: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    defaultValue: null,
+  },
+  account_holder_name: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    defaultValue: null,
+  },
+  routing_number: {
+    type: DataTypes.STRING(50),
+    allowNull: true,
+    defaultValue: null,
+  },
 }, {
   tableName: 'clients',
   timestamps: false,

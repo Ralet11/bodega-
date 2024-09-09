@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronDownIcon, CogIcon, Bars3Icon, ArrowPathIcon } from '@heroicons/react/24/solid'; // Icono de sincronización
+import { ChevronDownIcon, CogIcon, Bars3Icon, ArrowPathIcon } from '@heroicons/react/24/solid';
 import { useDispatch, useSelector } from 'react-redux';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import { LiaCartPlusSolid } from "react-icons/lia";
@@ -23,15 +23,15 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log(client, "shop");
+  console.log(shop, "shop");
 
   const shopName = shop ? shop.name : "";
-  const shopImage = shop?.img || 'https://via.placeholder.com/50';
+  const shopImage = shop?.logo || 'https://via.placeholder.com/50';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [syncStatus, setSyncStatus] = useState('green'); // Estado para el color del botón de sincronización
-  const [isLoading, setIsLoading] = useState(false); // Estado para el loader
+  const [syncStatus, setSyncStatus] = useState('green');
+  const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
   const triggerRef = useRef(null);
   const barsRef = useRef(null);
@@ -70,7 +70,6 @@ const Header = () => {
         const response = await axios.get(`${API_URL_BASE}/api/distProducts/search`, {
           params: { query: searchQuery },
         });
-        console.log(response.data);
         dispatch(setFindedProducts(response.data.results));
         navigate("/searchProducts");
       } catch (error) {
@@ -82,8 +81,6 @@ const Header = () => {
   const handleShopClick = () => {
     navigate('/settings');
   };
-
-  console.log(token, "token");
 
   const handleSyncClick = async () => {
     setIsLoading(true); // Mostrar loader al iniciar la solicitud
@@ -138,14 +135,20 @@ const Header = () => {
               </svg>
             </div>
           ) : (
-            <div className="flex items-center cursor-pointer hover:text-green-500" onClick={handleSyncClick}>
+            <div
+              className="flex items-center cursor-pointer  transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg"
+              onClick={handleSyncClick}
+            >
               <ArrowPathIcon className='w-4 h-4 mr-1' />
               <span className='text-xs'>Sync with App</span>
             </div>
           )}
 
           {/* Nombre del Shop y su Imagen */}
-          <div className='flex items-center cursor-pointer' onClick={handleShopClick}>
+          <div
+            className='flex items-center cursor-pointer  transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg'
+            onClick={handleShopClick}
+          >
             <span className='font-bold mr-2'>{shopName}</span>
             {shop && (
               <img
@@ -160,7 +163,10 @@ const Header = () => {
           <div className='h-6 border-r border-gray-400'></div>
 
           {/* Nombre del User */}
-          <div className='flex items-center'>
+          <div
+            className='flex items-center cursor-pointer transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg'
+            onClick={() => navigate('/ClientSettings')}
+          >
             <span className='font-bold'>{client.client.name}</span>
           </div>
 
