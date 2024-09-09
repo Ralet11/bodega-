@@ -26,7 +26,7 @@ const Orders = () => {
     rejected: [],
   });
 
-  const socket = socketIOClient("hhttps://3.15.211.38");
+  const socket = socketIOClient("http://localhost:80");
 
   // Función para hacer la llamada y traer todas las órdenes
   const fetchOrders = async () => {

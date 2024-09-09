@@ -22,7 +22,16 @@ const Local = sequelize.define('local', {
     type: DataTypes.STRING(80),
     allowNull: false
   },
-  img: {
+  // Agregar campos para las imágenes
+  logo: {
+    type: DataTypes.STRING(255),
+    defaultValue: defaultImageUrl
+  },
+  placeImage: {
+    type: DataTypes.STRING(255),
+    defaultValue: defaultImageUrl
+  },
+  deliveryImage: {
     type: DataTypes.STRING(255),
     defaultValue: defaultImageUrl
   },
@@ -99,6 +108,5 @@ Local.belongsTo(Client, { foreignKey: 'clients_id', as: 'client' });
 Local.belongsTo(LocalCategory, { foreignKey: 'locals_categories_id', as: 'local_category' });
 Local.hasMany(ShopOpenHours, { foreignKey: 'local_id', as: 'openingHours' });
 Local.hasMany(Discount, { foreignKey: 'local_id', as: 'discounts' });
-
 
 export default Local;

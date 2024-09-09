@@ -59,7 +59,8 @@ export const loginClient = async (req, res) => {
       name: client.name,
       address: client.address,
       payMethod,
-      id: client.id
+      id: client.id,
+      email: client.email
     };
 
     const locals = await Local.findAll({

@@ -18,6 +18,7 @@ export const SET_FINDED_PRODUCTS ="SET_FINDED_PRODUCTS"
 export const SET_SUBCATEGORIES = "SET_SUBCATEGORIES"
 export const SET_SELECTED_SUBCATEGORY ="SET_SELECTED_SUBCATEGORY"
 export const SET_ALL_DIST_PRODUCTS = "SET_ALL_DIST_PRODUCTS"
+export const SET_CLIENT = "SET_CLIENT"
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -26,7 +27,7 @@ import axios from "axios";
 const {API_URL_BASE} = getParamsEnv()
 
 export const loginSuccess = (user) => {
-  
+  console.log(user, "action login")
   return {
     type: LOGIN_SUCCESS,
     payload: user
@@ -195,4 +196,12 @@ export const setAllDistProducts = (products) => {
     type: SET_ALL_DIST_PRODUCTS,
     payload: products
   }
-} 
+}
+
+export const setClient = (client) => {
+  console.log(client, "action")
+  return {
+    type: SET_CLIENT,
+    payload: client
+  }
+}

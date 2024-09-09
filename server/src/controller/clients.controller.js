@@ -87,3 +87,36 @@ export const logout = (req, res) => {
   res.clearCookie('jwt');
   res.json({ message: "JWT eliminado" });
 };
+
+export const updateClient = async (req, res) => {
+  try {
+    console.log(req.body, "body")
+    const clientId = req.user.clientId;
+    const { name, email, address, phone, accountNumber, accountHolderName, routingNumber } = req.body;
+
+    if (!clientId) {
+      return res.status(400).json({ message: "Solicitud incorrecta. Por favor, proporcione un ID de cliente válido." });
+    }
+
+    const client = await Client.findByPk(clientId);
+
+    if (!client) {
+      return res.status(404).json({ message: "Cliente no encontrado." });
+    }
+
+    client.name = name;
+    client.email = email;
+    client.address = address;
+    client.phone = phone;
+    client.account_number = accountNumber;
+    client.account_holder_name = accountHolderName;
+    client.routing_number = routingNumber;
+
+    await client.save();
+
+    res.json({ message: "Cliente actualizado correctamente", data: client });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+    console.log(error)
+  }
+}
