@@ -13,7 +13,7 @@ const Discount = sequelize.define('discount', {
     allowNull: false
   },
   productName: {
-    type: DataTypes.STRING(45),
+    type: DataTypes.STRING(500),
     allowNull: false
   },
   limitDate: {

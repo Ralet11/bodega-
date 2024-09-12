@@ -26,7 +26,8 @@ export default function HypermodernShopSettings() {
   const client = useSelector((state) => state.client);
   const token = client.token;
   const categories = useSelector((state) => state.categories);
-
+  const [tags, setTags] = useState([]);
+  const [selectedTags, setSelectedTags] = useState([]);
   const [shopData, setShopData] = useState({
     id: '',
     name: '',
@@ -51,6 +52,7 @@ export default function HypermodernShopSettings() {
   const deliveryImageInputRef = useRef(null);
   const dispatch = useDispatch();
 
+  // Obtener datos de la tienda
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -77,6 +79,8 @@ export default function HypermodernShopSettings() {
               : day;
           })
         });
+        // Preseleccionar tags que ya están asociadas al shop
+        setSelectedTags(data.tags || []); 
 
         setLatLong({
           lat: data.lat,
@@ -90,6 +94,37 @@ export default function HypermodernShopSettings() {
 
     fetchData();
   }, [activeShop]);
+
+  // Obtener tags basadas en la categoría seleccionada
+  useEffect(() => {
+    const fetchTags = async () => {
+      if (shopData.category) {
+        try {
+          const response = await axios.get(`${API_URL_BASE}/api/tags/getAllByLocalCat/${shopData.category}`);
+          setTags(response.data.data);
+        } catch (error) {
+          console.error('Error fetching tags:', error);
+        }
+      }
+    };
+
+    if (shopData.category) {
+      fetchTags();
+    }
+  }, [shopData.category]);
+
+  // Función para agregar un tag seleccionado
+  const handleAddTag = (tag) => {
+    event.preventDefault();
+    if (!selectedTags.some((selectedTag) => selectedTag.id === tag.id)) {
+      setSelectedTags([...selectedTags, tag]);
+    }
+  };
+
+  // Función para eliminar un tag seleccionado
+  const handleRemoveTag = (tagId) => {
+    setSelectedTags(selectedTags.filter(tag => tag.id !== tagId));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -166,7 +201,8 @@ export default function HypermodernShopSettings() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+  
+    // Crear el objeto con la información del shop y las tags seleccionadas
     const updatedShop = {
       id: shopData.id,
       name: shopData.name,
@@ -178,9 +214,11 @@ export default function HypermodernShopSettings() {
       delivery: shopData.delivery,
       pickUp: shopData.pickUp,
       orderIn: shopData.orderIn,
+      tags: selectedTags.map(tag => tag.id) // Incluir las tags seleccionadas
     };
-
+  
     try {
+      // Actualizar la información del shop junto con las tags
       const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, updatedShop, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -192,13 +230,13 @@ export default function HypermodernShopSettings() {
       toast.error('Error updating shop data.');
       console.error('Error updating shop data', error);
     }
-
+  
     const formattedOpeningHours = shopData.openingHours.map(hour => ({
       day: hour.code,
       open: hour.open,
       close: hour.close,
     }));
-
+  
     try {
       await axios.post(
         `${API_URL_BASE}/api/local/updateOpeningHours`,
@@ -212,12 +250,13 @@ export default function HypermodernShopSettings() {
           }
         }
       );
-
+  
     } catch (error) {
       toast.error('Error saving opening hours.');
       console.error('Error saving opening hours:', error);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-200 px-64 py-20">
@@ -258,24 +297,24 @@ export default function HypermodernShopSettings() {
           </label>
           <AddressMap setShopData={setShopData} shopData={shopData} latLong={latLong} />
         </motion.div>
-        
+
         {/* Sección Teléfono */}
         <motion.div
           className="p-4 rounded-xl shadow-md bg-white"
           whileHover={{ scale: 1.02 }}
           transition={{ type: 'spring', stiffness: 300 }}
         >
-           <label htmlFor="phone" className="text-base font-semibold mb-1 block">
-              Phone
-           </label>
-           <PhoneInput
-              country={'us'}
-              value={shopData.phone}
-              inputClass="w-full py-1 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-              onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value }))}
-           />
+          <label htmlFor="phone" className="text-base font-semibold mb-1 block">
+            Phone
+          </label>
+          <PhoneInput
+            country={'us'}
+            value={shopData.phone}
+            inputClass="w-full py-1 px-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
+            onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value }))} 
+          />
         </motion.div>
-        
+
         {/* Select de Categorías */}
         <motion.div className="p-4 rounded-xl shadow-md bg-white">
           <label htmlFor="category" className="text-base font-semibold mb-1 block">
@@ -296,6 +335,61 @@ export default function HypermodernShopSettings() {
             ))}
           </select>
         </motion.div>
+
+        {/* Sección Tags */}
+        <motion.div
+  className="p-6 rounded-lg bg-gray-50 border border-gray-200"
+  whileHover={{ scale: 1.01 }}
+  transition={{ type: 'spring', stiffness: 200 }}
+>
+  <label className="text-lg font-semibold mb-4 block text-gray-700">Available Tags</label>
+  
+  {tags.length > 0 ? (
+    <div className="flex flex-wrap gap-2">
+      {tags.map((tag) => (
+        <button
+          key={tag.id}
+          onClick={() => handleAddTag(tag)}
+          className={`py-1 px-3 rounded-full hover:bg-gray-200 transition-colors duration-200 ${
+            selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+              ? 'bg-yellow-300 text-gray-800'
+              : 'bg-gray-100 text-gray-700'
+          }`}
+        >
+          {tag.name}
+        </button>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500">No tags for this category</p>
+  )}
+
+  {/* Mostrar tags seleccionadas */}
+  <div className="mt-6">
+    <h2 className="text-lg font-semibold mb-4 text-gray-700">Selected Tags</h2>
+    {selectedTags.length > 0 ? (
+      <div className="flex flex-wrap gap-2">
+        {selectedTags.map((tag) => (
+          <div
+            key={tag.id}
+            className="bg-yellow-100 text-gray-800 py-1 px-4 rounded-full flex items-center gap-2"
+          >
+            {tag.name}
+            <button
+              onClick={() => handleRemoveTag(tag.id)}
+              className="text-black text-sm hover:text-gray-700 transition-colors duration-200"
+              style={{ padding: 0, border: 'none', background: 'none' }}
+            >
+              &#x2715;
+            </button>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <p className="text-gray-500">No tags selected yet</p>
+    )}
+  </div>
+</motion.div>
 
         {/* Sección Imágenes */}
         <motion.div

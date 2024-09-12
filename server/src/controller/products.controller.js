@@ -312,7 +312,7 @@ export const saveExtras = async (req, res) => {
 
     // Iterar sobre los extras recibidos para crear/actualizar
     for (const extra of extras) {
-      const { id, name, required, options } = extra; // options es un array de { name, price }
+      const { id, name, required, options, onlyOne } = extra; // options es un array de { name, price }
 
       let newExtra;
 
@@ -322,14 +322,16 @@ export const saveExtras = async (req, res) => {
         if (newExtra) {
           await newExtra.update({
             name,
-            required
+            required,
+            onlyOne
           });
         }
       } else {
         // Si el extra no existe, crearlo
         newExtra = await Extra.create({
           name,
-          required
+          required,
+          onlyOne
         });
       }
 

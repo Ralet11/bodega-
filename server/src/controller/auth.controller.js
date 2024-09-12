@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendWelcomeEmail } from '../functions/SendWelcomeEmail.js';
 
+
 export const registerClient = async (req, res) => {
   try {
     const { name, email, password } = req.body;

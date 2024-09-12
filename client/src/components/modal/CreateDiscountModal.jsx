@@ -116,7 +116,7 @@ const CreateDiscountModal = ({
       const formData = new FormData();
       formData.append('id', discountId);
       formData.append('action', 'discount');
-      formData.append('file', discount.img);
+      formData.append('img', discount.img);
 
       try {
         const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {

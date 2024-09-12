@@ -10,6 +10,8 @@ import ExtraOption from "../models/extraOption.model.js";
 import ShopOpenHours from "../models/shopOpenHoursModel.js";
 import Discount from "../models/discount.js";
 import { getIo } from '../socket.js';
+import LocalTag from "../models/localTag.model.js";
+import Tag from "../models/tag.model.js";
 
 export const getByClientId = async (req, res) => {
   try {
@@ -56,17 +58,23 @@ export const getById = async (req, res) => {
       where: {
         id: id
       },
-      include: {
-        model: ShopOpenHours,
-        as: 'openingHours'
-      }
+      include: [
+        {
+          model: ShopOpenHours,
+          as: 'openingHours'
+        },
+        {
+          model: Tag,  // Incluye las tags asociadas al local
+          as: 'tags',
+          through: { attributes: [] }  // No incluimos los atributos de LocalTag
+        }
+      ]
     });
-
-    console.log(local)
 
     if (!local) {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
+    console.log(local, "local en server")
 
     res.status(200).json(local);
   } catch (error) {
@@ -97,9 +105,9 @@ export const changeStatus = async (req, res) => {
 
 export const updateShop = async (req, res) => {
   const { id } = req.params;
-  const { name, phone, category, address, lat, lng, status, Delivery, pickUp, orderIn } = req.body;
-  console.log(req.body, "body");
-  const {clientId} = req.user
+  const { name, phone, category, address, lat, lng, status, Delivery, pickUp, orderIn, tags } = req.body; // Asegúrate de que las tags vengan en el body
+  const { clientId } = req.user;
+
   try {
     const local = await Local.findByPk(id);
 
@@ -121,12 +129,30 @@ export const updateShop = async (req, res) => {
       orderIn      // Actualiza el campo de orderIn
     });
 
+    // Actualizar las tags asociadas al local
+    if (tags && tags.length > 0) {
+      // Limpiar todas las relaciones previas entre el local y sus tags
+      await LocalTag.destroy({
+        where: {
+          local_id: local.id
+        }
+      });
+
+      // Crear nuevas relaciones entre el local y las tags
+      const localTagData = tags.map(tagId => ({
+        local_id: local.id,
+        tag_id: tagId
+      }));
+      await LocalTag.bulkCreate(localTagData);
+    }
+
+    // Obtener todos los locales del cliente actualizado
     const locals = await Local.findAll({
       where: {
         clients_id: clientId
-      }
+      },
+      include: [{ model: Tag, as: 'tags' }] // Incluir las tags en la respuesta
     });
-
 
     res.status(200).json({ message: 'Información del local actualizada exitosamente', locals });
   } catch (error) {
