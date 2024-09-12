@@ -9,7 +9,7 @@ import { getParamsEnv } from "../../functions/getParamsEnv";
 import Input from "../../ui_bodega/Input";
 import ToasterConfig from "../../ui_bodega/Toaster";
 
-const { API_URL_BASE } = getParamsEnv()
+const { API_URL_BASE } = getParamsEnv();
 
 const Login = ({ setSelected, setError, newError, setNewError }) => {
 
@@ -27,12 +27,10 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
     } else if (e.target.name === 'password') {
       setPassword(e.target.value);
     }
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(email);
-    console.log(password);
 
     try {
       const response = await axios.post(`${API_URL_BASE}/api/auth/login`, {
@@ -42,13 +40,10 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
       });
 
       if (response.data.error === false) {
-        console.log('Inicio de sesión exitoso');
-        console.log(response.data.data, "login info");
+        console.log('Login successful');
         const clientData = response.data.data;
 
-        console.log(clientData.locals);
-
-        if (clientData.locals.length === 0 || clientData.locals.every(local => local.status == 0)) {
+        if (clientData.locals.length === 0 || clientData.locals.every(local => local.status === 0)) {
           dispatch(loginSuccess(clientData));
           dispatch(getCategories());
           navigate(`/create-shop`);
@@ -60,22 +55,21 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
           navigate(`/dashboard`);
         }
       } else {
-        console.log('Error en la respuesta del servidor:', response.data);
-        setError('Usuario o contraseña incorrectos');
+        console.log('Server response error:', response.data);
+        setError('Invalid email or password');
         setNewError(!newError);
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Usuario o contraseña incorrectos');
+      setError('Invalid email or password');
       setNewError(!newError);
     }
-  }
+  };
 
   const goRegister = async (e) => {
     e.preventDefault();
-
     setSelected(false);
-  }
+  };
 
   return (
     <>
@@ -83,11 +77,25 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
       <form onSubmit={handleSubmit}>
         <div className="mb-4 relative">
           <label className="text-gray-600" htmlFor="email">Email</label>
-          <Input onChange={handleInputChange} id="email" placeholder="Enter your email" type="email" name="email" className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" />
+          <Input 
+            onChange={handleInputChange} 
+            id="email" 
+            placeholder="Enter your email" 
+            type="email" 
+            name="email" 
+            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" 
+          />
         </div>
         <div className="mb-4 relative">
           <label className="text-gray-600" htmlFor="password">Password</label>
-          <Input onChange={handleInputChange} id="password" placeholder="Enter your password" type="password" name="password" className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" />
+          <Input 
+            onChange={handleInputChange} 
+            id="password" 
+            placeholder="Enter your password" 
+            type="password" 
+            name="password" 
+            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" 
+          />
         </div>
         <div className="text-center relative">
           <button className="w-full bg-yellow-500 text-white px-3 py-2 rounded-md focus:outline-none hover:bg-yellow-600 transition duration-200">

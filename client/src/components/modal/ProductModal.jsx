@@ -91,8 +91,8 @@ export default function ProductModal({
       const formData = new FormData();
       formData.append('id', productId);
       formData.append('action', 'product');
-      formData.append('file', newProduct.img);
-
+      formData.append('img', newProduct.img);  // Cambiado a 'file'
+  
       try {
         const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
           headers: {
@@ -100,7 +100,7 @@ export default function ProductModal({
             'Content-Type': 'multipart/form-data',
           },
         });
-
+  
         if (response.status === 200) {
           console.log('Image uploaded successfully');
         } else {

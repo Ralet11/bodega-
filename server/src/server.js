@@ -34,7 +34,7 @@ import balanceRequestRouter from "./routes/balanceRequest.routes.js";
 import subcategoriesRouter from './routes/subcategories.routes.js'
 import brandsRouter from './routes/brands.routes.js'
 import twilioRouter from './routes/twilio.routes.js'
-
+import tagRouter from './routes/tag.routes.js'
 
 
 const app = express();
@@ -198,6 +198,7 @@ app.use('/api/balanceRequest', balanceRequestRouter)
 app.use('/api/subcategories', subcategoriesRouter)
 app.use('/api/brands', brandsRouter)
 app.use('/api/twilio', twilioRouter)
+app.use('/api/tags', tagRouter)
 
 
 export default app;

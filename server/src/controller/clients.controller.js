@@ -120,3 +120,47 @@ export const updateClient = async (req, res) => {
     console.log(error)
   }
 }
+
+//change password
+export const changePassword = async (req, res) => {
+  try {
+    const clientId = req.user.clientId;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!clientId) {
+      return res.status(400).json({ message: "Solicitud incorrecta. Por favor, proporcione un ID de cliente válido." });
+    }
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "Solicitud incorrecta. Por favor, complete todos los campos." });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "Las contraseñas no coinciden" });
+    }
+
+    const client = await Client.findByPk(clientId);
+
+    if (!client) {
+      return res.status(404).json({ message: "Cliente no encontrado" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, client.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Contraseña incorrecta' });
+    }
+
+    // Hashing the new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Updating the password
+    client.password = hashedPassword;
+
+    await client.save();
+
+    return res.json({ message: "Contraseña actualizada correctamente" });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ error: true, message: "Error del servidor. Inténtelo de nuevo más tarde." });
+  }
+};

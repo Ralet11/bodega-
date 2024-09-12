@@ -17,6 +17,11 @@ const Extra = sequelize.define('extra', {
   required: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
+  },
+  onlyOne: {  // Nuevo campo añadido
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   tableName: 'extras',
