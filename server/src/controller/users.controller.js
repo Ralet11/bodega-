@@ -25,7 +25,7 @@ export const updateUser = async (req, res) => {
   const userId = req.user.userId;
   const { name, email, phone, address, password } = req.body;
 
-  console.log(userId)
+
 
   try {
     // Encuentra el usuario por ID
@@ -104,9 +104,9 @@ export const addSubscription = async (req, res) => {
 
 export const removeUserBalance = async (req, res) => {
 
-  console.log("removiendo balance")
+
   
-  console.log(req.body)
+
   const {newBalance} = req.body
   const userId = req.user.userId
   try {
@@ -136,7 +136,7 @@ const deleteUserAddresses = async (userId) => {
         users_id: userId
       }
     });
-    console.log(`Direcciones del usuario ${userId} eliminadas correctamente.`);
+   
   } catch (error) {
     console.error(`Error al eliminar las direcciones del usuario ${userId}:`, error);
     throw new Error(`Error al eliminar las direcciones del usuario ${userId}`);
@@ -150,7 +150,7 @@ const deleteUserOrders = async (userId) => {
         users_id: userId
       }
     });
-    console.log(`Órdenes del usuario ${userId} eliminadas correctamente.`);
+
   } catch (error) {
     console.error(`Error al eliminar las órdenes del usuario ${userId}:`, error);
     throw new Error(`Error al eliminar las órdenes del usuario ${userId}`);
@@ -164,7 +164,7 @@ const deleteUserAccount = async (userId) => {
       throw new Error('Usuario no encontrado');
     }
     await user.destroy();
-    console.log(`Usuario ${userId} eliminado correctamente.`);
+ 
   } catch (error) {
     console.error(`Error al eliminar el usuario ${userId}:`, error);
     throw new Error(`Error al eliminar el usuario ${userId}`);

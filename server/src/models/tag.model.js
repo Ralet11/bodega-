@@ -16,6 +16,11 @@ const Tag = sequelize.define('tag', {
   local_category_id: {
     type: DataTypes.INTEGER,
     allowNull: false
+  },
+  img: {
+    type: DataTypes.STRING,
+    allowNull: true, // Este campo es opcional
+    defaultValue: null
   }
 }, {
   tableName: 'tag',

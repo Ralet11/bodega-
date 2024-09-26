@@ -3,6 +3,7 @@ import sequelize from '../database.js';
 import Category from './category.js';
 import Client from './client.js'; // Importar el modelo Client
 import Extra from './extra.js'; // Importar el modelo Extra
+import Promotion from './Promotions.model.js';
 
 const Product = sequelize.define('product', {
   id: {
@@ -48,5 +49,6 @@ const Product = sequelize.define('product', {
 Product.belongsTo(Category, { foreignKey: 'categories_id', as: 'category' });
 Product.belongsTo(Client, { foreignKey: 'clientId', as: 'client' }); // Nueva relación
 Product.belongsToMany(Extra, { through: 'productExtras', as: 'extras', foreignKey: 'productId' });
-
+Product.hasMany(Promotion, { foreignKey: 'productId', as: 'promotions' });
+Promotion.belongsTo(Product, { foreignKey: 'productId', as: 'product' });
 export default Product;

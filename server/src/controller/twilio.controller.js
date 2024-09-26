@@ -13,7 +13,7 @@ export const makeCall = (req, res) => {
   const { to } = req.body;
   const orderId = req.body.orderId.id;
 
-  const ip = 'https://b3a2-190-246-136-112.ngrok-free.app'
+  const ip = 'https://3.15.211.38'
 
    client.calls
     .create({
@@ -34,10 +34,10 @@ export const voiceResponse = (req, res) => {
   const orderId = req.query.orderId;
 
   response.say('You have a new order from Bodega. To accept it, press 1. To reject it, press 2.', { voice: 'alice', language: 'en-US' });
-
+  const ip = 'https://3.15.211.38'
   response.gather({
     numDigits: 1,
-    action: `https://b3a2-190-246-136-112.ngrok-free.app/api/twilio/handle-key?orderId=${orderId}`,
+    action: `${ip}/api/twilio/handle-key?orderId=${orderId}`,
     method: 'POST',
   });
 

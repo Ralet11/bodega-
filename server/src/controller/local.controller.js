@@ -35,7 +35,7 @@ export const getByClientId = async (req, res) => {
 
     const clientId = decoded.clientId;
 
-    console.log(clientId, "id ")
+
 
     const locals = await Local.findAll({
       where: {
@@ -74,7 +74,7 @@ export const getById = async (req, res) => {
     if (!local) {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
-    console.log(local, "local en server")
+   
 
     res.status(200).json(local);
   } catch (error) {
@@ -164,7 +164,7 @@ export const updateShop = async (req, res) => {
 export const updateAddress = async (req, res) => {
   const { id } = req.params;
   const { address, lat, lng } = req.body;
-  console.log(address, "address")
+ 
 
   try {
     const local = await Local.findByPk(id);
@@ -204,11 +204,11 @@ export const getActiveShops = async (req, res) => {
 };
 
 export const getAllShops = async (req, res) => {
-  console.log("hola")
+
   try {
 
     const locals = await Local.findAll();
-    console.log(locals)
+  
     res.status(200).json(locals);
   } catch (error) {
     console.error('Error al obtener locales activos:', error);
@@ -336,7 +336,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
 
 
 const groupShopsByCategory = (shops) => {
-  console.log(shops, "shops by cat")
+
   return shops.reduce((acc, shop) => {
     const categoryId = shop.dataValues.locals_categories_id;
     if (!acc[`${categoryId}`]) {
@@ -417,7 +417,7 @@ export const getShopsByClientId = async (req, res) => {
 export const changeRating = async (req, res) => {
   const { rating, id } = req.body;
 
-  console.log(rating, "rating");
+ 
 
   if (rating < 0.00 || rating > 5.00) {
     return res.status(400).json({ message: 'Invalid rating value. It must be between 0.00 and 5.00.' });
@@ -438,11 +438,11 @@ export const changeRating = async (req, res) => {
     const newRatingSum = currentRatingSum + rating;
     const newRatingCount = currentRatingCount + 1;
 
-    console.log(local);
+   
 
     // Calcular el nuevo promedio
     const newRating = newRatingSum / newRatingCount;
-    console.log(newRating, "newRating");
+ 
 
     // Actualizar el local con los nuevos valores
     await local.update({ rating: newRating, ratingSum: newRatingSum, ratingCount: newRatingCount });
@@ -459,7 +459,7 @@ export const addService = async (req, res) => {
   const { id } = req.params;
   const { serviceToAdd } = req.body;
 
-  console.log(serviceToAdd, "Servicio a agregar");
+  
 
   try {
     const local = await Local.findByPk(id);
@@ -485,7 +485,7 @@ export const addService = async (req, res) => {
     const localActualizado = await Local.findByPk(id);
 
     if (localActualizado) {
-      console.log(localActualizado, "Local actualizado");
+     
       res.status(200).json({ message: 'Servicio agregado exitosamente', local: localActualizado });
     } else {
       res.status(500).json({ message: 'No se pudo recuperar el local actualizado.' });
@@ -501,7 +501,7 @@ export const removeService = async (req, res) => {
   const { id } = req.params;
   const { serviceToRemove } = req.body;
 
-  console.log(serviceToRemove, "Servicio a eliminar");
+
 
   try {
     const local = await Local.findByPk(id);
@@ -527,7 +527,7 @@ export const removeService = async (req, res) => {
     const localActualizado = await Local.findByPk(id);
 
     if (localActualizado) {
-      console.log(localActualizado, "Local actualizado");
+  
       res.status(200).json({ message: 'Servicio eliminado exitosamente', local: localActualizado });
     } else {
       res.status(500).json({ message: 'No se pudo recuperar el local actualizado.' });
@@ -551,7 +551,7 @@ export const sendCertificate = async (req, res) => {
   const { file } = req;
   const { email, id } = req.body; // Asumiendo que el correo del destinatario viene en el cuerpo de la solicitud
   
-  console.log(email, "email")
+
   if (!file) {
     return res.status(400).send('No file uploaded.');
   }
@@ -581,10 +581,10 @@ export const sendCertificate = async (req, res) => {
 };
 
 export const updateOpeningHours = async (req, res) => {
-  console.log(req.body)
+
 
   const { localId, openingHours } = req.body; // Suponiendo que estás enviando el localId y el array de openingHours en el body
-  console.log(req.body)
+
 
 
   try {
@@ -631,7 +631,7 @@ export const updateOpeningHours = async (req, res) => {
 };
 
 export const getOpeningHoursByLocalId = async (req, res) => {
-  console.log(req.body, "bodyys")
+
   const { localId } = req.body;
 
   try {
@@ -688,12 +688,20 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
             active: true // Solo descuentos activos
           },
           required: true // Solo traer locales que tengan descuentos activos
+        },
+        {
+          model: Tag,  // Incluye las tags asociadas al local
+          as: 'tags',
+          through: { attributes: [] }  // No incluimos los atributos de LocalTag
         }
       ]
     });
 
+   
+
     const groupedShops = groupShopsByCategory(shops);
-    console.log(groupedShops, "sopcitos")
+    console.log(groupedShops, 'groupedShops');
+  
     res.json(groupedShops);
   } catch (error) {
     console.log(error);

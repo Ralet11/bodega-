@@ -8,16 +8,17 @@ import ProductExtra from '../models/productextra.js';
 import xlsx from 'xlsx';
 import ExtraOption from '../models/extraOption.model.js';
 import Discount from '../models/discount.js';
+import Promotion from '../models/Promotions.model.js';
+import PromotionType from '../models/promotionType.js';
 
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
 
   try {
-    // Busca productos por categoría y estado utilizando el modelo Product
     const products = await Product.findAll({
       where: {
-        categories_id: categoryId,  // Se mantiene `categories_id`
-        state: "1" // Considera solo productos activos
+        categories_id: categoryId,
+        state: "1", // Only active products
       },
       include: [
         {
@@ -25,30 +26,41 @@ export const getByCategoryId = async (req, res) => {
           as: 'extras',
           include: {
             model: ExtraOption,
-            as: 'options' // Esto asume que has definido la relación con alias 'options' en Extra
+            as: 'options',
           },
-          through: { attributes: [] } // Esto excluye los atributos de la tabla intermedia (productExtras)
+          through: { attributes: [] },
         },
         {
           model: Discount,
-          as: 'discounts', // Incluye los descuentos asociados al producto
-          required: false // Incluye productos incluso si no tienen descuentos
-        }
-      ]
+          as: 'discounts',
+          required: false,
+        },
+        // Include promotions
+        {
+          model: Promotion,
+          as: 'promotions',
+          include: [
+            {
+              model: PromotionType,
+              as: 'promotionType',
+            },
+          ],
+          required: false, // Include products even if they don't have promotions
+        },
+      ],
     });
 
     res.status(200).json(products);
   } catch (error) {
-    console.error('Error al consultar productos:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
 export const addProduct = async (req, res) => {
   const { name, price, description, img, category_id, extras } = req.body;
   const clientId = req.user.clientId;
 
-  console.log(extras);
-  console.log(req.body);
+
 
   try {
     // Crea un nuevo producto utilizando el modelo Product
@@ -162,7 +174,7 @@ export const updateById = async (req, res) => {
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
   const idConfirm = req.user.clientId; // El clientId del usuario autenticado
-  console.log(id);
+
 
   try {
     // Buscar el local para verificar el clientId
@@ -244,7 +256,7 @@ export const getByLocalId = async (req, res) => {
       totalRevenue: productTotals[product.id] ? productTotals[product.id].totalRevenue : 0
     }));
 
-    console.log('Products with Order Details:', productsWithOrderDetails);
+    
     res.status(200).json(productsWithOrderDetails);
   } catch (error) {
     console.log(error);
@@ -293,7 +305,7 @@ export const getByProductId = async (req, res) => {
 
 export const saveExtras = async (req, res) => {
   const { extras, productId } = req.body;
-  console.log(req.body);
+
 
   try {
     // Verificar si el producto existe

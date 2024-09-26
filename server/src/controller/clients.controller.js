@@ -90,7 +90,7 @@ export const logout = (req, res) => {
 
 export const updateClient = async (req, res) => {
   try {
-    console.log(req.body, "body")
+    
     const clientId = req.user.clientId;
     const { name, email, address, phone, accountNumber, accountHolderName, routingNumber } = req.body;
 

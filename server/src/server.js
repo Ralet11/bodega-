@@ -35,7 +35,7 @@ import subcategoriesRouter from './routes/subcategories.routes.js'
 import brandsRouter from './routes/brands.routes.js'
 import twilioRouter from './routes/twilio.routes.js'
 import tagRouter from './routes/tag.routes.js'
-
+import promotionRouter from './routes/promotion.routes.js';
 
 const app = express();
 const stripe = new Stripe(SSK);
@@ -73,14 +73,14 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object;
       const orderId = paymentIntent.metadata.orderData;
-      console.log("Esto es order id: ", orderId);
-      console.log("Esto es paymentIntent.metadata: ", paymentIntent.metadata);
+   
+
 
       // Analizar providerIds desde JSON a array
       let supplierIds;
       try {
         supplierIds = JSON.parse(paymentIntent.metadata.providerIds);
-        console.log("Esto es supplier id: ", supplierIds);
+      
       } catch (error) {
         console.error(`Error parsing supplierIds: ${error.message}`);
         return response.status(400).send(`Error parsing supplierIds: ${error.message}`);
@@ -131,7 +131,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
           address: supplier.address
         }));
 
-        console.log("Product details:", JSON.stringify(productDetails, null, 2));
+    
       
         const client = await Client.findByPk(paymentIntent.metadata.customer);
         const local = await Local.findByPk(paymentIntent.metadata.localData);
@@ -151,7 +151,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
 
         // Llamar a la función para enviar el email
         const emailResult = await sendEmailWithProducts(productDetails, clientData, localData, supplierData);
-        console.log(emailResult);
+     
 
         // Aquí puedes agregar cualquier lógica adicional, como actualizar el estado de la orden, enviar correos electrónicos, etc.
 
@@ -163,7 +163,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
       break;
 
     default:
-      console.log(`Unhandled event type ${event.type}`);
+  
   }
 
   response.status(200).send();
@@ -199,6 +199,7 @@ app.use('/api/subcategories', subcategoriesRouter)
 app.use('/api/brands', brandsRouter)
 app.use('/api/twilio', twilioRouter)
 app.use('/api/tags', tagRouter)
+app.use('/api/promotions', promotionRouter)
 
 
 export default app;

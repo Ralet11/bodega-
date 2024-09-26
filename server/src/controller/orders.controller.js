@@ -7,10 +7,12 @@ import DistOrder from '../models/distOrders.model.js';
 import cryptoRandomString from 'crypto-random-string';
 import Client from '../models/client.js';
 import { sendNewOrderEmail } from '../functions/SendNewOrderEmail.js';
+import Promotion from '../models/Promotions.model.js';
+import UserPromotions from '../models/UserPromotion.model.js';
 
 
 export const getByLocalId = async (req, res) => {
-  console.log("122")
+
   const { id } = req.params; // Asume que el ID del local se pasa como parámetro de la URL
   const idConfirm = req.user.clientId; // El clientId del usuario autenticado
 
@@ -19,7 +21,7 @@ export const getByLocalId = async (req, res) => {
     const local = await Local.findByPk(id);
 
     if (!local) {
-      console.log("1")
+   
       return res.status(404).json({ message: "Local not found" });
     }
 
@@ -49,7 +51,7 @@ export const getByLocalId = async (req, res) => {
 export const acceptOrder = async (req, res) => {
   const { id } = req.params;
   const io = getIo()
-  console.log("Esto es el id: ", id)
+
 
   try {
     const order = await Order.findByPk(id);
@@ -93,31 +95,50 @@ export const sendOrder = async (req, res) => {
 };
 
 export const createOrder = async (req, res) => {
-  console.log(req.body)
-  const { delivery_fee, total_price, order_details, local_id, status, date_time, type, pi, savings, deliveryAddressAndInstructions, originalDeliveryFee, tip } = req.body;
-  
-console.log(deliveryAddressAndInstructions, "delivery y instruc")
+  const {
+    delivery_fee,
+    total_price,
+    order_details,
+    local_id,
+    status,
+    date_time,
+    type,
+    pi,
+    savings,
+    deliveryAddressAndInstructions,
+    originalDeliveryFee,
+    tip,
+    promotion // Añadimos la variable 'promotion' al destructuring de req.body
+  } = req.body;
 
-  const deliveryAddress = deliveryAddressAndInstructions.address
-  const deliveryInstructions = deliveryAddressAndInstructions.instructions
-  
+  const deliveryAddress = deliveryAddressAndInstructions.address;
+  const deliveryInstructions = deliveryAddressAndInstructions.instructions;
+
   const id = req.user.userId;
   const io = getIo();
   const users_id = id;
 
-  const local = await Local.findOne({where: {id: local_id}})
-
-  const client = await Client.findByPk(local.clients_id)
-
- 
-  // Generar el código alfanumérico de 6 dígitos
-  const code = cryptoRandomString({length: 6, type: 'alphanumeric'});
-
   try {
+    // Verificar si el local existe
+    const local = await Local.findOne({ where: { id: local_id } });
+    if (!local) {
+      return res.status(404).json({ message: 'Local no encontrado' });
+    }
+
+    // Obtener el cliente al que pertenece el local (opcional para envío de email)
+    const client = await Client.findByPk(local.clients_id);
+    if (!client) {
+      return res.status(404).json({ message: 'Cliente del local no encontrado' });
+    }
+
+    // Generar el código alfanumérico de 6 dígitos
+    const code = cryptoRandomString({ length: 6, type: 'numeric' });
+
+    // Crear la nueva orden
     const newOrder = await Order.create({
       delivery_fee,
       total_price,
-      order_details: order_details,
+      order_details,
       local_id,
       users_id,
       status,
@@ -127,12 +148,63 @@ console.log(deliveryAddressAndInstructions, "delivery y instruc")
       code,
       deliveryAddress,
       deliveryInstructions
-  
     });
 
-  
+    // Verificar si el local tiene promociones activas
+    const promotions = await Promotion.findAll({ where: { localId: local_id } });
 
-    sendNewOrderEmail(newOrder, client.email, originalDeliveryFee, tip, deliveryInstructions)
+    for (const promotion of promotions) {
+      // Verificar si el usuario ya tiene esta promoción en su lista de promociones activas
+      let userPromotion = await UserPromotions.findOne({
+        where: {
+          userId: users_id,
+          promotionId: promotion.id
+        }
+      });
+
+      if (!userPromotion) {
+        // Si el usuario no tiene esta promoción, crear una nueva entrada
+        userPromotion = await UserPromotions.create({
+          userId: users_id,
+          promotionId: promotion.id,
+          purchaseCount: 1 // Iniciar el conteo en 1 porque ya realizó una compra
+        });
+      } else {
+        // Si ya tiene la promoción, incrementar el conteo de compras
+        userPromotion.purchaseCount += 1;
+
+        // Verificar si alcanza la cantidad necesaria para recibir el producto gratis
+        if (userPromotion.purchaseCount >= promotion.quantity && !userPromotion.rewardReceived) {
+          userPromotion.rewardReceived = true;
+          // Aquí puedes implementar la lógica para notificar al usuario
+          // que ha alcanzado la promoción, o agregar el producto gratis a su cuenta.
+        }
+
+        // Guardar los cambios en la tabla de UserPromotions
+        await userPromotion.save();
+      }
+    }
+
+    // Si llega 'promotion: true', reiniciar la promoción
+    if (promotion === true) {
+      // Buscar todas las promociones activas del usuario para el local actual
+      const userPromotionsToReset = await UserPromotions.findAll({
+        where: {
+          userId: users_id,
+          promotionId: promotions.map(promo => promo.id) // Filtra solo las promociones del local actual
+        }
+      });
+
+      // Reiniciar el conteo de compras para todas las promociones del local
+      for (const userPromo of userPromotionsToReset) {
+        userPromo.purchaseCount = 0; // Resetea el conteo
+        userPromo.rewardReceived = false; // Resetea el estado de 'rewardReceived'
+        await userPromo.save(); // Guarda los cambios
+      }
+    }
+
+    // Enviar un email de nueva orden
+    sendNewOrderEmail(newOrder, client.email, originalDeliveryFee, tip, deliveryInstructions);
 
     // Actualizar el savings del usuario
     const user = await User.findByPk(id);
@@ -144,7 +216,17 @@ console.log(deliveryAddressAndInstructions, "delivery y instruc")
     }
 
     // Emitir evento de nuevo pedido a través de Socket.IO
-    io.emit(`newOrder`, { order_details, local_id, users_id, status, date_time, newOrderId: newOrder.id, type, pi, code });
+    io.emit(`newOrder`, {
+      order_details,
+      local_id,
+      users_id,
+      status,
+      date_time,
+      newOrderId: newOrder.id,
+      type,
+      pi,
+      code
+    });
 
     res.status(201).json({ message: 'Pedido creado exitosamente', newOrder, userUpdate: user });
   } catch (error) {
@@ -152,6 +234,7 @@ console.log(deliveryAddressAndInstructions, "delivery y instruc")
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
 
 export const getOrderUser = async (req, res) => {
   const { id } = req.params;
@@ -214,7 +297,7 @@ export const getOrdersByUser = async (req, res) => {
 };
 
 export const getByOrderId = async (req, res) => {
-  console.log("1")
+
   const { orderId } = req.params;
 
   try {
@@ -238,7 +321,7 @@ export const getByOrderId = async (req, res) => {
 export const rejectOrder = async (req, res) => {
   const { id } = req.body;
   const io = getIo()
-  console.log(req.body, "body")
+
   try {
     const order = await Order.findByPk(id);
 
@@ -262,7 +345,7 @@ export const rejectOrder = async (req, res) => {
 export const acceptOrderByEmail = async (req, res) => {
   const { id } = req.params;
   const io = getIo();
-  console.log("Esto es el id: ", id);
+
 
   try {
     const order = await Order.findByPk(id);
@@ -295,7 +378,7 @@ export const acceptOrderByEmail = async (req, res) => {
 
     // Emitir evento de cambio de estado del pedido a través de Socket.IO
     io.emit('changeOrderState', { status: 'accepted', orderId: id });
-    console.log("Order accepted");
+
 
     return res.status(200).send(`
       <!DOCTYPE html>

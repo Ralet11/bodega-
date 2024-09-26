@@ -6,6 +6,7 @@ import ShopOpenHours from './shopOpenHoursModel.js';
 import Discount from './discount.js';
 import Tag from './tag.model.js';
 import LocalTag from './localTag.model.js';
+import Promotion from './Promotions.model.js';
 
 const defaultImageUrl = 'https://www.mnasbo.org/global_graphics/default-store-350x350.jpg';
 
@@ -114,5 +115,6 @@ Local.belongsToMany(Tag, { through: LocalTag, foreignKey: 'local_id', as: 'tags'
 Tag.belongsToMany(Local, { through: LocalTag, foreignKey: 'tag_id', as: 'locals' });
 LocalTag.belongsTo(Tag, { foreignKey: 'tag_id', as: 'tag' });
 LocalTag.belongsTo(Local, { foreignKey: 'local_id', as: 'local' });
+Promotion.belongsTo(Local, { foreignKey: 'localId', as: 'local' }); // Relación con Local
 
 export default Local;

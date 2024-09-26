@@ -51,7 +51,7 @@ async function insertarDatos(jsonData) {
       };
 
       const res = await pool.query(query);
-      console.log(`Fila insertada correctamente: ${res.rowCount}`);
+     
     } catch (err) {
       console.error('Error al insertar fila:', err);
     }

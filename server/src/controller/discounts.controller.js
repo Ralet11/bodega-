@@ -4,6 +4,7 @@ import Product from "../models/product.js";
 import UserDiscount from "../models/userDiscount.js";
 import Extra from "../models/extra.js";
 import ExtraOption from "../models/extraOption.model.js";
+import Category from "../models/category.js";
 
 
 
@@ -23,7 +24,7 @@ export const getAll = async (req, res) => {
 
 export const createDiscount = async (req, res) => {
 
-  console.log(req.body, "body")
+ 
   const {
     productName,
     shop_id,
@@ -43,7 +44,7 @@ export const createDiscount = async (req, res) => {
     client_id
   } = req.body;
 
-  console.log(delivery, "delivercito")
+
   const idConfirm = req.user.clientId;
 
   try {
@@ -99,7 +100,7 @@ export const createDiscount = async (req, res) => {
 
 
 export const getDiscountsByUser = async (req, res) => {
-  console.log(req.user);
+
   const { userId } = req.user;
 
   try {
@@ -120,7 +121,7 @@ export const getDiscountsByUser = async (req, res) => {
         }
       ]
     });
-    console.log(response);
+    
     res.status(200).json(response);
   } catch (error) {
     console.log(error);
@@ -131,7 +132,7 @@ export const getDiscountsByUser = async (req, res) => {
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
   const idConfirm = req.user.clientId; // El clientId del usuario autenticado
-  console.log(id);
+  
 
   try {
     // Buscar el local para verificar el clientId
@@ -165,7 +166,7 @@ export const getByLocalId = async (req, res) => {
       ]
     });
 
-    console.log(discounts);
+   
     res.status(200).json(discounts);
   } catch (error) {
     console.log(error);
@@ -178,7 +179,6 @@ export const getByLocalIdApp = async (req, res) => {
   const { id } = req.params;
   const userId = req.user.userId; // El clientId del usuario autenticado
 
-
   try {
     // Buscar el local para verificar el clientId
     const local = await Local.findByPk(id);
@@ -187,7 +187,7 @@ export const getByLocalIdApp = async (req, res) => {
       return res.status(404).json({ message: "Local not found" });
     }
 
-    // Obtener los descuentos asociados al local e incluir los productos, extras y opciones de extras
+    // Obtener los descuentos asociados al local e incluir los productos, extras, opciones de extras y categorías
     const discounts = await Discount.findAll({
       where: {
         local_id: id
@@ -197,6 +197,10 @@ export const getByLocalIdApp = async (req, res) => {
           model: Product,
           as: 'product',
           include: [
+            {
+              model: Category, // Incluir la categoría del producto
+              as: 'category'
+            },
             {
               model: Extra,
               as: 'extras',
@@ -231,13 +235,13 @@ export const getByLocalIdApp = async (req, res) => {
       };
     });
 
-    console.log(discountsWithSavedFlag);
     res.status(200).json(discountsWithSavedFlag);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Error al buscar descuentos por ID del local' });
   }
 };
+
 
 export const getUserDiscounts = async (req, res) => {
   const id = req.user.userId;

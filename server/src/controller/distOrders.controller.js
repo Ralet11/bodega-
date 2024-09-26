@@ -6,7 +6,7 @@ import Local from "../models/local.js";
 import Client from "../models/client.js";
 
 export const addToLocal = async (req, res) => {
-  console.log(req.body);
+
   const { local_id, order_details, order_date } = req.body;
   const idConfirm = req.user.clientId;
 
@@ -30,7 +30,7 @@ export const addToLocal = async (req, res) => {
       });
 
       const orderId = newOrder.id;
-      console.log(orderId, "orderid");
+  
 
       // Crear los registros de DistOrderProduct
       for (const item of order_details) {
@@ -61,7 +61,7 @@ export const addToLocal = async (req, res) => {
           ]
       });
 
-      console.log(orderProducts, "respuesta");
+
       res.status(201).json(orderProducts);
   } catch (error) {
       console.error("Error adding order:", error);
