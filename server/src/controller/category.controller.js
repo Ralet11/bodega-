@@ -4,7 +4,7 @@ export const getByLocalId = async (req, res) => {
   const { id } = req.params;
   const idNumber = parseInt(id, 10); // Convertir id a número
 
-  console.log(idNumber, "id");
+ 
 
   if (isNaN(idNumber)) {
     return res.status(400).json({ error: "ID inválido" });
@@ -18,7 +18,7 @@ export const getByLocalId = async (req, res) => {
       },
     });
 
-    console.log(categories, "hola")
+  
 
     res.status(200).json(categories);
 
@@ -31,7 +31,7 @@ export const getByLocalId = async (req, res) => {
 
 export const addCategory = async (req, res) => {
   const { local_id, name } = req.body;
-  console.log(req.body);
+
 
   try {
     const newCategory = await Category.create({ name, local_id, state: 1 });
@@ -55,7 +55,7 @@ export const hideById = async (req, res) => {
     category.state = 0;
     await category.save();
 
-    console.log("Estado de la categoría actualizado a 0");
+
     res.status(200).json({ message: "Estado de la categoría actualizado correctamente" });
   } catch (error) {
     console.error("Error al actualizar el estado de la categoría:", error);

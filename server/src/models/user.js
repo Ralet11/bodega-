@@ -18,7 +18,7 @@ const User = sequelize.define('user', {
   },
   password: {
     type: DataTypes.STRING(130),
-    allowNull: false
+    allowNull: true, // Puede ser nulo para usuarios que se registran con Google
   },
   birthdate: {
     type: DataTypes.STRING(45),
@@ -26,7 +26,7 @@ const User = sequelize.define('user', {
   },
   phone: {
     type: DataTypes.STRING(45),
-    allowNull: false
+    allowNull: true // Puede ser nulo para usuarios que se registran con Google
   },
   subscription: {
     type: DataTypes.INTEGER,
@@ -46,6 +46,11 @@ const User = sequelize.define('user', {
   stripeCustomerId: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  authMethod: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: 'local' // Puede ser 'local' o 'google' para diferenciar el método de autenticación
   }
 }, {
   tableName: 'users',

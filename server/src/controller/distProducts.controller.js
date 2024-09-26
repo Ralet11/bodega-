@@ -62,7 +62,7 @@ export const getDistProductById = async (req, res) => {
 export const sendEmailWithProducts = async (req, res) => {
   const { orderData, clientData, localData } = req.body.data;
 
-  console.log("enviando mail")
+
   
   /* // Construct the email content
   let productsList = '';
@@ -82,7 +82,7 @@ export const sendEmailWithProducts = async (req, res) => {
   }
 
   // Verify that productsList is being generated correctly
-  console.log(productsList);
+
 
   const contentHTML = `
   <!DOCTYPE html>

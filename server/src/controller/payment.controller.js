@@ -13,7 +13,7 @@ const stripe = new Stripe(SSK);
 
 export const tryIntent = async (req, res) => {
   const { finalPrice } = req.body;
-  console.log(req.body);
+
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
@@ -48,7 +48,7 @@ export const getPayMethods = async (req, res) => {
 export const addPayMethod = async (req, res) => {
   try {
     const { methods, client } = req.body.data;
-    console.log(methods, client);
+ 
 
     if (!methods || !client) {
       return res.status(400).json({ success: false, message: 'Datos de solicitud no válidos' });
@@ -254,7 +254,7 @@ export const checkoutBodegaDistPayment = async (req, res) => {
 
 export const createRefund = async (req, res) => {
   const { pi, amount } = req.body;
-  console.log(amount, "amoutn")
+
 
   if (!pi) {
     return res.status(400).json({ error: 'PaymentIntent ID is required' });
@@ -271,7 +271,7 @@ export const createRefund = async (req, res) => {
       amount: amount, // La cantidad a reembolsar en centavos.
     });
 
-    console.log('Refund successful:', refund);
+ 
     res.status(200).json(refund);
   } catch (error) {
     console.error('Error creating refund:', error);
@@ -332,7 +332,7 @@ export const createSubscriptionCheckout = async (req, res) => {
 
 export const cancelSubscription = async (req, res) => {
   const userId = req.user.userId;
-  console.log("1")
+
   try {
     // Retrieve the user from the database
     const user = await User.findByPk(userId);
@@ -340,7 +340,7 @@ export const cancelSubscription = async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
-    console.log("2")
+
     // Retrieve the subscriptionId from UserBodegaProSubs table
     const userSubscription = await UserBodegaProSubs.findOne({
       where: {
