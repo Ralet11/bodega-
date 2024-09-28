@@ -36,6 +36,7 @@ import brandsRouter from './routes/brands.routes.js'
 import twilioRouter from './routes/twilio.routes.js'
 import tagRouter from './routes/tag.routes.js'
 import promotionRouter from './routes/promotion.routes.js';
+import reviewsRouter from './routes/reviews.routes.js'
 
 const app = express();
 const stripe = new Stripe(SSK);
@@ -200,6 +201,7 @@ app.use('/api/brands', brandsRouter)
 app.use('/api/twilio', twilioRouter)
 app.use('/api/tags', tagRouter)
 app.use('/api/promotions', promotionRouter)
+app.use('/api/reviews', reviewsRouter)
 
 
 export default app;

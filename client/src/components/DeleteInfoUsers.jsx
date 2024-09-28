@@ -23,7 +23,7 @@ export default function DeleteInfoUserForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Form data submitted:", formData);
+ 
 
     try {
       const response = await axios.post(`${API_URL_BASE}/api/contact/sendContactMail`, formData, {
@@ -32,7 +32,7 @@ export default function DeleteInfoUserForm() {
         }
       });
 
-      console.log(response)
+
 
       if (response.statusText === "OK") {
         alert("Email sent successfully!");

@@ -11,8 +11,8 @@ import UpDateProductModal from '../modal/UpdateProdModal';
 import ProductModal from '../modal/ProductModal';
 import ExtrasModal from '../modal/ExtrasModal';
 import { getParamsEnv } from "../../functions/getParamsEnv";
-import FloatingTutorialCard from '../TutorialCard';
 import CreateDiscountModal from '../modal/CreateDiscountModal';
+import PromotionModal from '../modal/PromotionModal'; // Import the PromotionModal component
 import 'animate.css';
 
 const { API_URL_BASE } = getParamsEnv();
@@ -25,14 +25,14 @@ function Products() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedDiscount, setSelectedDiscount] = useState(null); // Para descuentos
+  const [selectedDiscount, setSelectedDiscount] = useState(null); // For discounts
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [products, setProducts] = useState([]);
-  const [discounts, setDiscounts] = useState([]); // Para descuentos
+  const [discounts, setDiscounts] = useState([]); // For discounts
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [showUpdateProduct, setShowUpdateProduct] = useState(false);
   const [showNewProductModal, setShowNewProductModal] = useState(false);
-  const [showNewDiscountModal, setShowNewDiscountModal] = useState(false); // Para descuentos
+  const [showNewDiscountModal, setShowNewDiscountModal] = useState(false); // For discounts
   const [showExtrasModal, setShowExtrasModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
@@ -41,6 +41,7 @@ function Products() {
   const [activeTab, setActiveTab] = useState('products');
   const [showAddDiscountModal, setShowAddDiscountModal] = useState(false);
   const [selectedProductForDiscount, setSelectedProductForDiscount] = useState(null);
+  const [showPromotionModal, setShowPromotionModal] = useState(false); // New state for promotion modal
 
   dispatch(changeShop(activeShop));
 
@@ -72,15 +73,13 @@ function Products() {
         await axios.delete(`${API_URL_BASE}/api/discounts/delete/${discountId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("descuento borrado")
+        console.log("Descuento borrado");
         setAux(!aux);
       } catch (error) {
         console.error('Error al eliminar el descuento:', error);
       }
     }
   };
-
-  console.log(products, "prods")
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -107,8 +106,6 @@ function Products() {
     };
     fetchProducts();
   }, [selectedCategory, token]);
-
-  console.log(discounts, "des")
 
   // Effect to fetch discounts
   useEffect(() => {
@@ -281,6 +278,27 @@ function Products() {
     }
   };
 
+  const handleCreatePromotion = async (promotionData) => {
+
+    console.log(promotionData, 'promotionData');
+    try {
+      await axios.post(
+        `${API_URL_BASE}/api/promotions/create`,
+        {
+          productId: selectedProduct.id,
+          ...promotionData,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      console.log('Promoción creada exitosamente');
+      // Optionally update state or provide feedback to the user
+    } catch (error) {
+      console.error('Error creating promotion:', error);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start w-full h-full p-4">
       <div className="w-full max-w-6xl mt-20">
@@ -386,80 +404,84 @@ function Products() {
               </div>
               <div className="flex space-x-1">
                 <button
-                  className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-blue-500 font-medium border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                  className="flex items-center justify-center px-2 py-1 text-xs text-blue-500 font-medium border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
                   onClick={openEditProduct}
                 >
-                  <PencilIcon className="w-3.5 h-3.5" />
-                  <span>Edit</span>
+                  <PencilIcon className="w-4 h-4" />
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-red-500 font-medium border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
+                  className="flex items-center justify-center px-2 py-1 text-xs text-red-500 font-medium border border-red-500 rounded-md bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
                   onClick={deleteProduct}
                 >
-                  <Trash className="w-3.5 h-3.5" />
-                  <span>Delete</span>
+                  <Trash className="w-4 h-4" />
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-blue-500 font-medium border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
+                  className="px-2 py-1 text-xs text-blue-500 font-medium border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
                   onClick={() => setShowExtrasModal(true)}
                 >
-                  <span>Extras</span>
+                  Extras
                 </button>
                 <button
-                  className="flex items-center space-x-1 px-1.5 py-0.5 text-xs text-green-500 font-medium border border-green-500 rounded-md bg-transparent hover:bg-green-500 hover:text-white transition-colors duration-200"
+                  className="px-2 py-1 text-xs text-green-500 font-medium border border-green-500 rounded-md bg-transparent hover:bg-green-500 hover:text-white transition-colors duration-200"
                   onClick={() => {
                     setSelectedProductForDiscount(selectedProduct);
                     setShowAddDiscountModal(true);
                   }}
                 >
-                  <span>Add Discount</span>
+                  Discount
+                </button>
+                <button
+                  className="px-2 py-1 text-xs text-purple-500 font-medium border border-purple-500 rounded-md bg-transparent hover:bg-purple-500 hover:text-white transition-colors duration-200"
+                  onClick={() => setShowPromotionModal(true)}
+                >
+                  Promotion
                 </button>
               </div>
             </div>
           )}
           {selectedDiscount && !isLoadingProducts && activeTab === 'discounts' && (
-  <div className="flex-none w-full lg:w-[300px] bg-white p-6 rounded-xl shadow-lg relative transition-transform transform hover:scale-105 hover:shadow-2xl">
-    {/* Image Section */}
-    <div className="mb-4 relative">
-      <img
-        src={selectedDiscount.img}
-        alt={selectedDiscount.productName}
-        className="w-full h-40 object-cover rounded-lg transition-opacity duration-200 hover:opacity-90"
-      />
-      {/* Discount Badge */}
-      <span className="absolute top-3 right-3 bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
-        {selectedDiscount.percentage}% OFF
-      </span>
-    </div>
+            <div className="flex-none w-full lg:w-[300px] bg-white p-6 rounded-xl shadow-lg relative transition-transform transform hover:scale-105 hover:shadow-2xl">
+              {/* Image Section */}
+              <div className="mb-4 relative">
+                <img
+                  src={selectedDiscount.img}
+                  alt={selectedDiscount.productName}
+                  className="w-full h-40 object-cover rounded-lg transition-opacity duration-200 hover:opacity-90"
+                />
+                {/* Discount Badge */}
+                <span className="absolute top-3 right-3 bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded-full shadow-lg">
+                  {selectedDiscount.percentage}% OFF
+                </span>
+              </div>
 
-    {/* Product Details */}
-    <div className="text-left mb-4">
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">{selectedDiscount.productName}</h2>
+              {/* Product Details */}
+              <div className="text-left mb-4">
+                <h2 className="text-xl font-semibold text-gray-800 mb-2">{selectedDiscount.productName}</h2>
 
-      <div className="text-gray-600 text-sm mb-2">
-        Applies to:
-        <span className="block text-gray-900 text-base font-medium">{selectedDiscount.productName}</span>
-      </div>
+                <div className="text-gray-600 text-sm mb-2">
+                  Applies to:
+                  <span className="block text-gray-900 text-base font-medium">{selectedDiscount.productName}</span>
+                </div>
 
-      {/* Display limitDate */}
-      <div className="text-gray-500 text-xs mt-4">
-        <p>Valid until:</p>
-        <p className="text-red-500 font-semibold">{new Date(selectedDiscount.limitDate).toLocaleDateString()}</p>
-      </div>
-    </div>
+                {/* Display limitDate */}
+                <div className="text-gray-500 text-xs mt-4">
+                  <p>Valid until:</p>
+                  <p className="text-red-500 font-semibold">{new Date(selectedDiscount.limitDate).toLocaleDateString()}</p>
+                </div>
+              </div>
 
-    {/* Buttons */}
-    <div className="flex justify-start space-x-2">
-      <button
-        className="flex items-center space-x-2 px-3 py-1 text-xs text-red-500 font-medium border border-red-500 rounded-lg bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
-        onClick={() => handleDeleteDiscount(selectedDiscount.id)}
-      >
-        <Trash className="w-4 h-4" />
-        <span>Delete</span>
-      </button>
-    </div>
-  </div>
-)}
+              {/* Buttons */}
+              <div className="flex justify-start space-x-2">
+                <button
+                  className="flex items-center space-x-2 px-3 py-1 text-xs text-red-500 font-medium border border-red-500 rounded-lg bg-transparent hover:bg-red-500 hover:text-white transition-colors duration-200"
+                  onClick={() => handleDeleteDiscount(selectedDiscount.id)}
+                >
+                  <Trash className="w-4 h-4" />
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <CategoryModal
@@ -490,14 +512,20 @@ function Products() {
         extras={selectedProduct?.extras || []}
         handleSaveExtras={handleSaveExtras}
       />
-      
       <CreateDiscountModal
         show={showAddDiscountModal}
         handleClose={() => setShowAddDiscountModal(false)}
         aux={aux}
         setAux={setAux}
-        product={selectedProductForDiscount} // Pasar el producto seleccionado
+        product={selectedProductForDiscount}
       />
+      <PromotionModal
+      show={showPromotionModal}
+      handleClose={() => setShowPromotionModal(false)}
+      handleCreatePromotion={handleCreatePromotion}
+      product={selectedProduct}  // Pass selectedProduct directly
+      activeShop={activeShop}
+    />
     </div>
   );
 }

@@ -15,7 +15,7 @@ const Orders = () => {
     const activeShop = useSelector((state) => state.activeShop);
     const lastOrder = useSelector((state) => state.newOrder);
     const dispatch = useDispatch()
-    console.log(lastOrder)
+   
 
   
 
@@ -61,7 +61,7 @@ const Orders = () => {
     useEffect(() => {
         // Listen for the "newOrder" event
         socket.on("newOrder", (data) => {
-            console.log("entro nueva orden")
+         
             setOrders((prevOrders) => {
                 return {
                     ...prevOrders,
@@ -76,10 +76,10 @@ const Orders = () => {
         };
     }, []);
 
-    console.log(`${API_URL_BASE}/api/orders/get/${activeShop}`)
+  s
 
     const handleAcceptOrder = async (orderId) => {
-        console.log("cambiando estado")
+   
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
             await axios.put(`${API_URL_BASE}/api/orders/accept/${orderId}`);
@@ -104,7 +104,7 @@ const Orders = () => {
     };
 
     const handleSendOrder = async (orderId) => {
-        console.log("cambiando estado")
+      
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
             await axios.put(`${API_URL_BASE}/api/orders/send/${orderId}`);
@@ -129,7 +129,7 @@ const Orders = () => {
     };
 
     const handleFinishOrder = async (orderId) => {
-        console.log("cambiando estado")
+     
         try {
             // Realiza una solicitud al servidor para cambiar el estado de la orden a "accepted"
             await axios.put(`${API_URL_BASE}/api/orders/finished/${orderId}`);

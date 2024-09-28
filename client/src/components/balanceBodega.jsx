@@ -169,7 +169,7 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
       const response = await axios.get(`${API_URL_BASE}/api/balanceRequest/getByClient/${client.id}`, {
         headers: { authorization: `Bearer ${token}` }
       });
-      console.log(response.data, "request");
+;
       setBalanceRequests(response.data);
     } catch (error) {
       console.log(error);
@@ -186,7 +186,7 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
         const response = await axios.get(`${API_URL_BASE}/api/clients/${client.id}`, {
           headers: { authorization: `Bearer ${token}` }
         });
-        console.log(response.data, "productos ready");
+    
         setClientNow(response.data);
       } catch (error) {
         console.log(error);
@@ -211,7 +211,6 @@ const Dashboard = ({ orders, onRequestNewOrder }) => {
           authorization: `Bearer ${token}`
         }
       });
-      console.log('Order submitted:', response.data);
       fetchBalanceRequest(); // Vuelve a obtener las solicitudes de balance después de enviar una nueva orden
       handleModalClose(); // Cierra el modal
     } catch (error) {

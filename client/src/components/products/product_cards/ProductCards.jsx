@@ -23,6 +23,8 @@ function ProductCards({
   const token = useSelector((state) => state?.client.token);
   const [showUploadExcelModal, setShowUploadExcelModal] = useState(false);
 
+  console.log(products, 'products');
+
   const handleOpenNewProductModal = () => {
     setShowNewProductModal(true);
   };
@@ -32,7 +34,7 @@ function ProductCards({
   };
 
   const handleDeleteCategory = async () => {
-    console.log('hola');
+   
     try {
       await axios.delete(`${API_URL_BASE}/api/categories/hide/${selectedCategory}`, {
         headers: { Authorization: `Bearer ${token}` },

@@ -1,4 +1,4 @@
-import React from 'react';
+/* import React from 'react';
 import PropTypes from 'prop-types';
 
 export default function TermsModal({ show, preHandleClose }) {
@@ -368,4 +368,170 @@ export default function TermsModal({ show, preHandleClose }) {
 TermsModal.propTypes = {
   show: PropTypes.bool.isRequired,
   handleClose: PropTypes.func.isRequired,
+}; */
+
+import React from 'react';
+import PropTypes from 'prop-types';
+
+export default function TermsModal({ show, preHandleClose }) {
+  return (
+    <div>
+      {show && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+
+          <div className="bg-white w-full max-w-2xl mx-2 md:mx-auto rounded-lg shadow-lg relative max-h-screen overflow-auto">
+            <div className="bg-blue-400 p-2 rounded-t-lg">
+              <h2 className="text-sm font-semibold text-white">Bodega+ Terms and Conditions for Shops and Restaurants</h2>
+            </div>
+            <div className="p-2 overflow-auto max-h-[70vh]">
+              <div className="text-xs text-gray-700">
+                <h2 className="text-lg font-semibold mb-2">Effective Date: 09/15/2024</h2>
+                <p className="mb-2">
+                  By signing up and using the services provided by Bodega+ (the "Platform"), the Partner (the "Shop/Restaurant") agrees to the following terms and conditions:
+                </p>
+                <h3 className="text-sm font-semibold mb-2">1. Introduction</h3>
+                <p className="mb-2">
+                  These Terms and Conditions ("Agreement") govern the use of Bodega+ services by the Shop/Restaurant. By creating an account and using the platform, the Partner agrees to be bound by these terms.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">2. Services Provided by Bodega+</h3>
+                <p className="mb-2">
+                  Bodega+ offers a platform for shops and restaurants to:
+                </p>
+                <ul className="list-disc pl-5 mb-2">
+                  <li>List products, menus, and services for customers to place Pick-Up, Discount (Order-In/Dine-In), and Delivery orders.</li>
+                  <li>Promote their business through free marketing across social media platforms and within the app.</li>
+                  <li>Access the Bodega+ dashboard for order management, sales analytics, and customer insights.</li>
+                </ul>
+                <h3 className="text-sm font-semibold mb-2">3. Fees</h3>
+                <p className="mb-2">
+                  Bodega+ will apply the following fees for orders processed through the platform:
+                </p>
+                <ul className="list-disc pl-5 mb-2">
+                  <li>10% fee for Pick-Up and Discount (Order-In/Dine-In) orders.</li>
+                  <li>20% fee for Delivery orders.</li>
+                  <li>Fees for payment processing and other applicable costs will be deducted before the final payout to the Shop/Restaurant.</li>
+                </ul>
+                <h3 className="text-sm font-semibold mb-2">4. Payment Terms</h3>
+                <p className="mb-2">
+                  Payments for orders completed through Bodega+ will be transferred to the Shop/Restaurant’s designated bank account on a monthly basis, specifically on the first day of each month, minus the applicable fees and costs.
+                </p>
+                <p className="mb-2">
+                  The Shop/Restaurant is responsible for providing accurate payment information and keeping it up to date.
+                </p>
+                <p className="mb-2">
+                  Disputes or complaints may result in temporary withholding of payments until resolved.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">5. Partner Responsibilities</h3>
+                <p className="mb-2">
+                  By agreeing to these terms, the Shop/Restaurant commits to:
+                </p>
+                <ul className="list-disc pl-5 mb-2">
+                  <li>Keeping their menu, products, prices, and discount information accurate and up to date on the Bodega+ platform.</li>
+                  <li>Fulfilling all orders received through the platform in a timely and professional manner.</li>
+                  <li>Maintaining the quality of their products and services as listed on the platform.</li>
+                  <li>Complying with all applicable local laws, regulations, and health and safety standards.</li>
+                </ul>
+                <h3 className="text-sm font-semibold mb-2">6. Use of Platform</h3>
+                <p className="mb-2">
+                  The Shop/Restaurant is granted a limited, non-exclusive license to use the platform for listing and selling their products.
+                </p>
+                <p className="mb-2">
+                  The Shop/Restaurant agrees not to misuse the platform or engage in any activity that could harm Bodega+, its users, or other partners.
+                </p>
+                <p className="mb-2">
+                  Violations of the platform’s policies or this Agreement may result in suspension or termination of the Partner’s account.
+                </p>
+                <p className="mb-2">
+                  Bodega+ reserves the right to modify or discontinue any feature of the platform at its discretion.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">7. Marketing and Promotions</h3>
+                <p className="mb-2">
+                  Bodega+ will provide free marketing support, including exposure on social media and within the app.
+                </p>
+                <p className="mb-2">
+                  The Shop/Restaurant is responsible for managing their own promotions and discounts on the platform.
+                </p>
+                <p className="mb-2">
+                  Bodega+ may feature selected promotions or offers but is not liable for the effectiveness of marketing efforts.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">8. Customer Service and Dispute Resolution</h3>
+                <p className="mb-2">
+                  The Shop/Restaurant is responsible for addressing any customer complaints related to their products or services.
+                </p>
+                <p className="mb-2">
+                  Bodega+ may assist in resolving disputes but is not liable for the quality or delivery of the Shop/Restaurant’s products.
+                </p>
+                <p className="mb-2">
+                  In the event of unresolved disputes, Bodega+ may mediate but does not guarantee a resolution.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">9. Termination of Service</h3>
+                <p className="mb-2">
+                  The Shop/Restaurant or Bodega+ may terminate this Agreement with 30 days’ notice.
+                </p>
+                <p className="mb-2">
+                  Immediate termination may occur in the case of serious violations of the platform’s policies or fraudulent activities by the Shop/Restaurant.
+                </p>
+                <p className="mb-2">
+                  Upon termination, the Shop/Restaurant must cease using the platform and return any Bodega+ materials or property.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">10. Limitation of Liability</h3>
+                <p className="mb-2">
+                  Bodega+ is not responsible for any indirect, incidental, or consequential damages arising from the use of the platform.
+                </p>
+                <p className="mb-2">
+                  The Shop/Restaurant agrees to indemnify and hold harmless Bodega+ from any claims or damages arising from their use of the platform or interactions with customers.
+                </p>
+                <p className="mb-2">
+                  Bodega+ does not guarantee uninterrupted or error-free service and will not be liable for service disruptions.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">11. Data Protection and Privacy</h3>
+                <p className="mb-2">
+                  Bodega+ will collect, use, and protect personal data in accordance with its Privacy Policy.
+                </p>
+                <p className="mb-2">
+                  The Shop/Restaurant agrees to comply with applicable data protection laws and regulations.
+                </p>
+                <p className="mb-2">
+                  Data shared with Bodega+ will be used solely for the purpose of providing services and will not be disclosed to third parties without consent, except as required by law.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">12. Amendments to the Agreement</h3>
+                <p className="mb-2">
+                  Bodega+ reserves the right to modify these Terms and Conditions at any time. The Shop/Restaurant will be notified of any changes.
+                </p>
+                <p className="mb-2">
+                  Continued use of the platform after notification of changes constitutes acceptance of the updated terms.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">13. Governing Law</h3>
+                <p className="mb-2">
+                  This Agreement will be governed by and construed in accordance with the laws of Florida.
+                </p>
+                <p className="mb-2">
+                  Any disputes arising from this Agreement will be resolved in the courts of the State of Florida.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">14. Contact Information</h3>
+                <p className="mb-2">
+                  For any questions or concerns regarding this Agreement or the Bodega+ platform, please contact us through the email address provided.
+                </p>
+                <h3 className="text-sm font-semibold mb-2">15. Acceptance</h3>
+                <p className="mb-2">
+                  By signing up on the Bodega+ platform, the Shop/Restaurant acknowledges that they have read, understood, and agree to be bound by these Terms and Conditions.
+                </p>
+              </div>
+            </div>
+            <div className="bg-gray-100 px-3 py-2 flex justify-end rounded-b-lg">
+              <button onClick={preHandleClose} className="text-blue-500 hover:underline cursor-pointer text-xs">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+TermsModal.propTypes = {
+  show: PropTypes.bool.isRequired,
+  preHandleClose: PropTypes.func.isRequired,
 };

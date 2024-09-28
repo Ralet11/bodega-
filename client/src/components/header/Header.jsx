@@ -23,7 +23,7 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log(shop, "shop");
+
 
   const shopName = shop ? shop.name : "";
   const shopImage = shop?.logo || 'https://via.placeholder.com/50';

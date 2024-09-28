@@ -60,8 +60,7 @@ function App() {
       socket.off("newOrder");
     };
   }, [dispatch]);
-  console.log(activeShop, "activeshop")
-  console.log(orderNotificationCounts[activeShop], "not")
+
 
   const handleOrdersClick = () => {
     setOrderNotificationCounts((prevCounts) => ({

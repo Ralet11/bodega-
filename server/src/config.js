@@ -28,4 +28,5 @@ export const AWS_REGION = process.env.AWS_REGION
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME 
 export const ACCOUNT_SID = process.env.ACCOUNT_SID 
 export const AUTH_TOKEN = process.env.AUTH 
+
 //migraciones: img en discount, 

@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React from 'react';
-import { ShoppingBag, Gift } from 'lucide-react'; // Icons for extras and discounts
+import { ShoppingBag, Gift, Star } from 'lucide-react'; // Added Star icon for promotions
 
 const ProductCard = ({ product, isSelected, handleClick }) => {
   return (
@@ -21,18 +21,33 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
         <h2 className="text-sm font-semibold text-gray-800 mb-1">{product.name}</h2>
         <p className="text-sm text-gray-600 mb-1">${product.price.toFixed(2)}</p>
 
-        {/* Show icons for extras and discounts */}
+        {/* Show icons for extras, discounts, and promotions */}
         <div className="flex justify-center space-x-2 mt-2">
           {product.extras && product.extras.length > 0 && (
-            <div className="flex items-center">
+            <div className="flex items-center group relative">
               <ShoppingBag className="w-4 h-4 text-blue-500" />
-              <span className="ml-1 text-xs text-gray-500">Extras</span>
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-[10px] rounded py-1 px-2">
+                Extras
+              </div>
             </div>
           )}
           {product.discounts && product.discounts.length > 0 && (
-            <div className="flex items-center">
-              <Gift className="w-4 h-4 text-red-500" />
-              <span className="ml-1 text-xs text-gray-500">Discounts</span>
+            <div className="flex items-center group relative">
+              <Gift className="w-4 h-4 text-green-500" />
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-[10px] rounded py-1 px-2">
+                Discounts
+              </div>
+            </div>
+          )}
+          {product.promotions && product.promotions.length > 0 && (
+            <div className="flex items-center group relative">
+              <Star className="w-4 h-4 text-purple-500" />
+              {/* Tooltip */}
+              <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-[10px] rounded py-1 px-2">
+                Promotions
+              </div>
             </div>
           )}
         </div>
@@ -44,12 +59,16 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
 ProductCard.propTypes = {
   product: PropTypes.shape({
     id: PropTypes.number.isRequired,
+    categories_id: PropTypes.number.isRequired,
+    clientId: PropTypes.number.isRequired,
+    description: PropTypes.string.isRequired,
+    discounts: PropTypes.array,
+    extras: PropTypes.array,
+    img: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     price: PropTypes.number.isRequired,
-    description: PropTypes.string.isRequired,
-    img: PropTypes.string.isRequired,
-    extras: PropTypes.array, // Added for extras
-    discounts: PropTypes.array, // Added for discounts
+    promotions: PropTypes.array, // Added for promotions
+    state: PropTypes.string,
   }).isRequired,
   isSelected: PropTypes.bool.isRequired,
   handleClick: PropTypes.func.isRequired,

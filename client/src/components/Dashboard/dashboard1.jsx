@@ -83,7 +83,7 @@ const Dashboard = () => {
     return <div className="text-red-500">{error}</div>;
   }
 
-  console.log(shops, "shops")
+
 
   return (
     <div className="container mx-auto p-4">

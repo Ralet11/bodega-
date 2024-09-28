@@ -22,7 +22,7 @@ const TopProducts = () => {
               Authorization: `Bearer ${token}`,
           },
       });
-        console.log(response);
+       
         setAllProducts(response.data);
       } catch (error) {
         console.log(error);

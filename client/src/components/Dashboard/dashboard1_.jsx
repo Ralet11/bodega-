@@ -65,7 +65,7 @@ function Dashboard1() {
           }
         });
 
-        console.log(response.data, "orders");
+
 
         // Process orders
         let totalSalesValueDay = 0;
@@ -134,7 +134,7 @@ function Dashboard1() {
             authorization: `Bearer ${token}`
           }
         });
-        console.log(response.data, "productos ready");
+ 
         setLocalProducts(response.data.length);
         setLoading(false); // Datos cargados, deshabilitar el loader
       } catch (error) {
@@ -154,7 +154,7 @@ function Dashboard1() {
           }
         });
        
-        console.log(response.data, "productos ready");
+     
         setClientNow(response.data);
       } catch (error) {
         console.log(error);
@@ -163,7 +163,6 @@ function Dashboard1() {
     fetchClient();
   }, [client.id, token]);
 
-  console.log(clientNow, "client now");
 
   const sortedMostSoldItemsData = mostSoldItemsData.sort((a, b) => b['sold this month'] - a['sold this month']);
 
