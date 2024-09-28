@@ -13,7 +13,7 @@ export const makeCall = (req, res) => {
   const { to } = req.body;
   const orderId = req.body.orderId.id;
 
-  const ip = 'https://3.15.211.38'
+  const ip = 'https://3.15.211.38 '
 
    client.calls
     .create({
@@ -32,9 +32,9 @@ export const voiceResponse = (req, res) => {
   const VoiceResponse = twilio.twiml.VoiceResponse;
   const response = new VoiceResponse();
   const orderId = req.query.orderId;
-
+const ip = 'https://3.15.211.38 '
   response.say('You have a new order from Bodega. To accept it, press 1. To reject it, press 2.', { voice: 'alice', language: 'en-US' });
-  const ip = 'https://3.15.211.38'
+
   response.gather({
     numDigits: 1,
     action: `${ip}/api/twilio/handle-key?orderId=${orderId}`,

@@ -37,10 +37,9 @@ const HistorialVentas = () => {
                     "finished": [],
                 };
 
-                console.log(response.data)
-
+             
                 response.data.orders.forEach((order) => {
-                    console.log(order)
+                
                     const status = order.status;
                     if (status in ordersByStatus) {
                         ordersByStatus[status].push(order);
@@ -56,7 +55,7 @@ const HistorialVentas = () => {
         fetchData();
     }, [activeShop, token]);
 
-    console.log(orders)
+   
 
     const formatDateTime = (dateTimeString) => {
         const dateTime = new Date(dateTimeString);

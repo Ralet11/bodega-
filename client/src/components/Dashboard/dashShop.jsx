@@ -162,7 +162,7 @@ const ShopsComponent = ({ shops, ordersData }) => {
     setFilteredOrdersDataForCharts(ordersData);
   }, [ordersData]);
 
-console.log(ordersData, "ordersda")
+
 
   useEffect(() => {
     if (selectedShop) {

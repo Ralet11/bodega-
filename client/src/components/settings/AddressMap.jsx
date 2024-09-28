@@ -68,7 +68,7 @@ function Map({ shopData, setShopData, latLong }) {
       lng: selected.lng
     };
 
-    console.log('Datos a enviar:', data);
+   
 
     try {
       const response = await axios.post(`${API_URL_BASE}/api/local/update/address/${shopData.id}`, data, {
@@ -76,7 +76,7 @@ function Map({ shopData, setShopData, latLong }) {
           Authorization: `Bearer ${token}`
         }
       });
-      console.log('Respuesta del servidor:', response.data);
+
       if (response.status === 200) {
         toast.success("Dirección actualizada exitosamente.");
         setIsAddressChanged(false);

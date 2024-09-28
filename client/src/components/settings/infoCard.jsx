@@ -42,7 +42,7 @@ function InfoCard({ shopData, setShopData, client }) {
     setSelectedImage({ img: shopData.image || defaultImageUrl });
   }, [shopData]);
 
-  console.log(shopData, 'shopData');
+
 
   useEffect(() => {
     setNewShop({

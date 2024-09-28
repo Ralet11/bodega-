@@ -40,7 +40,7 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
       });
 
       if (response.data.error === false) {
-        console.log('Login successful');
+      
         const clientData = response.data.data;
 
         if (clientData.locals.length === 0 || clientData.locals.every(local => local.status === 0)) {
@@ -55,7 +55,7 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
           navigate(`/dashboard`);
         }
       } else {
-        console.log('Server response error:', response.data);
+       
         setError('Invalid email or password');
         setNewError(!newError);
       }

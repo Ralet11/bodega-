@@ -303,7 +303,7 @@ export const getByOrderId = async (req, res) => {
   try {
     const order = await Order.findByPk(orderId, {
       include: [
-        { model: Local, as: 'local', attributes: ['id', 'name', 'img', 'address'] }
+        { model: Local, as: 'local', attributes: ['id', 'name', 'logo', 'address'] }
       ]
     });
 
