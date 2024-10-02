@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database.js';
 import User from './user.js';
-import Promotion from './Promotions.model.js';
+import Promotion from './promotions.model.js';
 
 const UserPromotions = sequelize.define('userPromotions', {
   id: {

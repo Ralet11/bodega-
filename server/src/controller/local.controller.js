@@ -358,8 +358,23 @@ export const getShopsOrderByCat = async (req, res) => {
       },
       include: [
         {
-          model: ShopOpenHours, // Incluye el modelo de los horarios de apertura
-          as: 'openingHours' // Alias para acceder a los horarios en la respuesta
+          model: ShopOpenHours,
+          as: 'openingHours'
+        },
+        {
+          model: Discount,
+          as: 'discounts',
+          where: {
+            delivery: 0,
+            active: true // Solo descuentos activos
+          },
+          required: true // Solo traer locales que tengan descuentos activos
+        },
+        {
+          model: Tag,  // Incluye las tags asociadas al local
+          as: 'tags',
+          attributes: ['id', 'name', 'emoji', 'img'], // Incluir explícitamente los campos que necesitas, incluyendo 'emoji'
+          through: { attributes: [] }  // No incluimos los atributos de LocalTag
         }
       ]
     });
@@ -693,12 +708,11 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
         {
           model: Tag,  // Incluye las tags asociadas al local
           as: 'tags',
+          attributes: ['id', 'name', 'emoji', 'img'], // Incluir explícitamente los campos que necesitas, incluyendo 'emoji'
           through: { attributes: [] }  // No incluimos los atributos de LocalTag
         }
       ]
     });
-
-   
 
     const groupedShops = groupShopsByCategory(shops);
     console.log(groupedShops, 'groupedShops');
@@ -709,6 +723,7 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
+
 export const syncLocal = async (req, res) => { 
   const io = getIo();
   

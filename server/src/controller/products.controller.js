@@ -8,7 +8,7 @@ import ProductExtra from '../models/productextra.js';
 import xlsx from 'xlsx';
 import ExtraOption from '../models/extraOption.model.js';
 import Discount from '../models/discount.js';
-import Promotion from '../models/Promotions.model.js';
+import Promotion from '../models/promotions.model.js';
 import PromotionType from '../models/promotionType.js';
 
 export const getByCategoryId = async (req, res) => {

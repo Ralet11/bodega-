@@ -7,7 +7,7 @@ import DistOrder from '../models/distOrders.model.js';
 import cryptoRandomString from 'crypto-random-string';
 import Client from '../models/client.js';
 import { sendNewOrderEmail } from '../functions/SendNewOrderEmail.js';
-import Promotion from '../models/Promotions.model.js';
+import Promotion from '../models/promotions.model.js';
 import UserPromotions from '../models/UserPromotion.model.js';
 
 
@@ -285,7 +285,7 @@ export const getOrdersByUser = async (req, res) => {
         users_id: id
       },
       include: [
-        { model: Local, as: 'local', attributes: ['id', 'name', 'img', 'address'] }
+        { model: Local, as: 'local', attributes: ['id', 'name', 'logo', 'address'] }
       ]
     });
 

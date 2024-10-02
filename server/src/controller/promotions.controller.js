@@ -1,4 +1,4 @@
-import Promotion from "../models/Promotions.model.js";
+import Promotion from "../models/promotions.model.js";
 import UserPromotions from "../models/UserPromotion.model.js";
 import Client from "../models/client.js";
 import Product from "../models/product.js";

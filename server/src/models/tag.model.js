@@ -21,6 +21,11 @@ const Tag = sequelize.define('tag', {
     type: DataTypes.STRING,
     allowNull: true, // Este campo es opcional
     defaultValue: null
+  },
+  emoji: {
+    type: DataTypes.STRING,  // Nuevo campo para almacenar el emoji
+    allowNull: true,
+    defaultValue: null
   }
 }, {
   tableName: 'tag',
