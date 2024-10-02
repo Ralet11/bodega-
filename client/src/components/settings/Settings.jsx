@@ -76,22 +76,16 @@ export default function HypermodernShopSettings() {
             const matchedDay = data.openingHours.find(openHour => openHour.day === day.code);
             return matchedDay
               ? { ...day, open: matchedDay.open_hour, close: matchedDay.close_hour }
-              : day;
+              : { ...day, open: '', close: '' };
           })
         });
-        // Preseleccionar tags que ya están asociadas al shop
-        setSelectedTags(data.tags || []); 
-
-        setLatLong({
-          lat: data.lat,
-          lng: data.lng,
-        });
+        setSelectedTags(data.tags || []);
+        setLatLong({ lat: data.lat, lng: data.lng });
       } catch (error) {
         toast.error('Error fetching shop data.');
         console.error('Error en la solicitud:', error);
       }
     };
-
     fetchData();
   }, [activeShop]);
 
@@ -107,15 +101,11 @@ export default function HypermodernShopSettings() {
         }
       }
     };
-
-    if (shopData.category) {
-      fetchTags();
-    }
+    fetchTags();
   }, [shopData.category]);
 
   // Función para agregar un tag seleccionado
   const handleAddTag = (tag) => {
-    event.preventDefault();
     if (!selectedTags.some((selectedTag) => selectedTag.id === tag.id)) {
       setSelectedTags([...selectedTags, tag]);
     }
@@ -145,7 +135,6 @@ export default function HypermodernShopSettings() {
 
   const handleImageUpload = async () => {
     setIsUploading(true);
-
     const formData = new FormData();
     formData.append('id', shopData.id);
     formData.append('action', 'shop');
@@ -191,6 +180,12 @@ export default function HypermodernShopSettings() {
   const handleImageChange = (event, type) => {
     const file = event.target.files[0];
     if (file) {
+      // Verificar si el tipo de archivo es PNG o JPG
+      const validTypes = ['image/png', 'image/jpeg'];
+      if (!validTypes.includes(file.type)) {
+        toast.error('Please upload a PNG or JPG image');
+        return;
+      }
       const imageUrl = URL.createObjectURL(file);
       setShopData(prevData => ({
         ...prevData,
@@ -202,7 +197,6 @@ export default function HypermodernShopSettings() {
   const handleSubmit = async (event) => {
     event.preventDefault();
   
-    // Crear el objeto con la información del shop y las tags seleccionadas
     const updatedShop = {
       id: shopData.id,
       name: shopData.name,
@@ -214,11 +208,10 @@ export default function HypermodernShopSettings() {
       delivery: shopData.delivery,
       pickUp: shopData.pickUp,
       orderIn: shopData.orderIn,
-      tags: selectedTags.map(tag => tag.id) // Incluir las tags seleccionadas
+      tags: selectedTags.map(tag => tag.id)
     };
   
     try {
-      // Actualizar la información del shop junto con las tags
       const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, updatedShop, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -250,22 +243,15 @@ export default function HypermodernShopSettings() {
           }
         }
       );
-  
     } catch (error) {
       toast.error('Error saving opening hours.');
       console.error('Error saving opening hours:', error);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-200 px-64 py-20">
       <form onSubmit={handleSubmit} className="space-y-8">
-        <motion.div className="mb-6">
-          <h1 className="text-3xl font-bold">Shop Settings</h1>
-          <p className="text-lg text-gray-600">Set all your shop information to make it visible in the app</p>
-        </motion.div>
-
         {/* Sección Nombre */}
         <motion.div
           className="p-4 rounded-xl shadow-md bg-white"
@@ -338,58 +324,61 @@ export default function HypermodernShopSettings() {
 
         {/* Sección Tags */}
         <motion.div
-  className="p-6 rounded-lg bg-gray-50 border border-gray-200"
-  whileHover={{ scale: 1.01 }}
-  transition={{ type: 'spring', stiffness: 200 }}
->
-  <label className="text-lg font-semibold mb-4 block text-gray-700">Available Tags</label>
-  
-  {tags.length > 0 ? (
-    <div className="flex flex-wrap gap-2">
-      {tags.map((tag) => (
-        <button
-          key={tag.id}
-          onClick={() => handleAddTag(tag)}
-          className={`py-1 px-3 rounded-full hover:bg-gray-200 transition-colors duration-200 ${
-            selectedTags.some((selectedTag) => selectedTag.id === tag.id)
-              ? 'bg-yellow-300 text-gray-800'
-              : 'bg-gray-100 text-gray-700'
-          }`}
+          className="p-6 rounded-lg bg-gray-50 border border-gray-200"
+          whileHover={{ scale: 1.01 }}
+          transition={{ type: 'spring', stiffness: 200 }}
         >
-          {tag.name}
-        </button>
-      ))}
-    </div>
-  ) : (
-    <p className="text-gray-500">No tags for this category</p>
-  )}
+          <label className="text-lg font-semibold mb-4 block text-gray-700">Available Tags</label>
+          
+          {tags.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <button
+                  key={tag.id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleAddTag(tag);
+                  }}
+                  className={`py-1 px-3 rounded-full hover:bg-gray-200 transition-colors duration-200 ${
+                    selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+                      ? 'bg-yellow-300 text-gray-800'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}
+                >
+                  {tag.name}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500">No tags for this category</p>
+          )}
 
-  {/* Mostrar tags seleccionadas */}
-  <div className="mt-6">
-    <h2 className="text-lg font-semibold mb-4 text-gray-700">Selected Tags</h2>
-    {selectedTags.length > 0 ? (
-      <div className="flex flex-wrap gap-2">
-        {selectedTags.map((tag) => (
-          <div
-            key={tag.id}
-            className="bg-yellow-100 text-gray-800 py-1 px-4 rounded-full flex items-center gap-2"
-          >
-            {tag.name}
-            <button
-              onClick={() => handleRemoveTag(tag.id)}
-              className="text-black text-sm hover:text-gray-700 transition-colors duration-200"
-              style={{ padding: 0, border: 'none', background: 'none' }}
-            >
-              &#x2715;
-            </button>
+          {/* Mostrar tags seleccionadas */}
+          <div className="mt-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-700">Selected Tags</h2>
+            {selectedTags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {selectedTags.map((tag) => (
+                  <div
+                    key={tag.id}
+                    className="bg-yellow-100 text-gray-800 py-1 px-4 rounded-full flex items-center gap-2"
+                  >
+                    {tag.name}
+                    <button
+                      onClick={() => handleRemoveTag(tag.id)}
+                      className="text-black text-sm hover:text-gray-700 transition-colors duration-200"
+                      style={{ padding: 0, border: 'none', background: 'none' }}
+                    >
+                      &#x2715;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500">No tags selected yet</p>
+            )}
           </div>
-        ))}
-      </div>
-    ) : (
-      <p className="text-gray-500">No tags selected yet</p>
-    )}
-  </div>
-</motion.div>
+        </motion.div>
 
         {/* Sección Imágenes */}
         <motion.div
@@ -417,7 +406,7 @@ export default function HypermodernShopSettings() {
                 <input
                   ref={logoInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg"
                   className="hidden"
                   onChange={(e) => handleImageChange(e, 'logo')}
                 />
@@ -452,7 +441,7 @@ export default function HypermodernShopSettings() {
                 <input
                   ref={placeImageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg"
                   className="hidden"
                   onChange={(e) => handleImageChange(e, 'placeImage')}
                 />
@@ -487,7 +476,7 @@ export default function HypermodernShopSettings() {
                 <input
                   ref={deliveryImageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png, image/jpeg"
                   className="hidden"
                   onChange={(e) => handleImageChange(e, 'deliveryImage')}
                 />

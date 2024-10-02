@@ -3,7 +3,7 @@ import sequelize from '../database.js';
 import Category from './category.js';
 import Client from './client.js'; // Importar el modelo Client
 import Extra from './extra.js'; // Importar el modelo Extra
-import Promotion from './Promotions.model.js';
+import Promotion from './promotions.model.js';
 
 const Product = sequelize.define('product', {
   id: {

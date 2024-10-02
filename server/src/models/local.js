@@ -6,7 +6,7 @@ import ShopOpenHours from './shopOpenHoursModel.js';
 import Discount from './discount.js';
 import Tag from './tag.model.js';
 import LocalTag from './localTag.model.js';
-import Promotion from './Promotions.model.js';
+import Promotion from './promotions.model.js';
 
 const defaultImageUrl = 'https://www.mnasbo.org/global_graphics/default-store-350x350.jpg';
 
