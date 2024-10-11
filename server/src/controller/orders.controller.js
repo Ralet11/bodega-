@@ -104,12 +104,17 @@ export const createOrder = async (req, res) => {
     date_time,
     type,
     pi,
-    savings,
+    savings: rawSavings, // Renombramos temporalmente para convertirlo luego
     deliveryAddressAndInstructions,
     originalDeliveryFee,
     tip,
     promotion // Añadimos la variable 'promotion' al destructuring de req.body
   } = req.body;
+
+  // Convertimos savings a número
+  const savings = Number(rawSavings);
+
+  console.log(savings, "savings");
 
   const deliveryAddress = deliveryAddressAndInstructions.address;
   const deliveryInstructions = deliveryAddressAndInstructions.instructions;
@@ -208,9 +213,14 @@ export const createOrder = async (req, res) => {
 
     // Actualizar el savings del usuario
     const user = await User.findByPk(id);
+
+    console.log(user.savings, "user.savings");
+    console.log(savings, "savings");
     if (user) {
+      console.log("aquí estamos");
       user.savings += savings; // Asumiendo que savings se suma al valor actual
       await user.save();
+      console.log(user.savings, "user.savings 2");
     } else {
       return res.status(404).json({ message: 'Usuario no encontrado' });
     }
@@ -234,6 +244,7 @@ export const createOrder = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 };
+
 
 
 export const getOrderUser = async (req, res) => {

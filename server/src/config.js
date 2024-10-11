@@ -2,11 +2,11 @@
 
 /* export const DB_HOST = process.env.DB_HOST || 'localhost'
 export const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173'
- */
-/* export const DB_DATABASE =process.env.DB_DATABASE || 'app_base'
+
+export const DB_DATABASE =process.env.DB_DATABASE || 'app_base'
 export const DB_USER = process.env.DB_USER || 'postgres'
-export const DB_PASSWORD = process.env.DB_PASSWORD || 'admin'
- */
+export const DB_PASSWORD = process.env.DB_PASSWORD || 'admin' */
+
 
 
 export const TOKEN_SECRET = 'some secret key'
@@ -27,6 +27,6 @@ export const AWS_SECRET_ACCESS_KEY = process.env.AWS_SECRET_ACCESS_KEY
 export const AWS_REGION = process.env.AWS_REGION 
 export const AWS_BUCKET_NAME = process.env.AWS_BUCKET_NAME
 export const ACCOUNT_SID = process.env.ACCOUNT_SID 
-export const AUTH_TOKEN = process.env.AUTH 
+export const AUTH_TOKEN = process.env.AUTH
 
 //migraciones: img en discount, 
