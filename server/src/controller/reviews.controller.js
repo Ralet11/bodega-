@@ -6,6 +6,8 @@ export const createReview = async (req, res) => {
         const { message, rating, order_id, local_id } = req.body; // Asegúrate de recibir el local_id en el body
         const user_id = req.user.userId;
 
+        console.log(req.body);
+
         // Crear la nueva review
         const newReview = await Review.create({
             message,
@@ -67,6 +69,26 @@ export const getAllReviewsByLocal = async (req, res) => {
         res.status(200).json(reviews);
     } catch (error) {
         console.error('Error getting reviews by local:', error);
+        res.status(500).json({ error: true, message: error.message });
+    }
+}
+
+export const getAllReviewsByUser = async (req, res) => {
+    try {
+        const { user_id } = req.params;
+
+        // Buscar todas las reviews del local
+        const reviews = await Review.findAll({
+            where: { user_id },
+        });
+
+        if (!reviews) {
+            return res.status(404).json({ message: 'Reviews not found' });
+        }
+
+        res.status(200).json(reviews);
+    } catch (error) {
+        console.error('Error getting reviews by user:', error);
         res.status(500).json({ error: true, message: error.message });
     }
 }

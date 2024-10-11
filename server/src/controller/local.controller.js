@@ -52,20 +52,30 @@ export const getByClientId = async (req, res) => {
 
 export const getById = async (req, res) => {
   const id = req.params.id;
-
+  console.log("trayendo aqui")
   try {
     const local = await Local.findOne({
       where: {
         id: id
       },
-      include: [
+     include: [
         {
           model: ShopOpenHours,
           as: 'openingHours'
         },
         {
+          model: Discount,
+          as: 'discounts',
+          where: {
+            delivery: 0,
+            active: true // Solo descuentos activos
+          },
+          required: true // Solo traer locales que tengan descuentos activos
+        },
+        {
           model: Tag,  // Incluye las tags asociadas al local
           as: 'tags',
+          attributes: ['id', 'name', 'emoji', 'img'], // Incluir explícitamente los campos que necesitas, incluyendo 'emoji'
           through: { attributes: [] }  // No incluimos los atributos de LocalTag
         }
       ]
@@ -75,7 +85,7 @@ export const getById = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
    
-
+    console.log(local, "local")
     res.status(200).json(local);
   } catch (error) {
     console.error('Error al obtener local por ID:', error);
