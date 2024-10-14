@@ -13,7 +13,7 @@ export const makeCall = (req, res) => {
   const { to } = req.body;
   const orderId = req.body.orderId.id;
 
-  const ip = 'https://3.15.211.38'
+  const ip = 'https://b3a2-190-246-136-112.ngrok-free.app'
 
    client.calls
     .create({
