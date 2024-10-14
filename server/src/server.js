@@ -37,6 +37,7 @@ import twilioRouter from './routes/twilio.routes.js'
 import tagRouter from './routes/tag.routes.js'
 import promotionRouter from './routes/promotion.routes.js';
 import reviewsRouter from './routes/reviews.routes.js'
+import path from 'path';
 
 const app = express();
 const stripe = new Stripe(SSK);
@@ -170,6 +171,10 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
   response.status(200).send();
 });
 
+app.get('/.well-known/pki-validation/1F52366ED74813EF703CD04F32B70D85.txt', (req, res) => {
+  const filePath = path.join(__dirname, 'bodega-', 'certificados', '1F52366ED74813EF703CD04F32B70D85.txt');
+  res.sendFile(filePath);
+});
 
 // Middleware general para otras rutas
 app.use(express.json({ limit: "10mb" }));
