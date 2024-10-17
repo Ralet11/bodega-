@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerClient, loginClient, registerUser, loginUser, loginGuest, googleSignIn, googleLogin } from "../controller/auth.controller.js";
+import { registerClient, loginClient, registerUser, loginUser, loginGuest, googleSignIn, googleLogin, appleSignIn, appleLogin } from "../controller/auth.controller.js";
 
 const router = Router();
 
@@ -11,4 +11,6 @@ router.post("/loginUser", loginUser);
 router.post("/loginguest", loginGuest);
 router.post("/googleSignIn", googleSignIn);
 router.post("/googleLogin", googleLogin);
+router.post("/appleSignIn", appleSignIn);
+router.post("/appleLogIn", appleLogin);
 export default router

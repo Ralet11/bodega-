@@ -150,47 +150,47 @@ export const loginUser = async (req, res) => {
 };
 
 // Google Sign-In
-export const googleSignIn = async (req, res) => {
-  try {
-    const { userInfo } = req.body;
+  export const googleSignIn = async (req, res) => {
+    try {
+      const { userInfo } = req.body;
 
-    if (!userInfo || !userInfo.email) {
-      return res.status(400).json({ message: "Missing user information from Google." });
-    }
+      if (!userInfo || !userInfo.email) {
+        return res.status(400).json({ message: "Missing user information from Google." });
+      }
 
-    let user = await User.findOne({ where: { email: userInfo.email } });
+      let user = await User.findOne({ where: { email: userInfo.email } });
 
-    if (!user) {
-      user = await User.create({
-        name: userInfo.name,
-        email: userInfo.email,
-        password: null,
-        phone: userInfo.phone || '',
-        subscription: 0,
-        authMethod: 'google'
+      if (!user) {
+        user = await User.create({
+          name: userInfo.name,
+          email: userInfo.email,
+          password: null,
+          phone: userInfo.phone || '',
+          subscription: 0,
+          authMethod: 'google'
+        });
+      } else if (user.authMethod !== 'google') {
+        return res.status(400).json({ message: "This email is already registered with a different method." });
+      }
+
+      const token = jwt.sign({ userId: user.id }, "secret_key");
+      const userData = {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        id: user.id,
+        subscription: user.subscription,
+        balance: user.balance
+      };
+
+      res.json({
+        error: false,
+        data: { token, client: userData, message: "Google Sign-In successful" }
       });
-    } else if (user.authMethod !== 'google') {
-      return res.status(400).json({ message: "This email is already registered with a different method." });
+    } catch (error) {
+      res.status(500).json({ error: true, message: error.message });
     }
-
-    const token = jwt.sign({ userId: user.id }, "secret_key");
-    const userData = {
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      id: user.id,
-      subscription: user.subscription,
-      balance: user.balance
-    };
-
-    res.json({
-      error: false,
-      data: { token, client: userData, message: "Google Sign-In successful" }
-    });
-  } catch (error) {
-    res.status(500).json({ error: true, message: error.message });
-  }
-};
+  };
 
 // Cerrar sesión
 export const logout = (req, res) => {
@@ -260,6 +260,99 @@ export const googleLogin = async (req, res) => {
     res.json({
       error: false,
       data: { token, client: userData, message: "Google Login successful" }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+export const appleLogin = async (req, res) => {
+  try {
+    const { userInfo } = req.body;
+
+    if (!userInfo || !userInfo.appleUserId) {
+      return res.status(400).json({ message: "Missing user information from Apple." });
+    }
+
+    // Verificar si el usuario ya existe en la base de datos utilizando el appleUserId
+    let user = await User.findOne({ where: { appleUserId: userInfo.appleUserId } });
+
+    if (!user) {
+      return res.status(400).json({ message: "This Apple ID is not registered. Please sign up first." });
+    }
+
+    // Verificar si el usuario se registró con Apple
+    if (user.authMethod !== 'apple') {
+      return res.status(400).json({ message: "This Apple ID is registered with a different method. Please use the correct login method." });
+    }
+
+    // Crear el token JWT
+    const token = jwt.sign({ userId: user.id }, "secret_key");
+
+    // Preparar los datos del usuario para la respuesta
+    const userData = {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      id: user.id,
+      subscription: user.subscription,
+      balance: user.balance
+    };
+
+    // Enviar la respuesta con el token y la información del usuario
+    res.json({
+      error: false,
+      data: { token, client: userData, message: "Apple Login successful" }
+    });
+  } catch (error) {
+    res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+export const appleSignIn = async (req, res) => {
+  try {
+    const { userInfo } = req.body;
+
+    if (!userInfo || !userInfo.appleUserId) {
+      return res.status(400).json({ message: "Missing user information from Apple." });
+    }
+
+    // Buscar al usuario en la base de datos utilizando el appleUserId
+    let user = await User.findOne({ where: { appleUserId: userInfo.appleUserId } });
+
+    // Si el usuario no existe, crearlo
+    if (!user) {
+      user = await User.create({
+        name: userInfo.fullName || 'Apple User',
+        email: userInfo.email || '',  // A veces el correo no está disponible, por lo tanto podría estar vacío
+        password: null,
+        phone: userInfo.phone || '',
+        subscription: 0,
+        authMethod: 'apple',
+        appleUserId: userInfo.appleUserId  // Guardar el ID de Apple para futuras referencias
+      });
+    } else if (user.authMethod !== 'apple') {
+      // Si el usuario ya existe pero no se registró con Apple, retornar un error
+      return res.status(400).json({ message: "This account is already registered with a different method." });
+    }
+
+    // Crear el token JWT
+    const token = jwt.sign({ userId: user.id }, "secret_key");
+
+    // Preparar los datos del usuario para la respuesta
+    const userData = {
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      id: user.id,
+      subscription: user.subscription,
+      balance: user.balance
+    };
+
+    // Enviar la respuesta con el token y la información del usuario
+    res.json({
+      error: false,
+      data: { token, client: userData, message: "Apple Sign-In successful" }
     });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
