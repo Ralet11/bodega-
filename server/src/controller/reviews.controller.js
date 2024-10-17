@@ -92,3 +92,25 @@ export const getAllReviewsByUser = async (req, res) => {
         res.status(500).json({ error: true, message: error.message });
     }
 }
+
+
+export const deleteReview = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Buscar la review
+        const review = await Review.findByPk(id);
+
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        // Eliminar la review
+        await review.destroy();
+
+        res.status(200).json({ message: 'Review deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        res.status(500).json({ error: true, message: error.message });
+    }
+}
