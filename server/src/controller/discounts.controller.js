@@ -27,7 +27,7 @@ export const createDiscount = async (req, res) => {
  
   const {
     productName,
-    shop_id,
+    local_id,
     limitDate,
     percentage,
     fixedValue,
@@ -44,11 +44,12 @@ export const createDiscount = async (req, res) => {
     client_id
   } = req.body;
 
+  console.log(req.body, "body")
 
   const idConfirm = req.user.clientId;
 
   try {
-    const local = await Local.findByPk(shop_id);
+    const local = await Local.findByPk(local_id);
 
     if (!local) {
       return res.status(404).json({ message: "Local not found" });
@@ -67,7 +68,7 @@ export const createDiscount = async (req, res) => {
 
     const newDiscount = await Discount.create({
       productName,
-      local_id: shop_id,
+      local_id,
       img: "null",
       limitDate,
       percentage: sanitizedPercentage,
@@ -75,7 +76,7 @@ export const createDiscount = async (req, res) => {
       order_details: order_details, // Parsear el JSON
       product_id,
       category_id,
-      usageLimit,
+      usageLimit: usageLimit === '' ? null : usageLimit,
       description,
       discountType,
       minPurchaseAmount: sanitizedMinPurchaseAmount,

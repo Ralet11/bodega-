@@ -48,6 +48,51 @@ export const getByLocalId = async (req, res) => {
   }
 };
 
+export const getByLocalIdAndStatus = async (req, res) => {
+
+    const { id } = req.params; // ID del local como parámetro de la URL
+    const idConfirm = req.user.clientId; // El clientId del usuario autenticado
+  
+    try {
+      // Buscar el local para verificar el clientId
+      const local = await Local.findByPk(id);
+  
+      if (!local) {
+        return res.status(404).json({ message: "Local not found" });
+      }
+  
+      if (local.clients_id !== idConfirm) {
+        return res.status(403).json({ message: "Forbidden. Client ID does not match." });
+      }
+  
+      // Obtener las órdenes relacionadas con el local
+      const orders = await Order.findAll({
+        where: {
+          local_id: id
+        }
+      });
+      
+      // Convertir las órdenes a objetos simples para visualizarlas en el log
+      const ordersJSON = orders.map(order => order.toJSON());
+      console.log(`Found ${ordersJSON.length} orders for local_id: ${id}`, ordersJSON);
+  
+      // Normalizar tipos para coincidir con lo que espera el frontend
+      const dineInOrders = ordersJSON.filter(order => order.type.toLowerCase() === 'order-in');
+      const pickupOrders = ordersJSON.filter(order => order.type.toLowerCase() === 'pick-up' || order.type.toLowerCase() === 'pickup');
+  
+      // Devolver las órdenes estructuradas para el componente
+      return res.status(200).json({
+        dineIn: dineInOrders,
+        pickup: pickupOrders
+      });
+  
+    } catch (error) {
+      console.error('Error al obtener pedidos:', error);
+      res.status(500).json({ message: 'Error interno del servidor.' });
+    }
+  
+}
+
 export const acceptOrder = async (req, res) => {
   const { id } = req.params;
   const io = getIo()

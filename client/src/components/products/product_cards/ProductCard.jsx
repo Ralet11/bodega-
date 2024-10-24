@@ -32,15 +32,7 @@ const ProductCard = ({ product, isSelected, handleClick }) => {
               </div>
             </div>
           )}
-          {product.discounts && product.discounts.length > 0 && (
-            <div className="flex items-center group relative">
-              <Gift className="w-4 h-4 text-green-500" />
-              {/* Tooltip */}
-              <div className="absolute bottom-full mb-1 hidden group-hover:block bg-gray-800 text-white text-[10px] rounded py-1 px-2">
-                Discounts
-              </div>
-            </div>
-          )}
+          
           {product.promotions && product.promotions.length > 0 && (
             <div className="flex items-center group relative">
               <Star className="w-4 h-4 text-purple-500" />

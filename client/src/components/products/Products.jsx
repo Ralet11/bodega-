@@ -333,7 +333,7 @@ function Products() {
               </div>
             ))}
           </div>
-          <div className="flex justify-center mb-4">
+         {/*  <div className="flex justify-center mb-4">
             <button
               onClick={() => setActiveTab('products')}
               className={`px-2 py-1 rounded-l-full border text-xs ${activeTab === 'products' ? 'bg-blue-500 text-white' : 'bg-white text-blue-500 border-blue-500'
@@ -348,7 +348,7 @@ function Products() {
             >
               Discounts
             </button>
-          </div>
+          </div> */}
           <hr className="my-4 border-t border-gray-300 mx-auto w-full" />
         </div>
         <div className="flex flex-col lg:flex-row gap-4">
@@ -415,21 +415,8 @@ function Products() {
                 >
                   <Trash className="w-4 h-4" />
                 </button>
-                <button
-                  className="px-2 py-1 text-xs text-blue-500 font-medium border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
-                  onClick={() => setShowExtrasModal(true)}
-                >
-                  Extras
-                </button>
-                <button
-                  className="px-2 py-1 text-xs text-green-500 font-medium border border-green-500 rounded-md bg-transparent hover:bg-green-500 hover:text-white transition-colors duration-200"
-                  onClick={() => {
-                    setSelectedProductForDiscount(selectedProduct);
-                    setShowAddDiscountModal(true);
-                  }}
-                >
-                  Discount
-                </button>
+                
+              
                 <button
                   className="px-2 py-1 text-xs text-purple-500 font-medium border border-purple-500 rounded-md bg-transparent hover:bg-purple-500 hover:text-white transition-colors duration-200"
                   onClick={() => setShowPromotionModal(true)}
@@ -505,6 +492,8 @@ function Products() {
         selectedCategory={selectedCategory || 0}
         setProducts={setProducts}
         setShowNewProductModal={setShowNewProductModal}
+        token={token}
+        activeShop={activeShop}
       />
       <ExtrasModal
         show={showExtrasModal}

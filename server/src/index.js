@@ -22,8 +22,8 @@ sequelize.sync({ force: false }).then(() => {
    
   }).catch(error => {
     console.error('Unable to synchronize the models:', error);
-  });   */
-
+  });  
+ */
   //PRODUCTION SERVER
 
  import app from "./server.js";
