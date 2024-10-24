@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   XMarkIcon,
   PlusIcon,
@@ -16,7 +16,6 @@ export default function ProductModal({
   selectedCategory,
   setProducts,
   token,
-  activeShop, // Assuming you have activeShop passed as a prop
 }) {
   const [product, setProduct] = useState({
     name: '',
@@ -26,23 +25,9 @@ export default function ProductModal({
     priceToSell: '',
     image: null,
     hasLimit: false,
-    limitDate: '', // Added limitDate field
     hasExpiryDate: false,
     modifiers: [],
-    delivery: '0', // Added delivery field (0 for dine-in by default)
   });
-
-  // Set default limitDate to 5 years from now if not specified
-  useEffect(() => {
-    if (!product.limitDate) {
-      const fiveYearsFromNow = new Date();
-      fiveYearsFromNow.setFullYear(fiveYearsFromNow.getFullYear() + 5);
-      setProduct((prev) => ({
-        ...prev,
-        limitDate: fiveYearsFromNow.toISOString().split('T')[0],
-      }));
-    }
-  }, [product.limitDate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -63,7 +48,7 @@ export default function ProductModal({
     });
   };
 
-  const handleImageChange = (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setProduct((prev) => ({ ...prev, image: file }));
@@ -142,136 +127,40 @@ export default function ProductModal({
     }));
   };
 
-  const handleImageUpload = async (id, action) => {
-    if (product.image) {
-      const formData = new FormData();
-      formData.append('id', id);
-      formData.append('action', action);
-      formData.append('img', product.image);
-
-      try {
-        const response = await axios.post(
-          `${API_URL_BASE}/api/up-image/`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          }
-        );
-
-        if (response.status === 200) {
-          console.log('Image uploaded successfully');
-        } else {
-          console.error('Error uploading image');
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error);
-      }
-    }
-  };
-
   const handleSave = async () => {
-    // Prepare product data
-    const updatedProduct = {
-      name: product.name,
-      price: parseFloat(product.priceToSell),
-      description: product.description,
-      img: '', // Placeholder; image is uploaded separately
-      category_id: selectedCategory,
-      extras: product.modifiers.map((modifier) => ({
-        name: modifier.name,
-        required: modifier.required,
-        options: modifier.options.map((option) => ({
-          name: option.name,
-          price: parseFloat(option.price),
-        })),
-      })),
-    };
 
-    try {
-      // Send product data to backend
-      const productResponse = await axios.post(
-        `${API_URL_BASE}/api/products/add`,
-        updatedProduct,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+    console.log(product, "product on submit")
+  /*   try {
+      const formData = new FormData();
+      formData.append('name', product.name);
+      formData.append('description', product.description);
+      formData.append('price', product.priceToSell);
+      formData.append('category_id', selectedCategory);
+      if (product.image) {
+        formData.append('img', product.image);
+      }
+      formData.append('modifiers', JSON.stringify(product.modifiers));
 
-      const productId = productResponse.data.id;
-
-      // Upload product image
-      await handleImageUpload(productId, 'product');
-
-      // Prepare discount data
-      const discountData = {
-        productName: product.name,
-        local_id: activeShop,
-        limitDate: product.limitDate,
-        img: '', // Placeholder; image is uploaded separately
-        percentage: product.discountPercentage || '',
-        fixedValue: '', // Empty as per instructions
-        order_details: { ...updatedProduct, id: productId }, // The whole product
-        product_id: productId,
-        category_id: selectedCategory,
-        description: product.description,
-        discountType: 'percentage',
-        delivery: product.delivery,
-        active: true,
-        usageLimit: '', // Empty as per instructions
-        minPurchaseAmount: '', // Empty as per instructions
-        maxDiscountAmount: '', // Empty as per instructions
-        conditions: '', // Empty as per instructions
-      };
-
-      // Send discount data to backend
-      const discountResponse = await axios.post(
-        `${API_URL_BASE}/api/discounts/add`,
-        discountData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const discountId = discountResponse.data.newDiscount.id;
-
-      // Upload discount image (same as product image)
-      await handleImageUpload(discountId, 'discount');
+      await axios.post(`${API_URL_BASE}/api/products/add`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       // Fetch updated products and update the state in parent component
-      const updatedProductsResponse = await axios.get(
+      const response = await axios.get(
         `${API_URL_BASE}/api/products/get/${selectedCategory}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setProducts(updatedProductsResponse.data);
-
-      // Reset form and close modal
-      setProduct({
-        name: '',
-        description: '',
-        originalPrice: '',
-        discountPercentage: '',
-        priceToSell: '',
-        image: null,
-        hasLimit: false,
-        limitDate: '',
-        hasExpiryDate: false,
-        modifiers: [],
-        delivery: '0',
-      });
+      setProducts(response.data);
 
       handleClose();
     } catch (error) {
-      console.error('Error saving the product and discount:', error);
-    }
+      console.error('Error saving the product:', error);
+    } */
   };
 
   return (
@@ -440,9 +329,8 @@ export default function ProductModal({
                           id="file-upload"
                           name="file-upload"
                           type="file"
-                          accept="image/*"
                           className="sr-only"
-                          onChange={handleImageChange}
+                          onChange={handleImageUpload}
                         />
                       </label>
                       <p className="pl-1">or drag and drop</p>
@@ -452,43 +340,6 @@ export default function ProductModal({
                     </p>
                   </div>
                 </div>
-              </div>
-              {/* Limit Date */}
-              <div>
-                <label
-                  htmlFor="limitDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Expiration Date
-                </label>
-                <input
-                  type="date"
-                  id="limitDate"
-                  name="limitDate"
-                  value={product.limitDate}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              {/* Delivery Option */}
-              <div>
-                <label
-                  htmlFor="delivery"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Delivery Option
-                </label>
-                <select
-                  id="delivery"
-                  name="delivery"
-                  value={product.delivery}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="0">Dine-in</option>
-                  <option value="1">Pickup</option>
-                  <option value="2">Both</option>
-                </select>
               </div>
               {/* Checkboxes */}
               <div className="flex items-center space-x-2">
@@ -654,17 +505,17 @@ export default function ProductModal({
                 ))}
               </div>
             </form>
-            <div className="bg-gray-50 px-4 py-3 flex justify-end">
+            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button
                 type="submit"
-                className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={handleSave}
               >
                 Save Product
               </button>
               <button
                 type="button"
-                className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 onClick={handleClose}
               >
                 Cancel
