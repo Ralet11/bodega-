@@ -146,29 +146,281 @@ export const deleteById = async (req, res) => {
   }
 };
 
-export const updateById = async (req, res) => {
-  const { id } = req.params;
-  const { name, price, description } = req.body;
+// controllers/productController.js
 
-  try {
-    // Actualiza el producto utilizando el modelo Product
-    await Product.update({
+  // controllers/productController.js
+
+  export const updateProductAndDiscount = async (req, res) => {
+    const {
+      productId,
       name,
       price,
-      description
-    }, {
-      where: {
-        id
+      description,
+      img,
+      category_id,
+      extras,
+      discount,
+    } = req.body;
+  
+    const clientId = req.user.clientId;
+  
+    console.log('Received request to update product and discount');
+    console.log('Request Body:', req.body);
+    console.log('Authenticated clientId:', clientId);
+  
+    try {
+      // Buscar el producto existente con sus extras y opciones
+      console.log('Looking for product with ID:', productId);
+  
+      const product = await Product.findByPk(productId, {
+        include: [
+          {
+            model: Extra,
+            as: 'extras',
+            include: [
+              {
+                model: ExtraOption,
+                as: 'options',
+              },
+            ],
+            through: { attributes: [] },
+          },
+          {
+            model: Discount,
+            as: 'discounts',
+          },
+        ],
+      });
+  
+      console.log('Product found:', product);
+  
+      if (!product) {
+        console.log('Product not found in database');
+        return res.status(404).json({ error: 'Product not found' });
       }
-    });
-
-    console.log(`Producto ${id} actualizado con éxito`);
-    res.status(200).json("Producto actualizado correctamente");
-  } catch (error) {
-    console.error('Error al actualizar producto:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+  
+      // Verificar si el producto pertenece al cliente
+      console.log('Product client ID:', product.clientId);
+  
+      if (product.clientId !== clientId) {
+        console.log('Product does not belong to the authenticated client');
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+  
+      // Actualizar detalles del producto
+      await product.update({
+        name,
+        price,
+        description,
+        img,
+        categories_id: category_id,
+      });
+  
+      console.log('Product updated successfully');
+  
+      // Manejar modificadores (extras)
+      const existingExtras = product.extras || [];
+      const incomingExtras = extras || [];
+  
+      // Mapear extras existentes para fácil acceso
+      const existingExtrasMap = existingExtras.reduce((map, extra) => {
+        map[extra.id] = extra;
+        return map;
+      }, {});
+  
+      // Procesar los extras entrantes
+      for (const incomingExtra of incomingExtras) {
+        if (incomingExtra.id) {
+          // Extra existente - actualizarlo
+          const existingExtra = existingExtrasMap[incomingExtra.id];
+          if (existingExtra) {
+            await existingExtra.update({
+              name: incomingExtra.name,
+              required: incomingExtra.required,
+              onlyOne: incomingExtra.onlyOne,
+            });
+  
+            console.log(`Extra updated: ${incomingExtra.name}`);
+  
+            // Manejar opciones para este extra
+            await handleOptionsUpdate(
+              existingExtra,
+              incomingExtra.options || []
+            );
+  
+            // Eliminar del mapa después de procesar
+            delete existingExtrasMap[incomingExtra.id];
+          }
+        } else {
+          // Nuevo extra - crearlo
+          const newExtra = await Extra.create({
+            name: incomingExtra.name,
+            required: incomingExtra.required,
+            onlyOne: incomingExtra.onlyOne,
+          });
+  
+          console.log(`New extra created: ${incomingExtra.name}`);
+  
+          // Crear opciones para el nuevo extra
+          for (const option of incomingExtra.options || []) {
+            await ExtraOption.create({
+              name: option.name,
+              price: option.price,
+              extra_id: newExtra.id,
+            });
+            console.log(`New option created for extra ${incomingExtra.name}: ${option.name}`);
+          }
+  
+          // Asociar el nuevo extra con el producto
+          await ProductExtra.create({
+            productId: product.id,
+            extraId: newExtra.id,
+          });
+        }
+      }
+  
+      // Eliminar extras no presentes en los datos entrantes
+      for (const extraId in existingExtrasMap) {
+        const extraToDelete = existingExtrasMap[extraId];
+  
+        console.log(`Deleting extra: ${extraToDelete.name}`);
+  
+        // Eliminar opciones asociadas
+        for (const option of extraToDelete.options) {
+          await option.destroy();
+          console.log(`Deleted option: ${option.name}`);
+        }
+  
+        // Eliminar asociación y extra
+        await ProductExtra.destroy({
+          where: {
+            productId: product.id,
+            extraId: extraId,
+          },
+        });
+        await extraToDelete.destroy();
+      }
+  
+      // Actualizar el descuento asociado
+      if (discount && discount.discountId) {
+        console.log('Looking for discount with ID:', discount.discountId);
+  
+        const existingDiscount = await Discount.findByPk(discount.discountId);
+  
+        console.log('Discount found:', existingDiscount);
+  
+        if (!existingDiscount) {
+          console.log('Discount not found in database');
+          return res.status(404).json({ error: 'Discount not found' });
+        }
+  
+        // Verificar si el descuento pertenece al local del cliente
+        console.log('Looking for local with ID:', existingDiscount.local_id);
+  
+        const local = await Local.findByPk(existingDiscount.local_id);
+  
+        console.log('Local found:', local);
+  
+        if (!local) {
+          console.log('Local not found in database');
+          return res.status(404).json({ message: 'Local not found' });
+        }
+  
+        if (local.clients_id !== clientId) {
+          console.log('Local does not belong to the authenticated client');
+          return res
+            .status(403)
+            .json({ message: 'Forbidden. Client ID does not match.' });
+        }
+  
+        // Actualizar detalles del descuento
+        await existingDiscount.update({
+          productName: discount.productName,
+          limitDate: discount.limitDate,
+          percentage:
+            discount.percentage === '' ? null : discount.percentage,
+          fixedValue:
+            discount.fixedValue === '' ? null : discount.fixedValue,
+          order_details: {
+            name,
+            price,
+            description,
+            category_id,
+          },
+          product_id: product.id,
+          category_id,
+          description: discount.description,
+          discountType: discount.discountType,
+          delivery: discount.delivery,
+          active: discount.active,
+          usageLimit:
+            discount.usageLimit === '' ? null : discount.usageLimit,
+          minPurchaseAmount:
+            discount.minPurchaseAmount === ''
+              ? null
+              : discount.minPurchaseAmount,
+          maxDiscountAmount:
+            discount.maxDiscountAmount === ''
+              ? null
+              : discount.maxDiscountAmount,
+          conditions: discount.conditions,
+        });
+  
+        console.log('Discount updated successfully');
+      }
+  
+      res
+        .status(200)
+        .json({ message: 'Product and discount updated successfully' });
+    } catch (error) {
+      console.error('Error updating product and discount:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  
+  // Función auxiliar para manejar la actualización de opciones de un extra
+  async function handleOptionsUpdate(existingExtra, incomingOptions) {
+    const existingOptions = existingExtra.options || [];
+  
+    // Mapear opciones existentes para fácil acceso
+    const existingOptionsMap = existingOptions.reduce((map, option) => {
+      map[option.id] = option;
+      return map;
+    }, {});
+  
+    // Procesar opciones entrantes
+    for (const incomingOption of incomingOptions) {
+      if (incomingOption.id) {
+        // Opción existente - actualizarla
+        const existingOption = existingOptionsMap[incomingOption.id];
+        if (existingOption) {
+          await existingOption.update({
+            name: incomingOption.name,
+            price: incomingOption.price,
+          });
+          console.log(`Option updated: ${incomingOption.name}`);
+          delete existingOptionsMap[incomingOption.id];
+        }
+      } else {
+        // Nueva opción - crearla
+        await ExtraOption.create({
+          name: incomingOption.name,
+          price: incomingOption.price,
+          extra_id: existingExtra.id,
+        });
+        console.log(`New option created: ${incomingOption.name}`);
+      }
+    }
+  
+    // Eliminar opciones no presentes en los datos entrantes
+    for (const optionId in existingOptionsMap) {
+      const optionToDelete = existingOptionsMap[optionId];
+      await optionToDelete.destroy();
+      console.log(`Deleted option: ${optionToDelete.name}`);
+    }
   }
-};
+  
+
 
 
 export const getByLocalId = async (req, res) => {
