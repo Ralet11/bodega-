@@ -34,7 +34,7 @@ function ProductCards({
   };
 
   const handleDeleteCategory = async () => {
-   
+
     try {
       await axios.delete(`${API_URL_BASE}/api/categories/hide/${selectedCategory}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -52,29 +52,10 @@ function ProductCards({
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-2 py-1 placeholder-gray-400 text-gray-700 bg-white rounded-full text-xs border-0 shadow outline-none focus:outline-none focus:ring w-full md:w-[200px]"
-        />
+       
         <div className="flex space-x-2">
-          <button
-            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
-            onClick={handleOpenNewProductModal}
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Add Item</span>
-          </button>
 
-          <button
-            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-500 font-semibold border border-blue-500 rounded-md bg-transparent hover:bg-blue-500 hover:text-white transition-colors duration-200"
-            onClick={handleOpenUploadExcelModal}
-          >
-            <Upload className="w-4 h-4" />
-            <span>Upload Excel</span>
-          </button>
+
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

@@ -125,11 +125,11 @@ const SignUpForm = ({ setSelected, setLogged }) => {
   };
 
   return (
-    <>
-      <h2 className="text-lg md:text-xl font-semibold mb-4">Create Your Account</h2>
-      <form onSubmit={handleSubmit}>
+    <div className=" max-w-md mx-auto px-4">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center sm:text-left">Create Your Account</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div className="mb-2 md:mb-3 relative">
-          <label className="text-gray-600" htmlFor="email">Name</label>
+          <label className="text-gray-600" htmlFor="name">Name</label>
           <Input
             label="Name"
             name="name"
@@ -137,25 +137,25 @@ const SignUpForm = ({ setSelected, setLogged }) => {
             onChange={handleInputChange}
             placeholder="Enter your name"
             type="text"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+            className="w-full pl-3 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
         </div>
         <div className="mb-2 md:mb-3 relative">
           <label className="text-gray-600" htmlFor="email">Email</label>
           <Input
-            label="E-mail"
+            label="Email"
             name="email"
             value={formData.email}
             onChange={handleInputChange}
             placeholder="Enter email"
             type="email"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+            className="w-full pl-3 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
         </div>
         <div className="mb-2 md:mb-3 relative">
-          <label className="text-gray-600" htmlFor="email">Password</label>
+          <label className="text-gray-600" htmlFor="password">Password</label>
           <Input
             label="Password"
             name="password"
@@ -163,12 +163,12 @@ const SignUpForm = ({ setSelected, setLogged }) => {
             onChange={handleInputChange}
             placeholder="Password"
             type="password"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+            className="w-full pl-3 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
         </div>
         <div className="mb-2 md:mb-3 relative">
-          <label className="text-gray-600" htmlFor="email">Confirm Password</label>
+          <label className="text-gray-600" htmlFor="confirmPassword">Confirm Password</label>
           <Input
             label="Confirm Password"
             name="confirmPassword"
@@ -176,28 +176,55 @@ const SignUpForm = ({ setSelected, setLogged }) => {
             onChange={handleInputChange}
             placeholder="Confirm Password"
             type="password"
-            className="w-full pl-10 pr-4 py-1 md:py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
+            className="w-full pl-3 pr-4 py-2 border rounded-md focus:ring-2 focus:ring-yellow-400 placeholder-gray-500"
           />
           {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
         </div>
-        <div className="mb-2 md:mb-3 flex items-center">
-          <input type="checkbox" id="terms" name="terms" checked={termsAccepted} onChange={handleCheckboxChange} />
-          <label className="text-gray-600 ml-2" htmlFor="terms">
-            I have read and accept the <span className="text-yellow-500 cursor-pointer hover:underline" onClick={() => setIsTermsModalOpen(true)}>terms and conditions of Bodega Store</span>.
+        <div className="mb-2 md:mb-3">
+          <label className="flex items-start text-gray-600" htmlFor="terms">
+            <input
+              type="checkbox"
+              id="terms"
+              name="terms"
+              checked={termsAccepted}
+              onChange={handleCheckboxChange}
+              className="mt-1"
+            />
+            <span className="ml-2">
+              I have read and accept the{' '}
+              <span
+                className="text-yellow-500 cursor-pointer hover:underline"
+                onClick={() => setIsTermsModalOpen(true)}
+              >
+                terms and conditions
+              </span>.
+            </span>
           </label>
           {errors.terms && <p className="text-red-500 text-xs mt-1">{errors.terms}</p>}
         </div>
         <button
           type="submit"
-          className={`w-full bg-yellow-500 text-white font-bold py-2 rounded-md hover:bg-yellow-600 transition duration-200 ${!termsAccepted ? 'cursor-not-allowed opacity-50' : ''}`}
+          className={`w-full bg-yellow-500 text-white font-bold py-2 rounded-md hover:bg-yellow-600 transition duration-200 ${
+            !termsAccepted ? 'cursor-not-allowed opacity-50' : ''
+          }`}
           disabled={!termsAccepted}
         >
           CREATE ACCOUNT
         </button>
-        <p className="mt-2 md:mt-4 mb-0 leading-normal text-gray-600 text-sm">Already have an account? <a className="font-bold cursor-pointer text-yellow-500 hover:text-yellow-600" onClick={goLogin}>Log in</a></p>
+        <p className="mt-3 text-center sm:text-left text-sm text-gray-600">
+          Already have an account?{' '}
+          <span
+            className="font-bold cursor-pointer text-yellow-500 hover:text-yellow-600"
+            onClick={goLogin}
+          >
+            Log in
+          </span>
+        </p>
       </form>
-      {isTermsModalOpen && <TermsModal show={isTermsModalOpen} preHandleClose={() => setIsTermsModalOpen(false)} />}
-    </>
+      {isTermsModalOpen && (
+        <TermsModal show={isTermsModalOpen} preHandleClose={() => setIsTermsModalOpen(false)} />
+      )}
+    </div>
   );
 };
 

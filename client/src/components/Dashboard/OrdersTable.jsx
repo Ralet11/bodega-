@@ -1,107 +1,174 @@
-import React, { useState } from 'react';
+'use client'
 
-const OrdersTable = ({ filteredOrdersData, selectedShop, shops, filterPeriod, handleSeeDetails }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const ordersPerPage = 10;
+import React, { useState } from 'react'
+import { ChevronLeftIcon, ChevronRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
-  const shopOrders = filteredOrdersData[selectedShop]?.orders || [];
+export default function OrdersTable({
+  filteredOrdersData,
+  selectedShop,
+  shops,
+  filterPeriod,
+  handleSeeDetails,
+}) {
+  const [currentPage, setCurrentPage] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
+  const ordersPerPage = 10
 
-  const filteredOrders = shopOrders.filter(order => 
-    order.id.toString().includes(searchTerm) || 
-    order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    new Date(order.date_time).toLocaleString().includes(searchTerm)
-  );
+  const shopOrders = filteredOrdersData[selectedShop]?.orders || []
 
-  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
-  const displayedOrders = filteredOrders.slice((currentPage - 1) * ordersPerPage, currentPage * ordersPerPage);
+  const filteredOrders = shopOrders.filter(
+    (order) =>
+      order.id.toString().includes(searchTerm) ||
+      order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      new Date(order.date_time).toLocaleString().includes(searchTerm)
+  )
+
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage)
+  const displayedOrders = filteredOrders.slice(
+    (currentPage - 1) * ordersPerPage,
+    currentPage * ordersPerPage
+  )
 
   const handleNextPage = () => {
     if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
+      setCurrentPage(currentPage + 1)
     }
-  };
+  }
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
+      setCurrentPage(currentPage - 1)
     }
-  };
+  }
+
+  const getStatusStyle = (status) => {
+    const baseClasses = "px-2 py-1 text-xs font-medium rounded-full"
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return `${baseClasses} bg-green-100 text-green-800`
+      case 'pending':
+        return `${baseClasses} bg-yellow-100 text-yellow-800`
+      default:
+        return `${baseClasses} bg-red-100 text-red-800`
+    }
+  }
 
   return (
-    <div className="mt-4">
-      <h2 className="text-2xl font-bold mb-4 text-gray-700">Orders for {shops.find(shop => shop.id === selectedShop)?.name} ({filterPeriod})</h2>
+    <div className="w-full bg-white rounded-lg shadow-sm">
+      <div className="p-4 sm:p-6">
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+          Orders for {shops.find((shop) => shop.id === parseInt(selectedShop))?.name} ({filterPeriod})
+        </h2>
 
-      <div className="mb-4">
-        <input
-          type="text"
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset to first page on search
-          }}
-          placeholder="Search for orders..."
-          className="w-full p-2 border border-gray-300 rounded-md"
-        />
-      </div>
+        <div className="relative mt-4">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value)
+              setCurrentPage(1)
+            }}
+            placeholder="Search for orders..."
+            className="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-transparent"
+          />
+          <MagnifyingGlassIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+        </div>
 
-      <div className="overflow-x-auto shadow-md rounded-lg">
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="py-1 px-2 border-b text-left text-gray-600 font-medium">Order ID</th>
-              <th className="py-1 px-2 border-b text-left text-gray-600 font-medium">Date</th>
-              <th className="py-1 px-2 border-b text-left text-gray-600 font-medium">Total Price</th>
-              <th className="py-1 px-2 border-b text-left text-gray-600 font-medium">Status</th>
-              <th className="py-1 px-2 border-b text-left text-gray-600 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {displayedOrders.length > 0 ? (
-              displayedOrders.map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 transition-colors duration-200">
-                  <td className="py-1 px-2 border-b">{order.id}</td>
-                  <td className="py-1 px-2 border-b">{new Date(order.date_time).toLocaleString()}</td>
-                  <td className="py-1 px-2 border-b">{order.total_price}</td>
-                  <td className="py-1 px-2 border-b">{order.status}</td>
-                  <td className="py-1 px-2 border-b">
-                    <button
-                      onClick={() => handleSeeDetails(order.order_details, order.id)}
-                      className="bg-green-500 text-white text-sm font-semibold px-3 py-1 rounded-md hover:bg-green-600 transition-colors duration-200"
-                    >
-                      See Details
-                    </button>
-                  </td>
+        <div className="mt-6">
+          <div className="hidden sm:block">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead>
+                <tr>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Price</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                  <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="py-2 px-4 border-b" colSpan="5">No orders found.</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {displayedOrders.map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 text-sm text-gray-900">{order.id}</td>
+                    <td className="px-4 py-3 text-sm text-gray-900">
+                      {new Date(order.date_time).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-900">${order.total_price}</td>
+                    <td className="px-4 py-3 text-sm">
+                      <span className={getStatusStyle(order.status)}>{order.status}</span>
+                    </td>
+                    <td className="px-4 py-3 text-sm">
+                      <button
+                        onClick={() => handleSeeDetails(order.order_details, order.id)}
+                        className="text-blue-600 hover:text-blue-800"
+                      >
+                        See Details
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-      <div className="flex justify-between items-center mt-4">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Previous
-        </button>
-        <span>Page {currentPage} of {totalPages}</span>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className="bg-blue-500 text-white px-3 py-1 rounded-md hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Next
-        </button>
+          <div className="sm:hidden space-y-4">
+            {displayedOrders.map((order) => (
+              <div key={order.id} className="bg-gray-50 rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-gray-900">#{order.id}</span>
+                  <span className={getStatusStyle(order.status)}>{order.status}</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Date</span>
+                    <span className="text-sm text-gray-900">
+                      {new Date(order.date_time).toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-500">Total</span>
+                    <span className="text-sm text-gray-900">${order.total_price}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleSeeDetails(order.order_details, order.id)}
+                  className="w-full mt-2 text-center px-4 py-2 text-sm text-blue-600 hover:text-blue-800 border border-gray-200 rounded-md"
+                >
+                  See Details
+                </button>
+              </div>
+            ))}
+          </div>
+
+          {displayedOrders.length === 0 && (
+            <div className="text-center py-6">
+              <p className="text-sm text-gray-500">No orders found.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-center justify-between">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeftIcon className="h-4 w-4 mr-1" />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages || totalPages === 0}
+            className="inline-flex items-center px-3 py-2 border border-gray-200 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRightIcon className="h-4 w-4 ml-1" />
+          </button>
+        </div>
       </div>
     </div>
-  );
-};
-
-export default OrdersTable;
+  )
+}

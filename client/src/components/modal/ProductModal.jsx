@@ -1,3 +1,5 @@
+// ProductModal.js
+
 import React, { useState, useEffect } from 'react';
 import {
   XMarkIcon,
@@ -8,6 +10,15 @@ import {
 import axios from 'axios';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 
+// Updated colors
+const colors = {
+  primary: '#FFB74D', // Warm orange
+  textPrimary: '#000000', // Black
+  textSecondary: '#FFFFFF', // White
+  highlight: '#FFA726', // Softer orange
+  border: '#BDBDBD', // Neutral gray
+};
+
 const { API_URL_BASE } = getParamsEnv();
 
 export default function ProductModal({
@@ -16,7 +27,7 @@ export default function ProductModal({
   selectedCategory,
   setProducts,
   token,
-  activeShop, // Assuming you have activeShop passed as a prop
+  activeShop,
 }) {
   const [product, setProduct] = useState({
     name: '',
@@ -26,10 +37,10 @@ export default function ProductModal({
     priceToSell: '',
     image: null,
     hasLimit: false,
-    limitDate: '', // Added limitDate field
+    limitDate: '',
     hasExpiryDate: false,
     modifiers: [],
-    delivery: '0', // Added delivery field (0 for dine-in by default)
+    delivery: '0',
   });
 
   // Set default limitDate to 5 years from now if not specified
@@ -178,7 +189,7 @@ export default function ProductModal({
       name: product.name,
       price: parseFloat(product.priceToSell),
       description: product.description,
-      img: '', // Placeholder; image is uploaded separately
+      img: '',
       category_id: selectedCategory,
       extras: product.modifiers.map((modifier) => ({
         name: modifier.name,
@@ -212,20 +223,20 @@ export default function ProductModal({
         productName: product.name,
         local_id: activeShop,
         limitDate: product.limitDate,
-        img: '', // Placeholder; image is uploaded separately
+        img: '',
         percentage: product.discountPercentage || '',
-        fixedValue: '', // Empty as per instructions
-        order_details: { ...updatedProduct, id: productId }, // The whole product
+        fixedValue: '',
+        order_details: { ...updatedProduct, id: productId },
         product_id: productId,
         category_id: selectedCategory,
         description: product.description,
         discountType: 'percentage',
         delivery: product.delivery,
         active: true,
-        usageLimit: '', // Empty as per instructions
-        minPurchaseAmount: '', // Empty as per instructions
-        maxDiscountAmount: '', // Empty as per instructions
-        conditions: '', // Empty as per instructions
+        usageLimit: '',
+        minPurchaseAmount: '',
+        maxDiscountAmount: '',
+        conditions: '',
       };
 
       // Send discount data to backend
@@ -279,17 +290,26 @@ export default function ProductModal({
       {show && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden">
-            <div className="bg-blue-600 p-4 flex justify-between items-center">
-              <h2 className="text-white text-xl font-semibold">
+            {/* Modal Header */}
+            <div
+              className="p-4 flex justify-between items-center"
+              style={{ backgroundColor: colors.primary }}
+            >
+              <h2
+                className="text-xl font-semibold"
+                style={{ color: colors.textSecondary }}
+              >
                 Add New Product
               </h2>
               <button
                 onClick={handleClose}
-                className="text-white hover:text-gray-200"
+                className="hover:opacity-80"
+                style={{ color: colors.textPrimary }}
               >
                 <XMarkIcon className="h-6 w-6" />
               </button>
             </div>
+            {/* Modal Content */}
             <form
               className="p-6 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto"
               onSubmit={(e) => {
@@ -301,7 +321,8 @@ export default function ProductModal({
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
                 >
                   Name
                 </label>
@@ -311,7 +332,11 @@ export default function ProductModal({
                   name="name"
                   value={product.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                  style={{
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  }}
                   placeholder="Product name"
                   required
                 />
@@ -320,7 +345,8 @@ export default function ProductModal({
               <div>
                 <label
                   htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
                 >
                   Description
                 </label>
@@ -330,7 +356,11 @@ export default function ProductModal({
                   rows={3}
                   value={product.description}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none resize-none"
+                  style={{
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  }}
                   placeholder="Describe your product..."
                   required
                 ></textarea>
@@ -340,7 +370,8 @@ export default function ProductModal({
                 <div>
                   <label
                     htmlFor="originalPrice"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium mb-1"
+                    style={{ color: colors.textPrimary }}
                   >
                     Original Price
                   </label>
@@ -351,17 +382,26 @@ export default function ProductModal({
                       name="originalPrice"
                       value={product.originalPrice}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                      style={{
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      }}
                       placeholder="0.00"
                       required
                     />
-                    <InformationCircleIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <InformationCircleIcon
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 cursor-pointer"
+                      style={{ color: colors.highlight }}
+                      title="Enter the original price before discount."
+                    />
                   </div>
                 </div>
                 <div>
                   <label
                     htmlFor="discountPercentage"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="block text-sm font-medium mb-1"
+                    style={{ color: colors.textPrimary }}
                   >
                     Discount %
                   </label>
@@ -372,11 +412,19 @@ export default function ProductModal({
                       name="discountPercentage"
                       value={product.discountPercentage}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                      style={{
+                        borderColor: colors.border,
+                        color: colors.textPrimary,
+                      }}
                       placeholder="0"
                       required
                     />
-                    <InformationCircleIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <InformationCircleIcon
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 cursor-pointer"
+                      style={{ color: colors.highlight }}
+                      title="Enter the discount percentage."
+                    />
                   </div>
                 </div>
               </div>
@@ -384,7 +432,8 @@ export default function ProductModal({
               <div>
                 <label
                   htmlFor="priceToSell"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
                 >
                   Selling Price
                 </label>
@@ -394,19 +443,33 @@ export default function ProductModal({
                     id="priceToSell"
                     name="priceToSell"
                     value={product.priceToSell}
-                    className="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-gray-100 border rounded-md focus:outline-none"
+                    style={{
+                      borderColor: colors.border,
+                      color: colors.textPrimary,
+                    }}
                     placeholder="Calculated automatically"
                     disabled
                   />
-                  <InformationCircleIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <InformationCircleIcon
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 h-5 w-5 cursor-pointer"
+                    style={{ color: colors.highlight }}
+                    title="This is the price after applying the discount."
+                  />
                 </div>
               </div>
               {/* Product Image */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
+                >
                   Product Image
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                <div
+                  className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md"
+                  style={{ borderColor: colors.border }}
+                >
                   <div className="space-y-1 text-center">
                     {product.image ? (
                       <img
@@ -416,11 +479,12 @@ export default function ProductModal({
                       />
                     ) : (
                       <svg
-                        className="mx-auto h-12 w-12 text-gray-400"
+                        className="mx-auto h-12 w-12"
                         stroke="currentColor"
                         fill="none"
                         viewBox="0 0 48 48"
                         aria-hidden="true"
+                        style={{ color: colors.border }}
                       >
                         <path
                           d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
@@ -430,10 +494,11 @@ export default function ProductModal({
                         />
                       </svg>
                     )}
-                    <div className="flex text-sm text-gray-600">
+                    <div className="flex text-sm">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none"
+                        className="relative cursor-pointer rounded-md font-medium focus-within:outline-none"
+                        style={{ color: colors.primary }}
                       >
                         <span>Upload an image</span>
                         <input
@@ -445,19 +510,28 @@ export default function ProductModal({
                           onChange={handleImageChange}
                         />
                       </label>
-                      <p className="pl-1">or drag and drop</p>
+                      <p
+                        className="pl-1"
+                        style={{ color: colors.textPrimary }}
+                      >
+                        or drag and drop
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p
+                      className="text-xs"
+                      style={{ color: colors.textPrimary }}
+                    >
                       PNG, JPG, GIF up to 10MB
                     </p>
                   </div>
                 </div>
               </div>
-              {/* Limit Date */}
+              {/* Expiration Date */}
               <div>
                 <label
                   htmlFor="limitDate"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
                 >
                   Expiration Date
                 </label>
@@ -467,14 +541,19 @@ export default function ProductModal({
                   name="limitDate"
                   value={product.limitDate}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                  style={{
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  }}
                 />
               </div>
               {/* Delivery Option */}
               <div>
                 <label
                   htmlFor="delivery"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-medium mb-1"
+                  style={{ color: colors.textPrimary }}
                 >
                   Delivery Option
                 </label>
@@ -483,52 +562,34 @@ export default function ProductModal({
                   name="delivery"
                   value={product.delivery}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none"
+                  style={{
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                  }}
                 >
                   <option value="0">Dine-in</option>
                   <option value="1">Pickup</option>
                   <option value="2">Both</option>
                 </select>
               </div>
-              {/* Checkboxes */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="hasLimit"
-                  name="hasLimit"
-                  checked={product.hasLimit}
-                  onChange={handleCheckboxChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="hasLimit" className="text-sm text-gray-700">
-                  Add Limit
-                </label>
-                <InformationCircleIcon className="h-5 w-5 text-gray-400" />
-              </div>
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="hasExpiryDate"
-                  name="hasExpiryDate"
-                  checked={product.hasExpiryDate}
-                  onChange={handleCheckboxChange}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label htmlFor="hasExpiryDate" className="text-sm text-gray-700">
-                  Add Expiry Date
-                </label>
-                <InformationCircleIcon className="h-5 w-5 text-gray-400" />
-              </div>
               {/* Modifiers */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium text-gray-900">
+                  <h3
+                    className="text-lg font-medium"
+                    style={{ color: colors.textPrimary }}
+                  >
                     Modifiers
                   </h3>
                   <button
                     type="button"
                     onClick={addModifier}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md hover:opacity-80 focus:outline-none"
+                    style={{
+                      backgroundColor: colors.primary,
+                      color: colors.textSecondary,
+                    }}
                   >
                     <PlusIcon className="h-5 w-5 mr-2" />
                     Add Modifier
@@ -537,26 +598,28 @@ export default function ProductModal({
                 {product.modifiers.map((modifier, modifierIndex) => (
                   <div
                     key={modifierIndex}
-                    className="border border-gray-200 rounded-md p-4 space-y-4"
+                    className="border rounded-md p-4 space-y-4"
+                    style={{ borderColor: colors.border }}
                   >
                     <div className="flex items-center justify-between">
                       <input
                         type="text"
                         value={modifier.name}
                         onChange={(e) =>
-                          updateModifier(
-                            modifierIndex,
-                            'name',
-                            e.target.value
-                          )
+                          updateModifier(modifierIndex, 'name', e.target.value)
                         }
-                        className="flex-grow mr-2 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="flex-grow mr-2 px-3 py-2 border rounded-md focus:outline-none"
+                        style={{
+                          borderColor: colors.border,
+                          color: colors.textPrimary,
+                        }}
                         placeholder="Modifier name"
                       />
                       <button
                         type="button"
                         onClick={() => removeModifier(modifierIndex)}
-                        className="inline-flex items-center p-2 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none"
+                        className="inline-flex items-center p-2 border border-transparent rounded-full focus:outline-none"
+                        style={{ color: colors.highlight }}
                       >
                         <TrashIcon className="h-5 w-5" />
                       </button>
@@ -573,9 +636,15 @@ export default function ProductModal({
                               e.target.checked
                             )
                           }
-                          className="form-checkbox h-5 w-5 text-blue-600"
+                          className="form-checkbox h-5 w-5"
+                          style={{ color: colors.primary }}
                         />
-                        <span className="ml-2 text-gray-700">Required</span>
+                        <span
+                          className="ml-2"
+                          style={{ color: colors.textPrimary }}
+                        >
+                          Required
+                        </span>
                       </label>
                       <label className="inline-flex items-center">
                         <input
@@ -588,9 +657,13 @@ export default function ProductModal({
                               e.target.checked
                             )
                           }
-                          className="form-checkbox h-5 w-5 text-blue-600"
+                          className="form-checkbox h-5 w-5"
+                          style={{ color: colors.primary }}
                         />
-                        <span className="ml-2 text-gray-700">
+                        <span
+                          className="ml-2"
+                          style={{ color: colors.textPrimary }}
+                        >
                           Multiple Selection
                         </span>
                       </label>
@@ -613,7 +686,11 @@ export default function ProductModal({
                                 e.target.value
                               )
                             }
-                            className="flex-grow px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="flex-grow px-3 py-2 border rounded-md focus:outline-none"
+                            style={{
+                              borderColor: colors.border,
+                              color: colors.textPrimary,
+                            }}
                             placeholder="Option name"
                           />
                           <input
@@ -627,7 +704,11 @@ export default function ProductModal({
                                 e.target.value
                               )
                             }
-                            className="w-24 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-24 px-3 py-2 border rounded-md focus:outline-none"
+                            style={{
+                              borderColor: colors.border,
+                              color: colors.textPrimary,
+                            }}
                             placeholder="Price"
                           />
                           <button
@@ -635,7 +716,8 @@ export default function ProductModal({
                             onClick={() =>
                               removeOption(modifierIndex, optionIndex)
                             }
-                            className="inline-flex items-center p-2 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none"
+                            className="inline-flex items-center p-2 border border-transparent rounded-full focus:outline-none"
+                            style={{ color: colors.highlight }}
                           >
                             <TrashIcon className="h-5 w-5" />
                           </button>
@@ -644,7 +726,12 @@ export default function ProductModal({
                       <button
                         type="button"
                         onClick={() => addOption(modifierIndex)}
-                        className="mt-2 inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                        className="mt-2 inline-flex items-center px-3 py-2 border shadow-sm text-sm leading-4 font-medium rounded-md hover:bg-gray-50 focus:outline-none"
+                        style={{
+                          borderColor: colors.border,
+                          color: colors.textPrimary,
+                          backgroundColor: colors.textSecondary,
+                        }}
                       >
                         <PlusIcon className="h-5 w-5 mr-2" />
                         Add Option
@@ -654,17 +741,26 @@ export default function ProductModal({
                 ))}
               </div>
             </form>
+            {/* Modal Footer */}
             <div className="bg-gray-50 px-4 py-3 flex justify-end">
               <button
                 type="submit"
-                className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none"
+                className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium hover:opacity-80"
+                style={{
+                  backgroundColor: colors.primary,
+                  color: colors.textSecondary,
+                }}
                 onClick={handleSave}
               >
                 Save Product
               </button>
               <button
                 type="button"
-                className="ml-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                className="ml-3 inline-flex justify-center rounded-md border shadow-sm px-4 py-2 bg-white text-base font-medium hover:bg-gray-50 focus:outline-none"
+                style={{
+                  borderColor: colors.border,
+                  color: colors.textPrimary,
+                }}
                 onClick={handleClose}
               >
                 Cancel

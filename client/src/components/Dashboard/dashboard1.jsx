@@ -1,13 +1,26 @@
+// Dashboard.jsx
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { getParamsEnv } from './../../functions/getParamsEnv';
-import { useSelector } from 'react-redux';
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { motion } from 'framer-motion';
+import { ShoppingBag, LineChart, TrendingUp } from 'lucide-react';
 import ShopsComponent from './dashShop';
-import ProductsComponent from './dashProducts'; // Import the new component
-import './dashboard.css'
+import ProductsComponent from './dashProducts';
 import DashboardSkeleton from '../DashboardSkeleton';
+import TutorialCard from '../TutorialCard';
+import {
+  ComputerDesktopIcon,
+  ShoppingCartIcon,
+  BellAlertIcon,
+  BuildingStorefrontIcon,
+  PhoneIcon,
+  CogIcon,
+  UserIcon,
+} from '@heroicons/react/24/solid';
+import { setTutorialSeen, setTutorialStep } from '../../redux/actions/actions';
 
 const Dashboard = () => {
   const [shops, setShops] = useState([]);
@@ -15,33 +28,94 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [products, setProducts] = useState([]);
-  const [view, setView] = useState('shops'); // State to manage the current view
-  const token = useSelector((state) => state?.client.token);
-  const clientId = useSelector((state) => state?.client.client.id);
+  const [view, setView] = useState('shops'); // State for the current view
+  const token = useSelector((state) => state?.client?.token);
+  const clientId = useSelector((state) => state?.client?.client?.id);
   const { API_URL_BASE } = getParamsEnv();
 
-  
+  const dispatch = useDispatch();
+
+  // Tutorial state from Redux
+  const tutorialStep = useSelector((state) => state.tutorial?.step || 0);
+  const tutorialSeen = useSelector((state) => state.tutorial.seen);
+  const [showTutorial, setShowTutorial] = useState(!tutorialSeen);
+  const totalSteps = 7;
+
+  // Icon positions (adjust according to your design)
+  const iconPositions = {
+    0: { top: '8%', left: '70px' },    // Dashboard
+    1: { top: '17%', left: '70px' },   // Products
+    2: { top: '26%', left: '70px' },   // Orders
+    3: { top: '35%', left: '70px' },   // Shops
+    4: { top: '44%', left: '70px' },   // Contact
+    5: { top: '8%', left: 'calc(100% - 520px)' }, // Shop Settings (adjust as needed)
+    6: { top: '8%', left: 'calc(100% - 420px)' },  // Personal Settings (adjust as needed)
+  };
+
+  // Tutorial steps
+  const tutorialSteps = [
+    {
+      text: 'Welcome to Bodega+. This is your Dashboard, where you can view the overall performance of your stores.',
+      icon: <ComputerDesktopIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'Here you can view and manage all your products.',
+      icon: <ShoppingCartIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'This icon takes you to the orders section where you can accept and process them.',
+      icon: <BellAlertIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'Create or delete your stores here.',
+      icon: <BuildingStorefrontIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'Contact us if you need help.',
+      icon: <PhoneIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'Here you can view and configure your current store.',
+      icon: <CogIcon className="w-6 h-6 text-amber-600" />,
+    },
+    {
+      text: 'From here you can edit your personal information.',
+      icon: <UserIcon className="w-6 h-6 text-amber-600" />,
+    },
+  ];
+
+  const handleNextStep = () => {
+    if (tutorialStep < totalSteps - 1) {
+      dispatch(setTutorialStep(tutorialStep + 1));
+    } else {
+      setShowTutorial(false);
+      dispatch(setTutorialSeen());
+    }
+  };
+
+  const handleCloseTutorial = () => {
+    setShowTutorial(false);
+    dispatch(setTutorialSeen());
+  };
+
+  useEffect(() => {
+    if (tutorialSeen) {
+      setShowTutorial(false);
+    }
+  }, [tutorialSeen]);
 
   useEffect(() => {
     const fetchShopsAndProducts = async () => {
       try {
-        // Fetch shops data
         const shopsResponse = await axios.get(`${API_URL_BASE}/api/local/byClientId`, {
-          headers: {
-            authorization: `Bearer ${token}`
-          },
-          params: {
-            clients_id: clientId
-          }
+          headers: { authorization: `Bearer ${token}` },
+          params: { clients_id: clientId },
         });
         setShops(shopsResponse.data.locals);
 
-        // Fetch orders data for each shop
         const ordersRequests = shopsResponse.data.locals.map((shop) =>
           axios.get(`${API_URL_BASE}/api/orders/get/${shop.id}`, {
-            headers: {
-              authorization: `Bearer ${token}`
-            }
+            headers: { authorization: `Bearer ${token}` },
           })
         );
 
@@ -50,18 +124,15 @@ const Dashboard = () => {
         ordersResponses.forEach((ordersResponse, index) => {
           ordersData[shopsResponse.data.locals[index].id] = ordersResponse.data;
         });
-
         setOrdersData(ordersData);
 
-        // Fetch products data for the client
-        const productsResponse = await axios.get(`${API_URL_BASE}/api/products/getByClientId/${clientId}`, {
-          headers: {
-            authorization: `Bearer ${token}`
+        const productsResponse = await axios.get(
+          `${API_URL_BASE}/api/products/getByClientId/${clientId}`,
+          {
+            headers: { authorization: `Bearer ${token}` },
           }
-        });
-
-        setProducts(productsResponse.data); // Assuming the response is an array of products
-
+        );
+        setProducts(productsResponse.data);
       } catch (error) {
         console.error('Error fetching the data', error);
         setError('Failed to fetch data');
@@ -83,42 +154,29 @@ const Dashboard = () => {
     return <div className="text-red-500">{error}</div>;
   }
 
-
-
   return (
-    <div className="container mx-auto p-4">
-      <div className="text-center bg-gray-200 text-black p-6 mb-6 rounded-lg shadow-lg" style={{ marginTop: '120px' }}>
-        <h1 className="text-4xl font-bold mb-2 fade-in">Welcome to Bodega Dashboard</h1>
-        <p className="text-lg fade-in">Manage your shops and orders efficiently</p>
+    <div className="relative w-full mx-auto sm:p-6">
+      {/* Header with animation */}
+
+
+      {/* Content section */}
+      <div className="w-full flex flex-col items-stretch">
+        {view === 'shops' ? (
+          <ShopsComponent shops={shops} ordersData={ordersData} products={products} />
+        ) : (
+          <ProductsComponent shops={shops} ordersData={ordersData} products={products} />
+        )}
       </div>
 
-      <div className="flex justify-center mb-6">
-        {/* <button
-          className={`px-4 py-2 mr-2 ${view === 'shops' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-          onClick={() => setView('shops')}
-        >
-          Shops
-        </button> */}
-        {/* <button
-          className={`px-4 py-2 ${view === 'products' ? 'bg-blue-500 text-white' : 'bg-gray-300'}`}
-          onClick={() => setView('products')}
-        >
-          Products
-        </button> */}
-      </div>
-
-      {view === 'shops' && (
-        <ShopsComponent
-          shops={shops}
-          ordersData={ordersData}
-          products={products}
-        />
-      )}
-      {view === 'products' && (
-        <ProductsComponent
-          shops={shops}
-          ordersData={ordersData}
-          products={products}
+      {/* Tutorial card */}
+      {showTutorial && (
+        <TutorialCard
+          step={tutorialStep}
+          totalSteps={totalSteps}
+          onNextStep={handleNextStep}
+          onCloseTutorial={handleCloseTutorial}
+          iconPositions={iconPositions}
+          tutorialSteps={tutorialSteps}
         />
       )}
     </div>

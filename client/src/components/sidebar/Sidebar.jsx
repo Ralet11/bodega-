@@ -1,139 +1,82 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
-import PropTypes from 'prop-types';
-import { MoreVertical, X } from "lucide-react";
-import { Link } from 'react-router-dom';
+'use client'
 
-const SidebarContext = React.createContext();
+import React, { useContext, useState } from "react"
+import { Link } from 'react-router-dom'
+
+const SidebarContext = React.createContext()
 
 export default function Sidebar({ children }) {
-  const [expanded, setExpanded] = useState(false);
-  const [selectedButton, setSelectedButton] = useState("");
-  const [showMore, setShowMore] = useState(false);
-  const moreMenuRef = useRef(null);
-
-  const childrenArray = React.Children.toArray(children);
-  const visibleChildren = childrenArray.slice(0, 4); // Display 4 icons initially
-  const hiddenChildren = childrenArray.slice(4); // Rest of the icons
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (showMore && moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
-        setShowMore(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showMore]);
-
-  const handleIconClick = () => {
-    setShowMore(false);
-  };
+  const [expanded, setExpanded] = useState(false)
+  const [selectedButton, setSelectedButton] = useState("")
 
   return (
     <>
-      <aside className="hidden md:block h-screen" style={{ marginTop: '50px', height: "91.3%", position: "fixed", left: 0, top: "1.01%", zIndex: 10 }}>
-        <nav className="h-full pt-3 flex flex-col md:bg-white md:bg-none bg-gradient-to-b from-gray-200 via-[#F2BB26] to-[#F2BB26] border-r shadow-sm">
-          <SidebarContext.Provider value={{ expanded, selectedButton, setSelectedButton, handleIconClick }}>
-            <ul className="flex-1 px-2">
-              {childrenArray}
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:block h-screen fixed left-0 top-10 z-10 w-[64px] group hover:w-64 transition-all duration-300 ease-in-out">
+        <nav className="h-full flex flex-col bg-gradient-to-b from-amber-50 to-amber-100/90 border-r border-amber-200/20 shadow-sm">
+          <SidebarContext.Provider value={{ expanded, selectedButton, setSelectedButton }}>
+            <ul className="flex-1 py-4 px-2 space-y-1">
+              {children}
             </ul>
           </SidebarContext.Provider>
         </nav>
       </aside>
 
-      <div className="md:hidden fixed bottom-0 w-full bg-gradient-to-b from-gray-200 to-[#F2BB26] border-t shadow-sm z-50">
-        <SidebarContext.Provider value={{ expanded: true, selectedButton, setSelectedButton, handleIconClick }}>
-          <ul className="flex justify-between items-center flex-nowrap">
-            {visibleChildren}
-            {hiddenChildren.length > 0 && (
-              <>
-                <SidebarItem
-                  icon={showMore ? <X /> : <MoreVertical />}
-                  text={showMore ? "Less" : "More"}
-                  onClick={() => setShowMore(!showMore)}
-                  isMoreButton={true}
-                />
-                {showMore && (
-                  <div ref={moreMenuRef} className="absolute bottom-full mb-2 w-full flex justify-around bg-white shadow-lg p-2 border-t">
-                    {hiddenChildren}
-                  </div>
-                )}
-              </>
-            )}
+      {/* Mobile Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-amber-50 to-amber-100/90 border-t border-amber-200/20 shadow-lg z-50">
+        <SidebarContext.Provider value={{ expanded: true, selectedButton, setSelectedButton }}>
+          <ul className="flex justify-between items-center p-2">
+            {children}
           </ul>
         </SidebarContext.Provider>
       </div>
     </>
-  );
+  )
 }
 
-Sidebar.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-function SidebarItem({ icon, text, active, alert, notificationCount, onClick, link, isMoreButton }) {
-  const { expanded, selectedButton, setSelectedButton, handleIconClick } = useContext(SidebarContext);
+function SidebarItem({ icon, text, active, alert, notificationCount, onClick, link }) {
+  const { expanded, selectedButton, setSelectedButton } = useContext(SidebarContext)
+  const isSelected = selectedButton === text
 
   const handleItemClick = () => {
-    setSelectedButton(text);
-    if (onClick) {
-      onClick();
-    }
-    if (!isMoreButton) {
-      handleIconClick();
-    }
-  };
-
-  const isSelected = selectedButton === text;
-
-  const buttonClasses = `
-    relative flex flex-col items-center justify-center p-1 md:p-2
-    font-medium rounded-md cursor-pointer
-    transition-colors group
-    ${
-      isSelected
-        ? "text-yellow-500"
-        : active
-        ? "bg-gradient-to-tr from-yellow-200 to-yellow-100 text-black"
-        : "hover:bg-yellow-50 text-gray-600"
-    }
-  `;
+    setSelectedButton(text)
+    if (onClick) onClick()
+  }
 
   return (
-    <li className={buttonClasses} onClick={handleItemClick}>
-      <Link to={link} className="flex flex-col items-center relative">
-        {React.cloneElement(icon, { className: 'h-4 w-4 mb-1 text-black' })}
-        <span className="tooltip md:absolute md:left-full md:ml-6 md:whitespace-no-wrap md:invisible md:opacity-0 md:group-hover:visible group-hover:opacity-100 transition-opacity duration-300 md:bg-yellow-300/40 text-black md:text-xs font-semibold text-xs rounded-md md:px-2 md:py-1">
+    <li className="relative" onClick={handleItemClick}>
+      <Link
+        to={link}
+        className={`
+          relative flex items-center w-full rounded-lg text-sm font-medium
+          transition-all duration-200 ease-in-out overflow-hidden whitespace-nowrap
+          ${isSelected
+            ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-black'
+            : active
+              ? 'bg-amber-200/40 text-amber-900'
+              : 'text-amber-900 hover:bg-amber-200/40 hover:text-amber-900'
+          }
+          md:h-12 h-14 md:justify-start justify-center
+        `}
+      >
+        <div className="min-w-[48px] h-full flex items-center justify-center">
+          {React.cloneElement(icon, {
+            className: `w-5 h-5 ${isSelected ? 'text-black' : 'text-amber-700 group-hover:text-amber-900'}`
+          })}
+        </div>
+        
+        <span className="hidden md:inline-block pr-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           {text}
         </span>
+
         {notificationCount > 0 && (
-          <div className="absolute right-1 top-1 w-3 h-3 rounded-full bg-red-500">
-            <span className="text-white text-xs font-semibold flex items-center justify-center h-full">
-              {notificationCount}
-            </span>
+          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
+            {notificationCount}
           </div>
         )}
       </Link>
     </li>
-  );
+  )
 }
 
-SidebarItem.propTypes = {
-  icon: PropTypes.node.isRequired,
-  text: PropTypes.string.isRequired,
-  active: PropTypes.bool,
-  alert: PropTypes.bool,
-  notificationCount: PropTypes.number,
-  onClick: PropTypes.func,
-  link: PropTypes.string.isRequired,
-  isMoreButton: PropTypes.bool,
-};
-
-SidebarItem.defaultProps = {
-  isMoreButton: false,
-};
-
-export { SidebarItem };
+export { SidebarItem }

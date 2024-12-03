@@ -19,6 +19,8 @@ export const SET_SUBCATEGORIES = "SET_SUBCATEGORIES"
 export const SET_SELECTED_SUBCATEGORY ="SET_SELECTED_SUBCATEGORY"
 export const SET_ALL_DIST_PRODUCTS = "SET_ALL_DIST_PRODUCTS"
 export const SET_CLIENT = "SET_CLIENT"
+export const SET_TUTORIAL_SEEN = 'SET_TUTORIAL_SEEN';
+export const SET_TUTORIAL_STEP = 'SET_TUTORIAL_STEP';
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -94,6 +96,19 @@ export const removePayMethods = (methods) => {
     payload: methods
   }
 }
+
+export const setTutorialSeen = () => {
+  return {
+    type: SET_TUTORIAL_SEEN,
+  };
+};
+
+export const setTutorialStep = (step) => {
+  return {
+    type: SET_TUTORIAL_STEP,
+    payload: step,
+  };
+};
 
 export const getCategories = () => {
   return async (dispatch) => {

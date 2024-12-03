@@ -1,187 +1,141 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ChevronDownIcon, CogIcon, Bars3Icon, ArrowPathIcon } from '@heroicons/react/24/solid';
-import { useDispatch, useSelector } from 'react-redux';
-import { getParamsEnv } from '../../functions/getParamsEnv';
-import { LiaCartPlusSolid } from "react-icons/lia";
-import { ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
-const { API_URL_BASE } = getParamsEnv();
-import { Dropdown, Ripple, initTE } from 'tw-elements';
-import { emptyCart, logOutClient } from '../../redux/actions/actions';
-import CartIcon from '../CartIcon';
-import { setFindedProducts } from '../../redux/actions/actions';
+import { useState, useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { emptyCart, logOutClient } from '../../redux/actions/actions'
 
-initTE({ Dropdown, Ripple });
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+  const userMenuRef = useRef(null)
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-const Header = () => {
-  const activeShop = useSelector((state) => state.activeShop);
-  const client = useSelector((state) => state?.client);
-  const shop = client.locals.find((local) => local.id === activeShop);
-  const findedProducts = useSelector((state) => state?.findedProducts);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const activeShop = useSelector((state) => state.activeShop)
+  const client = useSelector((state) => state?.client)
+  const shop = client.locals.find((local) => local.id === activeShop)
 
-
-
-  const shopName = shop ? shop.name : "";
-  const shopImage = shop?.logo || 'https://via.placeholder.com/50';
-
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [syncStatus, setSyncStatus] = useState('green');
-  const [isLoading, setIsLoading] = useState(false);
-  const dropdownRef = useRef(null);
-  const triggerRef = useRef(null);
-  const barsRef = useRef(null);
-  const token = useSelector((state) => state?.client.token);
-
-  const toggleDropdown = () => {
-    setDropdownOpen(!dropdownOpen);
-  };
-
-  const closeDropdown = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target) && !triggerRef.current.contains(event.target) && !barsRef.current.contains(event.target)) {
-      setDropdownOpen(false);
-    }
-  };
+  const handleLogout = () => {
+    dispatch(logOutClient())
+    dispatch(emptyCart())
+    navigate("/login")
+  }
 
   useEffect(() => {
-    document.addEventListener('click', closeDropdown);
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false)
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setIsUserMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
     return () => {
-      document.removeEventListener('click', closeDropdown);
-    };
-  }, []);
-
-  const logOut = () => {
-    dispatch(logOutClient());
-    dispatch(emptyCart());
-    navigate("/login");
-  };
-
-  const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
-  };
-
-  const handleSearchKeyPress = async (event) => {
-    if (event.key === 'Enter') {
-      try {
-        const response = await axios.get(`${API_URL_BASE}/api/distProducts/search`, {
-          params: { query: searchQuery },
-        });
-        dispatch(setFindedProducts(response.data.results));
-        navigate("/searchProducts");
-      } catch (error) {
-        console.error('Error fetching search results:', error);
-      }
+      document.removeEventListener('mousedown', handleClickOutside)
     }
-  };
-
-  const handleShopClick = () => {
-    navigate('/settings');
-  };
-
-  const handleSyncClick = async () => {
-    setIsLoading(true); // Mostrar loader al iniciar la solicitud
-  
-    try {
-      // Realiza la solicitud a la ruta de sincronización
-      const response = await axios.post(
-        `${API_URL_BASE}/api/local/syncLocal`, 
-        {}, // Cuerpo vacío
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-  
-      if (response.status === 200) {
-        // Si la sincronización fue exitosa, cambia el botón a verde
-        setSyncStatus('green');
-      }
-    } catch (error) {
-      console.error('Error during sync:', error);
-      // Si hay un error, cambia el botón a rojo
-      setSyncStatus('red');
-    } finally {
-      setIsLoading(false); // Ocultar loader al finalizar la solicitud
-    }
-  };
-  
-  const isDistributorsCommerce = location.pathname === '/distributorsCommerce' || location.pathname === '/distProduct-detail' || location.pathname === '/searchProducts';
+  }, [])
 
   return (
-    <header className='w-full fixed top-0 left-0 z-50 bg-[#F2BB26] md:bg-none md:pb-1 md:shadow-md'>
-      <nav className='flex items-center justify-between p-2'>
-        <div className='flex items-center'>
-          {/* Logo de Bodega */}
-          <img
-            src='https://res.cloudinary.com/doqyrz0sg/image/upload/v1720237489/bodgea_logo_grande_k12lfy.png'
-            alt='Bodega Logo'
-            className='w-[133px] h-[38px]'
-          />
-        </div>
-
-        <div className='flex items-center text-sm space-x-4'>
-          {/* Botón de Sincronización o Loader */}
-          {isLoading ? (
-            <div className="flex items-center">
-              {/* Loader simple (spinner) */}
-              <svg className="animate-spin h-5 w-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-            </div>
-          ) : (
-            <div
-              className="flex items-center cursor-pointer  transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg"
-              onClick={handleSyncClick}
-            >
-              <ArrowPathIcon className='w-4 h-4 mr-1' />
-              <span className='text-xs'>Sync with App</span>
-            </div>
-          )}
-
-          {/* Nombre del Shop y su Imagen */}
-          <div
-            className='flex items-center cursor-pointer  transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg'
-            onClick={handleShopClick}
-          >
-            <span className='font-bold mr-2'>{shopName}</span>
-            {shop && (
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-[#f2BB26] to-amber-500 shadow-lg">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex h-14 items-center justify-between py-5">
+          <div className="flex items-center">
+            <a href="/" className="flex-shrink-0">
               <img
-                src={shopImage}
-                alt='Shop Logo'
-                className='w-6 h-6 rounded-full border border-gray-300'
+                className="h-10 w-auto rounded-full shadow-md transition-transform duration-300 hover:scale-110"
+                src="https://res.cloudinary.com/doqyrz0sg/image/upload/v1726357397/logo_oe3idx.jpg"
+                alt="Bodega Logo"
               />
-            )}
+            </a>
+            <nav className="hidden md:ml-6 md:flex md:space-x-8">
+              <button
+                onClick={() => navigate('/settings')}
+                className="group inline-flex items-center rounded-full bg-amber-900 bg-opacity-10 px-4 py-2 text-sm font-medium text-black transition-all duration-300 hover:bg-opacity-20 hover:shadow-md"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="mr-2 h-5 w-5 transition-colors group-hover:text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                {shop?.name || 'Select Shop'}
+              </button>
+            </nav>
           </div>
-
-          {/* Barra vertical */}
-          <div className='h-6 border-r border-gray-400'></div>
-
-          {/* Nombre del User */}
-          <div
-            className='flex items-center cursor-pointer transition-colors duration-300 ease-in-out hover:shadow-md p-1 rounded-lg'
-            onClick={() => navigate('/ClientSettings')}
-          >
-            <span className='font-bold'>{client.client.name}</span>
+          <div className="hidden md:ml-6 md:flex md:items-center">
+            <div className="relative ml-3" ref={userMenuRef}>
+              <button
+                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                className="flex items-center rounded-full bg-amber-900 bg-opacity-10 px-4 py-2 text-sm font-medium text-black transition-all duration-300 hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-amber-600"
+              >
+                <span className="sr-only">Open user menu</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>{client.client.name}</span>
+              </button>
+              {isUserMenuOpen && (
+                <div className="absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5">
+                  <button
+                    onClick={() => navigate('/ClientSettings')}
+                    className="block w-full px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-amber-100"
+                  >
+                    Settings
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-100"
+                  >
+                    Log out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-
-          {/* Barra vertical */}
-          <div className='h-6 border-r border-gray-400'></div>
-
-          {/* Log Out */}
-          <div className='flex items-center cursor-pointer' onClick={logOut}>
-            <span className='mr-1 font-bold'>Log Out</span>
-            <ArrowRightOnRectangleIcon className='w-5 h-5 text-gray-700' />
+          <div className="flex items-center md:hidden" ref={menuRef}>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="inline-flex items-center justify-center rounded-md bg-amber-900 bg-opacity-10 p-2 text-white transition-colors hover:bg-opacity-20 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            >
+              <span className="sr-only">Open main menu</span>
+              {isMenuOpen ? (
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
-      </nav>
-    </header>
-  );
-};
+      </div>
 
-export default Header;
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="space-y-1 px-2 pb-3 pt-2">
+            <button
+              onClick={() => navigate('/settings')}
+              className="block w-full rounded-md bg-amber-900 bg-opacity-10 px-3 py-2 text-base font-medium text-white transition-colors hover:bg-opacity-20"
+            >
+              {shop?.name || 'Select Shop'}
+            </button>
+            <button
+              onClick={() => navigate('/ClientSettings')}
+              className="block w-full rounded-md bg-amber-900 bg-opacity-10 px-3 py-2 text-base font-medium text-white transition-colors hover:bg-opacity-20"
+            >
+              Settings
+            </button>
+            <button
+              onClick={handleLogout}
+              className="block w-full rounded-md bg-red-600 bg-opacity-20 px-3 py-2 text-base font-medium text-white transition-colors hover:bg-opacity-20"
+            >
+              Log out
+            </button>
+          </div>
+        </div>
+      )}
+    </header>
+  )
+}
+
