@@ -114,11 +114,8 @@ function Shops() {
 
   return (
     <div className="container h-screen bg-gray-200 w-full pb-10 mx-auto md:py-4 mt-8 px-4 lg:px-10 text-sm">
-      <div className="md:pb-4 text-center">
-        <h3 className="text-base md:text-lg font-bold md:mt-2 text-gray-800">Your Shops</h3>
-        <hr className="my-2 border-t border-gray-300 mx-auto w-1/2" />
-      </div>
-      <div className="grid md:ml-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      
+      <div className="grid md:ml-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 py-10 gap-4">
         {loading ? (
           [...Array(4)].map((_, index) => (
             <div key={index} className="bg-white max-w-xs rounded-lg overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl cursor-pointer transform transition duration-300 hover:scale-105">

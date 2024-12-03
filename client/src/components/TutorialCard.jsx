@@ -1,22 +1,63 @@
+import { motion } from 'framer-motion'; // Importar motion desde framer-motion
 import React from 'react';
-import 'animate.css';
+import { XMarkIcon, ChevronRightIcon } from '@heroicons/react/24/solid'; // Importación de iconos desde Heroicons
 
-const FloatingTutorialCard = ({ onClose }) => {
+export default function TutorialCard({
+  step = 0,
+  totalSteps = 7,
+  onNextStep = () => {},
+  onCloseTutorial = () => {},
+  iconPositions = {},
+  tutorialSteps = [],
+  isStepReady = true,  // nuevo prop
+} = {}) {
+  const { text, icon } = tutorialSteps[step] || {};
+  const position = iconPositions[step] || { top: '100px', left: '100px' };
+
   return (
-    <div className="fixed top-16 right-4 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-lg shadow-lg p-4 w-56 z-50 border border-gray-300 animate__animated animate__fadeInRight">
-      <div className="flex justify-between items-center mb-2">
-        <h2 className="text-sm font-bold text-black">Welcome to Bodega+</h2>
-        <button onClick={onClose} className="text-black hover:text-gray-700 bg-transparent border-none p-1 rounded-full">
-          <svg className="w-4 h-4 fill-current text-black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </button>
+    <motion.div
+      className="fixed z-50"
+      style={{ top: position.top, left: position.left }}
+      initial={{ opacity: 0, y: 20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
+      <div className="w-80 sm:w-96 overflow-hidden rounded-2xl bg-white shadow-lg p-6">
+        <div className="flex items-start gap-4 mb-4">
+          <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+            {React.cloneElement(icon, { className: 'w-6 h-6 text-amber-600' })}
+          </div>
+          <div className="flex-grow">
+            <p className="text-sm leading-relaxed text-gray-700 mb-2">{text}</p>
+            <div className="flex items-center text-xs text-gray-500">
+              <span>Step {step + 1}</span>
+              <span className="mx-2">•</span>
+              <span>{totalSteps} steps in total</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+          <button
+            onClick={onCloseTutorial}
+            className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200 flex items-center"
+          >
+            <XMarkIcon className="w-3 h-3 mr-1" />
+            Don't show again
+          </button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={isStepReady ? onNextStep : undefined}
+            className={`px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-sm font-medium rounded-full ${
+              isStepReady ? 'hover:from-amber-600 hover:to-amber-700' : 'opacity-50 cursor-not-allowed'
+            } transition-all duration-200 flex items-center`}
+          >
+            {step + 1 === totalSteps ? 'Finish' : 'Next'}
+            <ChevronRightIcon className="w-4 h-4 ml-1" />
+          </motion.button>
+        </div>
       </div>
-      <p className="text-black text-xs">
-        You can start by adding a new category. Click the "Add Category" button to get started.
-      </p>
-    </div>
+    </motion.div>
   );
-};
-
-export default FloatingTutorialCard;
+}

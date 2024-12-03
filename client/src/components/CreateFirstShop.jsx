@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useRef, useEffect } from "react";
 import { GoogleMap, useLoadScript, Marker, Autocomplete } from "@react-google-maps/api";
+import { motion } from "framer-motion";
 import axios from "axios";
 import { getParamsEnv } from "../functions/getParamsEnv";
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,11 +14,11 @@ import ToasterConfig from '../ui_bodega/Toaster';
 const { API_URL_BASE } = getParamsEnv();
 
 const mapContainerStyle = {
-  height: "150px",  // Altura aún más reducida
+  height: "150px", // Tamaño reducido
   width: "100%",
   borderRadius: "8px",
   overflow: "hidden",
-  marginBottom: "8px"  // Margen inferior más pequeño
+  marginBottom: "12px"
 };
 
 const CreateFirstShop = () => {
@@ -35,7 +36,7 @@ const CreateFirstShop = () => {
     name: '',
     address: '',
     phone: '',
-    lat: 19.432608, // Coordenadas iniciales para Ciudad de México
+    lat: 19.432608,
     lng: -99.133209,
     category: '',
     clientId: client?.id || "",
@@ -56,7 +57,6 @@ const CreateFirstShop = () => {
         console.error('Error fetching categories:', error);
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -131,86 +131,135 @@ const CreateFirstShop = () => {
   return (
     <>
       <Header />
-      <div className="flex justify-center items-center min-h-screen bg-gray-100 bg-custom-img-2 px-2" 
-           style={{ 
-             backgroundRepeat: 'no-repeat', 
-             backgroundPosition: 'center', 
-             backgroundSize: 'cover'  // Asegura que la imagen cubra todo el fondo y esté centrada
-           }}>
-        <div className="w-full max-w-md p-4 bg-black rounded-md shadow-md bg-black bg-opacity-20"> {/* Tamaño máximo reducido */}
-          <h1 className="text-xl font-bold mb-4 text-center text-white">Create Your First Shop</h1> {/* Tamaño de texto reducido */}
-          <form onSubmit={(e) => e.preventDefault()}>
-            <div className="mb-3"> {/* Margen reducido */}
-              <label htmlFor="name" className="block text-white text-sm">Name:</label> {/* Texto más pequeño */}
-              <Input onChange={handleInputChange} id="name" placeholder="Enter your name" type="text" name="name" />
-            </div>
+      <div className="min-h-screen mt-20 bg-gray-200 py-8 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-lg mx-auto mt-20 mb-20"
+        >
+          {/* Welcome Message */}
+          <div className="text-center mt-20 mb-8">
+            <h2 className="text-2xl font-semibold text-yellow-600 mb-2">
+              Welcome to BODEGA+
+            </h2>
+            <p className="text-gray-600 text-sm">
+              To get started with your business management journey, you'll need to create your first shop.
+              This will unlock access to all our powerful features and tools.
+            </p>
+          </div>
 
-            {/* Sección de Dirección con Mapa */}
-            <div className="mb-3"> {/* Margen reducido */}
-              <label htmlFor="address" className="text-white text-sm">Address:</label> {/* Texto más pequeño */}
-              <div className="bg-white rounded-lg p-2"> {/* Padding reducido */}
-                <div style={mapContainerStyle}>
-                  <GoogleMap
-                    zoom={15}
-                    center={center}
-                    mapContainerStyle={mapContainerStyle}
-                  >
-                    {/* Marcador principal donde está el usuario */}
-                    <Marker
-                      position={center}
-                      draggable={true}
-                      onDragEnd={handleMarkerDragEnd}
-                    />
-                    {/* Marcador azul si la dirección ha cambiado */}
-                    {isAddressChanged && (
+          <div className="p-4 bg-gray-100 border mb-10 border-gray-300 rounded-md shadow-sm">
+            <h4 className="text-xl font-medium text-gray-700 mb-4">
+              Create Your First Shop
+            </h4>
+
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Shop Name
+                </label>
+                <Input
+                  onChange={handleInputChange}
+                  id="name"
+                  placeholder="Enter your shop name"
+                  type="text"
+                  name="name"
+                  className="w-full bg-white border border-gray-300 rounded-md text-gray-700 p-2 text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Location
+                </label>
+                <div className="bg-white border border-gray-300 rounded-md p-3">
+                  <div style={mapContainerStyle}>
+                    <GoogleMap
+                      zoom={14}
+                      center={center}
+                      mapContainerStyle={mapContainerStyle}
+                    >
                       <Marker
-                        position={{ lat: formData.lat, lng: formData.lng }}
-                        icon={{
-                          url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
-                        }}
+                        position={center}
+                        draggable={true}
+                        onDragEnd={handleMarkerDragEnd}
                       />
-                    )}
-                  </GoogleMap>
-                </div>
-                <div className="mt-2"> {/* Margen superior reducido */}
-                  <Autocomplete onLoad={(autocomplete) => (searchResult.current = autocomplete)} onPlaceChanged={handlePlaceSelect}>
-                    <Input
-                      id="address"
-                      placeholder="Enter your address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                    />
-                  </Autocomplete>
+                      {isAddressChanged && (
+                        <Marker
+                          position={{ lat: formData.lat, lng: formData.lng }}
+                          icon={{
+                            url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+                          }}
+                        />
+                      )}
+                    </GoogleMap>
+                  </div>
+                  <div className="mt-2">
+                    <Autocomplete
+                      onLoad={(autocomplete) => (searchResult.current = autocomplete)}
+                      onPlaceChanged={handlePlaceSelect}
+                    >
+                      <Input
+                        id="address"
+                        placeholder="Search for your shop location"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                        className="w-full bg-white border border-gray-300 rounded-md text-gray-700 p-2 text-sm"
+                      />
+                    </Autocomplete>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mb-3"> {/* Margen reducido */}
-              <label htmlFor="phone" className="text-white text-sm">Shop phone:</label> {/* Texto más pequeño */}
-              <Input onChange={handleInputChange} id="phone" placeholder="Enter your phone" type="text" name="phone" />
-            </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Contact Phone
+                </label>
+                <Input
+                  onChange={handleInputChange}
+                  id="phone"
+                  placeholder="Enter shop phone number"
+                  type="text"
+                  name="phone"
+                  className="w-full bg-white border border-gray-300 rounded-md text-gray-700 p-2 text-sm"
+                />
+              </div>
 
-            <div className="mb-3"> {/* Margen reducido */}
-              <label htmlFor="category" className="text-white text-sm">Category:</label> {/* Texto más pequeño */}
-              <select id="category" name="category" onChange={handleInputChange} className="form-select px-1 mb-2 block w-full rounded-md border-0 py-1 text-gray-900 shadow-sm placeholder:text-gray-400 text-sm sm:leading-6"> {/* Ajuste de padding y texto */}
-                <option value="">Select a category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>{category.name}</option>
-                ))}
-              </select>
-            </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">
+                  Business Category
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  onChange={handleInputChange}
+                  className="w-full bg-white border border-gray-300 text-gray-700 rounded-md p-2 text-sm"
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            <button 
-              type="button" 
-              className={`w-full bg-yellow-500 text-white p-2 rounded-md focus:outline-none hover:bg-indigo-600 ${!isAddressChanged ? 'bg-gray-400 cursor-not-allowed' : ''}`}
-              onClick={handleConfirmAddress}
-              disabled={!isAddressChanged}
-            >
-              Create Shop
-            </button>
-          </form>
-        </div>
+              <button
+                onClick={handleConfirmAddress}
+                disabled={!isAddressChanged}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-300 text-white p-2 rounded-md text-sm"
+              >
+                Create Shop
+              </button>
+
+              <p className="text-center text-gray-500 mt-2 text-xs">
+                Make sure all information is correct before creating your shop
+              </p>
+            </form>
+          </div>
+        </motion.div>
       </div>
       <ToasterConfig />
     </>

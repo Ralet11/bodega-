@@ -295,10 +295,10 @@ export default function OrderDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 p-6 md:p-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 p-3 lg:p-20 md:p-20">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4 md:mb-0">Order Dashboard</h1>
+        <div className="mb-8 mt-10 md:mt-1 flex flex-col md:flex-row md:items-center md:justify-between">
+        <h1 className="hidden md:block text-3xl font-bold text-gray-800 mb-4">Order Dashboard</h1>
           <div className="flex items-center">
             <input
               type="text"

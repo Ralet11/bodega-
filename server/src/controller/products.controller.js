@@ -160,18 +160,13 @@ export const deleteById = async (req, res) => {
       category_id,
       extras,
       discount,
+      promotion, // Include promotion data from the request body
     } = req.body;
   
-    const clientId = req.user.clientId;
-  
-    console.log('Received request to update product and discount');
-    console.log('Request Body:', req.body);
-    console.log('Authenticated clientId:', clientId);
+    const clientId = req.user.clientId; // Assuming you have middleware that sets req.user.clientId
   
     try {
-      // Buscar el producto existente con sus extras y opciones
-      console.log('Looking for product with ID:', productId);
-  
+      // Fetch the product with its associated models
       const product = await Product.findByPk(productId, {
         include: [
           {
@@ -189,25 +184,23 @@ export const deleteById = async (req, res) => {
             model: Discount,
             as: 'discounts',
           },
+          {
+            model: Promotion,
+            as: 'promotions', // Use 'promotions' as per your association
+          },
         ],
       });
   
-      console.log('Product found:', product);
-  
       if (!product) {
-        console.log('Product not found in database');
         return res.status(404).json({ error: 'Product not found' });
       }
   
-      // Verificar si el producto pertenece al cliente
-      console.log('Product client ID:', product.clientId);
-  
+      // Verify product ownership
       if (product.clientId !== clientId) {
-        console.log('Product does not belong to the authenticated client');
         return res.status(403).json({ error: 'Forbidden' });
       }
   
-      // Actualizar detalles del producto
+      // Update product details
       await product.update({
         name,
         price,
@@ -216,22 +209,20 @@ export const deleteById = async (req, res) => {
         categories_id: category_id,
       });
   
-      console.log('Product updated successfully');
-  
-      // Manejar modificadores (extras)
+      // Handle modifiers (extras)
       const existingExtras = product.extras || [];
       const incomingExtras = extras || [];
   
-      // Mapear extras existentes para fácil acceso
+      // Map existing extras for easy access
       const existingExtrasMap = existingExtras.reduce((map, extra) => {
         map[extra.id] = extra;
         return map;
       }, {});
   
-      // Procesar los extras entrantes
+      // Process incoming extras
       for (const incomingExtra of incomingExtras) {
         if (incomingExtra.id) {
-          // Extra existente - actualizarlo
+          // Existing extra - update it
           const existingExtra = existingExtrasMap[incomingExtra.id];
           if (existingExtra) {
             await existingExtra.update({
@@ -240,38 +231,33 @@ export const deleteById = async (req, res) => {
               onlyOne: incomingExtra.onlyOne,
             });
   
-            console.log(`Extra updated: ${incomingExtra.name}`);
-  
-            // Manejar opciones para este extra
+            // Handle options for this extra
             await handleOptionsUpdate(
               existingExtra,
               incomingExtra.options || []
             );
   
-            // Eliminar del mapa después de procesar
+            // Remove from map after processing
             delete existingExtrasMap[incomingExtra.id];
           }
         } else {
-          // Nuevo extra - crearlo
+          // New extra - create it
           const newExtra = await Extra.create({
             name: incomingExtra.name,
             required: incomingExtra.required,
             onlyOne: incomingExtra.onlyOne,
           });
   
-          console.log(`New extra created: ${incomingExtra.name}`);
-  
-          // Crear opciones para el nuevo extra
+          // Create options for the new extra
           for (const option of incomingExtra.options || []) {
             await ExtraOption.create({
               name: option.name,
               price: option.price,
               extra_id: newExtra.id,
             });
-            console.log(`New option created for extra ${incomingExtra.name}: ${option.name}`);
           }
   
-          // Asociar el nuevo extra con el producto
+          // Associate the new extra with the product
           await ProductExtra.create({
             productId: product.id,
             extraId: newExtra.id,
@@ -279,19 +265,16 @@ export const deleteById = async (req, res) => {
         }
       }
   
-      // Eliminar extras no presentes en los datos entrantes
+      // Delete extras not present in incoming data
       for (const extraId in existingExtrasMap) {
         const extraToDelete = existingExtrasMap[extraId];
   
-        console.log(`Deleting extra: ${extraToDelete.name}`);
-  
-        // Eliminar opciones asociadas
+        // Delete associated options
         for (const option of extraToDelete.options) {
           await option.destroy();
-          console.log(`Deleted option: ${option.name}`);
         }
   
-        // Eliminar asociación y extra
+        // Delete association and extra
         await ProductExtra.destroy({
           where: {
             productId: product.id,
@@ -301,46 +284,29 @@ export const deleteById = async (req, res) => {
         await extraToDelete.destroy();
       }
   
-      // Actualizar el descuento asociado
+      // Update the associated discount
       if (discount && discount.discountId) {
-        console.log('Looking for discount with ID:', discount.discountId);
-  
         const existingDiscount = await Discount.findByPk(discount.discountId);
   
-        console.log('Discount found:', existingDiscount);
-  
         if (!existingDiscount) {
-          console.log('Discount not found in database');
           return res.status(404).json({ error: 'Discount not found' });
         }
   
-        // Verificar si el descuento pertenece al local del cliente
-        console.log('Looking for local with ID:', existingDiscount.local_id);
-  
+        // Verify discount ownership
         const local = await Local.findByPk(existingDiscount.local_id);
   
-        console.log('Local found:', local);
-  
-        if (!local) {
-          console.log('Local not found in database');
-          return res.status(404).json({ message: 'Local not found' });
-        }
-  
-        if (local.clients_id !== clientId) {
-          console.log('Local does not belong to the authenticated client');
+        if (!local || local.clients_id !== clientId) {
           return res
             .status(403)
             .json({ message: 'Forbidden. Client ID does not match.' });
         }
   
-        // Actualizar detalles del descuento
+        // Update discount details
         await existingDiscount.update({
           productName: discount.productName,
           limitDate: discount.limitDate,
-          percentage:
-            discount.percentage === '' ? null : discount.percentage,
-          fixedValue:
-            discount.fixedValue === '' ? null : discount.fixedValue,
+          percentage: discount.percentage === '' ? null : discount.percentage,
+          fixedValue: discount.fixedValue === '' ? null : discount.fixedValue,
           order_details: {
             name,
             price,
@@ -353,8 +319,7 @@ export const deleteById = async (req, res) => {
           discountType: discount.discountType,
           delivery: discount.delivery,
           active: discount.active,
-          usageLimit:
-            discount.usageLimit === '' ? null : discount.usageLimit,
+          usageLimit: discount.usageLimit === '' ? null : discount.usageLimit,
           minPurchaseAmount:
             discount.minPurchaseAmount === ''
               ? null
@@ -365,19 +330,59 @@ export const deleteById = async (req, res) => {
               : discount.maxDiscountAmount,
           conditions: discount.conditions,
         });
-  
-        console.log('Discount updated successfully');
       }
   
-      res
-        .status(200)
-        .json({ message: 'Product and discount updated successfully' });
+      // Handle promotion creation, update, or deletion
+      if (promotion && Object.keys(promotion).length > 0) {
+        // Promotion data is provided, proceed to create/update promotion
+        const { promotionTypeId, quantity, localId } = promotion;
+  
+        // Validate required fields
+        if (!promotionTypeId || !quantity || !localId) {
+          return res.status(400).json({ message: 'Promotion data is incomplete' });
+        }
+  
+        // Use clientId from req.user.clientId
+        // productId is already known (product.id)
+  
+        // Check if a promotion already exists for this product
+        let existingPromotion = await Promotion.findOne({
+          where: { productId: product.id },
+        });
+  
+        if (existingPromotion) {
+          // Update existing promotion
+          await existingPromotion.update({
+            clientId,
+            promotionTypeId,
+            quantity,
+            localId,
+          });
+        } else {
+          // Create new promotion
+          await Promotion.create({
+            clientId,
+            promotionTypeId,
+            productId: product.id,
+            quantity,
+            localId,
+          });
+        }
+      } else {
+        // No promotion data provided, delete any existing promotion
+        await Promotion.destroy({
+          where: { productId: product.id },
+        });
+      }
+  
+      res.status(200).json({
+        message: 'Product, discount, and promotion updated successfully',
+      });
     } catch (error) {
-      console.error('Error updating product and discount:', error);
+      console.error('Error updating product, discount, and promotion:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   };
-  
   // Función auxiliar para manejar la actualización de opciones de un extra
   async function handleOptionsUpdate(existingExtra, incomingOptions) {
     const existingOptions = existingExtra.options || [];
@@ -542,15 +547,49 @@ export const getProductsByClientId = async (req, res) => {
 };
 
 export const getByProductId = async (req, res) => {
-  const {id} = req.body
+  const { id } = req.params; // Use req.params for GET requests
+
   try {
-    const product = await Product.findByPk(id)
-    res.status(200).json(product)
+    const product = await Product.findByPk(id, {
+      include: [
+        {
+          model: Extra,
+          as: 'extras',
+          include: [
+            {
+              model: ExtraOption,
+              as: 'options',
+            },
+          ],
+          through: { attributes: [] },
+        },
+        {
+          model: Discount,
+          as: 'discounts',
+        },
+        {
+          model: Promotion,
+          as: 'promotions',
+          include: [
+            {
+              model: PromotionType,
+              as: 'promotionType',
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    res.status(200).json(product);
   } catch (error) {
-   res.status(500).json(error)
-   console.log(error) 
+    console.error('Error fetching product by ID:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
-}
+};
 
 
 

@@ -1,14 +1,29 @@
+// rootReducer.js
+
 import { 
-  LOGIN_SUCCESS, CHANGE_SHOP, ADD_NEW_ORDER, SET_NEW_ORDER, ADD_PAY_METHODS, REMOVE_PAY_METHODS, 
-  GET_CATEGORIES, SET_DISTPROD, ADD_TO_CART, REMOVE_FROM_CART, LOG_OUT, EMPTY_CART, 
-  SET_DIST_ORDER, SET_CLIENT_LOCALS, 
+  LOGIN_SUCCESS,
+  CHANGE_SHOP,
+  ADD_NEW_ORDER,
+  SET_NEW_ORDER,
+  ADD_PAY_METHODS,
+  REMOVE_PAY_METHODS,
+  GET_CATEGORIES,
+  SET_DISTPROD,
+  ADD_TO_CART,
+  REMOVE_FROM_CART,
+  LOG_OUT,
+  EMPTY_CART,
+  SET_DIST_ORDER,
+  SET_CLIENT_LOCALS,
   SET_CATEGORIES,
   RESET_CLIENT,
   SET_FINDED_PRODUCTS,
   SET_SUBCATEGORIES,
   SET_SELECTED_SUBCATEGORY,
   SET_ALL_DIST_PRODUCTS,
-  SET_CLIENT
+  SET_CLIENT,
+  SET_TUTORIAL_SEEN,        // New action type
+  SET_TUTORIAL_STEP         // New action type
 } from "../actions/actions";
 
 const initialState = {
@@ -25,28 +40,36 @@ const initialState = {
   cart: [],
   subcategories: [],
   selectedSubcategory: null,
-  allDistProducts: []
+  allDistProducts: [],
+  tutorial: {
+    seen: false,            // Indicates if the tutorial has been seen
+    step: 0,                // Current step of the tutorial
+  },
 };
 
 const rootReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOGIN_SUCCESS:
-      return { ...state, client: action.payload }
+      return { ...state, client: action.payload };
+
     case CHANGE_SHOP:
-      return { ...state, activeShop: action.payload }
+      return { ...state, activeShop: action.payload };
+
     case ADD_NEW_ORDER:
       return {
         ...state,
         orders: {
           ...state.orders,
           "new order": [...state.orders["new order"], action.payload],
-        }
-      }
+        },
+      };
+
     case SET_NEW_ORDER:
       return {
         ...state,
-        newOrder: action.payload
-      }
+        newOrder: action.payload,
+      };
+
     case ADD_PAY_METHODS:
       return {
         ...state,
@@ -54,10 +77,11 @@ const rootReducer = (state = initialState, action) => {
           ...state.client,
           client: {
             ...state.client.client,
-            payMethod: [...state.client.client.payMethod, action.payload[0]]
-          }
-        }
+            payMethod: [...state.client.client.payMethod, action.payload[0]],
+          },
+        },
       };
+
     case REMOVE_PAY_METHODS:
       return {
         ...state,
@@ -65,24 +89,29 @@ const rootReducer = (state = initialState, action) => {
           ...state.client,
           client: {
             ...state.client.client,
-            payMethod: action.payload
-          }
-        }
+            payMethod: action.payload,
+          },
+        },
       };
+
     case GET_CATEGORIES:
       return {
         ...state,
-        categories: action.payload
+        categories: action.payload,
       };
+
     case SET_DISTPROD:
       return {
         ...state,
-        selectedDistProd: action.payload
+        selectedDistProd: action.payload,
       };
+
     case ADD_TO_CART:
-      const existingItemIndex = state.cart.findIndex(item => item.id === action.payload.id);
+      const existingItemIndex = state.cart.findIndex(
+        (item) => item.id === action.payload.id
+      );
       if (existingItemIndex !== -1) {
-        const updatedCart = state.cart.map(item =>
+        const updatedCart = state.cart.map((item) =>
           item.id === action.payload.id
             ? { ...item, quantity: item.quantity + action.payload.quantity }
             : item
@@ -97,14 +126,17 @@ const rootReducer = (state = initialState, action) => {
           cart: [...state.cart, { ...action.payload, quantity: action.payload.quantity }],
         };
       }
+
     case REMOVE_FROM_CART:
-      const itemIndex = state.cart.findIndex(item => item.id === action.payload.id);
+      const itemIndex = state.cart.findIndex((item) => item.id === action.payload.id);
       if (itemIndex !== -1) {
-        const updatedCart = state.cart.map(item =>
-          item.id === action.payload.id
-            ? { ...item, quantity: item.quantity - action.payload.quantity }
-            : item
-        ).filter(item => item.quantity > 0);
+        const updatedCart = state.cart
+          .map((item) =>
+            item.id === action.payload.id
+              ? { ...item, quantity: item.quantity - action.payload.quantity }
+              : item
+          )
+          .filter((item) => item.quantity > 0);
         return {
           ...state,
           cart: updatedCart,
@@ -112,63 +144,91 @@ const rootReducer = (state = initialState, action) => {
       } else {
         return state;
       }
+
     case LOG_OUT:
       return initialState;
+
     case EMPTY_CART:
       return {
         ...state,
-        cart: []
-      }
+        cart: [],
+      };
+
     case SET_DIST_ORDER:
       return {
         ...state,
-        order: action.payload
-      }
+        order: action.payload,
+      };
+
     case SET_CLIENT_LOCALS:
       return {
         ...state,
         client: {
           ...state.client,
-          locals: action.payload
-        }
-      }
+          locals: action.payload,
+        },
+      };
+
     case SET_CATEGORIES:
       return {
         ...state,
-        categories: action.payload
-      }
+        categories: action.payload,
+      };
+
     case SET_FINDED_PRODUCTS:
       return {
         ...state,
-        findedProducts: action.payload
-      }
-    case SET_SUBCATEGORIES: 
+        findedProducts: action.payload,
+      };
+
+    case SET_SUBCATEGORIES:
       return {
         ...state,
-        subcategories: action.payload
-      }
+        subcategories: action.payload,
+      };
+
     case SET_SELECTED_SUBCATEGORY:
       return {
         ...state,
-        selectedSubcategory: action.payload
-      }
+        selectedSubcategory: action.payload,
+      };
+
     case SET_ALL_DIST_PRODUCTS:
       return {
         ...state,
-        allDistProducts: action.payload
-      }
-      case SET_CLIENT:
-        return {
-          ...state,
+        allDistProducts: action.payload,
+      };
+
+    case SET_CLIENT:
+      return {
+        ...state,
+        client: {
+          ...state.client,
           client: {
-            ...state.client, // Mantenemos intactas otras propiedades como `token` y `locals`
-            client: {
-             
-              ...action.payload, // Sobrescribimos solo los datos nuevos en `client.client`
-            }
-          }
-        };
-      
+            ...action.payload,
+          },
+        },
+      };
+
+    // New cases for tutorial actions
+    case SET_TUTORIAL_SEEN:
+      return {
+        ...state,
+        tutorial: {
+          ...state.tutorial,
+          seen: true,
+        },
+      };
+
+    case SET_TUTORIAL_STEP:
+      return {
+        ...state,
+        tutorial: {
+          ...state.tutorial,
+          step: action.payload,
+        },
+      };
+
     default:
       return state;
   }

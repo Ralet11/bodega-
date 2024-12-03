@@ -1,36 +1,27 @@
-import axios from "axios";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from 'react-redux';
-import { useLocation } from "react-router-dom";
 import { changeShop, getCategories, loginSuccess } from "../../redux/actions/actions";
-import { useSelector } from "react-redux/es/hooks/useSelector";
 import { getParamsEnv } from "../../functions/getParamsEnv";
-import Input from "../../ui_bodega/Input";
-import ToasterConfig from "../../ui_bodega/Toaster";
+import axios from "axios";
+import { motion } from "framer-motion";
+import toast, { Toaster } from 'react-hot-toast';
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 
 const { API_URL_BASE } = getParamsEnv();
 
-const Login = ({ setSelected, setError, newError, setNewError }) => {
-
+const Login = ({ setSelected }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
-  const client = useSelector(state => state.client);
-
-  const handleInputChange = (e) => {
-    if (e.target.name === 'email') {
-      setEmail(e.target.value);
-    } else if (e.target.name === 'password') {
-      setPassword(e.target.value);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const response = await axios.post(`${API_URL_BASE}/api/auth/login`, {
@@ -40,7 +31,6 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
       });
 
       if (response.data.error === false) {
-      
         const clientData = response.data.data;
 
         if (clientData.locals.length === 0 || clientData.locals.every(local => local.status === 0)) {
@@ -54,59 +44,92 @@ const Login = ({ setSelected, setError, newError, setNewError }) => {
           dispatch(getCategories());
           navigate(`/dashboard`);
         }
+        toast.success('Login successful!');
       } else {
-       
-        setError('Invalid email or password');
-        setNewError(!newError);
+        toast.error('Invalid email or password');
       }
     } catch (error) {
       console.error('Error:', error);
-      setError('Invalid email or password');
-      setNewError(!newError);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const goRegister = async (e) => {
-    e.preventDefault();
-    setSelected(false);
-  };
-
   return (
-    <>
-      <h2 className="text-xl font-semibold mb-4">Log in</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4 relative">
-          <label className="text-gray-600" htmlFor="email">Email</label>
-          <Input 
-            onChange={handleInputChange} 
-            id="email" 
-            placeholder="Enter your email" 
-            type="email" 
-            name="email" 
-            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" 
-          />
-        </div>
-        <div className="mb-4 relative">
-          <label className="text-gray-600" htmlFor="password">Password</label>
-          <Input 
-            onChange={handleInputChange} 
-            id="password" 
-            placeholder="Enter your password" 
-            type="password" 
-            name="password" 
-            className="w-full pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400 placeholder-gray-500" 
-          />
-        </div>
-        <div className="text-center relative">
-          <button className="w-full bg-yellow-500 text-white px-3 py-2 rounded-md focus:outline-none hover:bg-yellow-600 transition duration-200">
-            <span className="hover:text-black">
-              Log in
-            </span>
-          </button>
-        </div>
-        <p className="mt-4 mb-0 leading-normal text-gray-600 text-sm">Don't have an account? <a className="font-bold cursor-pointer text-yellow-500 hover:text-yellow-600" onClick={goRegister}>Sign up</a></p>
-      </form>
-    </>
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.3 }}
+      className="w-full h-full flex flex-col justify-center"
+    >
+      <Toaster position="top-center" />
+      <div className="w-full max-w-xs sm:max-w-md mx-auto px-4">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Welcome Back</h2>
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+          <div className="space-y-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Enter your email"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+              </button>
+            </div>
+          </div>
+
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
+            type="submit"
+            disabled={isLoading}
+            className={`w-full flex justify-center py-2.5 sm:py-3 border border-transparent rounded-lg text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors ${
+              isLoading ? 'opacity-75 cursor-not-allowed' : ''
+            }`}
+          >
+            {isLoading ? 'Logging in...' : 'Log in'}
+          </motion.button>
+
+          <p className="mt-3 text-center text-sm text-gray-600">
+            Don't have an account?{' '}
+            <button
+              onClick={() => setSelected(false)}
+              className="font-medium text-yellow-600 hover:text-yellow-500"
+            >
+              Sign up
+            </button>
+          </p>
+        </form>
+      </div>
+    </motion.div>
   );
 };
 
