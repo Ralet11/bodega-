@@ -149,17 +149,15 @@ export const createOrder = async (req, res) => {
     date_time,
     type,
     pi,
-    savings: rawSavings, // Renombramos temporalmente para convertirlo luego
+    savings: rawSavings,
     deliveryAddressAndInstructions,
     originalDeliveryFee,
     tip,
-    promotion // Añadimos la variable 'promotion' al destructuring de req.body
+    promotionRedemption, // Updated variable for promotion redemption
   } = req.body;
 
-  // Convertimos savings a número
+  // Convert savings to number
   const savings = Number(rawSavings);
-
-  console.log(savings, "savings");
 
   const deliveryAddress = deliveryAddressAndInstructions.address;
   const deliveryInstructions = deliveryAddressAndInstructions.instructions;
@@ -169,22 +167,22 @@ export const createOrder = async (req, res) => {
   const users_id = id;
 
   try {
-    // Verificar si el local existe
+    // Verify local exists
     const local = await Local.findOne({ where: { id: local_id } });
     if (!local) {
-      return res.status(404).json({ message: 'Local no encontrado' });
+      return res.status(404).json({ message: 'Local not found' });
     }
 
-    // Obtener el cliente al que pertenece el local (opcional para envío de email)
+    // Get the client associated with the local (optional for email)
     const client = await Client.findByPk(local.clients_id);
     if (!client) {
-      return res.status(404).json({ message: 'Cliente del local no encontrado' });
+      return res.status(404).json({ message: 'Client of the local not found' });
     }
 
-    // Generar el código alfanumérico de 6 dígitos
+    // Generate a 6-digit alphanumeric code
     const code = cryptoRandomString({ length: 6, type: 'numeric' });
 
-    // Crear la nueva orden
+    // Create the new order
     const newOrder = await Order.create({
       delivery_fee,
       total_price,
@@ -197,80 +195,69 @@ export const createOrder = async (req, res) => {
       pi,
       code,
       deliveryAddress,
-      deliveryInstructions
+      deliveryInstructions,
     });
 
-    // Verificar si el local tiene promociones activas
-    const promotions = await Promotion.findAll({ where: { localId: local_id } });
+    // Find or create UserPromotions record for user and local
+    const [userPromotion, created] = await UserPromotions.findOrCreate({
+      where: {
+        userId: users_id,
+        localId: local_id,
+      },
+      defaults: {
+        purchaseCount: 0,
+        rewardCount: 0,
+      },
+    });
 
-    for (const promotion of promotions) {
-      // Verificar si el usuario ya tiene esta promoción en su lista de promociones activas
-      let userPromotion = await UserPromotions.findOne({
+    // Increment purchaseCount
+    userPromotion.purchaseCount += 1;
+    await userPromotion.save();
+
+    // Handle promotion redemption if applicable
+    if (promotionRedemption && Object.keys(promotionRedemption).length > 0) {
+      const { productId } = promotionRedemption;
+
+      // Find the promotion for the product and local
+      const promotion = await Promotion.findOne({
         where: {
-          userId: users_id,
-          promotionId: promotion.id
-        }
+          productId: productId,
+          localId: local_id,
+        },
       });
 
-      if (!userPromotion) {
-        // Si el usuario no tiene esta promoción, crear una nueva entrada
-        userPromotion = await UserPromotions.create({
-          userId: users_id,
-          promotionId: promotion.id,
-          purchaseCount: 1 // Iniciar el conteo en 1 porque ya realizó una compra
-        });
-      } else {
-        // Si ya tiene la promoción, incrementar el conteo de compras
-        userPromotion.purchaseCount += 1;
+      if (!promotion) {
+        return res.status(400).json({ message: 'Invalid promotion' });
+      }
 
-        // Verificar si alcanza la cantidad necesaria para recibir el producto gratis
-        if (userPromotion.purchaseCount >= promotion.quantity && !userPromotion.rewardReceived) {
-          userPromotion.rewardReceived = true;
-          // Aquí puedes implementar la lógica para notificar al usuario
-          // que ha alcanzado la promoción, o agregar el producto gratis a su cuenta.
-        }
-
-        // Guardar los cambios en la tabla de UserPromotions
+      // Check if user has enough purchaseCount
+      if (userPromotion.purchaseCount >= promotion.quantity) {
+        // Deduct the required quantity from purchaseCount
+        userPromotion.purchaseCount -= promotion.quantity;
+        // Increment rewardCount
+        userPromotion.rewardCount += 1;
         await userPromotion.save();
+
+        // Adjust order details to include the promotional product at zero price
+        // (Assuming you need to handle this in order_details)
+      } else {
+        return res.status(400).json({ message: 'Not enough purchases to redeem promotion' });
       }
     }
 
-    // Si llega 'promotion: true', reiniciar la promoción
-    if (promotion === true) {
-      // Buscar todas las promociones activas del usuario para el local actual
-      const userPromotionsToReset = await UserPromotions.findAll({
-        where: {
-          userId: users_id,
-          promotionId: promotions.map(promo => promo.id) // Filtra solo las promociones del local actual
-        }
-      });
-
-      // Reiniciar el conteo de compras para todas las promociones del local
-      for (const userPromo of userPromotionsToReset) {
-        userPromo.purchaseCount = 0; // Resetea el conteo
-        userPromo.rewardReceived = false; // Resetea el estado de 'rewardReceived'
-        await userPromo.save(); // Guarda los cambios
-      }
-    }
-
-    // Enviar un email de nueva orden
+    // Send a new order email
     sendNewOrderEmail(newOrder, client.email, originalDeliveryFee, tip, deliveryInstructions);
 
-    // Actualizar el savings del usuario
+    // Update user's savings
     const user = await User.findByPk(id);
-
-    console.log(user.savings, "user.savings");
-    console.log(savings, "savings");
     if (user) {
-      console.log("aquí estamos");
-      user.savings += savings; // Asumiendo que savings se suma al valor actual
+      user.savings += savings;
       await user.save();
-      console.log(user.savings, "user.savings 2");
     } else {
-      return res.status(404).json({ message: 'Usuario no encontrado' });
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    // Emitir evento de nuevo pedido a través de Socket.IO
+    // Emit new order event via Socket.IO
     io.emit(`newOrder`, {
       order_details,
       local_id,
@@ -280,13 +267,17 @@ export const createOrder = async (req, res) => {
       newOrderId: newOrder.id,
       type,
       pi,
-      code
+      code,
     });
 
-    res.status(201).json({ message: 'Pedido creado exitosamente', newOrder, userUpdate: user });
+    res.status(201).json({
+      message: 'Order created successfully',
+      newOrder,
+      userUpdate: user,
+    });
   } catch (error) {
-    console.error('Error al crear el pedido:', error);
-    res.status(500).json({ message: 'Error interno del servidor' });
+    console.error('Error creating order:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
 
