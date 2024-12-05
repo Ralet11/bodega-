@@ -3,6 +3,7 @@ import UserPromotions from "../models/UserPromotion.model.js";
 import Client from "../models/client.js";
 import Product from "../models/product.js";
 import PromotionType from "../models/promotionType.js";
+import Local from "../models/local.js";
 
 export const createPromotion = async (req, res) => {
   const { clientId, promotionTypeId, productId, quantity, localId } = req.body;
@@ -94,34 +95,32 @@ export const getByLocal = async (req, res) => {
   }
 };
 export const getUserPromotions = async (req, res) => {
-  const { user_id, promotion_id } = req.body.data; // Se obtienen los datos del cuerpo de la solicitud
+  const { user_id, localId } = req.body.data; // Ajustamos a localId si es el caso
   try {
-    // Validar que se pasen los datos necesarios
-    if (!user_id || !promotion_id) {
+    if (!user_id || !localId) {
       return res.status(400).json({
-        message: 'User ID and Promotion ID are required'
+        message: 'User ID and Local ID are required',
       });
     }
 
-    // Buscar la promoción del usuario en la base de datos
+    console.log('Request Data:', { user_id, localId }); // Para validar los datos recibidos
+
     const userPromotion = await UserPromotions.findOne({
       where: {
         userId: user_id,
-        promotionId: promotion_id,
-      }
+        localId: localId, // Ajustamos al campo correcto
+      },
     });
 
-    // Si no se encuentra la promoción
     if (!userPromotion) {
-      return res.status(200).json([]);
+      return res.status(200).json([]); // Retornamos un array vacío si no hay datos
     }
 
-    // Enviar la promoción del usuario encontrada
     return res.status(200).json(userPromotion);
   } catch (error) {
-    // Manejar errores
+    console.error('Error fetching user promotions:', error); // Imprimimos el stack del error
     return res.status(500).json({
-      message: error.message || 'Something went wrong fetching user promotions'
+      message: error.message || 'Something went wrong fetching user promotions',
     });
   }
 };
