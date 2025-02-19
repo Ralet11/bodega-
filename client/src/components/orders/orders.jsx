@@ -65,7 +65,7 @@ export default function OrderDashboard() {
   }, [activeShop, token]);
 
   useEffect(() => {
-    const socket = socketIOClient("https://3.15.211.38");
+    const socket = socketIOClient("http://localhost:80");
 
     const handleNewOrder = async (data) => {
       try {
