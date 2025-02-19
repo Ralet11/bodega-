@@ -43,6 +43,9 @@ export default function ProductModal({
     delivery: '0',
   });
 
+  // Nuevo estado para el loader
+  const [isSaving, setIsSaving] = useState(false);
+
   // Set default limitDate to 5 years from now if not specified
   useEffect(() => {
     if (!product.limitDate) {
@@ -184,6 +187,9 @@ export default function ProductModal({
   };
 
   const handleSave = async () => {
+    // Inicia loader
+    setIsSaving(true);
+
     // Prepare product data
     const updatedProduct = {
       name: product.name,
@@ -218,44 +224,6 @@ export default function ProductModal({
       // Upload product image
       await handleImageUpload(productId, 'product');
 
-      // Prepare discount data
-      const discountData = {
-        productName: product.name,
-        local_id: activeShop,
-        limitDate: product.limitDate,
-        img: '',
-        percentage: product.discountPercentage || '',
-        fixedValue: '',
-        order_details: { ...updatedProduct, id: productId },
-        product_id: productId,
-        category_id: selectedCategory,
-        description: product.description,
-        discountType: 'percentage',
-        delivery: product.delivery,
-        active: true,
-        usageLimit: '',
-        minPurchaseAmount: '',
-        maxDiscountAmount: '',
-        conditions: '',
-      };
-
-      // Send discount data to backend
-      const discountResponse = await axios.post(
-        `${API_URL_BASE}/api/discounts/add`,
-        discountData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const discountId = discountResponse.data.newDiscount.id;
-
-      // Upload discount image (same as product image)
-      await handleImageUpload(discountId, 'discount');
-
-      // Fetch updated products and update the state in parent component
       const updatedProductsResponse = await axios.get(
         `${API_URL_BASE}/api/products/get/${selectedCategory}`,
         {
@@ -281,7 +249,10 @@ export default function ProductModal({
 
       handleClose();
     } catch (error) {
-      console.error('Error saving the product and discount:', error);
+      console.error('Error saving the product:', error);
+    } finally {
+      // Finaliza loader
+      setIsSaving(false);
     }
   };
 
@@ -752,7 +723,33 @@ export default function ProductModal({
                 }}
                 onClick={handleSave}
               >
-                Save Product
+                {/* Loader o texto */}
+                {isSaving ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                      />
+                    </svg>
+                    Saving...
+                  </div>
+                ) : (
+                  'Save Product'
+                )}
               </button>
               <button
                 type="button"

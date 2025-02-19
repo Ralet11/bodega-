@@ -31,7 +31,9 @@ const Dashboard = () => {
   const [view, setView] = useState('shops'); // State for the current view
   const token = useSelector((state) => state?.client?.token);
   const clientId = useSelector((state) => state?.client?.client?.id);
+  const client = useSelector((state) => state?.client?.client);
   const { API_URL_BASE } = getParamsEnv();
+  console.log(client, "cli")
 
   const dispatch = useDispatch();
 
@@ -92,6 +94,13 @@ const Dashboard = () => {
       dispatch(setTutorialSeen());
     }
   };
+
+  useEffect(() => {
+    // 🔹 Si tutorialComplete es true, ocultamos la tarjeta de tutorial.
+    if (client?.tutorialComplete) {
+      setShowTutorial(false);
+    }
+  }, [client?.tutorialComplete]);
 
   const handleCloseTutorial = () => {
     setShowTutorial(false);

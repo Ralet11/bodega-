@@ -1,28 +1,27 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../database.js'; // Ruta correcta al archivo donde has configurado la conexión a la base de datos
-
-const UserBodegaProSubs = sequelize.define('UserBodegaProSubs', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
+export default (sequelize, DataTypes) => {
+  const UserBodegaProSubs = sequelize.define('UserBodegaProSubs', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    subscription_id: {
+      type: DataTypes.STRING,
+      allowNull: false
     }
-  },
-  subscription_id: {
-    type: DataTypes.STRING,
-    allowNull: false
-  }
-}, {
-  tableName: 'user_bodega_pro_subs',
-  timestamps: true
-});
+  }, {
+    tableName: 'user_bodega_pro_subs',
+    timestamps: true
+  });
 
-export default UserBodegaProSubs;
+  UserBodegaProSubs.associate = (models) => {
+    UserBodegaProSubs.belongsTo(models.User, { foreignKey: 'user_id' });
+  };
+
+  return UserBodegaProSubs;
+};

@@ -42,7 +42,7 @@ function Products() {
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [showUpdateProduct, setShowUpdateProduct] = useState(false);
   const [showNewProductModal, setShowNewProductModal] = useState(false);
-  const [showNewDiscountModal, setShowNewDiscountModal] = useState(false);
+
   const [showExtrasModal, setShowExtrasModal] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   const [aux, setAux] = useState(true);
@@ -289,12 +289,14 @@ function Products() {
 
   const handleUpdateProduct = async (editedProduct) => {
     try {
+      // Preparamos el cuerpo que enviaremos al backend
       const updatedData = {
         productId: selectedProduct.id,
         name: editedProduct.name,
-        price: parseFloat(editedProduct.priceToSell),
+        price: parseFloat(editedProduct.priceToSell),           // El precio final tras el descuento
         description: editedProduct.description,
         category_id: selectedProduct.categories_id,
+        discountPercentage: parseInt(editedProduct.discountPercentage) || 0,
         extras: editedProduct.modifiers.map((modifier) => ({
           id: modifier.id,
           name: modifier.name,
@@ -306,95 +308,72 @@ function Products() {
             price: parseFloat(option.price),
           })),
         })),
-        discount: {
-          discountId: selectedProduct.discounts?.[0]?.id,
-          productName: editedProduct.name,
-          local_id: activeShop,
-          limitDate: editedProduct.limitDate,
-          percentage: editedProduct.discountPercentage || '',
-          fixedValue: '',
-          description: editedProduct.description,
-          discountType: 'percentage',
-          delivery: editedProduct.delivery,
-          active: true,
-          usageLimit: '',
-          minPurchaseAmount: '',
-          maxDiscountAmount: '',
-          conditions: '',
-        },
       };
-
+  
+      // Si hay imagen nueva, dejamos updatedData.img como string vacío, 
+      // para que se sobreescriba en el backend (o al menos avisar que se reemplazará)
       if (editedProduct.image) {
         updatedData.img = '';
       }
-
-      // Handle promotion data
+  
+      // Si hay promoción "Buy To Win"
       if (editedProduct.promotionEnabled) {
         updatedData.promotion = {
-          clientId: client.id,
+          clientId: client.id,        // O donde guardes el ID del cliente
           productId: selectedProduct.id,
-          promotionTypeId: 1, // Assuming 'Buy To Win' has an ID of 1
+          promotionTypeId: 1,         // ID hardcodeado de 'Buy To Win' (ejemplo)
           localId: activeShop,
           quantity: editedProduct.promotionQuantity,
         };
       } else {
-        updatedData.promotion = null; // Indicate no promotion
+        updatedData.promotion = null; // Indica que no hay promoción
       }
-
+  
+      // Enviamos los datos al nuevo endpoint (sin "discount" en la ruta)
       await axios.put(
-        `${API_URL_BASE}/api/products/update-product-and-discount`,
+        `${API_URL_BASE}/api/products/update-product`, 
         updatedData,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
+  
+      // Subimos la imagen del producto (si fue seleccionada)
       if (editedProduct.image) {
         const formData = new FormData();
         formData.append('id', selectedProduct.id.toString());
         formData.append('action', 'product');
         formData.append('img', editedProduct.image);
-
+  
         await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
-
-        if (selectedProduct.discounts?.[0]?.id) {
-          const discountFormData = new FormData();
-          discountFormData.append('id', selectedProduct.discounts[0].id.toString());
-          discountFormData.append('action', 'discount');
-          discountFormData.append('img', editedProduct.image);
-
-          await axios.post(`${API_URL_BASE}/api/up-image/`, discountFormData, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-        }
       }
-
-      // Refetch the products list and update state
-      const response = await axios.get(`${API_URL_BASE}/api/products/get/${selectedCategory}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  
+      // Refrescamos la lista de productos
+      const response = await axios.get(
+        `${API_URL_BASE}/api/products/get/${selectedCategory}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const updatedProducts = response.data;
-
       setProducts(updatedProducts);
-
+  
+      // Buscamos el producto recién actualizado en la lista
       const updatedProduct = updatedProducts.find(
-        (product) => product.id === selectedProduct.id
+        (p) => p.id === selectedProduct.id
       );
       setSelectedProduct(updatedProduct || null);
-
       setShowUpdateProduct(false);
     } catch (error) {
       console.error('Error updating the product:', error);
     }
   };
+  
 
   const handleSaveExtras = async (editedExtras) => {
     try {
@@ -432,7 +411,7 @@ function Products() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start w-full min-h-screen bg-gray-100 lg:px-20 py-12 overflow-y-auto">
+    <div className="flex flex-col items-center justify-start w-full min-h-screen bg-gray-100 lg:px-20 py-5 overflow-y-auto">
       <div className="w-full max-w-6xl bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-4 lg:p-10 overflow-y-auto max-h-screen">
           <div className="flex justify-between items-center mb-4">

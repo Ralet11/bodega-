@@ -1,4 +1,5 @@
-import Tag from "../models/tag.model.js";
+import db from '../models/index.js';
+const {Tag} = db;
 
 export const getAllByLocalCat = async (req, res) => {
   try {

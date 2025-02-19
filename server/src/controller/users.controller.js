@@ -1,7 +1,6 @@
-import Address from "../models/addresses.js";
-import Order from "../models/order.js";
-import User from "../models/user.js";
-import sequelize from "../database.js";
+import db from '../models/index.js';
+const {Address, Order, User} = db;
+
 
 export const getUserById = async (req, res) => {
   const userId = req.params.id;

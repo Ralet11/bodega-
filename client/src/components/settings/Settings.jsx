@@ -194,7 +194,6 @@ export default function HypermodernShopSettings() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-  
     const updatedShop = {
       id: shopData.id,
       name: shopData.name,
@@ -202,13 +201,13 @@ export default function HypermodernShopSettings() {
       logo: shopData.logo,
       placeImage: shopData.placeImage,
       deliveryImage: shopData.deliveryImage,
-      category: shopData.category,
+      category: shopData.category === '' ? null : shopData.category,
       delivery: shopData.delivery,
       pickUp: shopData.pickUp,
       orderIn: shopData.orderIn,
       tags: selectedTags.map(tag => tag.id)
-    }
-  
+    };
+
     try {
       const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, updatedShop, {
         headers: {
@@ -221,13 +220,13 @@ export default function HypermodernShopSettings() {
       toast.error('Error updating shop data.')
       console.error('Error updating shop data', error)
     }
-  
+
     const formattedOpeningHours = shopData.openingHours.map(hour => ({
       day: hour.code,
       open: hour.open,
       close: hour.close,
     }))
-  
+
     try {
       await axios.post(
         `${API_URL_BASE}/api/local/updateOpeningHours`,
@@ -248,7 +247,8 @@ export default function HypermodernShopSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6 md:p-12">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6 md:p-12 pb-28">
+
       <Toaster position="top-right" reverseOrder={false} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -283,7 +283,7 @@ export default function HypermodernShopSettings() {
                 country={'us'}
                 value={shopData.phone}
                 inputClass="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value }))} 
+                onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value }))}
               />
             </div>
 
@@ -320,11 +320,10 @@ export default function HypermodernShopSettings() {
                           e.preventDefault()
                           handleAddTag(tag)
                         }}
-                        className={`py-1 px-3 rounded-full text-sm font-medium transition-colors duration-200 ${
-                          selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+                        className={`py-1 px-3 rounded-full text-sm font-medium transition-colors duration-200 ${selectedTags.some((selectedTag) => selectedTag.id === tag.id)
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        }`}
+                          }`}
                       >
                         {tag.name}
                       </button>
@@ -458,6 +457,7 @@ export default function HypermodernShopSettings() {
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              className="sticky bottom-0 bg-white p-4 z-10 rounded-b-2xl shadow-inner"
             >
               <button
                 type="submit"

@@ -1,9 +1,5 @@
-import Promotion from "../models/promotions.model.js";
-import UserPromotions from "../models/UserPromotion.model.js";
-import Client from "../models/client.js";
-import Product from "../models/product.js";
-import PromotionType from "../models/promotionType.js";
-import Local from "../models/local.js";
+import db from '../models/index.js';
+const {UserPromotions, Product, Client, Promotion,PromotionType} = db;
 
 export const createPromotion = async (req, res) => {
   const { clientId, promotionTypeId, productId, quantity, localId } = req.body;

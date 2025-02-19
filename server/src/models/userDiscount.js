@@ -1,50 +1,49 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../database.js';
-import User from './user.js';
-import Discount from './discount.js';
-
-// Definición del modelo UserDiscount
-const UserDiscount = sequelize.define('user_discount', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  discount_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Discount,
-      key: 'id'
+export default (sequelize, DataTypes) => {
+  const UserDiscount = sequelize.define('UserDiscount', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    product_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    used: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     }
-  },
-  user_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: User,
-      key: 'id'
-    }
-  },
-  used: {
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false // Por defecto, el descuento no ha sido usado
-  }
-}, {
-  tableName: 'user_discounts',
-  timestamps: false
-});
+  }, {
+    tableName: 'user_discounts',
+    timestamps: false
+  });
 
-// Definir relaciones
-User.belongsToMany(Discount, { through: UserDiscount, foreignKey: 'user_id' });
-Discount.belongsToMany(User, { through: UserDiscount, foreignKey: 'discount_id' });
+  UserDiscount.associate = (models) => {
+    UserDiscount.belongsTo(models.User, { foreignKey: 'user_id' });
+    UserDiscount.belongsTo(models.Product, { foreignKey: 'product_id' });
 
-UserDiscount.belongsTo(Discount, { foreignKey: 'discount_id' });
-UserDiscount.belongsTo(User, { foreignKey: 'user_id' });
+    // Many-to-many si así lo deseas:
+    models.User.belongsToMany(models.Product, {
+      through: UserDiscount,
+      foreignKey: 'user_id',
+      otherKey: 'product_id'
+    });
+    models.Product.belongsToMany(models.User, {
+      through: UserDiscount,
+      foreignKey: 'product_id',
+      otherKey: 'user_id'
+    });
 
-Discount.hasMany(UserDiscount, { foreignKey: 'discount_id' });
-User.hasMany(UserDiscount, { foreignKey: 'user_id' });
+    // O la versión hasMany, dependiendo de tu lógica
+    models.User.hasMany(UserDiscount, { foreignKey: 'user_id' });
+    models.Product.hasMany(UserDiscount, { foreignKey: 'product_id' });
+  };
 
-export default UserDiscount
+  return UserDiscount;
+};

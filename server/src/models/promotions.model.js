@@ -1,45 +1,42 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../database.js';
-import Client from './client.js'; // Importar el modelo Client
-import Product from './product.js'; // Importar el modelo Product
-import PromotionType from './promotionType.js'; // Importar el modelo PromotionType
-import Local from './local.js'; // Importar el modelo Local
+export default (sequelize, DataTypes) => {
+  const Promotion = sequelize.define('Promotion', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    clientId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    localId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    promotionTypeId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
+  }, {
+    tableName: 'promotions',
+    timestamps: false
+  });
 
-const Promotion = sequelize.define('promotion', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  clientId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  localId: { // Agregar el campo localId
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  promotionTypeId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  productId: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  quantity: {
-    type: DataTypes.INTEGER,
-    allowNull: false
-  }
-}, {
-  tableName: 'promotions',
-  timestamps: false
-});
+  Promotion.associate = (models) => {
+    Promotion.belongsTo(models.Client, { foreignKey: 'clientId', as: 'client' });
+    Promotion.belongsTo(models.PromotionType, { foreignKey: 'promotionTypeId', as: 'promotionType' });
+    Promotion.belongsTo(models.Product, { foreignKey: 'productId', as: 'product' });
+    Promotion.belongsTo(models.Local, { foreignKey: 'localId', as: 'local' });
+  };
 
-// Definición de las relaciones
-Promotion.belongsTo(Client, { foreignKey: 'clientId', as: 'client' });
-
-Promotion.belongsTo(PromotionType, { foreignKey: 'promotionTypeId', as: 'promotionType' });
-
-export default Promotion;
+  return Promotion;
+};

@@ -1,17 +1,13 @@
-import jwt from "jsonwebtoken";
-import Local from '../models/local.js';
-import { Op } from 'sequelize';
-import Client from "../models/client.js";
-import Category from "../models/category.js";
-import Product from "../models/product.js";
+
+import db from '../models/index.js';
+const { Local, Category, Product, Extra, ExtraOption, ShopOpenHours, LocalTag, Tag, LocalCategory} = db;
 import nodemailer from 'nodemailer';
-import Extra from "../models/extra.js"; 
-import ExtraOption from "../models/extraOption.model.js";
-import ShopOpenHours from "../models/shopOpenHoursModel.js";
-import Discount from "../models/discount.js";
+import jwt from "jsonwebtoken";
+
+import { Op } from 'sequelize';
+
 import { getIo } from '../socket.js';
-import LocalTag from "../models/localTag.model.js";
-import Tag from "../models/tag.model.js";
+
 
 export const getByClientId = async (req, res) => {
   try {
@@ -62,15 +58,6 @@ export const getById = async (req, res) => {
         {
           model: ShopOpenHours,
           as: 'openingHours'
-        },
-        {
-          model: Discount,
-          as: 'discounts',
-          where: {
-            delivery: 0,
-            active: true // Solo descuentos activos
-          },
-          required: true // Solo traer locales que tengan descuentos activos
         },
         {
           model: Tag,  // Incluye las tags asociadas al local
@@ -249,7 +236,6 @@ export const addShop = async (req, res) => {
       phone,
       lat,
       lng,
-      locals_categories_id: category,
       clients_id: clientId
     });
 
@@ -370,15 +356,6 @@ export const getShopsOrderByCat = async (req, res) => {
         {
           model: ShopOpenHours,
           as: 'openingHours'
-        },
-        {
-          model: Discount,
-          as: 'discounts',
-          where: {
-            delivery: 0,
-            active: true // Solo descuentos activos
-          },
-          required: true // Solo traer locales que tengan descuentos activos
         },
         {
           model: Tag,  // Incluye las tags asociadas al local
@@ -691,6 +668,16 @@ export const getOpeningHoursByLocalId = async (req, res) => {
   }
 };
 
+export const getAllLocalCategories = async (req, res) => {
+  try {
+    const categories = await LocalCategory.findAll();
+    res.status(200).json(categories);
+  } catch (error) {
+    console.error('Error al obtener todas las categorías:', error);
+    res.status(500).json({ error: 'Error interno del servidor.' });
+  }
+};
+
 export const getShopsOrderByCatDiscount = async (req, res) => {
   try {
     const shops = await Local.findAll({
@@ -705,15 +692,6 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
         {
           model: ShopOpenHours,
           as: 'openingHours'
-        },
-        {
-          model: Discount,
-          as: 'discounts',
-          where: {
-            delivery: 0,
-            active: true // Solo descuentos activos
-          },
-          required: true // Solo traer locales que tengan descuentos activos
         },
         {
           model: Tag,  // Incluye las tags asociadas al local

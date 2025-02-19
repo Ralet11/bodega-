@@ -45,7 +45,7 @@ function App() {
   const renderSidebarAndHeader = location.pathname !== '/' && location.pathname !== '/login' && location.pathname !== '/register' && location.pathname !== '/create-shop' && location.pathname !== '/privacyPolicy' && location.pathname !== '/deleteUserInfoForm';
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
   const [loading, setLoading] = useState(true);
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.15.211.38");
 
   useEffect(() => {
     socket.on(`neworder`, (data) => {
@@ -72,7 +72,7 @@ function App() {
     
 
     const fetchCategories = async () => {
-      const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
+      const response = await axios.get(`${API_URL_BASE}/api/local/getAllLocalCateogories`);
       dispatch(setCategories(response.data));
     };
 

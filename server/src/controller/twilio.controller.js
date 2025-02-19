@@ -1,6 +1,9 @@
+import db from '../models/index.js';
+const {Order} = db;
+
+
 import twilio from 'twilio';
-import { TWILIO_PHONE_NUMBER } from '../config.js';
-import Order from '../models/order.js';
+
 import { getIo } from '../socket.js';
 import { ACCOUNT_SID, AUTH_TOKEN } from '../config.js';
 

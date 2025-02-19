@@ -1,9 +1,10 @@
-import Client from '../models/client.js';
-import Local from '../models/local.js';
-import User from '../models/user.js';
+import db from '../models/index.js';
+
+const { Client, Local, User } = db;
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { sendWelcomeEmail } from '../functions/SendWelcomeEmail.js';
+import { sendVerificationCodeEmail } from '../functions/sendPasswordReset.js';
 
 // Registro de cliente con contraseña
 export const registerClient = async (req, res) => {
@@ -57,7 +58,8 @@ export const loginClient = async (req, res) => {
       address: client.address,
       payMethod,
       id: client.id,
-      email: client.email
+      email: client.email,
+      tutorialComplete: client.tutorialComplete
     };
 
     const locals = await Local.findAll({ where: { clients_id: client.id } });
@@ -356,5 +358,75 @@ export const appleSignIn = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
+  }
+};
+
+export const requestResetCode = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await Client.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Email not found." });
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    user.resetCode = verificationCode;
+    user.resetCodeExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    const emailResult = await sendVerificationCodeEmail(email, verificationCode);
+    if (emailResult.success) {
+      return res.json({ success: true, message: "Verification code sent successfully." });
+    } else {
+      return res.status(500).json({ success: false, message: "Failed to send email." });
+    }
+  } catch (error) {
+    console.error("Error sending verification code:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const verifyResetCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const user = await Client.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "Email not found." });
+    }
+
+    if (user.resetCode !== code) {
+      return res.status(400).json({ success: false, message: "Invalid verification code." });
+    }
+
+    if (new Date() > user.resetCodeExpires) {
+      return res.status(400).json({ success: false, message: "Verification code has expired." });
+    }
+
+    return res.json({ success: true, message: "Code verified successfully." });
+  } catch (error) {
+    console.error("Error verifying reset code:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+};
+
+export const changeClientPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    const client = await Client.findOne({ where: { email } });
+    if (!client) {
+      return res.status(404).json({ success: false, message: "Client not found." });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    client.password = hashedPassword;
+    await client.save();
+
+    return res.json({ success: true, message: "Password updated successfully." });
+  } catch (error) {
+    console.error("Error changing password:", error);
+    return res.status(500).json({ success: false, message: "Internal server error." });
   }
 };

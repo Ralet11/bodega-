@@ -1,16 +1,12 @@
-import Category from '../models/category.js';
-import Product from '../models/product.js';
-import { Op } from 'sequelize';
-import Local from '../models/local.js';
-import Order from '../models/order.js';
-import Extra from '../models/extra.js';
-import ProductExtra from '../models/productextra.js';
-import xlsx from 'xlsx';
-import ExtraOption from '../models/extraOption.model.js';
-import Discount from '../models/discount.js';
-import Promotion from '../models/promotions.model.js';
-import PromotionType from '../models/promotionType.js';
+import db from '../models/index.js';
+const {Category, Product, Local, Order, Extra, ExtraOption, Promotion,PromotionType} = db;
 
+
+import xlsx from 'xlsx';
+
+// =============================
+// Obtener productos por ID de categoría
+// =============================
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
 
@@ -18,7 +14,7 @@ export const getByCategoryId = async (req, res) => {
     const products = await Product.findAll({
       where: {
         categories_id: categoryId,
-        state: "1", // Only active products
+        state: "1",
       },
       include: [
         {
@@ -28,14 +24,7 @@ export const getByCategoryId = async (req, res) => {
             model: ExtraOption,
             as: 'options',
           },
-          through: { attributes: [] },
         },
-        {
-          model: Discount,
-          as: 'discounts',
-          required: false,
-        },
-        // Include promotions
         {
           model: Promotion,
           as: 'promotions',
@@ -45,7 +34,7 @@ export const getByCategoryId = async (req, res) => {
               as: 'promotionType',
             },
           ],
-          required: false, // Include products even if they don't have promotions
+          required: false,
         },
       ],
     });
@@ -56,68 +45,69 @@ export const getByCategoryId = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+// =============================
+// Añadir un nuevo producto
+// =============================
+// addProduct (1:N)
 export const addProduct = async (req, res) => {
-  const { name, price, description, img, category_id, extras } = req.body;
+  const { 
+    name,
+    price,
+    description,
+    img,
+    category_id,
+    extras = [],
+    discountPercentage = 0
+  } = req.body;
+  
   const clientId = req.user.clientId;
-
-
-
   try {
-    // Crea un nuevo producto utilizando el modelo Product
+    const finalPrice = price * (1 - discountPercentage / 100);
+
+    // 1. Crea el producto
     const newProduct = await Product.create({
       name,
       price,
       description,
-      img: `${img}`,
+      img,
       categories_id: category_id,
+      discountPercentage,
+      finalPrice,
       state: 1,
       clientId
     });
 
-    // Array para almacenar los extras creados para la respuesta
-    const createdExtras = [];
-
-    // Iterar sobre cada extra y crear las entradas correspondientes
+    // 2. Crea cada extra, asignando productId
     for (const extra of extras) {
       const { name, options, required } = extra;
-
-      // Crea el extra
       const newExtra = await Extra.create({
         name,
-        required
+        required,
+        productId: newProduct.id // <-- Relación directa
       });
 
-      // Crear opciones para el extra
-      for (const option of options) {
+      // 3. Crea las opciones del extra
+      for (const option of (options || [])) {
         await ExtraOption.create({
           name: option.name,
           price: option.price,
           extra_id: newExtra.id
         });
       }
-
-      // Crea la relación ProductExtra
-      await ProductExtra.create({
-        productId: newProduct.id,
-        extraId: newExtra.id
-      });
-
-      // Agregar el extra creado al array
-      createdExtras.push(newExtra);
     }
 
-    // Recupera el nuevo producto con sus extras para la respuesta
+    // 4. Retorna el producto con sus extras y opciones
     const productWithExtras = await Product.findOne({
       where: { id: newProduct.id },
-      include: {
+      include: [{
         model: Extra,
         as: 'extras',
-        include: {
+        include: [{
           model: ExtraOption,
-          as: 'options' // Esto asume que has definido la relación con alias 'options'
-        },
-        through: { attributes: [] }
-      }
+          as: 'options'
+        }]
+      }]
     });
 
     res.status(201).json(productWithExtras);
@@ -127,15 +117,18 @@ export const addProduct = async (req, res) => {
   }
 };
 
+
+
+// =============================
+// Eliminar (inactivar) producto por ID
+// =============================
 export const deleteById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Actualiza el estado del producto a 0 para marcarlo como inactivo
+    // Actualiza el estado del producto a 0 (inactivo)
     await Product.update({ state: 0 }, {
-      where: {
-        id
-      }
+      where: { id }
     });
 
     console.log(`Producto eliminado: ${id}`);
@@ -146,295 +139,224 @@ export const deleteById = async (req, res) => {
   }
 };
 
-// controllers/productController.js
+// =============================
+// Actualizar producto (y promotions). 
+// * Se quita la lógica del Discount model y se maneja discountPercentage
+// =============================
+export const updateProduct = async (req, res) => {
+  console.log(req.body, "body");
 
-  // controllers/productController.js
+  const {
+    productId,
+    name,
+    price,
+    description,
+    img,
+    category_id,
+    extras,
+    discountPercentage = 0,
+    promotion // Datos de promoción si es que vienen
+  } = req.body;
 
-  export const updateProductAndDiscount = async (req, res) => {
-    const {
-      productId,
+  // Obtenemos el clientId del token/usuario
+  const clientId = req.user.clientId;
+
+  try {
+    // Obtenemos el producto con sus asociaciones
+    const product = await Product.findByPk(productId, {
+      include: [
+        {
+          model: Extra,
+          as: 'extras',
+          include: [{ model: ExtraOption, as: 'options' }],
+        },
+        {
+          model: Promotion,
+          as: 'promotions',
+        },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Verificamos que el producto pertenezca al cliente logueado
+    if (product.clientId !== clientId) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    // Calcular finalPrice con el nuevo modelo
+    const finalPrice = price * (1 - discountPercentage / 100);
+
+    // Actualizamos detalles del producto
+    await product.update({
       name,
       price,
       description,
       img,
-      category_id,
-      extras,
-      discount,
-      promotion, // Include promotion data from the request body
-    } = req.body;
-  
-    const clientId = req.user.clientId; // Assuming you have middleware that sets req.user.clientId
-  
-    try {
-      // Fetch the product with its associated models
-      const product = await Product.findByPk(productId, {
-        include: [
-          {
-            model: Extra,
-            as: 'extras',
-            include: [
-              {
-                model: ExtraOption,
-                as: 'options',
-              },
-            ],
-            through: { attributes: [] },
-          },
-          {
-            model: Discount,
-            as: 'discounts',
-          },
-          {
-            model: Promotion,
-            as: 'promotions', // Use 'promotions' as per your association
-          },
-        ],
-      });
-  
-      if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-  
-      // Verify product ownership
-      if (product.clientId !== clientId) {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-  
-      // Update product details
-      await product.update({
-        name,
-        price,
-        description,
-        img,
-        categories_id: category_id,
-      });
-  
-      // Handle modifiers (extras)
-      const existingExtras = product.extras || [];
-      const incomingExtras = extras || [];
-  
-      // Map existing extras for easy access
-      const existingExtrasMap = existingExtras.reduce((map, extra) => {
-        map[extra.id] = extra;
-        return map;
-      }, {});
-  
-      // Process incoming extras
-      for (const incomingExtra of incomingExtras) {
-        if (incomingExtra.id) {
-          // Existing extra - update it
-          const existingExtra = existingExtrasMap[incomingExtra.id];
-          if (existingExtra) {
-            await existingExtra.update({
-              name: incomingExtra.name,
-              required: incomingExtra.required,
-              onlyOne: incomingExtra.onlyOne,
-            });
-  
-            // Handle options for this extra
-            await handleOptionsUpdate(
-              existingExtra,
-              incomingExtra.options || []
-            );
-  
-            // Remove from map after processing
-            delete existingExtrasMap[incomingExtra.id];
-          }
-        } else {
-          // New extra - create it
-          const newExtra = await Extra.create({
+      categories_id: category_id,
+      discountPercentage,
+      finalPrice
+    });
+
+    // -- Manejo de Extras --
+    const existingExtras = product.extras || [];
+    const incomingExtras = extras || [];
+
+    // Mapa para saber qué extras ya existen en la BD (para actualizar/eliminar)
+    const existingExtrasMap = existingExtras.reduce((map, extra) => {
+      map[extra.id] = extra;
+      return map;
+    }, {});
+
+    // Recorremos los extras que llegan del front
+    for (const incomingExtra of incomingExtras) {
+      if (incomingExtra.id) {
+        // Actualizar extra existente
+        const existingExtra = existingExtrasMap[incomingExtra.id];
+        if (existingExtra) {
+          await existingExtra.update({
             name: incomingExtra.name,
             required: incomingExtra.required,
             onlyOne: incomingExtra.onlyOne,
           });
-  
-          // Create options for the new extra
-          for (const option of incomingExtra.options || []) {
-            await ExtraOption.create({
-              name: option.name,
-              price: option.price,
-              extra_id: newExtra.id,
-            });
-          }
-  
-          // Associate the new extra with the product
-          await ProductExtra.create({
-            productId: product.id,
-            extraId: newExtra.id,
-          });
-        }
-      }
-  
-      // Delete extras not present in incoming data
-      for (const extraId in existingExtrasMap) {
-        const extraToDelete = existingExtrasMap[extraId];
-  
-        // Delete associated options
-        for (const option of extraToDelete.options) {
-          await option.destroy();
-        }
-  
-        // Delete association and extra
-        await ProductExtra.destroy({
-          where: {
-            productId: product.id,
-            extraId: extraId,
-          },
-        });
-        await extraToDelete.destroy();
-      }
-  
-      // Update the associated discount
-      if (discount && discount.discountId) {
-        const existingDiscount = await Discount.findByPk(discount.discountId);
-  
-        if (!existingDiscount) {
-          return res.status(404).json({ error: 'Discount not found' });
-        }
-  
-        // Verify discount ownership
-        const local = await Local.findByPk(existingDiscount.local_id);
-  
-        if (!local || local.clients_id !== clientId) {
-          return res
-            .status(403)
-            .json({ message: 'Forbidden. Client ID does not match.' });
-        }
-  
-        // Update discount details
-        await existingDiscount.update({
-          productName: discount.productName,
-          limitDate: discount.limitDate,
-          percentage: discount.percentage === '' ? null : discount.percentage,
-          fixedValue: discount.fixedValue === '' ? null : discount.fixedValue,
-          order_details: {
-            name,
-            price,
-            description,
-            category_id,
-          },
-          product_id: product.id,
-          category_id,
-          description: discount.description,
-          discountType: discount.discountType,
-          delivery: discount.delivery,
-          active: discount.active,
-          usageLimit: discount.usageLimit === '' ? null : discount.usageLimit,
-          minPurchaseAmount:
-            discount.minPurchaseAmount === ''
-              ? null
-              : discount.minPurchaseAmount,
-          maxDiscountAmount:
-            discount.maxDiscountAmount === ''
-              ? null
-              : discount.maxDiscountAmount,
-          conditions: discount.conditions,
-        });
-      }
-  
-      // Handle promotion creation, update, or deletion
-      if (promotion && Object.keys(promotion).length > 0) {
-        // Promotion data is provided, proceed to create/update promotion
-        const { promotionTypeId, quantity, localId } = promotion;
-  
-        // Validate required fields
-        if (!promotionTypeId || !quantity || !localId) {
-          return res.status(400).json({ message: 'Promotion data is incomplete' });
-        }
-  
-        // Use clientId from req.user.clientId
-        // productId is already known (product.id)
-  
-        // Check if a promotion already exists for this product
-        let existingPromotion = await Promotion.findOne({
-          where: { productId: product.id },
-        });
-  
-        if (existingPromotion) {
-          // Update existing promotion
-          await existingPromotion.update({
-            clientId,
-            promotionTypeId,
-            quantity,
-            localId,
-          });
-        } else {
-          // Create new promotion
-          await Promotion.create({
-            clientId,
-            promotionTypeId,
-            productId: product.id,
-            quantity,
-            localId,
-          });
+          // Actualizamos/creamos opciones de ese Extra
+          await handleOptionsUpdate(existingExtra, incomingExtra.options || []);
+          // Quitamos del map para no eliminarlo después
+          delete existingExtrasMap[incomingExtra.id];
         }
       } else {
-        // No promotion data provided, delete any existing promotion
-        await Promotion.destroy({
-          where: { productId: product.id },
+        // Crear un nuevo Extra
+        const newExtra = await Extra.create({
+          name: incomingExtra.name,
+          required: incomingExtra.required,
+          onlyOne: incomingExtra.onlyOne,
         });
+
+        // Crear las opciones de ese nuevo Extra
+        for (const option of incomingExtra.options || []) {
+          await ExtraOption.create({
+            name: option.name,
+            price: option.price,
+            extra_id: newExtra.id,
+          });
+        }
+
+        // Asociarlo al producto
+        await product.addExtra(newExtra);
       }
-  
-      res.status(200).json({
-        message: 'Product, discount, and promotion updated successfully',
-      });
-    } catch (error) {
-      console.error('Error updating product, discount, and promotion:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
-  };
-  // Función auxiliar para manejar la actualización de opciones de un extra
-  async function handleOptionsUpdate(existingExtra, incomingOptions) {
-    const existingOptions = existingExtra.options || [];
-  
-    // Mapear opciones existentes para fácil acceso
-    const existingOptionsMap = existingOptions.reduce((map, option) => {
-      map[option.id] = option;
-      return map;
-    }, {});
-  
-    // Procesar opciones entrantes
-    for (const incomingOption of incomingOptions) {
-      if (incomingOption.id) {
-        // Opción existente - actualizarla
-        const existingOption = existingOptionsMap[incomingOption.id];
-        if (existingOption) {
-          await existingOption.update({
-            name: incomingOption.name,
-            price: incomingOption.price,
-          });
-          console.log(`Option updated: ${incomingOption.name}`);
-          delete existingOptionsMap[incomingOption.id];
-        }
+
+    // Eliminar extras que ya no existen en el request
+    for (const extraId in existingExtrasMap) {
+      const extraToDelete = existingExtrasMap[extraId];
+      // Primero eliminamos sus opciones
+      for (const option of extraToDelete.options) {
+        await option.destroy();
+      }
+      // Quitamos la asociación en la tabla pivote
+      await product.removeExtra(extraToDelete);
+      // Finalmente, eliminamos el extra
+      await extraToDelete.destroy();
+    }
+
+    // -- Manejo de Promociones (Buy To Win) --
+    if (promotion && Object.keys(promotion).length > 0) {
+      const { promotionTypeId, quantity, localId } = promotion;
+
+      // Verificamos campos requeridos
+      if (!promotionTypeId || !quantity || !localId) {
+        return res.status(400).json({ message: 'Promotion data is incomplete' });
+      }
+
+      // Verificar si ya existe una promoción para este producto
+      let existingPromotion = await Promotion.findOne({
+        where: { productId: product.id },
+      });
+
+      if (existingPromotion) {
+        // Actualizamos
+        await existingPromotion.update({
+          clientId,
+          promotionTypeId,
+          quantity,
+          localId,
+        });
       } else {
-        // Nueva opción - crearla
-        await ExtraOption.create({
+        // Creamos la nueva promoción
+        await Promotion.create({
+          clientId,
+          promotionTypeId,
+          productId: product.id,
+          quantity,
+          localId,
+        });
+      }
+    } else {
+      // Si no se envía promotion, eliminamos cualquier promoción que exista
+      await Promotion.destroy({
+        where: { productId: product.id },
+      });
+    }
+
+    res.status(200).json({
+      message: 'Product updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating product and promotion:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+// Función auxiliar para actualizar opciones de un Extra
+async function handleOptionsUpdate(existingExtra, incomingOptions) {
+  const existingOptions = existingExtra.options || [];
+
+  const existingOptionsMap = existingOptions.reduce((map, option) => {
+    map[option.id] = option;
+    return map;
+  }, {});
+
+  for (const incomingOption of incomingOptions) {
+    if (incomingOption.id) {
+      // Opción existente
+      const existingOption = existingOptionsMap[incomingOption.id];
+      if (existingOption) {
+        await existingOption.update({
           name: incomingOption.name,
           price: incomingOption.price,
-          extra_id: existingExtra.id,
         });
-        console.log(`New option created: ${incomingOption.name}`);
+        console.log(`Option updated: ${incomingOption.name}`);
+        delete existingOptionsMap[incomingOption.id];
       }
-    }
-  
-    // Eliminar opciones no presentes en los datos entrantes
-    for (const optionId in existingOptionsMap) {
-      const optionToDelete = existingOptionsMap[optionId];
-      await optionToDelete.destroy();
-      console.log(`Deleted option: ${optionToDelete.name}`);
+    } else {
+      // Nueva opción
+      await ExtraOption.create({
+        name: incomingOption.name,
+        price: incomingOption.price,
+        extra_id: existingExtra.id,
+      });
+      console.log(`New option created: ${incomingOption.name}`);
     }
   }
-  
 
+  // Eliminar opciones no presentes
+  for (const optionId in existingOptionsMap) {
+    const optionToDelete = existingOptionsMap[optionId];
+    await optionToDelete.destroy();
+    console.log(`Deleted option: ${optionToDelete.name}`);
+  }
+}
 
-
+// =============================
+// Obtener productos por local_id
+// =============================
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
-  const idConfirm = req.user.clientId; // El clientId del usuario autenticado
-
+  const idConfirm = req.user.clientId; // clientId del usuario autenticado
 
   try {
-    // Buscar el local para verificar el clientId
+    // Verificar local para comparar clientId
     const local = await Local.findByPk(id);
 
     if (!local) {
@@ -445,7 +367,7 @@ export const getByLocalId = async (req, res) => {
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
     }
 
-    // Obtener las categorías activas asociadas al local
+    // Categorías activas de este local
     const categories = await Category.findAll({
       where: {
         local_id: id,
@@ -453,45 +375,46 @@ export const getByLocalId = async (req, res) => {
       }
     });
 
+    // IDs de categorías
     let catId = categories.map(cat => cat.id);
 
-    // Obtener los productos asociados a las categorías activas
+    // Productos de esas categorías activas
     const products = await Product.findAll({
       where: {
         categories_id: {
-          [Op.in]: catId // Utilizamos el operador "in" para buscar en un array de IDs
+          [Op.in]: catId
         },
-        state: "1" // Considera solo productos activos
+        state: "1"
       }
     });
 
-    // Obtener las órdenes asociadas a este local
+    // Órdenes completadas
     const orders = await Order.findAll({
       where: {
         local_id: id,
-        status: 'completed' // Solo órdenes completadas
+        status: 'completed'
       }
     });
 
-    // Crear un objeto para agrupar los productos y calcular los totales
+    // Objeto para agrupar totales
     const productTotals = {};
 
     orders.forEach(order => {
       let orderDetails;
 
-      // Verifica si order.order_details es una cadena o un objeto
+      // order_details podría ser un string (JSON) o un objeto
       if (typeof order.order_details === 'string') {
         try {
           orderDetails = JSON.parse(order.order_details).details;
         } catch (err) {
           console.error('Error parsing order details:', err);
-          return; // Salir del foreach para este pedido específico
+          return;
         }
       } else {
         orderDetails = order.order_details.details;
       }
 
-      // Iterar sobre los detalles del pedido
+      // Sumar totales
       orderDetails.forEach(detail => {
         if (!productTotals[detail.id]) {
           productTotals[detail.id] = {
@@ -502,40 +425,41 @@ export const getByLocalId = async (req, res) => {
           };
         }
         productTotals[detail.id].orderCount += detail.quantity;
-        productTotals[detail.id].totalRevenue += detail.quantity * parseFloat(detail.price.replace('$', '').replace('.', '').replace(',', '.'));
+        productTotals[detail.id].totalRevenue += detail.quantity *
+          parseFloat(detail.price.replace('$', '').replace('.', '').replace(',', '.'));
       });
     });
 
-    // Mapear los productos originales para incluir los totales calculados
+    // Mapear productos con orderCount y totalRevenue
     const productsWithOrderDetails = products.map(product => ({
       ...product.dataValues,
       orderCount: productTotals[product.id] ? productTotals[product.id].orderCount : 0,
       totalRevenue: productTotals[product.id] ? productTotals[product.id].totalRevenue : 0
     }));
 
-    
     res.status(200).json(productsWithOrderDetails);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ error: 'Error al buscar productos por IDs locales' });
+    res.status(500).json({ error: 'Error al buscar productos por localId' });
   }
 };
 
-
+// =============================
+// Obtener productos por clientId
+// =============================
 export const getProductsByClientId = async (req, res) => {
-  const { id } = req.params; // Obtener el clientId de los parámetros de la ruta
+  const { id } = req.params;
 
   try {
-    // Verificar si el clientId está presente en la consulta
     if (!id) {
       return res.status(400).json({ message: "Client ID is required" });
     }
 
-    // Obtener los productos asociados al clientId
+    // Productos activos por clientId
     const products = await Product.findAll({
       where: {
         clientId: id,
-        state: "1" // Considera solo productos activos
+        state: "1"
       }
     });
 
@@ -546,8 +470,11 @@ export const getProductsByClientId = async (req, res) => {
   }
 };
 
+// =============================
+// Obtener producto por productId
+// =============================
 export const getByProductId = async (req, res) => {
-  const { id } = req.params; // Use req.params for GET requests
+  const { id } = req.params;
 
   try {
     const product = await Product.findByPk(id, {
@@ -563,10 +490,11 @@ export const getByProductId = async (req, res) => {
           ],
           through: { attributes: [] },
         },
-        {
-          model: Discount,
-          as: 'discounts',
-        },
+        // Se elimina Discount
+        // {
+        //   model: Discount,
+        //   as: 'discounts',
+        // },
         {
           model: Promotion,
           as: 'promotions',
@@ -591,36 +519,33 @@ export const getByProductId = async (req, res) => {
   }
 };
 
-
-
-
+// =============================
+// Guardar extras (relación productExtras)
+// =============================
 export const saveExtras = async (req, res) => {
   const { extras, productId } = req.body;
 
-
   try {
-    // Verificar si el producto existe
+    // Verificar producto
     const product = await Product.findByPk(productId);
     if (!product) {
       return res.status(404).json({ message: "Producto no encontrado" });
     }
 
-    // Eliminar las relaciones existentes en ProductExtra
-    await ProductExtra.destroy({
-      where: { productId }
-    });
+    // Eliminar relaciones previas
+    // (Necesitas importar productExtras si lo manejas manualmente, 
+    // pero con product.addExtra / product.removeExtra no siempre es necesario).
+    await product.setExtras([]); // Limpia todas las asociaciones
 
-    // Crear un array para almacenar los extras creados
+    // Crear/actualizar extras
     const createdExtras = [];
 
-    // Iterar sobre los extras recibidos para crear/actualizar
-    for (const extra of extras) {
-      const { id, name, required, options, onlyOne } = extra; // options es un array de { name, price }
+    for (const extra of extras || []) {
+      const { id, name, required, options, onlyOne } = extra;
 
       let newExtra;
-
       if (id) {
-        // Si el extra ya existe, actualizarlo
+        // Actualizar extra existente
         newExtra = await Extra.findByPk(id);
         if (newExtra) {
           await newExtra.update({
@@ -630,7 +555,7 @@ export const saveExtras = async (req, res) => {
           });
         }
       } else {
-        // Si el extra no existe, crearlo
+        // Crear nuevo extra
         newExtra = await Extra.create({
           name,
           required,
@@ -638,13 +563,13 @@ export const saveExtras = async (req, res) => {
         });
       }
 
-      // Eliminar las opciones existentes para este extra
+      // Eliminar opciones existentes de este extra
       await ExtraOption.destroy({
         where: { extra_id: newExtra.id }
       });
 
-      // Crear nuevas opciones para este extra
-      for (const option of options) {
+      // Crear nuevas opciones
+      for (const option of options || []) {
         await ExtraOption.create({
           name: option.name,
           price: option.price,
@@ -652,17 +577,12 @@ export const saveExtras = async (req, res) => {
         });
       }
 
-      // Crear la relación ProductExtra
-      await ProductExtra.create({
-        productId,
-        extraId: newExtra.id
-      });
-
-      // Agregar el extra creado/actualizado al array
+      // Asocia extra con producto
+      await product.addExtra(newExtra);
       createdExtras.push(newExtra);
     }
 
-    // Recuperar el producto con sus extras actualizados
+    // Recuperar producto con sus extras actualizados
     const productWithExtras = await Product.findOne({
       where: { id: productId },
       include: {
@@ -670,7 +590,7 @@ export const saveExtras = async (req, res) => {
         as: 'extras',
         include: {
           model: ExtraOption,
-          as: 'options' // Esto asume que has definido la relación con alias 'options'
+          as: 'options'
         },
         through: { attributes: [] }
       }
@@ -683,62 +603,74 @@ export const saveExtras = async (req, res) => {
   }
 };
 
-
+// =============================
+// Cargar productos desde Excel a una categoría
+// =============================
 export const uploadExcelToCategory = async (req, res) => {
   try {
-      const categoryId = req.params.id;
-      const clientId = req.user.clientId;
+    const categoryId = req.params.id;
+    const clientId = req.user.clientId;
 
-      if (!req.files || Object.keys(req.files).length === 0) {
-          return res.status(400).send('No files were uploaded.');
+    if (!req.files || Object.keys(req.files).length === 0) {
+      return res.status(400).send('No files were uploaded.');
+    }
+
+    const excelFile = req.files.file;
+    const workbook = xlsx.read(excelFile.data);
+    const sheetNameList = workbook.SheetNames;
+    const sheet = workbook.Sheets[sheetNameList[0]];
+
+    // Buscar primera fila con datos
+    const range = xlsx.utils.decode_range(sheet['!ref']);
+    let startRow = range.s.r;
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      let cell = sheet[xlsx.utils.encode_cell({ r: R, c: range.s.c })];
+      if (cell && cell.v) {
+        startRow = R;
+        break;
       }
+    }
 
-      const excelFile = req.files.file;
-      const workbook = xlsx.read(excelFile.data);
-      const sheetNameList = workbook.SheetNames;
-      const sheet = workbook.Sheets[sheetNameList[0]];
+    // Convertir a JSON desde la fila detectada
+    const products = xlsx.utils.sheet_to_json(sheet, { range: startRow });
 
-      // Encuentra la primera fila con datos
-      const range = xlsx.utils.decode_range(sheet['!ref']);
-      let startRow = range.s.r; // Fila de inicio
-      for (let R = range.s.r; R <= range.e.r; ++R) {
-          let cell = sheet[xlsx.utils.encode_cell({ r: R, c: range.s.c })];
-          if (cell && cell.v) {
-              startRow = R;
-              break;
-          }
+    let createdProducts = [];
+    let failedProducts = [];
+
+    for (const productData of products) {
+      try {
+        // Si tu Excel trae un posible discountPercentage, lo tomas; si no, 0
+        const discountPercentage = productData.discountPercentage || 0;
+        const price = productData.price || 0;
+
+        // Calcular finalPrice
+        const finalPrice = price * (1 - (discountPercentage / 100));
+
+        // Crear producto
+        const createdProduct = await Product.create({
+          name: productData.name,
+          price: price,
+          description: productData.description,
+          img: productData.img,
+          categories_id: categoryId,
+          clientId: clientId,
+          state: '1',
+          discountPercentage,
+          finalPrice
+        });
+        createdProducts.push(createdProduct.name);
+      } catch (error) {
+        console.error('Error creating product:', productData.name, error);
+        failedProducts.push(productData.name);
       }
+    }
 
-      // Convierte la hoja en un objeto JSON comenzando desde la fila detectada
-      const products = xlsx.utils.sheet_to_json(sheet, { range: startRow });
-
-      let createdProducts = [];
-      let failedProducts = [];
-
-      for (const product of products) {
-          try {
-              const createdProduct = await Product.create({
-                  name: product.name,
-                  price: product.price,
-                  description: product.description,
-                  img: product.img,
-                  categories_id: categoryId,
-                  clientId: clientId,
-                  state: '1'  // Estado por defecto
-              });
-              createdProducts.push(createdProduct.name);
-          } catch (error) {
-              console.error('Error creating product:', product.name, error);
-              failedProducts.push(product.name);
-          }
-      }
-
-      res.status(200).json({
-          createdProducts: createdProducts,
-          failedProducts: failedProducts
-      });
+    res.status(200).json({
+      createdProducts,
+      failedProducts
+    });
   } catch (error) {
-      console.error('Error uploading file:', error);
-      res.status(500).send('Error uploading file');
+    console.error('Error uploading file:', error);
+    res.status(500).send('Error uploading file');
   }
 };

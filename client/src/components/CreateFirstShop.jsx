@@ -51,7 +51,7 @@ const CreateFirstShop = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get(`${API_URL_BASE}/api/locals_categories/getAll`);
+        const response = await axios.get(`${API_URL_BASE}/api/local/getAllLocalCateogories`);
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);

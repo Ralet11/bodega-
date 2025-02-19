@@ -1,35 +1,38 @@
-import { DataTypes } from 'sequelize';
-import sequelize from '../database.js';
-import ExtraOption from './extraOption.model.js';
+export default (sequelize, DataTypes) => {
+  const Extra = sequelize.define('Extra', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    required: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    onlyOne: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    productId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      onDelete: 'CASCADE'
+    }
+  }, {
+    tableName: 'extras',
+    timestamps: false
+  });
 
-// Definición del modelo Extra
-const Extra = sequelize.define('extra', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-    allowNull: false
-  },
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  required: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  onlyOne: {  // Nuevo campo añadido
-    type: DataTypes.BOOLEAN,
-    allowNull: false,
-    defaultValue: false
-  }
-}, {
-  tableName: 'extras',
-  timestamps: false
-});
+  Extra.associate = (models) => {
+    Extra.hasMany(models.ExtraOption, { foreignKey: 'extra_id', as: 'options' });
+    Extra.belongsTo(models.Product, { foreignKey: 'productId', as: 'product' });
+  };
 
-// Definir la relación entre Extra y ExtraOption
-Extra.hasMany(ExtraOption, { foreignKey: 'extra_id', as: 'options' });
-ExtraOption.belongsTo(Extra, { foreignKey: 'extra_id', as: 'extra' });
-
-export default Extra;
+  return Extra;
+};

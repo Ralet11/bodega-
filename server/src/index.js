@@ -1,8 +1,8 @@
 //LOCAL SERVER
 
-/* 
- import app from "./server.js";
-import sequelize from "./database.js";
+
+ /* import app from "./server.js";
+import { sequelize } from "./models/index.js";
 import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
 
@@ -12,21 +12,21 @@ import http from 'http'
 
 
 
-sequelize.sync({ force: false }).then(() => {
-  
-  const httpsServer = http.createServer( app);
-  httpsServer.listen(80, () => {
-    initializeSocket(httpsServer)
-    console.log('Servidor HTTPS está escuchando en el puerto 443');
-  }); 
-   
-  }).catch(error => {
-    console.error('Unable to synchronize the models:', error);
-  });   */
+sequelize.sync({ alter: true })
+  .then(() => {
+    const httpsServer = http.createServer(app);
+    httpsServer.listen(80, () => {
+      initializeSocket(httpsServer);
+      console.log('Servidor HTTP está escuchando en el puerto 80');
+    });
+  })
+  .catch(error => {
+    console.error('Unable to synchronize the models:', error.original || error);
+  }); */
 
   //PRODUCTION SERVER
 
- import app from "./server.js";
+import app from "./server.js";
 import sequelize from "./database.js";
 import https from 'https';
 import fs from 'fs';

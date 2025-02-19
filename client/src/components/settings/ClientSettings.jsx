@@ -120,7 +120,7 @@ export default function ClientSettings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6 md:p-12 lg:p-20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 p-6 md:p-12 lg:p-20">
       <Toaster position="top-right" reverseOrder={false} />
 
       <motion.div

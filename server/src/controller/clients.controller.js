@@ -1,8 +1,10 @@
-import Client from '../models/client.js';
+import db from '../models/index.js';
+const { Client, Local} = db;
+
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-import { where } from 'sequelize';
-import Local from '../models/local.js'
+
+
 
 export const getAllClients = async (req, res) => {
   try {
@@ -162,5 +164,29 @@ export const changePassword = async (req, res) => {
   } catch (error) {
     console.error("Error changing password:", error);
     return res.status(500).json({ error: true, message: "Error del servidor. Inténtelo de nuevo más tarde." });
+  }
+};
+
+export const completeTutorial = async (req, res) => {
+  const clientId = req.user.clientId;
+  console.log(clientId, "id")
+
+  try {
+    // Buscamos el cliente por su ID
+    const client = await Client.findByPk(clientId);
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+
+    // Actualizamos el campo tutorialComplete a true
+    await client.update({ tutorialComplete: true });
+
+    return res.status(200).json({
+      message: 'Tutorial completed successfully',
+      tutorialComplete: true,
+    });
+  } catch (error) {
+    console.error('Error completing tutorial:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

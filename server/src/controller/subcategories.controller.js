@@ -1,4 +1,5 @@
-import Subcategory from "../models/subCategories.js"
+import db from '../models/index.js';
+const {Subcategory} = db;
 
 export const getAllSubcategories = async (req, res) => {
 

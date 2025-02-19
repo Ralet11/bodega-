@@ -1,4 +1,5 @@
-import Category from '../models/category.js';
+import db from '../models/index.js';
+const { Category } = db;
 
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;

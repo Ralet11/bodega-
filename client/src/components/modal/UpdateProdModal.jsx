@@ -40,6 +40,10 @@ export default function EditProductModal({
     promotionEnabled: false,
     promotionQuantity: '',
   });
+
+  // Nuevo estado para el loader
+  const [isSaving, setIsSaving] = useState(false);
+
   const token = useSelector((state) => state?.client?.token);
 
   useEffect(() => {
@@ -71,8 +75,7 @@ export default function EditProductModal({
               price: opt.price.toString(),
             })),
           })) || [],
-        delivery:
-          selectedProduct.discounts?.[0]?.delivery?.toString() || '0',
+        delivery: selectedProduct.discounts?.[0]?.delivery?.toString() || '0',
         promotionEnabled:
           selectedProduct.promotions && selectedProduct.promotions.length > 0
             ? true
@@ -186,21 +189,31 @@ export default function EditProductModal({
     }));
   };
 
-  const handleSave = () => {
-    const editedProduct = {
-      name: product.name,
-      description: product.description,
-      originalPrice: product.originalPrice,
-      discountPercentage: product.discountPercentage,
-      priceToSell: product.priceToSell,
-      image: product.image,
-      limitDate: product.limitDate,
-      modifiers: product.modifiers,
-      delivery: product.delivery,
-      promotionEnabled: product.promotionEnabled,
-      promotionQuantity: product.promotionQuantity,
-    };
-    handleUpdate(editedProduct);
+  const handleSave = async () => {
+    // Inicia el loader
+    setIsSaving(true);
+
+    try {
+      const editedProduct = {
+        name: product.name,
+        description: product.description,
+        originalPrice: product.originalPrice,
+        discountPercentage: product.discountPercentage,
+        priceToSell: product.priceToSell,
+        image: product.image,
+        limitDate: product.limitDate,
+        modifiers: product.modifiers,
+        delivery: product.delivery,
+        promotionEnabled: product.promotionEnabled,
+        promotionQuantity: product.promotionQuantity,
+      };
+      await handleUpdate(editedProduct);
+    } catch (error) {
+      console.error('Error updating the product:', error);
+    } finally {
+      // Finaliza el loader
+      setIsSaving(false);
+    }
   };
 
   if (!show) return null;
@@ -438,10 +451,7 @@ export default function EditProductModal({
                     or drag and drop
                   </p>
                 </div>
-                <p
-                  className="text-xs"
-                  style={{ color: colors.textPrimary }}
-                >
+                <p className="text-xs" style={{ color: colors.textPrimary }}>
                   PNG, JPG, GIF up to 10MB
                 </p>
               </div>
@@ -601,11 +611,7 @@ export default function EditProductModal({
                       type="checkbox"
                       checked={modifier.required}
                       onChange={(e) =>
-                        updateModifier(
-                          modifierIndex,
-                          'required',
-                          e.target.checked
-                        )
+                        updateModifier(modifierIndex, 'required', e.target.checked)
                       }
                       className="form-checkbox h-5 w-5"
                       style={{ color: colors.primary }}
@@ -723,7 +729,32 @@ export default function EditProductModal({
             }}
             onClick={handleSave}
           >
-            Save Changes
+            {isSaving ? (
+              <div className="flex items-center">
+                <svg
+                  className="animate-spin h-5 w-5 mr-2 text-white"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                  />
+                </svg>
+                Saving...
+              </div>
+            ) : (
+              'Save Changes'
+            )}
           </button>
           <button
             type="button"

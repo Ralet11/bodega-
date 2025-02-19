@@ -1,5 +1,6 @@
-import Review from "../models/reviews.model.js";
-import Local from "../models/local.js";
+import db from '../models/index.js';
+const {Review, Local} = db;
+
 
 export const createReview = async (req, res) => {
     try {

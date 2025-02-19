@@ -1,5 +1,6 @@
-import BalanceRequest from "../models/balanceRequest.model.js";
-import StatusBalance from "../models/statusBalance.js";
+import db from '../models/index.js';
+const { BalanceRequest, StatusBalance } = db;
+
 
 export const getByClientId = async (req, res) => {
 const idConfirm = req.user.clientId

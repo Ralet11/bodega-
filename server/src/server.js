@@ -12,27 +12,17 @@ import ordersRoutes from "./routes/orders.routes.js";
 import routerImages from "./routes/images.routes.js";
 import usersRouter from './routes/users.routes.js';
 import paymentRouter from './routes/payment.routes.js';
-import localsCategories from './routes/locals_catogories.routes.js';
+
 import addresesRouter from './routes/addresses.routes.js';
-import discountRouter from './routes/discounts.routes.js';
-import DistProductRouter from './routes/distProducts.routes.js';
-import distOrderRouter from './routes/distOrders.routes.js';
-import distOrderStatusRouter from "./routes/distOrderStatus.routes.js";
 import { FRONTEND_URL, SSK } from "./config.js";
 import Stripe from "stripe";
-import DistOrder from "./models/distOrders.model.js";
-import DistOrderProduct from "./models/distOrderProduct.model.js";
-import DistProduct from "./models/distProducts.model.js";
 import { sendEmailWithProducts } from "./functions/sendEmail.js";
 import Client from "./models/client.js";
 import Local from "./models/local.js";
-import Distributor from "./models/distributor.model.js";
-import { createDistributor } from "./controller/distributor.controller.js";
 import clientRouter from "./routes/client.routes.js";
 import contactRouter from "./routes/contact.routes.js";
 import balanceRequestRouter from "./routes/balanceRequest.routes.js";
-import subcategoriesRouter from './routes/subcategories.routes.js'
-import brandsRouter from './routes/brands.routes.js'
+
 import twilioRouter from './routes/twilio.routes.js'
 import tagRouter from './routes/tag.routes.js'
 import promotionRouter from './routes/promotion.routes.js';
@@ -59,7 +49,7 @@ app.use(cors(corsOptions));
 // Ruta del webhook de Stripe antes de los otros middleware
 
 
-app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
+/* app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
   const sig = request.headers["stripe-signature"];
   
   let event;
@@ -169,7 +159,7 @@ app.post("/webhook", express.raw({ type: "application/json" }), async (request, 
   }
 
   response.status(200).send();
-});
+}); */
 
 app.get('/.well-known/pki-validation/1F52366ED74813EF703CD04F32B70D85.txt', (req, res) => {
   const filePath = path.join(__dirname, 'bodega-', 'certificados', '1F52366ED74813EF703CD04F32B70D85.txt');
@@ -191,18 +181,12 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/up-image", routerImages);
 app.use("/api/users", usersRouter);
 app.use("/api/payment", paymentRouter);
-app.use("/api/locals_categories", localsCategories);
+
 app.use("/api/addresses", addresesRouter);
-app.use("/api/discounts", discountRouter);
-app.use("/api/distProducts", DistProductRouter);
-app.use("/api/distOrder", distOrderRouter);
-app.use("/api/distOrderStatus", distOrderStatusRouter);
-app.use("/api/distributors", createDistributor);
 app.use('/api/clients', clientRouter)
 app.use('/api/contact', contactRouter)
 app.use('/api/balanceRequest', balanceRequestRouter)
-app.use('/api/subcategories', subcategoriesRouter)
-app.use('/api/brands', brandsRouter)
+
 app.use('/api/twilio', twilioRouter)
 app.use('/api/tags', tagRouter)
 app.use('/api/promotions', promotionRouter)
