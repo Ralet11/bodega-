@@ -53,8 +53,6 @@ export default (sequelize, DataTypes) => {
     Product.belongsTo(models.Client, { foreignKey: 'clientId', as: 'client' });
     Product.hasMany(models.Extra, { foreignKey: 'productId', as: 'extras' });
     Product.hasMany(models.Promotion, { foreignKey: 'productId', as: 'promotions' });
-    // Relación con UserDiscount
-    Product.hasMany(models.UserDiscount, { foreignKey: 'product_id', as: 'userDiscounts' });
   };
 
   return Product;

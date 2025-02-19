@@ -1,7 +1,7 @@
-//LOCAL SERVER
+/* //LOCAL SERVER
 
 
- /* import app from "./server.js";
+ import app from "./server.js";
 import { sequelize } from "./models/index.js";
 import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
@@ -12,7 +12,7 @@ import http from 'http'
 
 
 
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: false }).then(() => {
   
   const httpsServer = http.createServer( app);
   httpsServer.listen(80, () => {
@@ -26,14 +26,14 @@ sequelize.sync({ alter: true }).then(() => {
 
   //PRODUCTION SERVER
 
- import app from "./server.js";
+import app from "./server.js";
 import sequelize from "./database.js";
 import https from 'https';
 import fs from 'fs';
 import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
 
-sequelize.sync({ alter: true }).then(() => {
+sequelize.sync({ force: false }).then(() => {
   const privateKey = fs.readFileSync('./../../certificados/private.key', 'utf8');
   const certificate = fs.readFileSync('./../../certificados/certificate.crt', 'utf8');
   const ca = fs.readFileSync('./../../certificados/ca_bundle.crt', 'utf8');
@@ -47,4 +47,4 @@ sequelize.sync({ alter: true }).then(() => {
   });
 }).catch(error => {
   console.error('Unable to synchronize the models:', error);
-}); 
+});  

@@ -2,10 +2,9 @@ import nodemailer from 'nodemailer';
 import { EMAIL_PASS, EMAIL_USER } from '../config.js';
 
 export const sendNewOrderEmail = async (order, clientEmail) => {
-
   const { order_details, status, date_time, type, id, total_price } = order;
 
-  // Build the HTML content for the items in a table format
+  // Construye la tabla de ítems en HTML
   const itemsHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
@@ -24,26 +23,45 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.quantity}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">$${item.price}</td>
           </tr>
-          ${item.selectedExtras ? `
-          <tr>
-            <td colspan="4" style="border: 1px solid #ddd; padding: 8px; background-color: #fafafa;">
-              <strong>Extras:</strong>
-              <ul style="margin: 5px 0 0 20px; padding: 0;">
-                ${Object.keys(item.selectedExtras).map(extraKey => `
-                  <li style="margin: 0;">${item.selectedExtras[extraKey].name}: $${item.selectedExtras[extraKey].price.toFixed(2)}</li>
-                `).join('')}
-              </ul>
-            </td>
-          </tr>` : ''}
+
+          ${
+            // Solo renderiza los extras si existen
+            item.selectedExtras
+              ? `
+              <tr>
+                <td colspan="4" style="border: 1px solid #ddd; padding: 8px; background-color: #fafafa;">
+                  <strong>Extras:</strong>
+                  <ul style="margin: 5px 0 0 20px; padding: 0;">
+                    ${
+                      // Mapeamos las keys de los extras
+                      Object.keys(item.selectedExtras).map(extraKey => {
+                        // Chequeamos que haya precio, si no hay, usamos 0.00
+                        const extraItem = item.selectedExtras[extraKey];
+                        const extraName = extraItem?.name || 'Extra';
+                        const extraPrice = Number(extraItem?.price ?? 0).toFixed(2);
+
+                        return `
+                          <li style="margin: 0;">
+                            ${extraName}: $${extraPrice}
+                          </li>
+                        `;
+                      }).join('')
+                    }
+                  </ul>
+                </td>
+              </tr>
+              `
+              : ''
+          }
         `).join('')}
       </tbody>
     </table>
   `;
 
-  // URL of your backend to accept the order
-  const acceptOrderURL = `http://3.15.211.38/api/orders/acceptByEmail/${id}`; // Replace with your API URL
+  // URL de tu backend para aceptar el pedido
+  const acceptOrderURL = `http://3.15.211.38/api/orders/acceptByEmail/${id}`; // Reemplázala por tu URL real si es distinta
 
-  // Section for order information
+  // Sección de información del pedido
   const orderInfoHTML = `
     <div style="margin-top: 20px;">
       <h4 style="margin-bottom: 10px; color: #f2a900;">Order Information</h4>
@@ -64,6 +82,7 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
     </div>
   `;
 
+  // Estructura principal del correo
   const contentHTML = `
   <!DOCTYPE html>
   <html lang="en">
@@ -156,24 +175,27 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
   </html>
   `;
 
+  // Configura el transporter de Nodemailer (usando Gmail como ejemplo)
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: EMAIL_USER,  // Replace with your Gmail address
-      pass: EMAIL_PASS   // Replace with your Gmail password or app password
+      user: EMAIL_USER, // Tu correo Gmail
+      pass: EMAIL_PASS  // Contraseña o app password
     }
   });
 
+  // Envía el correo
   try {
     let info = await transporter.sendMail({
-      from: `"Bodega+" <${EMAIL_USER}>`,  // Replace with your Gmail address
-      to: clientEmail,    // Replace with the store owner's email address
+      from: `"Bodega+" <${EMAIL_USER}>`,
+      to: clientEmail,  // Correo de destino
       subject: 'New Order Notification',
       html: contentHTML
     });
 
     console.log('Message sent: %s', info.messageId);
     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+
     return { success: true, message: 'Order notification email sent successfully' };
   } catch (error) {
     console.error("Error sending order notification email:", error);

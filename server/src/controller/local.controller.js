@@ -286,7 +286,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
       const products = await Product.findAll({
         where: {
           categories_id: category.id,
-          state: '1'  // Asegúrate de que state sea un número
+          state: '1'
         },
         include: [
           {
@@ -295,8 +295,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
             include: {
               model: ExtraOption,
               as: 'options'
-            },
-            through: { attributes: [] }
+            }
           }
         ]
       });
@@ -306,6 +305,8 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
         name: category.name,
         products: products.map(product => ({
           id: product.id,
+          discountPercentage: product.discountPercentage,
+          finalPrice: product.finalPrice,
           name: product.name,
           price: product.price.toFixed(2),  // Corrección en la interpolación de la variable price
           description: product.description,
@@ -683,10 +684,6 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
     const shops = await Local.findAll({
       where: {
         status: '2',
-        orderIn: true,
-        locals_categories_id: {
-          [Op.notIn]: [1, 2]
-        }
       },
       include: [
         {

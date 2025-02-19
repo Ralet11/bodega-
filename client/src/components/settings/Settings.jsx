@@ -14,6 +14,7 @@ import { PlusIcon, XIcon } from 'lucide-react'
 
 const { API_URL_BASE } = getParamsEnv()
 
+// Días de la semana. Se usan para mapear con el backend.
 const daysOfWeek = [
   { day: 'Monday', code: 'mon' },
   { day: 'Tuesday', code: 'tue' },
@@ -29,8 +30,11 @@ export default function HypermodernShopSettings() {
   const client = useSelector((state) => state.client)
   const token = client.token
   const categories = useSelector((state) => state.categories)
+
   const [tags, setTags] = useState([])
   const [selectedTags, setSelectedTags] = useState([])
+
+  // Estado local con toda la info del shop
   const [shopData, setShopData] = useState({
     id: '',
     name: '',
@@ -45,21 +49,40 @@ export default function HypermodernShopSettings() {
     delivery: false,
     pickUp: false,
     orderIn: false,
-    openingHours: daysOfWeek.map(day => ({ ...day, open: '', close: '' }))
+    // Por defecto, cada día es 00:00 a 23:59 hasta que obtengamos la data real
+    openingHours: daysOfWeek.map(day => ({ ...day, open: '00:00', close: '23:59' }))
   })
 
   const [latLong, setLatLong] = useState({ lat: -34.397, lng: 150.644 })
   const [isUploading, setIsUploading] = useState(false)
+
+  // Referencias a los campos de input para subir imágenes
   const logoInputRef = useRef(null)
   const placeImageInputRef = useRef(null)
   const deliveryImageInputRef = useRef(null)
+
   const dispatch = useDispatch()
 
+  // Al montar o cambiar activeShop, obtenemos la data del back
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${API_URL_BASE}/api/local/get/${activeShop}`)
         const data = response.data
+
+        // Ajustamos los horarios por cada día: si los tiene, los usamos;
+        // si no, por defecto 00:00 -> 23:59
+        const openingHours = daysOfWeek.map(day => {
+          const matchedDay = data.openingHours.find(openHour => openHour.day === day.code)
+          return matchedDay
+            ? {
+                ...day,
+                open: matchedDay.open_hour,
+                close: matchedDay.close_hour
+              }
+            : { ...day, open: '00:00', close: '23:59' }
+        })
+
         setShopData({
           id: data.id,
           name: data.name,
@@ -74,13 +97,9 @@ export default function HypermodernShopSettings() {
           delivery: data.delivery,
           pickUp: data.pickUp,
           orderIn: data.orderIn,
-          openingHours: daysOfWeek.map(day => {
-            const matchedDay = data.openingHours.find(openHour => openHour.day === day.code)
-            return matchedDay
-              ? { ...day, open: matchedDay.open_hour, close: matchedDay.close_hour }
-              : { ...day, open: '', close: '' }
-          })
+          openingHours
         })
+
         setSelectedTags(data.tags || [])
         setLatLong({ lat: data.lat, lng: data.lng })
       } catch (error) {
@@ -91,11 +110,12 @@ export default function HypermodernShopSettings() {
     fetchData()
   }, [activeShop])
 
+  // Si ya seleccionó categoría, traemos las tags disponibles
   useEffect(() => {
     const fetchTags = async () => {
       if (shopData.category) {
         try {
-          const response = await axios.get(`${API_URL_BASE}/api/tags/getAllByLocalCat/${shopData.category}`)
+          const response = await axios.get(`${API_URL_BASE}/api/tags/getAll`)
           setTags(response.data.data)
         } catch (error) {
           console.error('Error fetching tags:', error)
@@ -105,16 +125,19 @@ export default function HypermodernShopSettings() {
     fetchTags()
   }, [shopData.category])
 
+  // Agregar tag a la lista de seleccionadas
   const handleAddTag = (tag) => {
     if (!selectedTags.some((selectedTag) => selectedTag.id === tag.id)) {
       setSelectedTags([...selectedTags, tag])
     }
   }
 
+  // Remover tag
   const handleRemoveTag = (tagId) => {
     setSelectedTags(selectedTags.filter(tag => tag.id !== tagId))
   }
 
+  // Manejador genérico de inputs
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
     setShopData(prevState => ({
@@ -123,15 +146,19 @@ export default function HypermodernShopSettings() {
     }))
   }
 
+  // Manejo de cambios en los horarios
   const handleOpeningHoursChange = (index, field, value) => {
     setShopData(prevState => ({
       ...prevState,
       openingHours: prevState.openingHours.map((hour, i) =>
-        i === index ? { ...hour, [field]: value } : hour
+        i === index
+          ? { ...hour, [field]: value }
+          : hour
       )
     }))
   }
 
+  // Sube imágenes al servidor
   const handleImageUpload = async () => {
     setIsUploading(true)
     const formData = new FormData()
@@ -176,6 +203,7 @@ export default function HypermodernShopSettings() {
     setIsUploading(false)
   }
 
+  // Previsualizar imágenes en local
   const handleImageChange = (event, type) => {
     const file = event.target.files[0]
     if (file) {
@@ -192,6 +220,7 @@ export default function HypermodernShopSettings() {
     }
   }
 
+  // Guardar cambios
   const handleSubmit = async (event) => {
     event.preventDefault()
     const updatedShop = {
@@ -206,14 +235,19 @@ export default function HypermodernShopSettings() {
       pickUp: shopData.pickUp,
       orderIn: shopData.orderIn,
       tags: selectedTags.map(tag => tag.id)
-    };
+    }
 
+    // 1) Actualizar info básica de la tienda
     try {
-      const response = await axios.put(`${API_URL_BASE}/api/local/update/${shopData.id}`, updatedShop, {
-        headers: {
-          Authorization: `Bearer ${token}`
+      const response = await axios.put(
+        `${API_URL_BASE}/api/local/update/${shopData.id}`,
+        updatedShop,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         }
-      })
+      )
       toast.success('Shop data updated successfully.')
       dispatch(setClientLocals(response.data.locals))
     } catch (error) {
@@ -221,10 +255,11 @@ export default function HypermodernShopSettings() {
       console.error('Error updating shop data', error)
     }
 
+    // 2) Guardar los horarios
     const formattedOpeningHours = shopData.openingHours.map(hour => ({
       day: hour.code,
       open: hour.open,
-      close: hour.close,
+      close: hour.close
     }))
 
     try {
@@ -248,8 +283,8 @@ export default function HypermodernShopSettings() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6 md:p-12 pb-28">
-
       <Toaster position="top-right" reverseOrder={false} />
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -258,7 +293,9 @@ export default function HypermodernShopSettings() {
       >
         <div className="p-8 md:p-12">
           <h1 className="text-4xl font-bold text-gray-800 mb-8">Shop Settings</h1>
+
           <form onSubmit={handleSubmit} className="space-y-8">
+            {/* Shop Name */}
             <InputField
               label="Shop Name"
               id="name"
@@ -268,13 +305,19 @@ export default function HypermodernShopSettings() {
               placeholder="Enter your shop name"
             />
 
+            {/* Dirección con mapa */}
             <div className="space-y-2">
               <label htmlFor="address" className="text-sm font-medium text-gray-700 block">
                 Address
               </label>
-              <AddressMap setShopData={setShopData} shopData={shopData} latLong={latLong} />
+              <AddressMap
+                setShopData={setShopData}
+                shopData={shopData}
+                latLong={latLong}
+              />
             </div>
 
+            {/* Teléfono */}
             <div className="space-y-2">
               <label htmlFor="phone" className="text-sm font-medium text-gray-700 block">
                 Phone
@@ -283,10 +326,11 @@ export default function HypermodernShopSettings() {
                 country={'us'}
                 value={shopData.phone}
                 inputClass="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value }))}
+                onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value })) }
               />
             </div>
 
+            {/* Categoría */}
             <div className="space-y-2">
               <label htmlFor="category" className="text-sm font-medium text-gray-700 block">
                 Category
@@ -307,6 +351,7 @@ export default function HypermodernShopSettings() {
               </select>
             </div>
 
+            {/* Tags */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Tags</h2>
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -320,10 +365,11 @@ export default function HypermodernShopSettings() {
                           e.preventDefault()
                           handleAddTag(tag)
                         }}
-                        className={`py-1 px-3 rounded-full text-sm font-medium transition-colors duration-200 ${selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+                        className={`py-1 px-3 rounded-full text-sm font-medium transition-colors duration-200 ${
+                          selectedTags.some((selectedTag) => selectedTag.id === tag.id)
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                          }`}
+                        }`}
                       >
                         {tag.name}
                       </button>
@@ -333,6 +379,7 @@ export default function HypermodernShopSettings() {
                   <p className="text-gray-500">No tags for this category</p>
                 )}
               </div>
+
               <div>
                 <h3 className="text-lg font-medium text-gray-700 mb-2">Selected Tags</h3>
                 {selectedTags.length > 0 ? (
@@ -358,6 +405,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
+            {/* Imágenes */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Shop Images</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -389,9 +437,24 @@ export default function HypermodernShopSettings() {
                 >
                   {isUploading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 
+                          3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
                       Uploading...
                     </>
@@ -402,6 +465,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
+            {/* Horarios */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Working Hours</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -427,6 +491,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
+            {/* Servicios */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Services</h2>
               <div className="space-y-2">
@@ -454,6 +519,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
+            {/* Botón para guardar */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -473,6 +539,9 @@ export default function HypermodernShopSettings() {
   )
 }
 
+/** Componentes auxiliares */
+
+// Campo de texto simple
 function InputField({ label, id, ...props }) {
   return (
     <div className="space-y-2">
@@ -488,6 +557,7 @@ function InputField({ label, id, ...props }) {
   )
 }
 
+// Para subir imágenes (logo, placeImage, etc.)
 function ImageUpload({ label, image, onChange, inputRef }) {
   return (
     <div className="space-y-2">
@@ -521,6 +591,7 @@ function ImageUpload({ label, image, onChange, inputRef }) {
   )
 }
 
+// Checkbox genérico
 function Checkbox({ id, label, ...props }) {
   return (
     <div className="flex items-center">
@@ -536,3 +607,4 @@ function Checkbox({ id, label, ...props }) {
     </div>
   )
 }
+  

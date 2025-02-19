@@ -1,15 +1,10 @@
 import db from '../models/index.js';
 const {Tag} = db;
 
-export const getAllByLocalCat = async (req, res) => {
+export const getAll= async (req, res) => {
   try {
-    const { id } = req.params;
     
-    const tags = await Tag.findAll({
-      where: {
-        local_category_id: id
-      }
-    });
+    const tags = await Tag.findAll();
 
     res.json({ data: tags });
   } catch (error) {
