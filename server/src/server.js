@@ -1,6 +1,3 @@
-
-
-
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
@@ -12,7 +9,6 @@ import ordersRoutes from "./routes/orders.routes.js";
 import routerImages from "./routes/images.routes.js";
 import usersRouter from './routes/users.routes.js';
 import paymentRouter from './routes/payment.routes.js';
-
 import addresesRouter from './routes/addresses.routes.js';
 import { FRONTEND_URL, SSK } from "./config.js";
 import Stripe from "stripe";
@@ -22,156 +18,34 @@ import Local from "./models/local.js";
 import clientRouter from "./routes/client.routes.js";
 import contactRouter from "./routes/contact.routes.js";
 import balanceRequestRouter from "./routes/balanceRequest.routes.js";
-
-import twilioRouter from './routes/twilio.routes.js'
-import tagRouter from './routes/tag.routes.js'
+import twilioRouter from './routes/twilio.routes.js';
+import tagRouter from './routes/tag.routes.js';
 import promotionRouter from './routes/promotion.routes.js';
-import reviewsRouter from './routes/reviews.routes.js'
+import reviewsRouter from './routes/reviews.routes.js';
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const stripe = new Stripe(SSK);
 
-const endpointSecret = "whsec_9d9dffedc83b18c6cb3f360a0332c541e2f9a2362d625d1968196a540566d3d6"
-
-
-//
-
-// Middleware de logging
 app.use(morgan("dev"));
 
-// Configuración de CORS
 const corsOptions = {
   origin: [`${FRONTEND_URL}`, "exp://192.168.75.227:8081"],
 };
 app.use(cors(corsOptions));
 
-// Ruta del webhook de Stripe antes de los otros middleware
-
-
-/* app.post("/webhook", express.raw({ type: "application/json" }), async (request, response) => {
-  const sig = request.headers["stripe-signature"];
-  
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
-  } catch (err) {
-    console.error(`Webhook Error: ${err.message}`);
-    return response.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  switch (event.type) {
-    case "payment_intent.succeeded":
-      const paymentIntent = event.data.object;
-      const orderId = paymentIntent.metadata.orderData;
-   
-
-
-      // Analizar providerIds desde JSON a array
-      let supplierIds;
-      try {
-        supplierIds = JSON.parse(paymentIntent.metadata.providerIds);
-      
-      } catch (error) {
-        console.error(`Error parsing supplierIds: ${error.message}`);
-        return response.status(400).send(`Error parsing supplierIds: ${error.message}`);
-      }
-
-      try {
-        const order = await DistOrderProduct.findAll({
-          where: {
-            order_id: orderId
-          },
-          include: [
-            {
-              model: DistProduct
-            }
-          ]
-        });
-        
-        if (!order) {
-          console.error(`Order with ID ${orderId} not found.`);
-          return response.status(404).send(`Order with ID ${orderId} not found.`);
-        }
-
-        // Crear un nuevo array con la información específica de cada producto
-        const productDetails = order.map(item => ({
-          id: item.DistProduct.id,
-          name: item.DistProduct.name,
-          id_proveedor: item.DistProduct.id_proveedor,
-          quantity: item.quantity,
-          price: item.DistProduct.price
-        }));
-
-        const suppliers = await Distributor.findAll({
-          where: {
-            id: supplierIds
-          },
-          include: [
-            {
-              model: DistProduct
-            }
-          ]
-        });
-
-        const supplierData = suppliers.map(supplier => ({
-          id: supplier.id,
-          name: supplier.name,
-          phone: supplier.phone,
-          email: supplier.email,
-          address: supplier.address
-        }));
-
-    
-      
-        const client = await Client.findByPk(paymentIntent.metadata.customer);
-        const local = await Local.findByPk(paymentIntent.metadata.localData);
-        
-        const clientData = {
-          name: client.name,
-          id: client.id,
-          phone: client.phone
-        };
-
-        const localData = {
-          name: local.name,
-          address: local.address,
-          phone: local.phone,
-          id: local.id
-        };
-
-        // Llamar a la función para enviar el email
-        const emailResult = await sendEmailWithProducts(productDetails, clientData, localData, supplierData);
-     
-
-        // Aquí puedes agregar cualquier lógica adicional, como actualizar el estado de la orden, enviar correos electrónicos, etc.
-
-      } catch (error) {
-        console.error(`Error fetching order: ${error.message}`);
-        return response.status(500).send(`Error fetching order: ${error.message}`);
-      }
-
-      break;
-
-    default:
-  
-  }
-
-  response.status(200).send();
-}); */
-
-app.get('/.well-known/pki-validation/1F52366ED74813EF703CD04F32B70D85.txt', (req, res) => {
-  const filePath = path.join(__dirname, 'bodega-', 'certificados', '1F52366ED74813EF703CD04F32B70D85.txt');
+app.get('/.well-known/pki-validation/EA9FD8109D014FF58B165491B4D7381D.txt', (req, res) => {
+  const filePath = path.join(__dirname, 'bodega-', 'certificados', 'EA9FD8109D014FF58B165491B4D7381D.txt');
   res.sendFile(filePath);
 });
 
-// Middleware general para otras rutas
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb" }));
 
-
-// Rutas
 app.use('/uploads', express.static('uploads'));
 app.use("/api/auth", authRoutes);
 app.use("/api/local", localRoutes);
@@ -181,16 +55,13 @@ app.use("/api/orders", ordersRoutes);
 app.use("/api/up-image", routerImages);
 app.use("/api/users", usersRouter);
 app.use("/api/payment", paymentRouter);
-
 app.use("/api/addresses", addresesRouter);
-app.use('/api/clients', clientRouter)
-app.use('/api/contact', contactRouter)
-app.use('/api/balanceRequest', balanceRequestRouter)
-
-app.use('/api/twilio', twilioRouter)
-app.use('/api/tags', tagRouter)
-app.use('/api/promotions', promotionRouter)
-app.use('/api/reviews', reviewsRouter)
-
+app.use('/api/clients', clientRouter);
+app.use('/api/contact', contactRouter);
+app.use('/api/balanceRequest', balanceRequestRouter);
+app.use('/api/twilio', twilioRouter);
+app.use('/api/tags', tagRouter);
+app.use('/api/promotions', promotionRouter);
+app.use('/api/reviews', reviewsRouter);
 
 export default app;
