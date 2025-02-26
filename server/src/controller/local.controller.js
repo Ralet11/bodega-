@@ -308,6 +308,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
           discountPercentage: product.discountPercentage,
           finalPrice: product.finalPrice,
           name: product.name,
+          availableFor: product.availableFor,
           price: product.price.toFixed(2),  // Corrección en la interpolación de la variable price
           description: product.description,
           image: product.img,

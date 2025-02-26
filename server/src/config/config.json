@@ -1,9 +1,9 @@
 {
   "development": {
     "username": "postgres",
-    "password": "Bodega1234#",
+    "password": "admin",
     "database": "bodega",
-    "host": "bodega-1.cryueqiccrnl.us-east-2.rds.amazonaws.com",
+    "host": "localhost",
     "dialect": "postgres"
   },
   "test": {

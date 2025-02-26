@@ -95,7 +95,8 @@ export const getByLocalIdAndStatus = async (req, res) => {
 };
 
 export const acceptOrder = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // id de la orden
+  const userId = req.user.userId; // id del usuario para el room
   const io = getIo();
 
   try {
@@ -107,8 +108,8 @@ export const acceptOrder = async (req, res) => {
 
     await order.update({ status: "accepted" });
 
-    // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit("changeOrderState", { status: "accepted", orderId: id });
+    // Emitir evento solo al room identificado con userId
+    io.to(order.users_id).emit("changeOrderState", { status: "accepted", orderId: id });
 
     res.status(200).json(order);
   } catch (error) {
@@ -118,8 +119,10 @@ export const acceptOrder = async (req, res) => {
 };
 
 export const sendOrder = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // id de la orden
+  const userId = req.user.userId; // id del usuario para el room
   const io = getIo();
+
   try {
     const order = await Order.findByPk(id);
 
@@ -129,8 +132,8 @@ export const sendOrder = async (req, res) => {
 
     await order.update({ status: "sending" });
 
-    // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit("changeOrderState", { status: "sending", orderId: id });
+    // Emitir evento solo al room identificado con userId
+    io.to(order.users_id).emit("changeOrderState", { status: "sending", orderId: id });
 
     res.status(200).json(order);
   } catch (error) {
@@ -141,7 +144,6 @@ export const sendOrder = async (req, res) => {
 
 export const createOrder = async (req, res) => {
   const {
-    delivery_fee,
     total_price,
     order_details,
     local_id,
@@ -150,41 +152,35 @@ export const createOrder = async (req, res) => {
     type,
     pi,
     savings: rawSavings,
-    deliveryAddressAndInstructions,
-    originalDeliveryFee,
-    tip,
-    promotionRedemption, // Updated variable for promotion redemption
+    promotionRedemption, // Variable para redención de promoción
   } = req.body;
 
-  // Convert savings to number
-  const savings = Number(rawSavings);
-
-  const deliveryAddress = deliveryAddressAndInstructions.address;
-  const deliveryInstructions = deliveryAddressAndInstructions.instructions;
+  // Parsear rawSavings y asignar 0 si no es un número válido
+  const parsedSavings = Number(rawSavings);
+  const savings = isNaN(parsedSavings) ? 0 : parsedSavings;
 
   const id = req.user.userId;
   const io = getIo();
   const users_id = id;
 
   try {
-    // Verify local exists
+    // Verificar que el local existe
     const local = await Local.findOne({ where: { id: local_id } });
     if (!local) {
       return res.status(404).json({ message: "Local not found" });
     }
 
-    // Get the client associated with the local (optional for email)
+    // Obtener el cliente asociado al local (opcional para email)
     const client = await Client.findByPk(local.clients_id);
     if (!client) {
       return res.status(404).json({ message: "Client of the local not found" });
     }
 
-    // Generate a 6-digit numeric code
+    // Generar un código numérico de 6 dígitos
     const code = cryptoRandomString({ length: 6, type: "numeric" });
 
-    // Create the new order
+    // Crear el nuevo pedido sin lógica de delivery
     const newOrder = await Order.create({
-      delivery_fee,
       total_price,
       order_details,
       local_id,
@@ -194,11 +190,9 @@ export const createOrder = async (req, res) => {
       type,
       pi,
       code,
-      deliveryAddress,
-      deliveryInstructions,
     });
 
-    // Find or create UserPromotions record for user and local
+    // Buscar o crear el registro de UserPromotions para el usuario y el local
     const [userPromotion] = await UserPromotions.findOrCreate({
       where: {
         userId: users_id,
@@ -210,15 +204,15 @@ export const createOrder = async (req, res) => {
       },
     });
 
-    // Increment purchaseCount
+    // Incrementar purchaseCount
     userPromotion.purchaseCount += 1;
     await userPromotion.save();
 
-    // Handle promotion redemption if applicable
+    // Manejar la redención de promoción si aplica
     if (promotionRedemption && Object.keys(promotionRedemption).length > 0) {
       const { productId } = promotionRedemption;
 
-      // Find the promotion for the product and local
+      // Buscar la promoción para el producto y local
       const promotion = await Promotion.findOne({
         where: {
           productId: productId,
@@ -230,16 +224,16 @@ export const createOrder = async (req, res) => {
         return res.status(400).json({ message: "Invalid promotion" });
       }
 
-      // Check if user has enough purchaseCount
+      // Verificar si el usuario tiene suficientes compras
       if (userPromotion.purchaseCount >= promotion.quantity) {
-        // Deduct the required quantity from purchaseCount
+        // Deducir la cantidad requerida de purchaseCount
         userPromotion.purchaseCount -= promotion.quantity;
-        // Increment rewardCount
+        // Incrementar rewardCount
         userPromotion.rewardCount += 1;
         await userPromotion.save();
 
-        // Adjust order details to include the promotional product at zero price
-        // (Assuming you need to handle this in order_details)
+        // Ajustar los detalles del pedido para incluir el producto promocional a precio cero
+        // (Se asume que se maneja en order_details)
       } else {
         return res
           .status(400)
@@ -247,25 +241,25 @@ export const createOrder = async (req, res) => {
       }
     }
 
-    // Send a new order email
-    sendNewOrderEmail(
-      newOrder,
-      client.email,
-      originalDeliveryFee,
-      tip,
-      deliveryInstructions
-    );
+    // Enviar un email de nuevo pedido
+    sendNewOrderEmail(newOrder, client.email);
 
-    // Update user's savings
+    // Actualizar los ahorros del usuario
     const user = await User.findByPk(id);
     if (user) {
-      user.savings += savings;
+      console.log(savings, "savings");
+      console.log(user.savings);
+      // Solo se suma si savings es un número válido; de lo contrario, se suma 0
+      if (!isNaN(savings)) {
+        user.savings += savings;
+      }
+      console.log(user.savings);
       await user.save();
     } else {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Emit new order event via Socket.IO
+    // Emitir el evento de nuevo pedido vía Socket.IO
     io.emit(`newOrder`, {
       order_details,
       local_id,
@@ -289,6 +283,7 @@ export const createOrder = async (req, res) => {
   }
 };
 
+
 export const getOrderUser = async (req, res) => {
   const { id } = req.params;
 
@@ -307,8 +302,10 @@ export const getOrderUser = async (req, res) => {
 };
 
 export const finishOrder = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.params; // id de la orden
+  const userId = req.user.userId; // id del usuario para el room
   const io = getIo();
+
   try {
     const order = await Order.findByPk(id);
 
@@ -318,8 +315,8 @@ export const finishOrder = async (req, res) => {
 
     await order.update({ status: "finished", orderId: id });
 
-    // Emitir evento de finalización de pedido a través de Socket.IO
-    io.emit("changeOrderState", { status: "finished", orderId: id });
+    // Emitir evento solo al room identificado con userId
+    io.to(order.users_id).emit("changeOrderState", { status: "finished", orderId: id });
 
     res.status(200).json(order);
   } catch (error) {

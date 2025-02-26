@@ -42,6 +42,14 @@ export default (sequelize, DataTypes) => {
     state: {
       type: DataTypes.STRING(255),
       defaultValue: null
+    },
+    availableFor: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0, // Valor por defecto
+      validate: {
+        isIn: [[0, 1, 2]] // Asegura que solo se acepten los valores 0, 1 o 2
+      }
     }
   }, {
     tableName: 'products',

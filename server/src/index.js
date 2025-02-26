@@ -12,7 +12,7 @@ import http from 'http'
 
 
 
-sequelize.sync({ force: false }).then(() => {
+sequelize.sync({ alter: true }).then(() => {
   
   const httpsServer = http.createServer( app);
   httpsServer.listen(80, () => {
@@ -24,7 +24,7 @@ sequelize.sync({ force: false }).then(() => {
     console.error('Unable to synchronize the models:', error);
   });  
  */
-  //PRODUCTION SERVER
+
 
  import app from "./server.js";
 import sequelize from "./database.js";
