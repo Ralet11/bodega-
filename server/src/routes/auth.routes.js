@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerClient, loginClient, changeClientPassword, registerUser, loginUser, verifyResetCode, loginGuest, googleSignIn, googleLogin, appleSignIn, appleLogin, requestResetCode } from "../controller/auth.controller.js";
+import { registerClient, loginClient, changeClientPassword, registerUser, loginUser, verifyResetCode, loginGuest, googleSignIn, googleLogin, appleSignIn, appleLogin, requestResetCode, requestResetCodeUser, verifyResetCodeUser, changeUserPassword } from "../controller/auth.controller.js";
 
 const router = Router();
 
@@ -16,4 +16,7 @@ router.post("/appleLogIn", appleLogin);
 router.post('/request-reset', requestResetCode)
 router.post('/verify-code', verifyResetCode)
 router.post('/reset-password', changeClientPassword)
+router.post("/user/forgotPasswordEmail", requestResetCodeUser);
+router.post("/user/verifyResetCode", verifyResetCodeUser);
+router.post("/user/resetPassword", changeUserPassword);
 export default router

@@ -20,6 +20,7 @@ import contactRouter from "./routes/contact.routes.js";
 import balanceRequestRouter from "./routes/balanceRequest.routes.js";
 import twilioRouter from './routes/twilio.routes.js';
 import tagRouter from './routes/tag.routes.js';
+import sellersRouter from "./routes/sellers.routes.js";
 import promotionRouter from './routes/promotion.routes.js';
 import reviewsRouter from './routes/reviews.routes.js';
 import path from 'path';
@@ -63,5 +64,6 @@ app.use('/api/twilio', twilioRouter);
 app.use('/api/tags', tagRouter);
 app.use('/api/promotions', promotionRouter);
 app.use('/api/reviews', reviewsRouter);
+app.use('/api/seller', sellersRouter)
 
 export default app;

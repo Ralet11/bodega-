@@ -1,3 +1,5 @@
+// models/User.js
+
 export default (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     id: {
@@ -52,6 +54,14 @@ export default (sequelize, DataTypes) => {
     },
     appleUserId: {
       type: DataTypes.STRING,
+      allowNull: true
+    },
+    resetCode: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    resetCodeExpires: {
+      type: DataTypes.DATE,
       allowNull: true
     }
   }, {

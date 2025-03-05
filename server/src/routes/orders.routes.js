@@ -15,9 +15,8 @@ router.get('/getByUser/:id',methods.auth, getOrdersByUser )
 router.post('/getByLocalDay', methods.auth, )
 router.get('/getByOrderId/:orderId',methods.auth, getByOrderId )
 router.post('/rejected', methods.auth, rejectOrder)
-router.get('/acceptByEmail/:id', acceptOrderByEmail)
 router.post('/cancelOrder/:id', methods.auth, cancelOrder)
 router.get('/getByLocalIdAndStatus/:id', methods.auth, getByLocalIdAndStatus)
-
+router.get('/acceptByEmail', acceptOrderByEmail);
 
 export default router

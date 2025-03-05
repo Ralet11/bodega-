@@ -3,12 +3,13 @@ const { Order, User, Local, Client, Promotion, UserPromotions} = db;
 
 ;
 import { getIo } from '../socket.js';
-
+import jwt from 'jsonwebtoken';
 // Removemos la importación de DistOrder
 // import DistOrder from '../models/distOrders.model.js';
 import cryptoRandomString from 'crypto-random-string';
 
 import { sendNewOrderEmail } from '../functions/SendNewOrderEmail.js';
+import { TOKEN_SECRET } from '../config.js';
 ;
 
 export const getByLocalId = async (req, res) => {
@@ -115,6 +116,44 @@ export const acceptOrder = async (req, res) => {
   } catch (error) {
     console.error("Error al aceptar el pedido:", error);
     res.status(500).json({ message: "Error interno del servidor." });
+  }
+};
+
+export const acceptOrderByEmail = async (req, res) => {
+  const io = getIo();
+  try {
+    // Extraemos orderId y token de la query
+    const { orderId, token } = req.query;
+
+    if (!orderId || !token) {
+      return res.status(400).json({ error: true, message: 'Missing orderId or token' });
+    }
+
+    // Verificamos el token con la misma clave secreta usada al generarlo
+    const decoded = jwt.verify(token, TOKEN_SECRET);
+
+    // Aseguramos que el token contenga el mismo orderId
+    if (decoded.orderId !== parseInt(orderId, 10)) {
+      return res.status(400).json({ error: true, message: 'Invalid token for this order' });
+    }
+
+    // Buscamos la orden
+    const order = await Order.findByPk(orderId);
+    if (!order) {
+      return res.status(404).json({ error: true, message: 'Order not found' });
+    }
+
+    // Actualizamos el estado a "accepted"
+    await order.update({ status: 'accepted' });
+
+    // Emitimos el evento al room del usuario (o lo que necesites)
+    io.to(order.users_id).emit('changeOrderState', { status: 'accepted', orderId });
+
+    // Respondemos con éxito
+    return res.status(200).json({ error: false, message: 'Order accepted successfully' });
+  } catch (error) {
+    console.error('Error al aceptar pedido por email:', error);
+    return res.status(500).json({ error: true, message: 'Internal server error' });
   }
 };
 
@@ -386,95 +425,6 @@ export const rejectOrder = async (req, res) => {
   } catch (error) {
     console.error("Error al finalizar el pedido:", error);
     res.status(500).json({ message: "Error interno del servidor." });
-  }
-};
-
-export const acceptOrderByEmail = async (req, res) => {
-  const { id } = req.params;
-  const io = getIo();
-
-  try {
-    const order = await Order.findByPk(id);
-
-    if (!order) {
-      return res
-        .status(404)
-        .send(`
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Order Not Found</title>
-            <style>
-              body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
-              .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-              .error { color: red; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1 class="error">Order Not Found</h1>
-              <p>The order with ID ${id} could not be found.</p>
-            </div>
-          </body>
-          </html>
-        `);
-    }
-
-    await order.update({ status: "accepted" });
-
-    // Emitir evento de cambio de estado del pedido a través de Socket.IO
-    io.emit("changeOrderState", { status: "accepted", orderId: id });
-
-    return res
-      .status(200)
-      .send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Order Accepted</title>
-          <style>
-            body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
-            .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-            .success { color: green; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1 class="success">Order Accepted</h1>
-            <p>The order with ID ${id} has been successfully accepted.</p>
-          </div>
-        </body>
-        </html>
-      `);
-  } catch (error) {
-    console.error("Error al aceptar el pedido:", error);
-    return res
-      .status(500)
-      .send(`
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Server Error</title>
-          <style>
-            body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; text-align: center; }
-            .container { max-width: 600px; margin: auto; padding: 20px; background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-            .error { color: red; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1 class="error">Server Error</h1>
-            <p>There was an error processing your request. Please try again later.</p>
-          </div>
-        </body>
-        </html>
-      `);
   }
 };
 

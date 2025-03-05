@@ -1,10 +1,14 @@
 import nodemailer from 'nodemailer';
-import { EMAIL_PASS, EMAIL_USER } from '../config.js';
+import jwt from 'jsonwebtoken';
+import { EMAIL_PASS, EMAIL_USER, FRONTEND_URL, TOKEN_SECRET } from '../config.js';
 
 export const sendNewOrderEmail = async (order, clientEmail) => {
-  const { order_details, status, date_time, type, id, total_price } = order;
+  const { order_details, status, date_time, type, id, total_price, code } = order;
 
-  // Construye la tabla de ítems en HTML
+  // Generar un token seguro que incluya el ID de la orden (válido por 1 hora)
+  const tokenForOrder = jwt.sign({ orderId: id }, TOKEN_SECRET, { expiresIn: '1h' });
+
+  // Construir la tabla de ítems en HTML
   const itemsHTML = `
     <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
       <thead>
@@ -23,9 +27,7 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
             <td style="border: 1px solid #ddd; padding: 8px; text-align: center;">${item.quantity}</td>
             <td style="border: 1px solid #ddd; padding: 8px;">$${item.price}</td>
           </tr>
-
           ${
-            // Solo renderiza los extras si existen
             item.selectedExtras
               ? `
               <tr>
@@ -33,13 +35,10 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
                   <strong>Extras:</strong>
                   <ul style="margin: 5px 0 0 20px; padding: 0;">
                     ${
-                      // Mapeamos las keys de los extras
                       Object.keys(item.selectedExtras).map(extraKey => {
-                        // Chequeamos que haya precio, si no hay, usamos 0.00
                         const extraItem = item.selectedExtras[extraKey];
                         const extraName = extraItem?.name || 'Extra';
                         const extraPrice = Number(extraItem?.price ?? 0).toFixed(2);
-
                         return `
                           <li style="margin: 0;">
                             ${extraName}: $${extraPrice}
@@ -58,8 +57,9 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
     </table>
   `;
 
-  // URL de tu backend para aceptar el pedido
-  const acceptOrderURL = `http://3.15.211.38/api/orders/acceptByEmail/${id}`; // Reemplázala por tu URL real si es distinta
+  // Construir la URL segura para aceptar el pedido usando BACK_URL y el token generado
+  const acceptOrderURL = `${FRONTEND_URL}/order-accepted?orderId=${id}&token=${tokenForOrder}`;
+
 
   // Sección de información del pedido
   const orderInfoHTML = `
@@ -78,11 +78,15 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
           <td style="border: 1px solid #ddd; padding: 8px;"><strong>Order Type:</strong></td>
           <td style="border: 1px solid #ddd; padding: 8px;">${type}</td>
         </tr>
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;"><strong>Order ID:</strong></td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${id}</td>
+        </tr>
       </table>
     </div>
   `;
 
-  // Estructura principal del correo
+  // Estructura principal del correo HTML
   const contentHTML = `
   <!DOCTYPE html>
   <html lang="en">
@@ -92,7 +96,7 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
     <style>
       body {
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-        background-color: #ffffff;
+        background-color: #f7f7f7;
         margin: 0;
         padding: 0;
         color: #333;
@@ -103,39 +107,50 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
         border: 1px solid #ddd;
         border-radius: 8px;
         overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        background-color: #ffffff;
       }
       .header {
         background-color: #f2a900;
         color: #fff;
-        padding: 20px;
+        padding: 25px;
         text-align: center;
       }
       .header h2 {
         margin: 0;
-        font-size: 24px;
+        font-size: 26px;
+        letter-spacing: 0.5px;
       }
       .content {
-        padding: 20px;
+        padding: 25px;
       }
       .content h3 {
         color: #f2a900;
         margin-top: 0;
+        font-size: 22px;
       }
       .content p {
         line-height: 1.6;
         margin: 10px 0;
+        font-size: 16px;
       }
       .btn {
         display: block;
         width: fit-content;
-        margin: 20px auto;
-        padding: 12px 20px;
+        margin: 25px auto;
+        padding: 14px 24px;
         background-color: #28a745;
         color: #fff !important;
         text-decoration: none;
         border-radius: 5px;
         text-align: center;
         font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: background-color 0.3s;
+      }
+      .btn:hover {
+        background-color: #218838;
       }
       .footer {
         background-color: #f9f9f9;
@@ -143,13 +158,49 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
         text-align: center;
         padding: 20px;
         font-size: 14px;
+        border-top: 1px solid #eee;
       }
       .total {
-        margin-top: 20px;
-        font-size: 20px;
+        margin-top: 25px;
+        font-size: 22px;
         font-weight: bold;
         text-align: right;
         color: #333;
+        padding: 10px;
+        background-color: #f9f9f9;
+        border-radius: 5px;
+      }
+      .pickup-code {
+        margin: 25px auto;
+        padding: 20px;
+        background-color: #f2a900;
+        color: #fff;
+        text-align: center;
+        border-radius: 8px;
+        max-width: 300px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .pickup-code h3 {
+        margin: 0 0 10px 0;
+        color: #fff;
+        font-size: 18px;
+      }
+      .pickup-code .code {
+        font-size: 32px;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin: 0;
+      }
+      .pickup-code .instructions {
+        font-size: 14px;
+        margin-top: 10px;
+        opacity: 0.9;
+      }
+      table {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      }
+      th {
+        font-size: 15px;
       }
     </style>
   </head>
@@ -161,6 +212,14 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
       <div class="content">
         <h3>Hello,</h3>
         <p>You have received a new order. Here are the details:</p>
+        
+        <!-- Pickup Code Section -->
+        <div class="pickup-code">
+          <h3>PICKUP CODE</h3>
+          <p class="code">${code || 'N/A'}</p>
+          <p class="instructions">The user must show this code to receive their order</p>
+        </div>
+        
         ${itemsHTML}
         ${orderInfoHTML}
         <p class="total">Total Price: $${total_price}</p>
@@ -168,14 +227,14 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
       </div>
       <div class="footer">
         <p>Thank you for using Bodega+</p>
-        <p><strong>Bodega+</strong></p>
+        <p><strong>Bodega+</strong> | Your Neighborhood Store</p>
       </div>
     </div>
   </body>
   </html>
   `;
 
-  // Configura el transporter de Nodemailer (usando Gmail como ejemplo)
+  // Configura el transporter de Nodemailer (usando Gmail)
   let transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -188,7 +247,7 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
   try {
     let info = await transporter.sendMail({
       from: `"Bodega+" <${EMAIL_USER}>`,
-      to: clientEmail,  // Correo de destino
+      to: clientEmail,
       subject: 'New Order Notification',
       html: contentHTML
     });

@@ -1,4 +1,4 @@
-/* //LOCAL SERVER
+//LOCAL SERVER
 
 
  import app from "./server.js";
@@ -10,7 +10,7 @@ import fs from 'fs';
 import http from 'http'
 
 
-
+/* 
 
 sequelize.sync({ alter: true }).then(() => {
   
@@ -22,9 +22,9 @@ sequelize.sync({ alter: true }).then(() => {
    
   }).catch(error => {
     console.error('Unable to synchronize the models:', error);
-  });  
- */
+  });   */
 
+  //PRODUCTION SERVER
 
  import app from "./server.js";
 import sequelize from "./database.js";
