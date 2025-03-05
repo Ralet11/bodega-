@@ -1,13 +1,13 @@
 //LOCAL SERVER
 
 
- import app from "./server.js";
+/*  import app from "./server.js";
 import { sequelize } from "./models/index.js";
 import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
 
 import fs from 'fs';
-import http from 'http'
+import http from 'http' */
 
 
 /* 
