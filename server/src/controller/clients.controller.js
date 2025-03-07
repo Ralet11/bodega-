@@ -92,36 +92,64 @@ export const logout = (req, res) => {
 
 export const updateClient = async (req, res) => {
   try {
-    
     const clientId = req.user.clientId;
-    const { name, email, address, phone, accountNumber, accountHolderName, routingNumber } = req.body;
-
     if (!clientId) {
-      return res.status(400).json({ message: "Solicitud incorrecta. Por favor, proporcione un ID de cliente válido." });
+      return res
+        .status(400)
+        .json({ message: "Invalid request. Please provide a valid client ID." });
     }
 
     const client = await Client.findByPk(clientId);
-
     if (!client) {
-      return res.status(404).json({ message: "Cliente no encontrado." });
+      return res.status(404).json({ message: "Client not found." });
     }
 
-    client.name = name;
-    client.email = email;
-    client.address = address;
-    client.phone = phone;
-    client.account_number = accountNumber;
-    client.account_holder_name = accountHolderName;
-    client.routing_number = routingNumber;
+    // Extract the possible fields from req.body
+    const {
+      name,
+      email,
+      address,
+      phone,
+      accountNumber,
+      accountHolderName,
+      routingNumber
+    } = req.body;
+
+    // Only update fields if they're explicitly provided
+    if (typeof name !== "undefined") {
+      client.name = name;
+    }
+    if (typeof email !== "undefined") {
+      client.email = email;
+    }
+    if (typeof address !== "undefined") {
+      client.address = address;
+    }
+    if (typeof phone !== "undefined") {
+      client.phone = phone;
+    }
+    if (typeof accountNumber !== "undefined") {
+      client.account_number = accountNumber;
+    }
+    if (typeof accountHolderName !== "undefined") {
+      client.account_holder_name = accountHolderName;
+    }
+    if (typeof routingNumber !== "undefined") {
+      client.routing_number = routingNumber;
+    }
 
     await client.save();
 
-    res.json({ message: "Cliente actualizado correctamente", data: client });
+    return res.json({
+      message: "Client updated successfully",
+      data: client
+    });
   } catch (error) {
-    res.status(500).json({ error: true, message: error.message });
-    console.log(error)
+    console.error(error);
+    return res.status(500).json({ error: true, message: error.message });
   }
-}
+};
+
 
 //change password
 export const changePassword = async (req, res) => {

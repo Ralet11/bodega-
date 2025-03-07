@@ -27,89 +27,76 @@ const Login = ({ setSelected }) => {
   const dispatch = useDispatch()
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-  
+    e.preventDefault()
+    setIsLoading(true)
+
     try {
-      console.log("Iniciando handleLogin. Email:", email, "Password:", password);
-      
       const response = await axios.post(
         `${API_URL_BASE}/api/auth/login`,
         { email, password, credentials: true }
-      );
-  
-      console.log("Respuesta del servidor =>", response.data);
-  
+      )
+
       if (response.data.error === false) {
-        const clientData = response.data.data;
-        console.log("clientData =>", clientData);
-        console.log("clientData.client.role =>", clientData.client.role, typeof clientData.client.role);
-  
-        // Verificamos si role es 0
+        const clientData = response.data.data
+        // si role === 0, decide según locals:
         if (clientData.client.role === 0) {
-          console.log("El rol del cliente es 0, revisamos locals...");
-  
           if (
             !clientData.locals ||
             clientData.locals.length === 0 ||
             clientData.locals.every(local => local.status === 0)
           ) {
-            dispatch(loginSuccess(clientData));
-            dispatch(getCategories());
-            navigate("/create-shop");
-            toast.success("Login successful!");
-            return; // Para evitar que siga ejecutándose
+            dispatch(loginSuccess(clientData))
+            dispatch(getCategories())
+            navigate("/create-shop")
+            toast.success("Login successful!")
+            return
           } else {
-            const shopId = clientData.locals[0].id;
-            dispatch(loginSuccess(clientData));
-            dispatch(changeShop(shopId));
-            dispatch(getCategories());
-            navigate("/dashboard");
-            toast.success("Login successful!");
-            return;
+            const shopId = clientData.locals[0].id
+            dispatch(loginSuccess(clientData))
+            dispatch(changeShop(shopId))
+            dispatch(getCategories())
+            navigate("/dashboard")
+            toast.success("Login successful!")
+            return
           }
-        } 
-        
-        // Si el rol no es 0 (podría ser 1 u otro)
-        console.log("El rol del cliente es distinto de 0 =>", clientData.client.role);
-        dispatch(loginSuccess(clientData));
-        navigate("/sellersPanel");
-        toast.success("Login successful!");
-        return;
-        
+        }
+
+        // si role !== 0
+        dispatch(loginSuccess(clientData))
+        navigate("/sellersPanel")
+        toast.success("Login successful!")
       } else {
-        toast.error("Invalid email or password");
+        toast.error("Invalid email or password")
       }
     } catch (error) {
-      console.error("Error:", error);
-      toast.error("An unexpected error occurred");
+      console.error("Error:", error)
+      toast.error("An unexpected error occurred")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleRequestReset = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
+    e.preventDefault()
+    setIsLoading(true)
     try {
-      const res = await axios.post(`${API_URL_BASE}/api/auth/request-reset`, { email: resetEmail });
+      const res = await axios.post(`${API_URL_BASE}/api/auth/request-reset`, { email: resetEmail })
       if (res.data.success) {
-        toast.success("Verification code sent to your email!");
-        setStep("verifyCode");
+        toast.success("Verification code sent to your email!")
+        setStep("verifyCode")
       } else {
-        toast.error(res.data.message || "Failed to send verification code.");
+        toast.error(res.data.message || "Failed to send verification code.")
       }
     } catch (err) {
       if (err.response && err.response.status === 404) {
-        toast.error("Email not found. Please check and try again.");
+        toast.error("Email not found. Please check and try again.")
       } else {
-        toast.error("Error sending verification code.");
+        toast.error("Error sending verification code.")
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
-  
+  }
 
   const handleVerifyCode = async (e) => {
     e.preventDefault()
@@ -160,7 +147,9 @@ const Login = ({ setSelected }) => {
   const renderLoginForm = () => (
     <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6">
       <div className="space-y-1">
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
+        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          Email Address
+        </label>
         <div className="relative">
           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
           <input
@@ -175,7 +164,9 @@ const Login = ({ setSelected }) => {
         </div>
       </div>
       <div className="space-y-1">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          Password
+        </label>
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
           <input
@@ -205,21 +196,23 @@ const Login = ({ setSelected }) => {
         whileTap={{ scale: 0.99 }}
         type="submit"
         disabled={isLoading}
-        className={`w-full py-2.5 rounded-lg text-white bg-yellow-500 hover:bg-yellow-600 ${isLoading ? "opacity-75 cursor-not-allowed" : ""}`}
+        className={`w-full py-2.5 rounded-lg text-white bg-yellow-500 hover:bg-yellow-600 ${
+          isLoading ? "opacity-75 cursor-not-allowed" : ""
+        }`}
       >
         {isLoading ? "Logging in..." : "Log in"}
       </motion.button>
       <p className="mt-3 text-center text-sm text-gray-600">
-            Don't have an account?{" "}
-            <motion.button
-              onClick={() => setSelected(false)}
-              className="font-medium text-yellow-500 hover:text-yellow-600"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              Sign up
-            </motion.button>
-          </p>
+        Don't have an account?{" "}
+        <motion.button
+          onClick={() => setSelected(false)}
+          className="font-medium text-yellow-500 hover:text-yellow-600"
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          Sign up
+        </motion.button>
+      </p>
       <p className="text-center text-sm text-gray-600">
         <motion.button
           onClick={() => setStep("requestEmail")}
@@ -253,9 +246,10 @@ const Login = ({ setSelected }) => {
       >
         {isLoading ? "Sending code..." : "Send Verification Code"}
       </motion.button>
+      {/* AQUÍ el botón que antes te devolvía al login, ahora te lleva siempre a la landing */}
       <p className="text-center text-sm text-gray-600">
         <motion.button
-          onClick={() => setStep("login")}
+          onClick={() => navigate("/")}
           className="font-medium text-yellow-500 hover:text-yellow-600"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
@@ -331,7 +325,9 @@ const Login = ({ setSelected }) => {
     >
       <Toaster position="top-center" />
       <div className="w-full max-w-xs sm:max-w-md mx-auto px-4">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">{step === "login" ? "Welcome Back" : "Forgot Password"}</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+          {step === "login" ? "Welcome Back" : "Forgot Password"}
+        </h2>
         {step === "login" && renderLoginForm()}
         {step === "requestEmail" && renderRequestEmailForm()}
         {step === "verifyCode" && renderVerifyCodeForm()}

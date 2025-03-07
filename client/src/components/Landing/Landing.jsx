@@ -12,7 +12,6 @@ import {
 import { FaApple, FaGooglePlay } from "react-icons/fa"; // Apple and Google Play icons
 import bgImage from "./../../assets/bgimage.jpg";
 import foodImage from "./../../assets/food.jpg";
-import deliveryImage from "./../../assets/deliveryImage.jpg";
 import "animate.css"; // Import Animate.css
 
 const Landing = () => {
@@ -114,11 +113,11 @@ const Landing = () => {
           {/* Text Section */}
           <div className="text-center text-white">
             <h1 className="text-3xl sm:text-4xl font-semibold mb-4">
-              One App for All Your Food Needs
+              One App for Dine-In and Pick-Up
             </h1>
             <p className="text-base sm:text-lg mb-6">
-              Find top places to eat in your city and enjoy special offers
-              available only through our app.
+              Discover top restaurants in your city. Easily order for pick-up,
+              or enjoy a great dining experience.
             </p>
             <div className="flex flex-col sm:flex-row justify-center sm:space-x-4 space-y-4 sm:space-y-0">
               <Button
@@ -143,14 +142,14 @@ const Landing = () => {
         style={{ backgroundImage: `url(${bgImage})` }}
       >
         <div className="relative max-w-7xl mx-auto ml-20 px-4 sm:px-6 lg:px-8 h-full flex flex-col lg:flex-row justify-between items-center">
-          {/* Sección de Texto */}
+          {/* Text Section */}
           <div className="flex-1 max-w-xl text-left lg:max-w-lg lg:pl-16">
             <h1 className="text-4xl font-semibold text-black mb-4 drop-shadow-lg">
-              One App for All Your Food Needs
+              One App for Dine-In and Pick-Up
             </h1>
             <p className="text-base text-black-200 mb-4 drop-shadow-lg">
-              Find top places to eat in your city and enjoy special offers
-              available only through our app.
+              Find the best places to eat in your city. Easily order for pick-up
+              or enjoy a full dine-in experience with Bodega+.
             </p>
             <div className="flex justify-start space-x-4">
               <Button
@@ -169,8 +168,7 @@ const Landing = () => {
         </div>
       </section>
 
-
-      {/* Gastronomy Section */}
+      {/* Pick-Up and Dine-In Section */}
       <section className="bg-white py-20 px-4 sm:px-6 lg:px-20 fade-in-section invisible">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center lg:items-start">
           {/* Image on the Left */}
@@ -187,11 +185,11 @@ const Landing = () => {
           {/* Text Section */}
           <div className="flex-1 lg:order-2 mt-10 lg:mt-0 lg:pl-16">
             <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              A Modern Dining Experience
+              Eat Better, Your Way
             </h2>
             <p className="text-lg text-gray-700 mb-6">
-              Unlock the full potential of Bodega+ to enhance both your dining
-              and delivery experiences.
+              Bodega+ caters to every dining preference, whether you want to
+              quickly pick up your meal or savor it on-site.
             </p>
             <ul className="space-y-8">
               <li className="flex items-start">
@@ -200,11 +198,11 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Install Bodega+
+                    Quick Install
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Download the app in seconds and start discovering exclusive
-                    restaurant listings and deals.
+                    Download the app in seconds and instantly explore top local
+                    spots.
                   </p>
                 </div>
               </li>
@@ -215,11 +213,11 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Browse & Select
+                    Find Nearby Restaurants
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Discover a variety of dining options, from popular hotspots
-                    to hidden local gems. There's something for every palate.
+                    Use location-based search to discover a variety of dining
+                    options, from quick bites to full-course meals.
                   </p>
                 </div>
               </li>
@@ -230,11 +228,11 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Save & Relish
+                    Convenient Pick-Up
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Enjoy great meals while saving money with our exclusive
-                    offers. Plus, earn points with each order and redeem rewards.
+                    Choose and order ahead, then pick up your meal at the
+                    restaurant—no lines, no wait.
                   </p>
                 </div>
               </li>
@@ -243,17 +241,17 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Delivery Section */}
+      {/* On-Site Dining Section */}
       <section className="bg-white py-20 px-4 sm:px-6 lg:px-20 fade-in-section invisible">
         <div className="max-w-7xl mx-auto flex flex-col gap-10 lg:flex-row items-center lg:items-start">
-          {/* Text Section for Delivery */}
+          {/* Text Section for On-Site Dining */}
           <div className="flex-1 lg:order-1 lg:pl-10">
             <h2 className="text-3xl font-semibold text-gray-900 mb-4">
-              Delivery Made Simple
+              Enjoy Your Meal On-Site
             </h2>
             <p className="text-lg text-gray-700 mb-6">
-              Order your favorite meals from the comfort of your home with
-              Bodega+’s delivery service.
+              Reserve your table and dine in at the best restaurants near you,
+              all through Bodega+.
             </p>
             <ul className="space-y-8">
               <li className="flex items-start">
@@ -262,12 +260,11 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Choose your Restaurant
+                    Plan Ahead
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Browse through our curated list of top-rated local
-                    restaurants and choose your favorite one. Bodega+ brings the
-                    best dining options straight to your phone.
+                    Browse menus, check seating availability, and reserve a
+                    table at your favorite spot.
                   </p>
                 </div>
               </li>
@@ -278,12 +275,11 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Track your Order
+                    Get Instant Confirmation
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Stay informed with real-time updates on your order. From the
-                    kitchen to your door, know exactly when your meal will
-                    arrive.
+                    Receive a confirmation in seconds. No need to call the
+                    restaurant or worry about wait times.
                   </p>
                 </div>
               </li>
@@ -294,23 +290,23 @@ const Landing = () => {
                 </span>
                 <div className="ml-4">
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Enjoy your Meal
+                    Dine & Enjoy
                   </h3>
                   <p className="text-sm text-gray-600">
-                    Sit back and relax as your delicious meal arrives right at
-                    your doorstep. All you need to do is enjoy every bite!
+                    Experience the ambiance of each restaurant. Earn rewards
+                    every time you dine with us.
                   </p>
                 </div>
               </li>
             </ul>
           </div>
 
-          {/* Image for Delivery */}
-          <div className="flex-1 lg:order-2">
+          {/* Could place an on-site dining image here if desired */}
+          <div className="flex-1 lg:order-2 mt-10 lg:mt-0">
             <div className="relative bg-[#f09a1a] rounded-lg p-4 sm:p-6 md:p-10 lg:p-10 w-full max-w-md mx-auto lg:max-w-lg">
               <img
-                src={deliveryImage}
-                alt="Delivery Service"
+                src={foodImage}
+                alt="Dine In"
                 className="w-full h-auto object-cover rounded-lg"
               />
             </div>
@@ -324,8 +320,13 @@ const Landing = () => {
         className="bg-[#f09a1a] py-20 px-4 sm:px-6 lg:px-20 lg:mx-20 rounded-xl text-center fade-in-section invisible"
       >
         <h2 className="text-3xl font-semibold text-gray-900 mb-6">
-          Savor Every Moment with Bodega+
+          Experience Bodega+ Your Way
         </h2>
+        <p className="text-md text-gray-800 mb-8">
+          Whether you pick up your meal or enjoy it on-site, Bodega+ makes it
+          seamless. Download now to explore top restaurants and exclusive
+          offers.
+        </p>
         <div className="flex flex-col sm:flex-row justify-center sm:space-x-4 space-y-4 sm:space-y-0">
           <Button
             onClick={goGooglePlay}
@@ -347,7 +348,6 @@ const Landing = () => {
       {/* Footer */}
       <footer className="bg-white py-10 fade-in-section invisible">
         <div className="border-t border-gray-200 mb-6"></div>
-        {/* Thin black line */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row justify-between">
           <div className="flex flex-col items-center lg:items-start mb-6 lg:mb-0">
             <img

@@ -13,7 +13,10 @@ import {
 import { useSelector, useDispatch } from "react-redux"
 import axios from "axios"
 import { getParamsEnv } from "../functions/getParamsEnv"
-import { logOutClient, emptyCart } from "../redux/actions/actions"
+import { logOutClient, emptyCart, loginSuccess } from "../redux/actions/actions" 
+// ↑ Aquí debes importar tu action (o la que uses para actualizar) en el store
+
+import { resetClient } from "../functions/ResetClient"
 
 const { API_URL_BASE } = getParamsEnv()
 
@@ -32,12 +35,9 @@ const SellerSettings = () => {
   // Function to fetch seller data (ssn and idNumber)
   const fetchSellerData = async () => {
     try {
-      const response = await axios.get(
-        `${API_URL_BASE}/api/clients/sett/idssn`,
-        {
-          headers: { authorization: `Bearer ${token}` }
-        }
-      )
+      const response = await axios.get(`${API_URL_BASE}/api/clients/sett/idssn`, {
+        headers: { authorization: `Bearer ${token}` }
+      })
       if (response.data) {
         setSSN(response.data.ssn || ssn)
         setIdNumber(response.data.idNumber || idNumber)
@@ -61,23 +61,30 @@ const SellerSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // Only the email field is editable, so we validate that it is provided
+
     if (!email) {
       setError("Email is required.")
       return
     }
     setError("")
+    setSuccess("")
+
     try {
+      // 1. Actualizamos el email en backend
       const payload = { email }
-      await axios.put(
-        `${API_URL_BASE}/api/seller/updateProfile`,
-        payload,
-        {
-          headers: {
-            authorization: `Bearer ${client?.token}`
-          }
+      await axios.put(`${API_URL_BASE}/api/clients/update`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-      )
+      })
+
+      // 2. Una vez actualizado, volvemos a pedir la info completa del cliente
+      const { client: updatedClient } = await resetClient(client?.id, token)
+
+      // 3. Actualizamos el store de Redux (o estado local) con los datos traídos.
+      dispatch(loginSuccess(updatedClient)) 
+      // asumiendo que updateClientData actualiza el state.client.client
+
       setSuccess("Data updated successfully.")
     } catch (err) {
       console.error(err)
@@ -128,15 +135,24 @@ const SellerSettings = () => {
                   </Button>
                 </MenuHandler>
                 <MenuList className="p-2 border border-gray-200 shadow-lg">
-                  <MenuItem onClick={handleHome} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
+                  <MenuItem
+                    onClick={handleHome}
+                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
+                  >
                     <HiOutlineHome className="h-5 w-5 text-black" />
                     <span>Home</span>
                   </MenuItem>
-                  <MenuItem onClick={handleSettings} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded">
+                  <MenuItem
+                    onClick={handleSettings}
+                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded"
+                  >
                     <HiOutlineUser className="h-5 w-5 text-black" />
                     <span>Settings</span>
                   </MenuItem>
-                  <MenuItem onClick={handleLogout} className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded text-red-500">
+                  <MenuItem
+                    onClick={handleLogout}
+                    className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded text-red-500"
+                  >
                     <HiOutlineLogout className="h-5 w-5" />
                     <span>Logout</span>
                   </MenuItem>

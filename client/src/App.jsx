@@ -63,7 +63,7 @@ function App() {
   const token = useSelector((state) => state?.client?.token);
   const activeShop = useSelector((state) => state.activeShop);
   const client = useSelector((state) => state?.client?.client);
-  const userRole = client?.role; // e.g. 0 or 1
+  const userRole = client?.role; // e.g. 0 (owner) or 1 (seller)
 
   // Socket for real-time updates
   const socket = socketIOClient("https://3.137.165.92");
@@ -72,8 +72,7 @@ function App() {
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
   const [loading, setLoading] = useState(true);
 
-  // Decide when to show sidebar/header
-  // Now also exclude "/error"
+  // Decide when to show sidebar/header (exclude /error among others)
   const renderSidebarAndHeader =
     location.pathname !== "/" &&
     location.pathname !== "/login" &&
@@ -150,8 +149,6 @@ function App() {
       {renderSidebarAndHeader && (
         <>
           <Sidebar className="sidebar">
-            {/* Routes allowed for owners (role=0) - visible if you want them
-                to appear in the sidebar always or based on conditions */}
             <SidebarItem
               icon={<ComputerDesktopIcon className="w-2" />}
               text="Dashboard"
@@ -340,12 +337,13 @@ function App() {
             </SellerProtectedRoute>
           }
         />
+        {/* Change /order-accepted to be accessible for owners (role = 0) */}
         <Route
           path="/order-accepted"
           element={
-            <SellerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole}>
               <OrderAccepted />
-            </SellerProtectedRoute>
+            </OwnerProtectedRoute>
           }
         />
 
