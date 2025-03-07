@@ -190,3 +190,27 @@ export const completeTutorial = async (req, res) => {
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
+export const getClientSecurityData = async (req, res) => {
+  try {
+    const clientId = req.user.clientId;
+    if (!clientId) {
+      return res.status(400).json({ message: "ID de cliente inválido." });
+    }
+    
+    const client = await Client.findByPk(clientId, {
+      attributes: ['idNumber', 'ssn']
+    });
+    
+    if (!client) {
+      return res.status(404).json({ message: "Cliente no encontrado." });
+    }
+    
+    res.json({
+      idNumber: client.idNumber,
+      ssn: client.ssn
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+    console.log(error)
+  }
+};

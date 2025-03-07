@@ -215,7 +215,7 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
         
         <!-- Pickup Code Section -->
         <div class="pickup-code">
-          <h3>PICKUP CODE</h3>
+          <h3>ORDER CODE</h3>
           <p class="code">${code || 'N/A'}</p>
           <p class="instructions">The user must show this code to receive their order</p>
         </div>

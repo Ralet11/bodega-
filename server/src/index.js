@@ -7,10 +7,10 @@ import { initializeSocket } from "./socket.js";
 import { FRONTEND_URL } from "./config.js";
 
 import fs from 'fs';
-import http from 'http' */
+import http from 'http'
 
 
-/* 
+
 
 sequelize.sync({ alter: true }).then(() => {
   

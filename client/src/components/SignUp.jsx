@@ -18,18 +18,18 @@ const SignUpForm = ({ setSelected, setLogged }) => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  // Validaciones front-end
+  // Front-end validations
   const [errors, setErrors] = useState({})
-  // Estado para el modal de términos
+  // State for the Terms modal
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false)
-  // Checkbox de términos
+  // Checkbox for terms acceptance
   const [termsAccepted, setTermsAccepted] = useState(false)
 
-  // Mostrar / Ocultar passwords
+  // Show/Hide password
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // Campos del formulario
+  // Form fields
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,9 +37,10 @@ const SignUpForm = ({ setSelected, setLogged }) => {
     confirmPassword: "",
     phone: "",
     address: "",
+    referencedCode: ""
   })
 
-  // Manejo de cambios en los inputs
+  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target
     let error = ""
@@ -54,6 +55,8 @@ const SignUpForm = ({ setSelected, setLogged }) => {
       error = "Passwords do not match"
     } else if ((name === "phone" || name === "address") && !value.trim()) {
       error = `${name.charAt(0).toUpperCase() + name.slice(1)} is required`
+    } else if (name === "referencedCode" && value.trim() !== "" && isNaN(Number(value))) {
+      error = "Reference Code must be numeric"
     }
 
     setFormData({
@@ -67,12 +70,12 @@ const SignUpForm = ({ setSelected, setLogged }) => {
     })
   }
 
-  // Manejo del checkbox de términos
+  // Handle terms checkbox change
   const handleCheckboxChange = (e) => {
     setTermsAccepted(e.target.checked)
   }
 
-  // Validaciones simples front-end
+  // Simple front-end validations
   const validateForm = () => {
     const newErrors = {}
     let isValid = true
@@ -108,34 +111,46 @@ const SignUpForm = ({ setSelected, setLogged }) => {
       isValid = false
     }
 
+    // Validate referencedCode if provided
+    if (formData.referencedCode && isNaN(Number(formData.referencedCode))) {
+      newErrors.referencedCode = "Reference Code must be numeric"
+      isValid = false
+    }
+
     setErrors(newErrors)
     return isValid
   }
 
-  // LÓGICA “ANTIGUA” DE REGISTRO (con toast)
+  // Registration logic (with toast notifications)
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Limpiamos toasts antiguos y validamos
+    // Clear old toasts and validate
     if (validateForm()) {
       try {
-        // Petición al backend
-        const response = await axios.post(`${API_URL_BASE}/api/auth/register`, formData)
+        // Prepare payload: if referencedCode is not provided, send as null
+        const payload = {
+          ...formData,
+          referencedCode: formData.referencedCode ? parseInt(formData.referencedCode, 10) : null
+        }
 
-        // Chequeamos si el servidor responde con algo como:
+        // Request to the backend
+        const response = await axios.post(`${API_URL_BASE}/api/auth/register`, payload)
+
+        // Check if the server responds with something like:
         // { data: { created: "ok" } }
         if (response.data?.data?.created === "ok") {
           toast.success("Account created successfully")
-          // Al crearse con éxito:
+          // On successful creation:
           setLogged(true)
           setSelected(true)
         } else {
-          // Si la respuesta no es la esperada, mostrar error genérico
+          // If the response is not as expected, show generic error
           toast.error("Failed to create account. Please try again.")
         }
       } catch (error) {
         let errorMessage = "There was an error in the registration."
-        // Si el servidor envía un mensaje de error
+        // If the server sends an error message
         if (error.response && error.response.data && error.response.data.message) {
           errorMessage = error.response.data.message
         }
@@ -149,7 +164,7 @@ const SignUpForm = ({ setSelected, setLogged }) => {
 
   return (
     <div className="w-full max-w-md mx-auto px-4">
-      {/* Toast para mensajes */}
+      {/* Toast for messages */}
       <Toaster position="top-center" />
 
       <h2 className="text-xl sm:text-2xl font-bold text-gray-700 mb-4 text-center sm:text-left">
@@ -221,17 +236,16 @@ const SignUpForm = ({ setSelected, setLogged }) => {
             />
              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 
                         w-8 h-8 flex items-center justify-center">
-                            <motion.button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              // Elimina el escalado o redúcelo para evitar movimientos
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
-                            >
-                              {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                            </motion.button>
-                          </div>
+                <motion.button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
+                >
+                  {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                </motion.button>
+              </div>
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
           </div>
         </div>
@@ -256,17 +270,16 @@ const SignUpForm = ({ setSelected, setLogged }) => {
             />
              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 
                         w-8 h-8 flex items-center justify-center">
-                            <motion.button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              // Elimina el escalado o redúcelo para evitar movimientos
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
-                            >
-                              {showPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                            </motion.button>
-                          </div>
+                <motion.button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-gray-400 hover:text-gray-600 focus:outline-none transition-colors duration-200"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                </motion.button>
+              </div>
             {errors.confirmPassword && <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>}
           </div>
         </div>
@@ -313,7 +326,27 @@ const SignUpForm = ({ setSelected, setLogged }) => {
           </div>
         </div>
 
-        {/* TÉRMINOS CHECKBOX */}
+        {/* REFERENCE CODE FIELD */}
+        <div>
+          <label htmlFor="referencedCode" className="block text-sm font-medium text-gray-700">
+            Reference Code
+          </label>
+          <div className="relative">
+            <input
+              id="referencedCode"
+              name="referencedCode"
+              type="number"
+              value={formData.referencedCode}
+              onChange={handleInputChange}
+              className="block w-full pl-3 pr-3 py-2 border border-gray-300 rounded-lg
+                         focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400"
+              placeholder="Enter your reference code (optional)"
+            />
+            {errors.referencedCode && <p className="text-red-500 text-xs mt-1">{errors.referencedCode}</p>}
+          </div>
+        </div>
+
+        {/* TERMS CHECKBOX */}
         <div className="space-y-2">
           <div className="flex items-start">
             <input
@@ -337,7 +370,7 @@ const SignUpForm = ({ setSelected, setLogged }) => {
           {errors.terms && <p className="text-red-500 text-xs">{errors.terms}</p>}
         </div>
 
-        {/* BOTÓN SUBMIT */}
+        {/* SUBMIT BUTTON */}
         <motion.button
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
@@ -363,7 +396,7 @@ const SignUpForm = ({ setSelected, setLogged }) => {
         </p>
       </form>
 
-      {/* Modal de Términos */}
+      {/* Terms Modal */}
       {isTermsModalOpen && (
         <TermsModal show={isTermsModalOpen} preHandleClose={() => setIsTermsModalOpen(false)} />
       )}

@@ -122,40 +122,37 @@ export const acceptOrder = async (req, res) => {
 export const acceptOrderByEmail = async (req, res) => {
   const io = getIo();
   try {
-    // Extraemos orderId y token de la query
     const { orderId, token } = req.query;
 
     if (!orderId || !token) {
       return res.status(400).json({ error: true, message: 'Missing orderId or token' });
     }
 
-    // Verificamos el token con la misma clave secreta usada al generarlo
     const decoded = jwt.verify(token, TOKEN_SECRET);
 
-    // Aseguramos que el token contenga el mismo orderId
     if (decoded.orderId !== parseInt(orderId, 10)) {
       return res.status(400).json({ error: true, message: 'Invalid token for this order' });
     }
 
-    // Buscamos la orden
     const order = await Order.findByPk(orderId);
     if (!order) {
       return res.status(404).json({ error: true, message: 'Order not found' });
     }
 
-    // Actualizamos el estado a "accepted"
-    await order.update({ status: 'accepted' });
+    // Si es Order-in, finalizamos; si es Pick-up, aceptamos
+    const newStatus = order.type === 'Order-in' ? 'finished' : 'accepted';
+    await order.update({ status: newStatus });
 
     // Emitimos el evento al room del usuario (o lo que necesites)
-    io.to(order.users_id).emit('changeOrderState', { status: 'accepted', orderId });
+    io.to(order.users_id).emit('changeOrderState', { status: newStatus, orderId });
 
-    // Respondemos con éxito
-    return res.status(200).json({ error: false, message: 'Order accepted successfully' });
+    return res.status(200).json({ error: false, message: `Order ${newStatus} successfully` });
   } catch (error) {
     console.error('Error al aceptar pedido por email:', error);
     return res.status(500).json({ error: true, message: 'Internal server error' });
   }
 };
+
 
 export const sendOrder = async (req, res) => {
   const { id } = req.params; // id de la orden

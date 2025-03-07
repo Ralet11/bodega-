@@ -27,34 +27,66 @@ const Login = ({ setSelected }) => {
   const dispatch = useDispatch()
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
+  
     try {
-      const response = await axios.post(`${API_URL_BASE}/api/auth/login`, { email, password, credentials: true })
+      console.log("Iniciando handleLogin. Email:", email, "Password:", password);
+      
+      const response = await axios.post(
+        `${API_URL_BASE}/api/auth/login`,
+        { email, password, credentials: true }
+      );
+  
+      console.log("Respuesta del servidor =>", response.data);
+  
       if (response.data.error === false) {
-        const clientData = response.data.data
-        if (!clientData.locals || clientData.locals.length === 0 || clientData.locals.every((local) => local.status === 0)) {
-          dispatch(loginSuccess(clientData))
-          dispatch(getCategories())
-          navigate(`/create-shop`)
-        } else {
-          const shopId = clientData.locals[0].id
-          dispatch(loginSuccess(clientData))
-          dispatch(changeShop(shopId))
-          dispatch(getCategories())
-          navigate(`/dashboard`)
-        }
-        toast.success("Login successful!")
+        const clientData = response.data.data;
+        console.log("clientData =>", clientData);
+        console.log("clientData.client.role =>", clientData.client.role, typeof clientData.client.role);
+  
+        // Verificamos si role es 0
+        if (clientData.client.role === 0) {
+          console.log("El rol del cliente es 0, revisamos locals...");
+  
+          if (
+            !clientData.locals ||
+            clientData.locals.length === 0 ||
+            clientData.locals.every(local => local.status === 0)
+          ) {
+            dispatch(loginSuccess(clientData));
+            dispatch(getCategories());
+            navigate("/create-shop");
+            toast.success("Login successful!");
+            return; // Para evitar que siga ejecutándose
+          } else {
+            const shopId = clientData.locals[0].id;
+            dispatch(loginSuccess(clientData));
+            dispatch(changeShop(shopId));
+            dispatch(getCategories());
+            navigate("/dashboard");
+            toast.success("Login successful!");
+            return;
+          }
+        } 
+        
+        // Si el rol no es 0 (podría ser 1 u otro)
+        console.log("El rol del cliente es distinto de 0 =>", clientData.client.role);
+        dispatch(loginSuccess(clientData));
+        navigate("/sellersPanel");
+        toast.success("Login successful!");
+        return;
+        
       } else {
-        toast.error("Invalid email or password")
+        toast.error("Invalid email or password");
       }
     } catch (error) {
-      console.error("Error:", error)
-      toast.error("An unexpected error occurred")
+      console.error("Error:", error);
+      toast.error("An unexpected error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleRequestReset = async (e) => {
     e.preventDefault();
