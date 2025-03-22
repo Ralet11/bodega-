@@ -66,7 +66,7 @@ function App() {
   const userRole = client?.role; // e.g. 0 (owner) or 1 (seller)
 
   // Socket for real-time updates
-  const socket = socketIOClient("https://3.137.165.92");
+  const socket = socketIOClient("http://localhost:80");
 
   // Local states
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
@@ -139,8 +139,9 @@ function App() {
       "/contact",
     ];
 
+    // Redirigimos a "/" si no hay token y se intenta acceder a rutas protegidas
     if (!token && protectedRoutes.includes(location.pathname)) {
-      navigate("/login");
+      navigate("/");
     }
   }, [dispatch, token, location.pathname, navigate, activeShop]);
 
@@ -194,7 +195,7 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Dashboard1 />
             </OwnerProtectedRoute>
           }
@@ -202,7 +203,7 @@ function App() {
         <Route
           path="/products"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Products />
             </OwnerProtectedRoute>
           }
@@ -210,7 +211,7 @@ function App() {
         <Route
           path="/shops"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Shops />
             </OwnerProtectedRoute>
           }
@@ -218,7 +219,7 @@ function App() {
         <Route
           path="/orders"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Orders />
             </OwnerProtectedRoute>
           }
@@ -226,7 +227,7 @@ function App() {
         <Route
           path="/history"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <OrdersHistory />
             </OwnerProtectedRoute>
           }
@@ -234,7 +235,7 @@ function App() {
         <Route
           path="/settings"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Settings />
             </OwnerProtectedRoute>
           }
@@ -242,7 +243,7 @@ function App() {
         <Route
           path="/discounts"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <Discounts />
             </OwnerProtectedRoute>
           }
@@ -250,7 +251,7 @@ function App() {
         <Route
           path="/distributorsCommerce"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <DistributorComerce />
             </OwnerProtectedRoute>
           }
@@ -258,7 +259,7 @@ function App() {
         <Route
           path="/distProduct-detail"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <DistProdCard />
             </OwnerProtectedRoute>
           }
@@ -266,7 +267,7 @@ function App() {
         <Route
           path="/cartView"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <CartView />
             </OwnerProtectedRoute>
           }
@@ -274,7 +275,7 @@ function App() {
         <Route
           path="/succesPaymentDist"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <SuccessPaymentDist />
             </OwnerProtectedRoute>
           }
@@ -282,7 +283,7 @@ function App() {
         <Route
           path="/distHistoryBuy"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <DistPurchaseHistory />
             </OwnerProtectedRoute>
           }
@@ -290,7 +291,7 @@ function App() {
         <Route
           path="/create-shop"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <CreateFirstShop />
             </OwnerProtectedRoute>
           }
@@ -298,7 +299,7 @@ function App() {
         <Route
           path="/contact"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <ContactForm />
             </OwnerProtectedRoute>
           }
@@ -306,7 +307,7 @@ function App() {
         <Route
           path="/searchProducts"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <FindedProducts />
             </OwnerProtectedRoute>
           }
@@ -314,7 +315,7 @@ function App() {
         <Route
           path="/clientSettings"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <ClientSettings />
             </OwnerProtectedRoute>
           }
@@ -324,7 +325,7 @@ function App() {
         <Route
           path="/sellersPanel"
           element={
-            <SellerProtectedRoute userRole={userRole}>
+            <SellerProtectedRoute userRole={userRole} token={token}>
               <SellersPanel />
             </SellerProtectedRoute>
           }
@@ -332,7 +333,7 @@ function App() {
         <Route
           path="/sellerSettings"
           element={
-            <SellerProtectedRoute userRole={userRole}>
+            <SellerProtectedRoute userRole={userRole} token={token}>
               <SellerSettings />
             </SellerProtectedRoute>
           }
@@ -341,7 +342,7 @@ function App() {
         <Route
           path="/order-accepted"
           element={
-            <OwnerProtectedRoute userRole={userRole}>
+            <OwnerProtectedRoute userRole={userRole} token={token}>
               <OrderAccepted />
             </OwnerProtectedRoute>
           }

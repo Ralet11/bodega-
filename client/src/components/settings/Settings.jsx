@@ -14,7 +14,8 @@ import { PlusIcon, XIcon } from 'lucide-react'
 
 const { API_URL_BASE } = getParamsEnv()
 
-// Días de la semana. Se usan para mapear con el backend.
+
+
 const daysOfWeek = [
   { day: 'Monday', code: 'mon' },
   { day: 'Tuesday', code: 'tue' },
@@ -30,6 +31,7 @@ export default function HypermodernShopSettings() {
   const client = useSelector((state) => state.client)
   const token = client.token
   const categories = useSelector((state) => state.categories)
+
 
   const [tags, setTags] = useState([])
   const [selectedTags, setSelectedTags] = useState([])
@@ -49,37 +51,32 @@ export default function HypermodernShopSettings() {
     delivery: false,
     pickUp: false,
     orderIn: false,
-    // Por defecto, cada día es 00:00 a 23:59 hasta que obtengamos la data real
+    // Por defecto, cada día es 00:00 a 23:59 hasta obtener la data real
     openingHours: daysOfWeek.map(day => ({ ...day, open: '00:00', close: '23:59' }))
   })
 
   const [latLong, setLatLong] = useState({ lat: -34.397, lng: 150.644 })
-  const [isUploading, setIsUploading] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
-  // Referencias a los campos de input para subir imágenes
+  // Referencias para inputs de imagen
   const logoInputRef = useRef(null)
   const placeImageInputRef = useRef(null)
   const deliveryImageInputRef = useRef(null)
 
   const dispatch = useDispatch()
 
-  // Al montar o cambiar activeShop, obtenemos la data del back
+  // Obtener data del shop al montar o cambiar activeShop
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(`${API_URL_BASE}/api/local/get/${activeShop}`)
         const data = response.data
 
-        // Ajustamos los horarios por cada día: si los tiene, los usamos;
-        // si no, por defecto 00:00 -> 23:59
+        // Ajustar horarios: si existen en la data, se usan; de lo contrario, por defecto
         const openingHours = daysOfWeek.map(day => {
           const matchedDay = data.openingHours.find(openHour => openHour.day === day.code)
           return matchedDay
-            ? {
-                ...day,
-                open: matchedDay.open_hour,
-                close: matchedDay.close_hour
-              }
+            ? { ...day, open: matchedDay.open_hour, close: matchedDay.close_hour }
             : { ...day, open: '00:00', close: '23:59' }
         })
 
@@ -104,13 +101,13 @@ export default function HypermodernShopSettings() {
         setLatLong({ lat: data.lat, lng: data.lng })
       } catch (error) {
         toast.error('Error fetching shop data.')
-        console.error('Error en la solicitud:', error)
+        console.error('Error fetching shop data:', error)
       }
     }
     fetchData()
   }, [activeShop])
 
-  // Si ya seleccionó categoría, traemos las tags disponibles
+  // Obtener tags disponibles si se ha seleccionado categoría
   useEffect(() => {
     const fetchTags = async () => {
       if (shopData.category) {
@@ -125,14 +122,12 @@ export default function HypermodernShopSettings() {
     fetchTags()
   }, [shopData.category])
 
-  // Agregar tag a la lista de seleccionadas
   const handleAddTag = (tag) => {
-    if (!selectedTags.some((selectedTag) => selectedTag.id === tag.id)) {
+    if (!selectedTags.some(selectedTag => selectedTag.id === tag.id)) {
       setSelectedTags([...selectedTags, tag])
     }
   }
 
-  // Remover tag
   const handleRemoveTag = (tagId) => {
     setSelectedTags(selectedTags.filter(tag => tag.id !== tagId))
   }
@@ -151,59 +146,12 @@ export default function HypermodernShopSettings() {
     setShopData(prevState => ({
       ...prevState,
       openingHours: prevState.openingHours.map((hour, i) =>
-        i === index
-          ? { ...hour, [field]: value }
-          : hour
+        i === index ? { ...hour, [field]: value } : hour
       )
     }))
   }
 
-  // Sube imágenes al servidor
-  const handleImageUpload = async () => {
-    setIsUploading(true)
-    const formData = new FormData()
-    formData.append('id', shopData.id)
-    formData.append('action', 'shop')
-
-    if (logoInputRef.current.files[0]) {
-      formData.append('logo', logoInputRef.current.files[0])
-    }
-    if (placeImageInputRef.current.files[0]) {
-      formData.append('placeImage', placeImageInputRef.current.files[0])
-    }
-    if (deliveryImageInputRef.current.files[0]) {
-      formData.append('deliveryImage', deliveryImageInputRef.current.files[0])
-    }
-
-    try {
-      const response = await axios.post(`${API_URL_BASE}/api/up-image/`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      })
-
-      if (response.status === 200) {
-        toast.success('Images uploaded successfully')
-        const { logo, placeImage, deliveryImage } = response.data
-        setShopData(prevData => ({
-          ...prevData,
-          logo: logo || prevData.logo,
-          placeImage: placeImage || prevData.placeImage,
-          deliveryImage: deliveryImage || prevData.deliveryImage
-        }))
-      } else {
-        toast.error('Error uploading images')
-      }
-    } catch (error) {
-      console.error('Error uploading images:', error)
-      toast.error('Error uploading images')
-    }
-
-    setIsUploading(false)
-  }
-
-  // Previsualizar imágenes en local
+  // Manejo de cambio de imagen: previsualiza la imagen seleccionada
   const handleImageChange = (event, type) => {
     const file = event.target.files[0]
     if (file) {
@@ -220,9 +168,10 @@ export default function HypermodernShopSettings() {
     }
   }
 
-  // Guardar cambios
+  // Unificar todas las acciones de guardado en un solo método
   const handleSubmit = async (event) => {
     event.preventDefault()
+    setIsSaving(true)
     const updatedShop = {
       id: shopData.id,
       name: shopData.name,
@@ -236,48 +185,70 @@ export default function HypermodernShopSettings() {
       orderIn: shopData.orderIn,
       tags: selectedTags.map(tag => tag.id)
     }
-
-    // 1) Actualizar info básica de la tienda
     try {
+      // 1) Actualizar información básica del shop
       const response = await axios.put(
         `${API_URL_BASE}/api/local/update/${shopData.id}`,
         updatedShop,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       )
       toast.success('Shop data updated successfully.')
       dispatch(setClientLocals(response.data.locals))
-    } catch (error) {
-      toast.error('Error updating shop data.')
-      console.error('Error updating shop data', error)
-    }
 
-    // 2) Guardar los horarios
-    const formattedOpeningHours = shopData.openingHours.map(hour => ({
-      day: hour.code,
-      open: hour.open,
-      close: hour.close
-    }))
-
-    try {
+      // 2) Guardar horarios de apertura
+      const formattedOpeningHours = shopData.openingHours.map(hour => ({
+        day: hour.code,
+        open: hour.open,
+        close: hour.close
+      }))
       await axios.post(
         `${API_URL_BASE}/api/local/updateOpeningHours`,
-        {
-          localId: shopData.id,
-          openingHours: formattedOpeningHours
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
+        { localId: shopData.id, openingHours: formattedOpeningHours },
+        { headers: { Authorization: `Bearer ${token}` } }
       )
+
+      // 3) Subir imágenes (si se seleccionaron archivos)
+      const formData = new FormData()
+      formData.append('id', shopData.id)
+      formData.append('action', 'shop')
+      if (logoInputRef.current && logoInputRef.current.files[0]) {
+        formData.append('logo', logoInputRef.current.files[0])
+      }
+      if (placeImageInputRef.current && placeImageInputRef.current.files[0]) {
+        formData.append('placeImage', placeImageInputRef.current.files[0])
+      }
+      if (deliveryImageInputRef.current && deliveryImageInputRef.current.files[0]) {
+        formData.append('deliveryImage', deliveryImageInputRef.current.files[0])
+      }
+      if (formData.has('logo') || formData.has('placeImage') || formData.has('deliveryImage')) {
+        const imageResponse = await axios.post(
+          `${API_URL_BASE}/api/up-image/`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
+            }
+          }
+        )
+        if (imageResponse.status === 200) {
+          toast.success('Images uploaded successfully')
+          const { logo, placeImage, deliveryImage } = imageResponse.data
+          setShopData(prevData => ({
+            ...prevData,
+            logo: logo || prevData.logo,
+            placeImage: placeImage || prevData.placeImage,
+            deliveryImage: deliveryImage || prevData.deliveryImage
+          }))
+        } else {
+          toast.error('Error uploading images')
+        }
+      }
     } catch (error) {
-      toast.error('Error saving opening hours.')
-      console.error('Error saving opening hours:', error)
+      toast.error('Error saving shop data.')
+      console.error('Error saving shop data', error)
+    } finally {
+      setIsSaving(false)
     }
   }
 
@@ -305,7 +276,7 @@ export default function HypermodernShopSettings() {
               placeholder="Enter your shop name"
             />
 
-            {/* Dirección con mapa */}
+            {/* Address with Map */}
             <div className="space-y-2">
               <label htmlFor="address" className="text-sm font-medium text-gray-700 block">
                 Address
@@ -317,7 +288,7 @@ export default function HypermodernShopSettings() {
               />
             </div>
 
-            {/* Teléfono */}
+            {/* Phone */}
             <div className="space-y-2">
               <label htmlFor="phone" className="text-sm font-medium text-gray-700 block">
                 Phone
@@ -326,11 +297,13 @@ export default function HypermodernShopSettings() {
                 country={'us'}
                 value={shopData.phone}
                 inputClass="w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                onChange={(value) => setShopData(prevState => ({ ...prevState, phone: value })) }
+                onChange={(value) =>
+                  setShopData(prevState => ({ ...prevState, phone: value }))
+                }
               />
             </div>
 
-            {/* Categoría */}
+            {/* Category */}
             <div className="space-y-2">
               <label htmlFor="category" className="text-sm font-medium text-gray-700 block">
                 Category
@@ -366,7 +339,7 @@ export default function HypermodernShopSettings() {
                           handleAddTag(tag)
                         }}
                         className={`py-1 px-3 rounded-full text-sm font-medium transition-colors duration-200 ${
-                          selectedTags.some((selectedTag) => selectedTag.id === tag.id)
+                          selectedTags.some(selectedTag => selectedTag.id === tag.id)
                             ? 'bg-blue-500 text-white'
                             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                         }`}
@@ -405,7 +378,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
-            {/* Imágenes */}
+            {/* Images */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Shop Images</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -428,44 +401,10 @@ export default function HypermodernShopSettings() {
                   inputRef={deliveryImageInputRef}
                 />
               </div>
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition duration-300 ease-in-out flex items-center"
-                  onClick={handleImageUpload}
-                  disabled={isUploading}
-                >
-                  {isUploading ? (
-                    <>
-                      <svg
-                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        />
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 
-                          3.042 1.135 5.824 3 7.938l3-2.647z"
-                        />
-                      </svg>
-                      Uploading...
-                    </>
-                  ) : (
-                    'Upload Images'
-                  )}
-                </button>
-              </div>
+              {/* Botón de subir imagen se elimina para unificar en el guardado general */}
             </div>
 
-            {/* Horarios */}
+            {/* Working Hours */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Working Hours</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -491,7 +430,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
-            {/* Servicios */}
+            {/* Services */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800">Services</h2>
               <div className="space-y-2">
@@ -519,7 +458,7 @@ export default function HypermodernShopSettings() {
               </div>
             </div>
 
-            {/* Botón para guardar */}
+            {/* Save Changes Button */}
             <motion.div
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -529,7 +468,32 @@ export default function HypermodernShopSettings() {
                 type="submit"
                 className="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md hover:from-blue-600 hover:to-blue-700 transition duration-300 ease-in-out font-medium text-lg shadow-md"
               >
-                Save Changes
+                {isSaving ? (
+                  <div className="flex items-center">
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2 text-white"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                        fill="none"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z"
+                      />
+                    </svg>
+                    Saving...
+                  </div>
+                ) : (
+                  'Save Changes'
+                )}
               </button>
             </motion.div>
           </form>
@@ -538,8 +502,6 @@ export default function HypermodernShopSettings() {
     </div>
   )
 }
-
-/** Componentes auxiliares */
 
 // Campo de texto simple
 function InputField({ label, id, ...props }) {
@@ -557,7 +519,7 @@ function InputField({ label, id, ...props }) {
   )
 }
 
-// Para subir imágenes (logo, placeImage, etc.)
+// Componente para subir imágenes
 function ImageUpload({ label, image, onChange, inputRef }) {
   return (
     <div className="space-y-2">
@@ -607,4 +569,3 @@ function Checkbox({ id, label, ...props }) {
     </div>
   )
 }
-  

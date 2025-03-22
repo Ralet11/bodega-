@@ -33,7 +33,7 @@ const Dashboard = () => {
   const clientId = useSelector((state) => state?.client?.client?.id);
   const client = useSelector((state) => state?.client?.client);
   const { API_URL_BASE } = getParamsEnv();
-  console.log(client, "cli")
+
 
   const dispatch = useDispatch();
 

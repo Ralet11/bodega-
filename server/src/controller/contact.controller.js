@@ -1,7 +1,6 @@
 
 import db from '../models/index.js';
-const { sendContactEmail} = db;
-
+import { sendContactEmail } from '../functions/sencontactEmail.js';
 
 export const sendEmailContact = async (req, res) => {
     const {name, email, phone, message} = req.body

@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getParamsEnv } from "../functions/getParamsEnv";
 const { API_URL_BASE } = getParamsEnv();
+
 const OrderAccepted = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -10,27 +11,24 @@ const OrderAccepted = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Obtenemos el orderId y el token desde la URL
+  // Get orderId and token from the URL
   const orderId = searchParams.get("orderId");
   const token = searchParams.get("token");
 
   useEffect(() => {
     const acceptOrder = async () => {
       try {
-        // Llamada al endpoint de tu backend para aceptar la orden
+        // Call your backend endpoint to accept the order
         const response = await axios.get(
           `${API_URL_BASE}/api/orders/acceptByEmail?orderId=${orderId}&token=${token}`
         );
 
         if (response.data.error) {
-          // Si el backend indica un error, lo guardamos en el estado
           setError(response.data.message || "An error occurred while accepting your order.");
         } else {
-          // Si no hay error, asumimos que la orden se aceptó correctamente
           setError(null);
         }
       } catch (err) {
-        // Capturamos errores de red, etc.
         setError(
           err.response?.data?.message ||
             "An error occurred while accepting your order."
@@ -75,21 +73,21 @@ const OrderAccepted = () => {
     );
   }
 
-  // Si no hay error y no estamos cargando, significa que se aceptó con éxito
+  // Success state for the owner view
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md max-w-md w-full text-center">
         <h2 className="text-2xl font-semibold text-green-600">
-          Your order has been accepted successfully!
+          You've accepted the order!
         </h2>
         <p className="mt-4 text-gray-600">
-          Thank you for using our service. You can now check your order status.
+          You can now continue managing your orders from your dashboard.
         </p>
         <button
           onClick={() => navigate("/orders")}
           className="mt-6 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
         >
-          Go to My Orders
+          Manage Orders
         </button>
       </div>
     </div>

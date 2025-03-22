@@ -51,6 +51,8 @@ export const getByCategoryId = async (req, res) => {
 // =============================
 // addProduct (1:N)
 export const addProduct = async (req, res) => {
+
+  console.log(req.body, "body")
   const { 
     name,
     price,

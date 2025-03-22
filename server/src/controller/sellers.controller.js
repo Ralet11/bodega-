@@ -1,6 +1,8 @@
 import db from '../models/index.js';
 import { Op } from 'sequelize';
-
+import { SSK } from '../config.js'; // SSK es tu clave secreta de Stripe
+import Stripe from 'stripe'; // Importamos Stripe
+const stripe = new Stripe(SSK); // Inicializamos Stripe con tu clave secreta
 const { Client, Local, Order } = db;
 
 export const getAffiliatedShops = async (req, res) => {
@@ -39,7 +41,7 @@ export const getAffiliatedShops = async (req, res) => {
       ]
     });
 
-    console.log(clients[0])
+    console.log(clients[0]);
 
     // 4. Extraer todos los shops (locals) y calcular el total vendido en el mes actual para cada uno
     const allShops = clients.flatMap(client =>
@@ -64,5 +66,31 @@ export const getAffiliatedShops = async (req, res) => {
       success: false,
       message: 'Error al intentar obtener los shops afiliados.'
     });
+  }
+};
+
+export const createStripeAccount = async (req, res) => {
+  try {
+    const { email, business_name, country } = req.body;
+    // Crear cuenta de Stripe de tipo "express"
+    const account = await stripe.accounts.create({
+      type: 'express',
+      country,
+      email,
+      business_profile: {
+        name: business_name
+      }
+    });
+    // Crear enlace de onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: process.env.STRIPE_REFRESH_URL, // URL para refrescar el onboarding
+      return_url: process.env.STRIPE_RETURN_URL,   // URL a la que regresa el usuario
+      type: 'account_onboarding'
+    });
+    return res.json({ url: accountLink.url });
+  } catch (error) {
+    console.error("Error creating Stripe account:", error);
+    return res.status(500).json({ message: "Error creating Stripe account" });
   }
 };

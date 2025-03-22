@@ -91,6 +91,11 @@ export default (sequelize, DataTypes) => {
       references: { model: 'clients', key: 'id' },
       onDelete: 'SET NULL',
       onUpdate: 'CASCADE'
+    },
+    stripe_account_id: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: null
     }
   }, {
     tableName: 'clients',
@@ -102,7 +107,6 @@ export default (sequelize, DataTypes) => {
     Client.hasMany(models.ClientPaymentDetail, { foreignKey: 'client_id' });
     Client.hasMany(models.Local, { foreignKey: 'clients_id', as: 'locals' });
     Client.hasMany(models.Promotion, { foreignKey: 'clientId', as: 'promotions' });
-    // Asociación self-referencial: si el cliente es un local, este puede pertenecer a un vendedor
     Client.belongsTo(models.Client, { foreignKey: 'affiliatedSellerId', as: 'seller' });
   };
 

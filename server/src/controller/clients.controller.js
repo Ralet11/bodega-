@@ -3,7 +3,9 @@ const { Client, Local} = db;
 
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-
+import { SSK, FRONTEND_URL } from '../config.js'; // SSK es tu clave secreta de Stripe
+import Stripe from 'stripe'; // Importamos Stripe
+const stripe = new Stripe(SSK); // Inicializamos Stripe con tu clave secreta
 
 
 export const getAllClients = async (req, res) => {
@@ -240,5 +242,78 @@ export const getClientSecurityData = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
     console.log(error)
+  }
+};
+
+export const createStripeAccount = async (req, res) => {
+  try {
+    const { email, business_name, country } = req.body;
+    const clientId = req.user?.clientId; // Suponiendo que tu middleware de auth agrega esto
+
+    if (!clientId) return res.status(401).json({ message: "Unauthorized" });
+
+    const client = await Client.findByPk(clientId);
+    if (!client) return res.status(404).json({ message: "Client not found" });
+
+    // Crear cuenta de Stripe tipo "express"
+    const account = await stripe.accounts.create({
+      type: 'express',
+      country,
+      email,
+      business_profile: {
+        name: business_name
+      }
+    });
+
+    // Guardar el stripe_account_id en la base de datos
+    client.stripe_account_id = account.id;
+    await client.save();
+
+    // Crear enlace de onboarding
+    const accountLink = await stripe.accountLinks.create({
+      account: account.id,
+      refresh_url: `${FRONTEND_URL}/ClientSettings`,
+      return_url: `${FRONTEND_URL}/ClientSettings`,
+      type: 'account_onboarding'
+    });
+
+    return res.json({ url: accountLink.url });
+  } catch (error) {
+    console.error("Error creating Stripe account:", error);
+    return res.status(500).json({ message: "Error creating Stripe account" });
+  }
+};
+
+export const checkStripeStatus = async (req, res) => {
+  try {
+    const clientId = req.user.clientId;
+    const client = await Client.findByPk(clientId);
+
+    if (!client || !client.stripe_account_id) {
+      return res.status(400).json({ message: "No Stripe account found for this client." });
+    }
+
+    const account = await stripe.accounts.retrieve(client.stripe_account_id);
+
+    if (account.details_submitted) {
+      // La cuenta ya completó el onboarding, podemos generar el login link para acceder al dashboard
+      const loginLink = await stripe.accounts.createLoginLink(client.stripe_account_id);
+      return res.json({ status: "completed", url: loginLink.url });
+    } else {
+      // Onboarding incompleto, generamos el account onboarding link para que el usuario finalice el proceso
+      const accountLink = await stripe.accountLinks.create({
+        account: client.stripe_account_id,
+        refresh_url: `${FRONTEND_URL}/ClientSettings`,
+        return_url: `${FRONTEND_URL}/ClientSettings`,
+        type: 'account_onboarding'
+      });
+      return res.json({
+        status: "incomplete",
+        url: accountLink.url
+      });
+    }
+  } catch (error) {
+    console.error("Error checking Stripe status:", error);
+    return res.status(500).json({ message: "Error checking Stripe account status" });
   }
 };

@@ -64,15 +64,20 @@ export const getByLocalIdAndStatus = async (req, res) => {
       return res.status(403).json({ message: "Forbidden. Client ID does not match." });
     }
 
-    // Obtener las órdenes relacionadas con el local
+    // Obtener las órdenes relacionadas con el local e incluir el name del usuario
     const orders = await Order.findAll({
-      where: {
-        local_id: id,
-      },
+      where: { local_id: id },
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['name']
+        }
+      ]
     });
 
     // Convertir las órdenes a objetos simples para visualizarlas en el log
-    const ordersJSON = orders.map((order) => order.toJSON());
+    const ordersJSON = orders.map(order => order.toJSON());
     console.log(`Found ${ordersJSON.length} orders for local_id: ${id}`, ordersJSON);
 
     // Normalizar tipos para coincidir con lo que espera el frontend
@@ -94,6 +99,7 @@ export const getByLocalIdAndStatus = async (req, res) => {
     res.status(500).json({ message: "Error interno del servidor." });
   }
 };
+
 
 export const acceptOrder = async (req, res) => {
   const { id } = req.params; // id de la orden

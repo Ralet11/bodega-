@@ -6,7 +6,7 @@ let io;
 const initializeSocket = (server) => {
   io = new SocketIO(server, {
     cors: {
-      origin: `${FRONTEND_URL}`, // Ajusta según tu necesidad
+      origin: `${FRONTEND_URL}`, 
       methods: ["GET", "POST"]
     }
   });
@@ -14,7 +14,7 @@ const initializeSocket = (server) => {
   io.on("connection", (socket) => {
     console.log(`Cliente WebSocket conectado: ${socket.id}`);
     
-    // Escuchar el evento 'joinRoom' para unir al socket a un room específico
+   
     socket.on("joinRoom", (userId) => {
       socket.join(userId);
       console.log(`Socket ${socket.id} se unió al room ${userId}`);

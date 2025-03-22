@@ -48,7 +48,6 @@ export default function EditProductModal({
 
   useEffect(() => {
     if (selectedProduct) {
-      console.log(selectedProduct, 'selectedProduct');
 
       setProduct({
         name: selectedProduct.name || '',

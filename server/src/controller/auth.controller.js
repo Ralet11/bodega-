@@ -1,10 +1,37 @@
 import db from '../models/index.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 import { sendWelcomeEmail } from '../functions/SendWelcomeEmail.js';
 import { sendVerificationCodeEmail } from '../functions/sendPasswordReset.js';
 
 const { Client, Local, User } = db;
+
+// Configuración del cliente JWKS de Apple
+const appleJwksClient = jwksClient({
+  jwksUri: 'https://appleid.apple.com/auth/keys'
+});
+
+// Función para obtener la clave de firma de Apple
+const getAppleSigningKey = (header, callback) => {
+  appleJwksClient.getSigningKey(header.kid, (err, key) => {
+    if (err) {
+      return callback(err);
+    }
+    const signingKey = key.getPublicKey();
+    callback(null, signingKey);
+  });
+};
+
+// Función para verificar y decodificar el token de Apple
+const verifyAppleToken = (appleToken) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(appleToken, getAppleSigningKey, { algorithms: ['RS256'] }, (err, decoded) => {
+      if (err) return reject(err);
+      resolve(decoded);
+    });
+  });
+};
 
 export const registerClient = async (req, res) => {
   try {
@@ -56,7 +83,6 @@ export const registerClient = async (req, res) => {
     res.status(500).json({ error: true, message: error.message });
   }
 };
-
 
 export const loginClient = async (req, res) => {
   try {
@@ -250,10 +276,20 @@ export const googleLogin = async (req, res) => {
 /* ===== Apple Controllers ===== */
 export const appleSignIn = async (req, res) => {
   try {
-    const { userInfo } = req.body;
-    if (!userInfo || !userInfo.appleUserId) {
-      return res.status(400).json({ message: "Missing user information from Apple." });
+    // Se espera recibir el token de Apple en el body
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Missing token from Apple." });
     }
+    // Se verifica y decodifica el token usando las claves públicas de Apple
+    const decoded = await verifyAppleToken(token);
+    // Se extrae la información del usuario del token
+    const userInfo = {
+      appleUserId: decoded.sub,
+      email: decoded.email,
+      fullName: decoded.fullName,
+      phone: decoded.phone
+    };
 
     let user = await User.findOne({ where: { appleUserId: userInfo.appleUserId } });
     if (!user) {
@@ -270,7 +306,7 @@ export const appleSignIn = async (req, res) => {
       return res.status(400).json({ message: "This account is already registered with a different method." });
     }
 
-    const token = jwt.sign({ userId: user.id }, "secret_key");
+    const sessionToken = jwt.sign({ userId: user.id }, "secret_key");
     const userData = {
       name: user.name,
       email: user.email,
@@ -282,7 +318,7 @@ export const appleSignIn = async (req, res) => {
 
     res.json({
       error: false,
-      data: { token, client: userData, message: "Apple Sign-In successful" }
+      data: { token: sessionToken, client: userData, message: "Apple Sign-In successful" }
     });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
@@ -291,10 +327,17 @@ export const appleSignIn = async (req, res) => {
 
 export const appleLogin = async (req, res) => {
   try {
-    const { userInfo } = req.body;
-    if (!userInfo || !userInfo.appleUserId) {
-      return res.status(400).json({ message: "Missing user information from Apple." });
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Missing token from Apple." });
     }
+    const decoded = await verifyAppleToken(token);
+    const userInfo = {
+      appleUserId: decoded.sub,
+      email: decoded.email,
+      fullName: decoded.fullName,
+      phone: decoded.phone
+    };
 
     let user = await User.findOne({ where: { appleUserId: userInfo.appleUserId } });
     if (!user) {
@@ -304,7 +347,7 @@ export const appleLogin = async (req, res) => {
       return res.status(400).json({ message: "This Apple ID is registered with a different method. Please use the correct login method." });
     }
 
-    const token = jwt.sign({ userId: user.id }, "secret_key");
+    const sessionToken = jwt.sign({ userId: user.id }, "secret_key");
     const userData = {
       name: user.name,
       email: user.email,
@@ -316,7 +359,7 @@ export const appleLogin = async (req, res) => {
 
     res.json({
       error: false,
-      data: { token, client: userData, message: "Apple Login successful" }
+      data: { token: sessionToken, client: userData, message: "Apple Login successful" }
     });
   } catch (error) {
     res.status(500).json({ error: true, message: error.message });
@@ -440,7 +483,7 @@ export const requestResetCodeUser = async (req, res) => {
 };
 
 export const verifyResetCodeUser = async (req, res) => {
-  console.log(req.body)
+  console.log(req.body);
   const { email, code } = req.body;
   try {
     const user = await User.findOne({ where: { email } });

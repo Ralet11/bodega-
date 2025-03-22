@@ -1,5 +1,5 @@
 import db from '../models/index.js';
-const {User, Client, PayMethod, UserBodegaProSubs} = db;
+const {User, Client, PayMethod, UserBodegaProSubs, Local} = db;
 
 import Stripe from 'stripe';
 import { FRONTEND_URL, SSK } from '../config.js';
@@ -7,26 +7,36 @@ import { FRONTEND_URL, SSK } from '../config.js';
 const stripe = new Stripe(SSK);
 
 export const tryIntent = async (req, res) => {
-  const { finalPrice } = req.body;
+  const { finalPrice, activeShop } = req.body;
 
+  const shop = await Local.findByPk(activeShop)
 
+console.log(shop, "shop")
+
+   const client = await Client.findByPk(shop.clients_id)
+
+  const connectedAccountId = client.stripe_account_id
+
+  console.log(client, "conect")
+
+  const applicationFee = Math.round(finalPrice * 0.10);
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: finalPrice,
+      amount: finalPrice, // valor en centavos
       currency: 'usd',
       automatic_payment_methods: {
-        enabled: true, // Esto permite habilitar Apple Pay y Google Pay
+        enabled: true,
       },
+      transfer_data: {
+        destination: connectedAccountId, // ID de la cuenta conectada de la tienda
+      },
+      application_fee_amount: applicationFee, // comisión de la plataforma, en centavos
     });
 
     res.json({ clientSecret: paymentIntent.client_secret });
-
   } catch (error) {
-    res.status(400).json({
-      error: error.message
-    });
-
     console.log(error.message);
+    res.status(400).json({ error: error.message });
   }
 };
 

@@ -1,5 +1,3 @@
-// ProductModal.js
-
 import React, { useState, useEffect } from 'react';
 import {
   XMarkIcon,
@@ -10,7 +8,6 @@ import {
 import axios from 'axios';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 
-// Updated colors
 const colors = {
   primary: '#FFB74D', // Warm orange
   textPrimary: '#000000', // Black
@@ -43,10 +40,8 @@ export default function ProductModal({
     delivery: '0',
   });
 
-  // Nuevo estado para el loader
   const [isSaving, setIsSaving] = useState(false);
 
-  // Set default limitDate to 5 years from now if not specified
   useEffect(() => {
     if (!product.limitDate) {
       const fiveYearsFromNow = new Date();
@@ -187,10 +182,9 @@ export default function ProductModal({
   };
 
   const handleSave = async () => {
-    // Inicia loader
     setIsSaving(true);
 
-    // Prepare product data
+    // Agregamos discountPercentage al objeto a enviar
     const updatedProduct = {
       name: product.name,
       price: parseFloat(product.priceToSell),
@@ -205,10 +199,10 @@ export default function ProductModal({
           price: parseFloat(option.price),
         })),
       })),
+      discountPercentage: parseFloat(product.discountPercentage) || 0,
     };
 
     try {
-      // Send product data to backend
       const productResponse = await axios.post(
         `${API_URL_BASE}/api/products/add`,
         updatedProduct,
@@ -220,8 +214,6 @@ export default function ProductModal({
       );
 
       const productId = productResponse.data.id;
-
-      // Upload product image
       await handleImageUpload(productId, 'product');
 
       const updatedProductsResponse = await axios.get(
@@ -232,7 +224,6 @@ export default function ProductModal({
       );
       setProducts(updatedProductsResponse.data);
 
-      // Reset form and close modal
       setProduct({
         name: '',
         description: '',
@@ -251,7 +242,6 @@ export default function ProductModal({
     } catch (error) {
       console.error('Error saving the product:', error);
     } finally {
-      // Finaliza loader
       setIsSaving(false);
     }
   };
@@ -544,8 +534,6 @@ export default function ProductModal({
                   <option value="2">Both</option>
                 </select>
               </div>
-              {/* Modifiers */}
-              
             </form>
             {/* Modal Footer */}
             <div className="bg-gray-50 px-4 py-3 flex justify-end">
@@ -558,7 +546,6 @@ export default function ProductModal({
                 }}
                 onClick={handleSave}
               >
-                {/* Loader o texto */}
                 {isSaving ? (
                   <div className="flex items-center">
                     <svg
