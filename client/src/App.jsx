@@ -66,7 +66,7 @@ function App() {
   const userRole = client?.role; // e.g. 0 (owner) or 1 (seller)
 
   // Socket for real-time updates
-  const socket = socketIOClient("http://localhost:80");
+  const socket = socketIOClient("https://3.137.165.92");
 
   // Local states
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
