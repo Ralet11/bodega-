@@ -3,7 +3,7 @@ const {UserPromotions, Product, Client, Promotion,PromotionType} = db;
 
 export const createPromotion = async (req, res) => {
   const { clientId, promotionTypeId, productId, quantity, localId } = req.body;
-  console.log(req.body, "req.body");
+
 
   // Validar que los campos requeridos están presentes
   if (!clientId || !promotionTypeId || !productId || !quantity || !localId) {
@@ -68,7 +68,7 @@ export const getPromotionTypes = async (req, res) => {
 };
 
 export const getByLocal = async (req, res) => {
-  console.log("req.params prom", req.params);
+
   const { id } = req.params;
   try {
     const promotions = await Promotion.findAll({
@@ -81,7 +81,7 @@ export const getByLocal = async (req, res) => {
         attributes: ['id', 'name', 'description', 'price', 'img'], // Selecciona los campos que deseas incluir del producto
       }]
     });
-    console.log("sendingPromotionLocal", promotions);
+
     return res.status(200).json(promotions);
 
   } catch (error) {
@@ -98,8 +98,6 @@ export const getUserPromotions = async (req, res) => {
         message: 'User ID and Local ID are required',
       });
     }
-
-    console.log('Request Data:', { user_id, localId }); // Para validar los datos recibidos
 
     const userPromotion = await UserPromotions.findOne({
       where: {

@@ -99,8 +99,6 @@ export const sendContactEmail = async (name, email, message) => {
         html: contentHTML
       });
   
-      console.log('Message sent: %s', info.messageId);
-      console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
       return { success: true, message: 'Email sent successfully' };
     } catch (error) {
       console.error("Error sending email:", error);

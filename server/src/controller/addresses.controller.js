@@ -2,7 +2,7 @@ import db from '../models/index.js';
 const { Address } = db;
 
 export const getAddressesByUser = async (req, res) => {
-  console.log("holaaa");
+
   try {
     const id = req.user.userId;
     const addresses = await Address.findAll({ where: { users_id: id } });

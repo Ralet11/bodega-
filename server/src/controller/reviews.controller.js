@@ -7,7 +7,6 @@ export const createReview = async (req, res) => {
         const { message, rating, order_id, local_id } = req.body; // Asegúrate de recibir el local_id en el body
         const user_id = req.user.userId;
 
-        console.log(req.body);
 
         // Crear la nueva review
         const newReview = await Review.create({

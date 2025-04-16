@@ -1,12 +1,14 @@
 import db from '../models/index.js';
-const {Category, Product, Local, Order, Extra, ExtraOption, Promotion,PromotionType} = db;
-
+const {Category, Product, Local, Order, Extra, ExtraOption, Promotion,PromotionType, ProductSchedule} = db;
+import { Op } from 'sequelize';
 
 import xlsx from 'xlsx';
+
 
 // =============================
 // Obtener productos por ID de categoría
 // =============================
+
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
 
@@ -14,7 +16,11 @@ export const getByCategoryId = async (req, res) => {
     const products = await Product.findAll({
       where: {
         categories_id: categoryId,
-        state: "1",
+        state: '1',
+        discountPercentage: {
+          [Op.ne]: 0,    // discountPercentage != 0
+          [Op.not]: null // discountPercentage != null
+        },
       },
       include: [
         {
@@ -36,6 +42,11 @@ export const getByCategoryId = async (req, res) => {
           ],
           required: false,
         },
+        {
+          model: ProductSchedule,
+          as: 'productSchedules',
+          required: false,
+        },
       ],
     });
 
@@ -46,28 +57,35 @@ export const getByCategoryId = async (req, res) => {
   }
 };
 
+
+
 // =============================
 // Añadir un nuevo producto
 // =============================
 // addProduct (1:N)
 export const addProduct = async (req, res) => {
+  // Obtenemos clientId del token (por ejemplo, req.user.clientId)
+  const clientId = req.user.clientId;
 
-  console.log(req.body, "body")
-  const { 
+  // Extraemos los datos que nos llegan del front.
+  // Observa que 'price' y 'finalPrice' se almacenan en el modelo (ajusta según tu lógica).
+  const {
     name,
-    price,
+    price,            // precio base o final (según tu flujo)
+    finalPrice,       // si manejas un precio final separado
     description,
     img,
     category_id,
     extras = [],
-    discountPercentage = 0
+    discountPercentage = 0,
+    preparationTime,
+    // NUEVO: campos para descuentos 24h / franjas
+    AlwaysActive = false,
+    discountSchedule = null,   // puede ser null o un array con [{ start, end }, ...]
   } = req.body;
-  
-  const clientId = req.user.clientId;
-  try {
-    const finalPrice = price * (1 - discountPercentage / 100);
 
-    // 1. Crea el producto
+  try {
+    // Creamos el producto
     const newProduct = await Product.create({
       name,
       price,
@@ -77,39 +95,49 @@ export const addProduct = async (req, res) => {
       discountPercentage,
       finalPrice,
       state: 1,
-      clientId
+      clientId,
+      preparationTime,
+      AlwaysActive,
+      // Si AlwaysActive es true, podrías forzar discountSchedule = null
+      // pero normalmente el front ya lo envía así.
+      discountSchedule: AlwaysActive ? null : discountSchedule
     });
 
-    // 2. Crea cada extra, asignando productId
+    // Creamos cada extra (si corresponde)
     for (const extra of extras) {
       const { name, options, required } = extra;
+
       const newExtra = await Extra.create({
         name,
         required,
-        productId: newProduct.id // <-- Relación directa
+        productId: newProduct.id,
       });
 
-      // 3. Crea las opciones del extra
-      for (const option of (options || [])) {
+      // Creamos las opciones de cada extra
+      for (const option of options || []) {
         await ExtraOption.create({
           name: option.name,
           price: option.price,
-          extra_id: newExtra.id
+          extra_id: newExtra.id,
         });
       }
     }
 
-    // 4. Retorna el producto con sus extras y opciones
+    // Retornamos el producto con sus extras
     const productWithExtras = await Product.findOne({
       where: { id: newProduct.id },
-      include: [{
-        model: Extra,
-        as: 'extras',
-        include: [{
-          model: ExtraOption,
-          as: 'options'
-        }]
-      }]
+      include: [
+        {
+          model: Extra,
+          as: 'extras',
+          include: [
+            {
+              model: ExtraOption,
+              as: 'options',
+            },
+          ],
+        },
+      ],
     });
 
     res.status(201).json(productWithExtras);
@@ -133,7 +161,7 @@ export const deleteById = async (req, res) => {
       where: { id }
     });
 
-    console.log(`Producto eliminado: ${id}`);
+
     res.status(200).json("Producto eliminado correctamente");
   } catch (error) {
     console.error('Error al eliminar producto:', error);
@@ -146,22 +174,23 @@ export const deleteById = async (req, res) => {
 // * Se quita la lógica del Discount model y se maneja discountPercentage
 // =============================
 export const updateProduct = async (req, res) => {
-  console.log(req.body, "body");
+  const clientId = req.user.clientId;
 
   const {
     productId,
     name,
     price,
+    finalPrice,
     description,
     img,
     category_id,
     extras,
-    discountPercentage = 0,
-    promotion // Datos de promoción si es que vienen
+    discountPercentage = 1,
+    promotion,
+    // NUEVO: campos de descuentos 24h / franjas
+    AlwaysActive = false,
+    discountSchedule = null,
   } = req.body;
-
-  // Obtenemos el clientId del token/usuario
-  const clientId = req.user.clientId;
 
   try {
     // Obtenemos el producto con sus asociaciones
@@ -188,9 +217,6 @@ export const updateProduct = async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    // Calcular finalPrice con el nuevo modelo
-    const finalPrice = price * (1 - discountPercentage / 100);
-
     // Actualizamos detalles del producto
     await product.update({
       name,
@@ -199,23 +225,26 @@ export const updateProduct = async (req, res) => {
       img,
       categories_id: category_id,
       discountPercentage,
-      finalPrice
+      finalPrice,
+      // NUEVO
+      AlwaysActive,
+      discountSchedule: AlwaysActive ? null : discountSchedule,
     });
 
     // -- Manejo de Extras --
     const existingExtras = product.extras || [];
     const incomingExtras = extras || [];
 
-    // Mapa para saber qué extras ya existen en la BD (para actualizar/eliminar)
+    // Mapeo para saber qué extras ya existen (para actualizarlos o borrarlos)
     const existingExtrasMap = existingExtras.reduce((map, extra) => {
       map[extra.id] = extra;
       return map;
     }, {});
 
-    // Recorremos los extras que llegan del front
+    // Recorremos los extras del request
     for (const incomingExtra of incomingExtras) {
       if (incomingExtra.id) {
-        // Actualizar extra existente
+        // Extra existente
         const existingExtra = existingExtrasMap[incomingExtra.id];
         if (existingExtra) {
           await existingExtra.update({
@@ -223,20 +252,18 @@ export const updateProduct = async (req, res) => {
             required: incomingExtra.required,
             onlyOne: incomingExtra.onlyOne,
           });
-          // Actualizamos/creamos opciones de ese Extra
+          // Actualizar/crear opciones
           await handleOptionsUpdate(existingExtra, incomingExtra.options || []);
-          // Quitamos del map para no eliminarlo después
           delete existingExtrasMap[incomingExtra.id];
         }
       } else {
-        // Crear un nuevo Extra
+        // Nuevo extra
         const newExtra = await Extra.create({
           name: incomingExtra.name,
           required: incomingExtra.required,
           onlyOne: incomingExtra.onlyOne,
         });
-
-        // Crear las opciones de ese nuevo Extra
+        // Crear sus opciones
         for (const option of incomingExtra.options || []) {
           await ExtraOption.create({
             name: option.name,
@@ -244,13 +271,12 @@ export const updateProduct = async (req, res) => {
             extra_id: newExtra.id,
           });
         }
-
-        // Asociarlo al producto
+        // Asociar al producto
         await product.addExtra(newExtra);
       }
     }
 
-    // Eliminar extras que ya no existen en el request
+    // Eliminar extras que no llegan en el request
     for (const extraId in existingExtrasMap) {
       const extraToDelete = existingExtrasMap[extraId];
       // Primero eliminamos sus opciones
@@ -263,22 +289,19 @@ export const updateProduct = async (req, res) => {
       await extraToDelete.destroy();
     }
 
-    // -- Manejo de Promociones (Buy To Win) --
+    // -- Manejo de Promociones --
     if (promotion && Object.keys(promotion).length > 0) {
       const { promotionTypeId, quantity, localId } = promotion;
-
-      // Verificamos campos requeridos
       if (!promotionTypeId || !quantity || !localId) {
         return res.status(400).json({ message: 'Promotion data is incomplete' });
       }
 
-      // Verificar si ya existe una promoción para este producto
+      // Verificar si ya existe una promoción
       let existingPromotion = await Promotion.findOne({
         where: { productId: product.id },
       });
 
       if (existingPromotion) {
-        // Actualizamos
         await existingPromotion.update({
           clientId,
           promotionTypeId,
@@ -286,7 +309,6 @@ export const updateProduct = async (req, res) => {
           localId,
         });
       } else {
-        // Creamos la nueva promoción
         await Promotion.create({
           clientId,
           promotionTypeId,
@@ -296,20 +318,19 @@ export const updateProduct = async (req, res) => {
         });
       }
     } else {
-      // Si no se envía promotion, eliminamos cualquier promoción que exista
+      // Si no se envía promotion, eliminamos cualquier promoción existente
       await Promotion.destroy({
         where: { productId: product.id },
       });
     }
 
-    res.status(200).json({
-      message: 'Product updated successfully'
-    });
+    res.status(200).json({ message: 'Product updated successfully' });
   } catch (error) {
     console.error('Error updating product and promotion:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
 // Función auxiliar para actualizar opciones de un Extra
 async function handleOptionsUpdate(existingExtra, incomingOptions) {
   const existingOptions = existingExtra.options || [];
@@ -328,7 +349,6 @@ async function handleOptionsUpdate(existingExtra, incomingOptions) {
           name: incomingOption.name,
           price: incomingOption.price,
         });
-        console.log(`Option updated: ${incomingOption.name}`);
         delete existingOptionsMap[incomingOption.id];
       }
     } else {
@@ -338,15 +358,13 @@ async function handleOptionsUpdate(existingExtra, incomingOptions) {
         price: incomingOption.price,
         extra_id: existingExtra.id,
       });
-      console.log(`New option created: ${incomingOption.name}`);
     }
   }
 
-  // Eliminar opciones no presentes
+  // Eliminar las opciones que no llegan
   for (const optionId in existingOptionsMap) {
     const optionToDelete = existingOptionsMap[optionId];
     await optionToDelete.destroy();
-    console.log(`Deleted option: ${optionToDelete.name}`);
   }
 }
 
@@ -674,5 +692,55 @@ export const uploadExcelToCategory = async (req, res) => {
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).send('Error uploading file');
+  }
+};
+
+export const getInventoryProducts = async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      where: {
+        discountPercentage: 0
+      },
+    });
+
+    return res.json(products);
+  } catch (error) {
+    console.error('Error getting inventory products:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+export const pushInventoryProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const {
+      discountPercentage,
+      finalPrice,
+      AlwaysActive,
+      discountSchedule,
+      categories_id
+    } = req.body;
+
+    // Encontramos el producto
+    const product = await Product.findByPk(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Actualizamos los campos correspondientes
+    product.discountPercentage = discountPercentage;
+    product.finalPrice = finalPrice;
+    product.AlwaysActive = AlwaysActive;
+    product.discountSchedule = discountSchedule; // puede ser null o un array
+    if (categories_id) {
+      product.categories_id = categories_id;
+    }
+
+    await product.save();
+
+    return res.json({ message: 'Product updated successfully', product });
+  } catch (error) {
+    console.error('Error updating inventory product:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };

@@ -1,6 +1,6 @@
 
 import db from '../models/index.js';
-const { Local, Category, Product, Extra, ExtraOption, ShopOpenHours, LocalTag, Tag, LocalCategory} = db;
+const { Local, Category, Product, Extra, ExtraOption, ShopOpenHours, LocalTag, Tag, LocalCategory, ProductSchedule, Client} = db;
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
 
@@ -48,7 +48,7 @@ export const getByClientId = async (req, res) => {
 
 export const getById = async (req, res) => {
   const id = req.params.id;
-  console.log("trayendo aqui")
+
   try {
     const local = await Local.findOne({
       where: {
@@ -72,7 +72,7 @@ export const getById = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
    
-    console.log(local, "local")
+ 
     res.status(200).json(local);
   } catch (error) {
     console.error('Error al obtener local por ID:', error);
@@ -102,7 +102,20 @@ export const changeStatus = async (req, res) => {
 
 export const updateShop = async (req, res) => {
   const { id } = req.params;
-  const { name, phone, category, address, lat, lng, status, Delivery, pickUp, orderIn, tags } = req.body; // Asegúrate de que las tags vengan en el body
+  const {
+    name,
+    phone,
+    category,
+    address,
+    lat,
+    lng,
+    status,
+    Delivery,
+    pickUp,
+    orderIn,
+    tags,
+    owner_check // <-- NUEVO campo
+  } = req.body;
   const { clientId } = req.user;
 
   try {
@@ -112,7 +125,7 @@ export const updateShop = async (req, res) => {
       return res.status(404).json({ message: 'Local no encontrado' });
     }
 
-    // Actualizar los campos del local
+    // Actualizar campos del local
     await local.update({
       name,
       phone,
@@ -121,21 +134,22 @@ export const updateShop = async (req, res) => {
       lat,
       lng,
       status,
-      delivery: Delivery,    // Actualiza el campo de delivery
-      pickUp,      // Actualiza el campo de pickUp
-      orderIn      // Actualiza el campo de orderIn
+      delivery: Delivery,
+      pickUp,
+      orderIn,
+      owner_check // <-- se guardará en la DB si la columna existe
     });
 
-    // Actualizar las tags asociadas al local
+    // Actualizar tags asociadas (siempre que las envíes en el body)
     if (tags && tags.length > 0) {
-      // Limpiar todas las relaciones previas entre el local y sus tags
+      // Limpiar relaciones previas local-tag
       await LocalTag.destroy({
         where: {
           local_id: local.id
         }
       });
 
-      // Crear nuevas relaciones entre el local y las tags
+      // Crear nuevas relaciones
       const localTagData = tags.map(tagId => ({
         local_id: local.id,
         tag_id: tagId
@@ -143,18 +157,21 @@ export const updateShop = async (req, res) => {
       await LocalTag.bulkCreate(localTagData);
     }
 
-    // Obtener todos los locales del cliente actualizado
+    // Devolver todos los locales del cliente
     const locals = await Local.findAll({
       where: {
         clients_id: clientId
       },
-      include: [{ model: Tag, as: 'tags' }] // Incluir las tags en la respuesta
+      include: [{ model: Tag, as: 'tags' }]
     });
 
-    res.status(200).json({ message: 'Información del local actualizada exitosamente', locals });
+    return res.status(200).json({
+      message: 'Información del local actualizada exitosamente',
+      locals
+    });
   } catch (error) {
     console.error('Error al actualizar información del local:', error);
-    res.status(500).json({ message: 'Error al actualizar información del local' });
+    return res.status(500).json({ message: 'Error al actualizar información del local' });
   }
 };
 
@@ -213,54 +230,150 @@ export const getAllShops = async (req, res) => {
   }
 };
 
+const convertTo24Hour = (timeStr) => {
+  if (!timeStr) return "00:00:00";
+  // Eliminar puntos y poner en minúsculas (por ejemplo, "08:00 a.m." => "08:00 am")
+  let t = timeStr.toLowerCase().replace(/\./g, '');
+  // Separar la hora y el modificador ("am" o "pm")
+  let [time, modifier] = t.split(' ');
+  let [hours, minutes] = time.split(':');
+  hours = parseInt(hours, 10);
+  minutes = parseInt(minutes, 10);
+  if (modifier === "pm" && hours < 12) {
+    hours += 12;
+  }
+  if (modifier === "am" && hours === 12) {
+    hours = 0;
+  }
+  const hoursStr = hours.toString().padStart(2, '0');
+  const minutesStr = minutes.toString().padStart(2, '0');
+  return `${hoursStr}:${minutesStr}:00`;
+};
+
 export const addShop = async (req, res) => {
+
+  console.log(req.user, "bd")
   try {
-    const { name, address, phone, lat, lng, category, clientId } = req.body;
-
-    const idConfirm = req.user.clientId;
-
-    // Verificar que todos los campos estén presentes
-    if (!name || !address || !phone || !lat || !lng || !category || !clientId) {
-      return res.status(400).json({ message: "Bad Request. Please fill all fields." });
-    }
-
-    // Verificar que el clientId coincida con el idConfirm
-    if (clientId !== idConfirm) {
-      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
-    }
-
-    // Crear la nueva tienda
-    const newShop = await Local.create({
-      name,
-      address,
-      phone,
+    // Desestructuramos la data completa enviada en el body (según la estructura del cuestionario)
+    const {
+      storeInfo,    // { name, address, phone, email, selectedTags } 
+      orderMethod,  // "app" o "web"
+      hours,        // { generalSchedule: [{ open, close }, ...] } o { daysOfWeek: [{ day, slots, closed }, ...] }
+      menu,         // { menuOption, menuLink, menuFile }; en este caso, si es "upload" se espera que menuFile sea la URL del archivo subido
+      bankAccount,  // { routingNumber, accountNumber, legalName, restaurantType, branches, taxId }
       lat,
       lng,
-      clients_id: clientId
+      clientId,
+      category,
+      coordinates      // opcional
+    } = req.body;
+
+    // Verificamos que se reciban los campos obligatorios
+
+
+    if (
+      !storeInfo ||
+      !storeInfo.name ||
+      !storeInfo.address ||
+      !storeInfo.phone ||
+      !storeInfo.email ||
+      !storeInfo.selectedTags ||
+      !coordinates.lat ||
+      !coordinates.lng
+
+    ) {
+      return res.status(400).json({ message: "Bad Request. Please fill all required fields." });
+    }
+
+    // Confirmar que el clientId del body coincida con el obtenido del JWT
+
+
+
+    // Crear la nueva tienda (Local), incluyendo la información del menú:
+    // - Si menu.menuOption es "link" se guarda el link en el campo menuLink
+    // - Si es "upload" se guarda la URL del archivo en el campo menuFileUrl
+    const newShop = await Local.create({
+      name: storeInfo.name,
+      address: storeInfo.address,
+      phone: storeInfo.phone,
+      lat: coordinates.lat,
+      lng: coordinates.lng,
+      clients_id: clientId,
+      menuLink: menu.menuOption === "link" ? menu.menuLink : null,
+      menuFileUrl: menu.menuOption === "upload" ? menu.menuFile : null,
+      clients_id: req.user.clientId
     });
 
-    // Crear entradas iniciales en ShopOpenHours para cada día de la semana
-    const daysOfWeek = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
-    const openHourEntries = daysOfWeek.map(day => ({
-      local_id: newShop.id,
-      day: day,
-      open_hour: "00:00:00",  // Hora de apertura inicial
-      close_hour: "00:00:00"  // Hora de cierre inicial
-    }));
+    // Construir los registros de horarios de atención
+    let openHourRecords = [];
+    if (hours.generalSchedule) {
+      // Se usa el mismo horario para todos los días
+      const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      weekDays.forEach(day => {
+        hours.generalSchedule.forEach(slot => {
+          openHourRecords.push({
+            local_id: newShop.id,
+            day,
+            open_hour: convertTo24Hour(slot.open),
+            close_hour: convertTo24Hour(slot.close),
+          });
+        });
+      });
+    } else if (hours.daysOfWeek) {
+      // Se usan horarios distintos para cada día
+      hours.daysOfWeek.forEach(dayObj => {
+        if (!dayObj.closed) {
+          dayObj.slots.forEach(slot => {
+            openHourRecords.push({
+              local_id: newShop.id,
+              day: dayObj.day,
+              open_hour: convertTo24Hour(slot.open),
+              close_hour: convertTo24Hour(slot.close),
+            });
+          });
+        }
+      });
+    }
+    if (openHourRecords.length > 0) {
+      await ShopOpenHours.bulkCreate(openHourRecords);
+    }
 
-    await ShopOpenHours.bulkCreate(openHourEntries);
+    // Actualizar la información bancaria en el cliente (Client)
+    if (bankAccount) {
+      await Client.update(
+        {
+          routingNumber: bankAccount.routingNumber,
+          accountNumber: bankAccount.accountNumber,
+          legalName: bankAccount.legalName,
+          restaurantType: bankAccount.restaurantType,
+          branches: bankAccount.branches,
+          taxId: bankAccount.taxId
+        },
+        { where: { id: clientId } }
+      );
+    }
 
-    // Obtener la tienda recién creada junto con los horarios
-    const shop = await Local.findOne({
-      where: {
-        id: newShop.id
-      },
-      include: {
-        model: ShopOpenHours,
-        as: 'openingHours'
+    // Agregar los tags seleccionados a la tabla LocalTag.
+    // Se asume que storeInfo.selectedTags es un array de objetos con al menos la propiedad id.
+    if (storeInfo.selectedTags && Array.isArray(storeInfo.selectedTags)) {
+      for (const tag of storeInfo.selectedTags) {
+        await LocalTag.create({
+          tag_id: tag.id,
+          local_id: newShop.id
+        });
       }
-    });
+    }
 
+    // Opcional: procesar otros datos como orderMethod o category, si fuera necesario.
+
+    // Obtener la tienda recién creada incluyendo sus horarios y tags para la respuesta
+    const shop = await Local.findOne({
+      where: { id: newShop.id },
+      include: [
+        { model: ShopOpenHours, as: 'openingHours' },
+        { model: Tag, as: 'tags', through: { attributes: [] } }
+      ]
+    });
     res.json({
       error: false,
       created: "ok",
@@ -268,7 +381,7 @@ export const addShop = async (req, res) => {
       message: "Shop added successfully"
     });
   } catch (error) {
-    console.error('Error adding shop:', error);
+    console.error("Error adding shop:", error);
     res.status(500).json({ error: true, message: error.message });
   }
 };
@@ -312,6 +425,7 @@ export const getLocalCategoriesAndProducts = async (req, res) => {
           price: product.price.toFixed(2),  // Corrección en la interpolación de la variable price
           description: product.description,
           image: product.img,
+          preparationTime: product.preparationTime,
           extras: product.extras.map(extra => ({
             id: extra.id,
             name: extra.name,
@@ -701,7 +815,7 @@ export const getShopsOrderByCatDiscount = async (req, res) => {
     });
 
     const groupedShops = groupShopsByCategory(shops);
-    console.log(groupedShops, 'groupedShops');
+  
   
     res.json(groupedShops);
   } catch (error) {
@@ -720,3 +834,32 @@ export const syncLocal = async (req, res) => {
     res.status(500).json({ message: 'Error interno del servidor' });  // Usa 'res' en lugar de 'req'
   }
 }
+
+export const getProductsWithSchedule = async (req, res) => {
+  try {
+    // Obtener todos los productos con AlwaysActive en false e incluir el modelo ProductSchedule
+    const products = await Product.findAll({
+      where: { AlwaysActive: false },
+      include: [
+        {
+          model: ProductSchedule,
+          as: 'productSchedules'
+        }
+      ]
+    });
+
+    console.log(products, "prodcy")
+
+    // Filtrar los productos que tienen al menos un registro en productSchedules
+    const filteredProducts = products.filter(
+      product => product.discountSchedule && product.discountSchedule.length > 0
+    );
+
+    console.log(filteredProducts, "filprod")
+
+    return res.status(200).json(filteredProducts);
+  } catch (error) {
+    console.error("Error al obtener productos con schedule:", error);
+    return res.status(500).json({ message: "Error interno del servidor." });
+  }
+};

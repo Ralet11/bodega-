@@ -12,7 +12,7 @@ const authToken =  AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
 export const makeCall = (req, res) => {
-  console.log(req.body, "body en make call")
+
   const { to } = req.body;
   const orderId = req.body.orderId.id;
 
@@ -80,11 +80,11 @@ export const handleKeyPress = async (req, res) => {
     if (digit === '1') {
       await updateOrderStatus(orderId, 'accepted');
       response.say('You have accepted the order.', { voice: 'alice', language: 'en-US' });
-      console.log(`Order ${orderId} accepted`);
+     
     } else if (digit === '2') {
       await updateOrderStatus(orderId, 'rejected');
       response.say('You have rejected the order.', { voice: 'alice', language: 'en-US' });
-      console.log(`Order ${orderId} rejected`);
+ 
     } else {
       response.say('Invalid input.', { voice: 'alice', language: 'en-US' });
     }

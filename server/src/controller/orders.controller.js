@@ -78,7 +78,7 @@ export const getByLocalIdAndStatus = async (req, res) => {
 
     // Convertir las órdenes a objetos simples para visualizarlas en el log
     const ordersJSON = orders.map(order => order.toJSON());
-    console.log(`Found ${ordersJSON.length} orders for local_id: ${id}`, ordersJSON);
+
 
     // Normalizar tipos para coincidir con lo que espera el frontend
     const dineInOrders = ordersJSON.filter(
@@ -219,7 +219,7 @@ export const createOrder = async (req, res) => {
     }
 
     // Generar un código numérico de 6 dígitos
-    const code = cryptoRandomString({ length: 6, type: "numeric" });
+    const code = cryptoRandomString({ length: 4, type: "numeric" });
 
     // Crear el nuevo pedido sin lógica de delivery
     const newOrder = await Order.create({
@@ -289,13 +289,13 @@ export const createOrder = async (req, res) => {
     // Actualizar los ahorros del usuario
     const user = await User.findByPk(id);
     if (user) {
-      console.log(savings, "savings");
-      console.log(user.savings);
+
+     
       // Solo se suma si savings es un número válido; de lo contrario, se suma 0
       if (!isNaN(savings)) {
         user.savings += savings;
       }
-      console.log(user.savings);
+
       await user.save();
     } else {
       return res.status(404).json({ message: "User not found" });

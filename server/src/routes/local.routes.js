@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getAllLocalCategories, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate, updateOpeningHours, getOpeningHoursByLocalId, getShopsOrderByCatDiscount, syncLocal } from "../controller/local.controller.js"
+import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getAllLocalCategories, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate, updateOpeningHours, getOpeningHoursByLocalId, getShopsOrderByCatDiscount, syncLocal, getProductsWithSchedule } from "../controller/local.controller.js"
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -28,5 +28,6 @@ router.post('/getAllShops',middleware.auth, getOpeningHoursByLocalId)
 router.get('/app/getShopsOrderByCatDiscount',middleware.auth, getShopsOrderByCatDiscount)
 router.post('/syncLocal',middleware.auth, syncLocal)
 router.get('/getAllLocalCateogories', getAllLocalCategories)
+router.get('/app/getTemporalProducts',middleware.auth, getProductsWithSchedule)
 
 export default router

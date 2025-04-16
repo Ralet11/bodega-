@@ -10,10 +10,10 @@ export const tryIntent = async (req, res) => {
   const { finalPrice, activeShop } = req.body;
 
   const shop = await Local.findByPk(activeShop);
-  console.log(shop, "shop");
+
 
   const client = await Client.findByPk(shop.clients_id);
-  console.log(client, "conect");
+ 
 
   const connectedAccountId = client.stripe_account_id;
 

@@ -1,4 +1,3 @@
-
 export default (sequelize, DataTypes) => {
   const Local = sequelize.define('Local', {
     id: {
@@ -14,6 +13,10 @@ export default (sequelize, DataTypes) => {
     address: {
       type: DataTypes.STRING(80),
       allowNull: false
+    },
+    website: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     },
     logo: {
       type: DataTypes.STRING(255),
@@ -84,6 +87,29 @@ export default (sequelize, DataTypes) => {
       defaultValue: true
     },
     orderIn: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    menuLink: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    menuFileUrl: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
+    bankInfo_check: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    menu_check: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    },
+    owner_check: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false

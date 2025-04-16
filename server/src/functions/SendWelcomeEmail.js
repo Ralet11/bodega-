@@ -105,8 +105,6 @@ export const sendWelcomeEmail = async (name, email) => {
       html: contentHTML
     });
 
-    console.log('Message sent: %s', info.messageId);
-    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     return { success: true, message: 'Welcome email sent successfully' };
   } catch (error) {
     console.error("Error sending welcome email:", error);

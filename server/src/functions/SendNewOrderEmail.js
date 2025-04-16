@@ -252,8 +252,6 @@ export const sendNewOrderEmail = async (order, clientEmail) => {
       html: contentHTML
     });
 
-    console.log('Message sent: %s', info.messageId);
-    console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
 
     return { success: true, message: 'Order notification email sent successfully' };
   } catch (error) {

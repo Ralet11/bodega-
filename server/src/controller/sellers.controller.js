@@ -41,7 +41,7 @@ export const getAffiliatedShops = async (req, res) => {
       ]
     });
 
-    console.log(clients[0]);
+
 
     // 4. Extraer todos los shops (locals) y calcular el total vendido en el mes actual para cada uno
     const allShops = clients.flatMap(client =>

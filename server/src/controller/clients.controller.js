@@ -199,7 +199,6 @@ export const changePassword = async (req, res) => {
 
 export const completeTutorial = async (req, res) => {
   const clientId = req.user.clientId;
-  console.log(clientId, "id")
 
   try {
     // Buscamos el cliente por su ID

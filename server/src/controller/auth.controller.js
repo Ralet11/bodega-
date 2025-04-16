@@ -483,7 +483,7 @@ export const requestResetCodeUser = async (req, res) => {
 };
 
 export const verifyResetCodeUser = async (req, res) => {
-  console.log(req.body);
+
   const { email, code } = req.body;
   try {
     const user = await User.findOne({ where: { email } });

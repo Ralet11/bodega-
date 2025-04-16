@@ -54,7 +54,6 @@ export const sendVerificationCodeEmail = async (email, verificationCode) => {
       html: contentHTML
     });
 
-    console.log('Verification email sent: %s', info.messageId);
     return { success: true, message: 'Verification code sent successfully.' };
   } catch (error) {
     console.error("Error sending verification code:", error);
