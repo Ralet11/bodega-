@@ -1,14 +1,12 @@
 import db from '../models/index.js';
-const {Category, Product, Local, Order, Extra, ExtraOption, Promotion,PromotionType, ProductSchedule} = db;
+import { parse, isBefore } from "date-fns";
+const { Category, Product, Local, Order, Extra, ExtraOption, Promotion, PromotionType, ProductSchedule, DiscountSchedule } = db;
 import { Op } from 'sequelize';
-
 import xlsx from 'xlsx';
-
 
 // =============================
 // Obtener productos por ID de categoría
 // =============================
-
 export const getByCategoryId = async (req, res) => {
   const categoryId = req.params.id;
 
@@ -42,11 +40,6 @@ export const getByCategoryId = async (req, res) => {
           ],
           required: false,
         },
-        {
-          model: ProductSchedule,
-          as: 'productSchedules',
-          required: false,
-        },
       ],
     });
 
@@ -57,35 +50,26 @@ export const getByCategoryId = async (req, res) => {
   }
 };
 
-
-
 // =============================
 // Añadir un nuevo producto
 // =============================
-// addProduct (1:N)
 export const addProduct = async (req, res) => {
-  // Obtenemos clientId del token (por ejemplo, req.user.clientId)
   const clientId = req.user.clientId;
-
-  // Extraemos los datos que nos llegan del front.
-  // Observa que 'price' y 'finalPrice' se almacenan en el modelo (ajusta según tu lógica).
   const {
     name,
-    price,            // precio base o final (según tu flujo)
-    finalPrice,       // si manejas un precio final separado
+    price,
+    finalPrice,
     description,
     img,
     category_id,
     extras = [],
     discountPercentage = 0,
     preparationTime,
-    // NUEVO: campos para descuentos 24h / franjas
     AlwaysActive = false,
-    discountSchedule = null,   // puede ser null o un array con [{ start, end }, ...]
+    discountSchedule = null,
   } = req.body;
 
   try {
-    // Creamos el producto
     const newProduct = await Product.create({
       name,
       price,
@@ -98,22 +82,25 @@ export const addProduct = async (req, res) => {
       clientId,
       preparationTime,
       AlwaysActive,
-      // Si AlwaysActive es true, podrías forzar discountSchedule = null
-      // pero normalmente el front ya lo envía así.
       discountSchedule: AlwaysActive ? null : discountSchedule
     });
 
-    // Creamos cada extra (si corresponde)
-    for (const extra of extras) {
-      const { name, options, required } = extra;
+    // Crear ProductSchedule si aplica
+    if (!AlwaysActive && Array.isArray(discountSchedule)) {
+      for (const { start, end } of discountSchedule) {
+        await ProductSchedule.create({ productId: newProduct.id, start, end });
+      }
+    }
 
+    // Crear extras
+    for (const extra of extras) {
+      const { name, options, required, onlyOne } = extra;
       const newExtra = await Extra.create({
         name,
         required,
+        onlyOne,
         productId: newProduct.id,
       });
-
-      // Creamos las opciones de cada extra
       for (const option of options || []) {
         await ExtraOption.create({
           name: option.name,
@@ -123,20 +110,11 @@ export const addProduct = async (req, res) => {
       }
     }
 
-    // Retornamos el producto con sus extras
     const productWithExtras = await Product.findOne({
       where: { id: newProduct.id },
       include: [
-        {
-          model: Extra,
-          as: 'extras',
-          include: [
-            {
-              model: ExtraOption,
-              as: 'options',
-            },
-          ],
-        },
+        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }] },
+        { model: ProductSchedule, as: 'productSchedules' }
       ],
     });
 
@@ -147,8 +125,6 @@ export const addProduct = async (req, res) => {
   }
 };
 
-
-
 // =============================
 // Eliminar (inactivar) producto por ID
 // =============================
@@ -156,12 +132,7 @@ export const deleteById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Actualiza el estado del producto a 0 (inactivo)
-    await Product.update({ state: 0 }, {
-      where: { id }
-    });
-
-
+    await Product.update({ state: 0 }, { where: { id } });
     res.status(200).json("Producto eliminado correctamente");
   } catch (error) {
     console.error('Error al eliminar producto:', error);
@@ -170,12 +141,10 @@ export const deleteById = async (req, res) => {
 };
 
 // =============================
-// Actualizar producto (y promotions). 
-// * Se quita la lógica del Discount model y se maneja discountPercentage
+// Actualizar producto (y promotions, schedules)
 // =============================
 export const updateProduct = async (req, res) => {
   const clientId = req.user.clientId;
-
   const {
     productId,
     name,
@@ -187,37 +156,21 @@ export const updateProduct = async (req, res) => {
     extras,
     discountPercentage = 1,
     promotion,
-    // NUEVO: campos de descuentos 24h / franjas
     AlwaysActive = false,
     discountSchedule = null,
   } = req.body;
 
   try {
-    // Obtenemos el producto con sus asociaciones
     const product = await Product.findByPk(productId, {
       include: [
-        {
-          model: Extra,
-          as: 'extras',
-          include: [{ model: ExtraOption, as: 'options' }],
-        },
-        {
-          model: Promotion,
-          as: 'promotions',
-        },
+        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }] },
+        { model: Promotion, as: 'promotions' },
       ],
     });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    if (product.clientId !== clientId) return res.status(403).json({ error: 'Forbidden' });
 
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
-    // Verificamos que el producto pertenezca al cliente logueado
-    if (product.clientId !== clientId) {
-      return res.status(403).json({ error: 'Forbidden' });
-    }
-
-    // Actualizamos detalles del producto
+    // Actualizar producto
     await product.update({
       name,
       price,
@@ -226,102 +179,74 @@ export const updateProduct = async (req, res) => {
       categories_id: category_id,
       discountPercentage,
       finalPrice,
-      // NUEVO
       AlwaysActive,
       discountSchedule: AlwaysActive ? null : discountSchedule,
     });
 
-    // -- Manejo de Extras --
+    console.log('BODY >>>', req.body);
+
+    // Gestionar ProductSchedule
+    await ProductSchedule.destroy({ where: { productId: product.id } });
+    if (!AlwaysActive && Array.isArray(discountSchedule)) {
+      for (const { start, end } of discountSchedule) {
+        await ProductSchedule.create({ productId: product.id, start, end });
+      }
+    }
+
+    // Manejo de extras
     const existingExtras = product.extras || [];
     const incomingExtras = extras || [];
-
-    // Mapeo para saber qué extras ya existen (para actualizarlos o borrarlos)
     const existingExtrasMap = existingExtras.reduce((map, extra) => {
       map[extra.id] = extra;
       return map;
     }, {});
-
-    // Recorremos los extras del request
     for (const incomingExtra of incomingExtras) {
-      if (incomingExtra.id) {
-        // Extra existente
-        const existingExtra = existingExtrasMap[incomingExtra.id];
-        if (existingExtra) {
-          await existingExtra.update({
-            name: incomingExtra.name,
-            required: incomingExtra.required,
-            onlyOne: incomingExtra.onlyOne,
-          });
-          // Actualizar/crear opciones
-          await handleOptionsUpdate(existingExtra, incomingExtra.options || []);
-          delete existingExtrasMap[incomingExtra.id];
-        }
+      if (incomingExtra.id && existingExtrasMap[incomingExtra.id]) {
+        const ex = existingExtrasMap[incomingExtra.id];
+        await ex.update({
+          name: incomingExtra.name,
+          required: incomingExtra.required,
+          onlyOne: incomingExtra.onlyOne,
+        });
+        await handleOptionsUpdate(ex, incomingExtra.options || []);
+        delete existingExtrasMap[incomingExtra.id];
       } else {
-        // Nuevo extra
         const newExtra = await Extra.create({
           name: incomingExtra.name,
           required: incomingExtra.required,
           onlyOne: incomingExtra.onlyOne,
         });
-        // Crear sus opciones
-        for (const option of incomingExtra.options || []) {
+        for (const opt of incomingExtra.options || []) {
           await ExtraOption.create({
-            name: option.name,
-            price: option.price,
+            name: opt.name,
+            price: opt.price,
             extra_id: newExtra.id,
           });
         }
-        // Asociar al producto
         await product.addExtra(newExtra);
       }
     }
-
-    // Eliminar extras que no llegan en el request
     for (const extraId in existingExtrasMap) {
-      const extraToDelete = existingExtrasMap[extraId];
-      // Primero eliminamos sus opciones
-      for (const option of extraToDelete.options) {
-        await option.destroy();
-      }
-      // Quitamos la asociación en la tabla pivote
-      await product.removeExtra(extraToDelete);
-      // Finalmente, eliminamos el extra
-      await extraToDelete.destroy();
+      const ex = existingExtrasMap[extraId];
+      for (const opt of ex.options || []) await opt.destroy();
+      await product.removeExtra(ex);
+      await ex.destroy();
     }
 
-    // -- Manejo de Promociones --
-    if (promotion && Object.keys(promotion).length > 0) {
+    // Manejo de promociones
+    if (promotion && Object.keys(promotion).length) {
       const { promotionTypeId, quantity, localId } = promotion;
       if (!promotionTypeId || !quantity || !localId) {
         return res.status(400).json({ message: 'Promotion data is incomplete' });
       }
-
-      // Verificar si ya existe una promoción
-      let existingPromotion = await Promotion.findOne({
-        where: { productId: product.id },
-      });
-
+      let existingPromotion = await Promotion.findOne({ where: { productId: product.id } });
       if (existingPromotion) {
-        await existingPromotion.update({
-          clientId,
-          promotionTypeId,
-          quantity,
-          localId,
-        });
+        await existingPromotion.update({ clientId, promotionTypeId, quantity, localId });
       } else {
-        await Promotion.create({
-          clientId,
-          promotionTypeId,
-          productId: product.id,
-          quantity,
-          localId,
-        });
+        await Promotion.create({ clientId, promotionTypeId, productId: product.id, quantity, localId });
       }
     } else {
-      // Si no se envía promotion, eliminamos cualquier promoción existente
-      await Promotion.destroy({
-        where: { productId: product.id },
-      });
+      await Promotion.destroy({ where: { productId: product.id } });
     }
 
     res.status(200).json({ message: 'Product updated successfully' });
@@ -331,28 +256,18 @@ export const updateProduct = async (req, res) => {
   }
 };
 
-// Función auxiliar para actualizar opciones de un Extra
 async function handleOptionsUpdate(existingExtra, incomingOptions) {
   const existingOptions = existingExtra.options || [];
-
   const existingOptionsMap = existingOptions.reduce((map, option) => {
     map[option.id] = option;
     return map;
   }, {});
-
   for (const incomingOption of incomingOptions) {
-    if (incomingOption.id) {
-      // Opción existente
-      const existingOption = existingOptionsMap[incomingOption.id];
-      if (existingOption) {
-        await existingOption.update({
-          name: incomingOption.name,
-          price: incomingOption.price,
-        });
-        delete existingOptionsMap[incomingOption.id];
-      }
+    if (incomingOption.id && existingOptionsMap[incomingOption.id]) {
+      const op = existingOptionsMap[incomingOption.id];
+      await op.update({ name: incomingOption.name, price: incomingOption.price });
+      delete existingOptionsMap[incomingOption.id];
     } else {
-      // Nueva opción
       await ExtraOption.create({
         name: incomingOption.name,
         price: incomingOption.price,
@@ -360,11 +275,8 @@ async function handleOptionsUpdate(existingExtra, incomingOptions) {
       });
     }
   }
-
-  // Eliminar las opciones que no llegan
   for (const optionId in existingOptionsMap) {
-    const optionToDelete = existingOptionsMap[optionId];
-    await optionToDelete.destroy();
+    await existingOptionsMap[optionId].destroy();
   }
 }
 
@@ -373,76 +285,31 @@ async function handleOptionsUpdate(existingExtra, incomingOptions) {
 // =============================
 export const getByLocalId = async (req, res) => {
   const { id } = req.params;
-  const idConfirm = req.user.clientId; // clientId del usuario autenticado
+  const idConfirm = req.user.clientId;
 
   try {
-    // Verificar local para comparar clientId
     const local = await Local.findByPk(id);
+    if (!local) return res.status(404).json({ message: "Local not found" });
+    if (local.clients_id !== idConfirm) return res.status(403).json({ message: "Forbidden" });
 
-    if (!local) {
-      return res.status(404).json({ message: "Local not found" });
-    }
+    const categories = await Category.findAll({ where: { local_id: id, state: "1" } });
+    const catId = categories.map(cat => cat.id);
+    const products = await Product.findAll({ where: { categories_id: { [Op.in]: catId }, state: "1" } });
 
-    if (local.clients_id !== idConfirm) {
-      return res.status(403).json({ message: "Forbidden. Client ID does not match." });
-    }
-
-    // Categorías activas de este local
-    const categories = await Category.findAll({
-      where: {
-        local_id: id,
-        state: "1"
-      }
-    });
-
-    // IDs de categorías
-    let catId = categories.map(cat => cat.id);
-
-    // Productos de esas categorías activas
-    const products = await Product.findAll({
-      where: {
-        categories_id: {
-          [Op.in]: catId
-        },
-        state: "1"
-      }
-    });
-
-    // Órdenes completadas
-    const orders = await Order.findAll({
-      where: {
-        local_id: id,
-        status: 'completed'
-      }
-    });
-
-    // Objeto para agrupar totales
+    const orders = await Order.findAll({ where: { local_id: id, status: 'completed' } });
     const productTotals = {};
-
     orders.forEach(order => {
-      let orderDetails;
-
-      // order_details podría ser un string (JSON) o un objeto
-      if (typeof order.order_details === 'string') {
-        try {
-          orderDetails = JSON.parse(order.order_details).details;
-        } catch (err) {
-          console.error('Error parsing order details:', err);
-          return;
-        }
-      } else {
-        orderDetails = order.order_details.details;
+      let details;
+      try {
+        details = typeof order.order_details === 'string'
+          ? JSON.parse(order.order_details).details
+          : order.order_details.details;
+      } catch {
+        return;
       }
-
-      // Sumar totales
-      orderDetails.forEach(detail => {
+      details.forEach(detail => {
         if (!productTotals[detail.id]) {
-          productTotals[detail.id] = {
-            id: detail.id,
-            name: detail.name,
-            orderCount: 0,
-            totalRevenue: 0
-          };
+          productTotals[detail.id] = { id: detail.id, name: detail.name, orderCount: 0, totalRevenue: 0 };
         }
         productTotals[detail.id].orderCount += detail.quantity;
         productTotals[detail.id].totalRevenue += detail.quantity *
@@ -450,16 +317,15 @@ export const getByLocalId = async (req, res) => {
       });
     });
 
-    // Mapear productos con orderCount y totalRevenue
-    const productsWithOrderDetails = products.map(product => ({
-      ...product.dataValues,
-      orderCount: productTotals[product.id] ? productTotals[product.id].orderCount : 0,
-      totalRevenue: productTotals[product.id] ? productTotals[product.id].totalRevenue : 0
+    const productsWithOrderDetails = products.map(p => ({
+      ...p.dataValues,
+      orderCount: productTotals[p.id]?.orderCount || 0,
+      totalRevenue: productTotals[p.id]?.totalRevenue || 0,
     }));
 
     res.status(200).json(productsWithOrderDetails);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error: 'Error al buscar productos por localId' });
   }
 };
@@ -469,20 +335,9 @@ export const getByLocalId = async (req, res) => {
 // =============================
 export const getProductsByClientId = async (req, res) => {
   const { id } = req.params;
-
   try {
-    if (!id) {
-      return res.status(400).json({ message: "Client ID is required" });
-    }
-
-    // Productos activos por clientId
-    const products = await Product.findAll({
-      where: {
-        clientId: id,
-        state: "1"
-      }
-    });
-
+    if (!id) return res.status(400).json({ message: "Client ID is required" });
+    const products = await Product.findAll({ where: { clientId: id, state: "1" } });
     res.status(200).json(products);
   } catch (error) {
     console.error('Error fetching products by client ID:', error);
@@ -495,43 +350,14 @@ export const getProductsByClientId = async (req, res) => {
 // =============================
 export const getByProductId = async (req, res) => {
   const { id } = req.params;
-
   try {
     const product = await Product.findByPk(id, {
       include: [
-        {
-          model: Extra,
-          as: 'extras',
-          include: [
-            {
-              model: ExtraOption,
-              as: 'options',
-            },
-          ],
-          through: { attributes: [] },
-        },
-        // Se elimina Discount
-        // {
-        //   model: Discount,
-        //   as: 'discounts',
-        // },
-        {
-          model: Promotion,
-          as: 'promotions',
-          include: [
-            {
-              model: PromotionType,
-              as: 'promotionType',
-            },
-          ],
-        },
+        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }], through: { attributes: [] } },
+        { model: Promotion, as: 'promotions', include: [{ model: PromotionType, as: 'promotionType' }] }
       ],
     });
-
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
-
+    if (!product) return res.status(404).json({ error: 'Product not found' });
     res.status(200).json(product);
   } catch (error) {
     console.error('Error fetching product by ID:', error);
@@ -544,76 +370,34 @@ export const getByProductId = async (req, res) => {
 // =============================
 export const saveExtras = async (req, res) => {
   const { extras, productId } = req.body;
-
   try {
-    // Verificar producto
     const product = await Product.findByPk(productId);
-    if (!product) {
-      return res.status(404).json({ message: "Producto no encontrado" });
-    }
+    if (!product) return res.status(404).json({ message: "Producto no encontrado" });
 
-    // Eliminar relaciones previas
-    // (Necesitas importar productExtras si lo manejas manualmente, 
-    // pero con product.addExtra / product.removeExtra no siempre es necesario).
-    await product.setExtras([]); // Limpia todas las asociaciones
-
-    // Crear/actualizar extras
+    await product.setExtras([]);
     const createdExtras = [];
-
     for (const extra of extras || []) {
       const { id, name, required, options, onlyOne } = extra;
-
       let newExtra;
       if (id) {
-        // Actualizar extra existente
         newExtra = await Extra.findByPk(id);
-        if (newExtra) {
-          await newExtra.update({
-            name,
-            required,
-            onlyOne
-          });
-        }
+        if (newExtra) await newExtra.update({ name, required, onlyOne });
       } else {
-        // Crear nuevo extra
-        newExtra = await Extra.create({
-          name,
-          required,
-          onlyOne
-        });
+        newExtra = await Extra.create({ name, required, onlyOne });
       }
-
-      // Eliminar opciones existentes de este extra
-      await ExtraOption.destroy({
-        where: { extra_id: newExtra.id }
-      });
-
-      // Crear nuevas opciones
-      for (const option of options || []) {
-        await ExtraOption.create({
-          name: option.name,
-          price: option.price,
-          extra_id: newExtra.id
-        });
+      await ExtraOption.destroy({ where: { extra_id: newExtra.id } });
+      for (const opt of options || []) {
+        await ExtraOption.create({ name: opt.name, price: opt.price, extra_id: newExtra.id });
       }
-
-      // Asocia extra con producto
       await product.addExtra(newExtra);
       createdExtras.push(newExtra);
     }
 
-    // Recuperar producto con sus extras actualizados
     const productWithExtras = await Product.findOne({
       where: { id: productId },
-      include: {
-        model: Extra,
-        as: 'extras',
-        include: {
-          model: ExtraOption,
-          as: 'options'
-        },
-        through: { attributes: [] }
-      }
+      include: [
+        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }], through: { attributes: [] } }
+      ],
     });
 
     res.status(200).json(productWithExtras);
@@ -630,79 +414,54 @@ export const uploadExcelToCategory = async (req, res) => {
   try {
     const categoryId = req.params.id;
     const clientId = req.user.clientId;
-
     if (!req.files || Object.keys(req.files).length === 0) {
       return res.status(400).send('No files were uploaded.');
     }
-
-    const excelFile = req.files.file;
-    const workbook = xlsx.read(excelFile.data);
-    const sheetNameList = workbook.SheetNames;
-    const sheet = workbook.Sheets[sheetNameList[0]];
-
-    // Buscar primera fila con datos
+    const workbook = xlsx.read(req.files.file.data);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const range = xlsx.utils.decode_range(sheet['!ref']);
     let startRow = range.s.r;
     for (let R = range.s.r; R <= range.e.r; ++R) {
-      let cell = sheet[xlsx.utils.encode_cell({ r: R, c: range.s.c })];
-      if (cell && cell.v) {
-        startRow = R;
-        break;
-      }
+      const cell = sheet[xlsx.utils.encode_cell({ r: R, c: range.s.c })];
+      if (cell && cell.v) { startRow = R; break; }
     }
-
-    // Convertir a JSON desde la fila detectada
     const products = xlsx.utils.sheet_to_json(sheet, { range: startRow });
-
-    let createdProducts = [];
-    let failedProducts = [];
-
-    for (const productData of products) {
+    const createdProducts = [];
+    const failedProducts = [];
+    for (const pData of products) {
       try {
-        // Si tu Excel trae un posible discountPercentage, lo tomas; si no, 0
-        const discountPercentage = productData.discountPercentage || 0;
-        const price = productData.price || 0;
-
-        // Calcular finalPrice
-        const finalPrice = price * (1 - (discountPercentage / 100));
-
-        // Crear producto
+        const discountPercentage = pData.discountPercentage || 0;
+        const price = pData.price || 0;
+        const finalPrice = price * (1 - discountPercentage / 100);
         const createdProduct = await Product.create({
-          name: productData.name,
-          price: price,
-          description: productData.description,
-          img: productData.img,
+          name: pData.name,
+          price,
+          description: pData.description,
+          img: pData.img,
           categories_id: categoryId,
-          clientId: clientId,
+          clientId,
           state: '1',
           discountPercentage,
           finalPrice
         });
         createdProducts.push(createdProduct.name);
-      } catch (error) {
-        console.error('Error creating product:', productData.name, error);
-        failedProducts.push(productData.name);
+      } catch {
+        failedProducts.push(pData.name);
       }
     }
-
-    res.status(200).json({
-      createdProducts,
-      failedProducts
-    });
+    res.status(200).json({ createdProducts, failedProducts });
   } catch (error) {
     console.error('Error uploading file:', error);
     res.status(500).send('Error uploading file');
   }
 };
 
+// =============================
+// Obtener productos de inventario (discountPercentage = 0)
+// =============================
 export const getInventoryProducts = async (req, res) => {
   try {
-    const products = await Product.findAll({
-      where: {
-        discountPercentage: 0
-      },
-    });
-
+    const products = await Product.findAll({ where: { discountPercentage: 0 } });
     return res.json(products);
   } catch (error) {
     console.error('Error getting inventory products:', error);
@@ -710,33 +469,31 @@ export const getInventoryProducts = async (req, res) => {
   }
 };
 
+// =============================
+// Actualizar producto de inventario (descuentos y schedules)
+// =============================
 export const pushInventoryProduct = async (req, res) => {
   try {
     const { productId } = req.params;
-    const {
-      discountPercentage,
-      finalPrice,
-      AlwaysActive,
-      discountSchedule,
-      categories_id
-    } = req.body;
+    const { discountPercentage, finalPrice, AlwaysActive = false, discountSchedule = null, categories_id } = req.body;
 
-    // Encontramos el producto
     const product = await Product.findByPk(productId);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
-    }
+    if (!product) return res.status(404).json({ error: 'Product not found' });
 
-    // Actualizamos los campos correspondientes
     product.discountPercentage = discountPercentage;
     product.finalPrice = finalPrice;
     product.AlwaysActive = AlwaysActive;
-    product.discountSchedule = discountSchedule; // puede ser null o un array
-    if (categories_id) {
-      product.categories_id = categories_id;
-    }
-
+    product.discountSchedule = AlwaysActive ? null : discountSchedule;
+    if (categories_id) product.categories_id = categories_id;
     await product.save();
+
+    // Gestionar ProductSchedule
+    await ProductSchedule.destroy({ where: { productId } });
+    if (!AlwaysActive && Array.isArray(discountSchedule)) {
+      for (const { start, end } of discountSchedule) {
+        await ProductSchedule.create({ productId, start, end });
+      }
+    }
 
     return res.json({ message: 'Product updated successfully', product });
   } catch (error) {

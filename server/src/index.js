@@ -10,7 +10,7 @@ import https from 'https';
 const currentEnvironment = process.env.NODE_ENV || 'development';
 
 // Sincroniza los modelos; en producción se recomienda evitar alteraciones automáticas
-sequelize.sync({ alter: currentEnvironment !== 'production' }).then(() => {
+sequelize.sync({ alter: true}).then(() => {
   if (currentEnvironment === 'production') {
     // Configuración para el servidor en producción (HTTPS)
     const privateKey = fs.readFileSync('./../../certificados/private.key', 'utf8');

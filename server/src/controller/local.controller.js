@@ -837,29 +837,41 @@ export const syncLocal = async (req, res) => {
 
 export const getProductsWithSchedule = async (req, res) => {
   try {
-    // Obtener todos los productos con AlwaysActive en false e incluir el modelo ProductSchedule
     const products = await Product.findAll({
       where: { AlwaysActive: false },
+      /* ──────────────── INCLUDES ──────────────── */
       include: [
+        /* 1.  Únicamente los que tienen al menos un horario */
         {
           model: ProductSchedule,
-          as: 'productSchedules'
+          as   : 'productSchedules',
+          required: true            // ← hace el INNER JOIN
+        },
+        /* 2.  Traer categoría Y dentro de ella el local   */
+        {
+          model : Category,
+          as    : 'category',
+          include: [
+            {
+              model: Local,
+              as  : 'local'
+            }
+          ]
         }
       ]
     });
 
-    console.log(products, "prodcy")
+    /* ── (opcional) aplanar la respuesta para el front ── */
+    const result = products.map(p => {
+      const plain = p.get({ plain: true });
+      plain.local = plain.category?.local || null;  // subimos el local
+      delete plain.category;                        // si no lo querés enviar
+      return plain;
+    });
 
-    // Filtrar los productos que tienen al menos un registro en productSchedules
-    const filteredProducts = products.filter(
-      product => product.discountSchedule && product.discountSchedule.length > 0
-    );
-
-    console.log(filteredProducts, "filprod")
-
-    return res.status(200).json(filteredProducts);
+    return res.status(200).json(result);
   } catch (error) {
-    console.error("Error al obtener productos con schedule:", error);
-    return res.status(500).json({ message: "Error interno del servidor." });
+    console.error('Error al obtener productos con schedule:', error);
+    return res.status(500).json({ message: 'Error interno del servidor.' });
   }
 };
