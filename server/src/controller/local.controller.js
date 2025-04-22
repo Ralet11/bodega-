@@ -4,7 +4,7 @@ const { Local, Category, Product, Extra, ExtraOption, ShopOpenHours, LocalTag, T
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
 
-import { Op } from 'sequelize';
+import { literal, Op } from 'sequelize';
 
 import { getIo } from '../socket.js';
 
@@ -114,10 +114,13 @@ export const updateShop = async (req, res) => {
     pickUp,
     orderIn,
     tags,
-    owner_check // <-- NUEVO campo
+    owner_check,
+    website,
+    description,
+    einNumber,
   } = req.body;
   const { clientId } = req.user;
-
+console.log(req.body, "body")
   try {
     const local = await Local.findByPk(id);
 
@@ -137,7 +140,10 @@ export const updateShop = async (req, res) => {
       delivery: Delivery,
       pickUp,
       orderIn,
-      owner_check // <-- se guardará en la DB si la columna existe
+      owner_check,
+      website,
+      description,
+      einNumber
     });
 
     // Actualizar tags asociadas (siempre que las envíes en el body)
@@ -251,25 +257,17 @@ const convertTo24Hour = (timeStr) => {
 };
 
 export const addShop = async (req, res) => {
+  console.log(req.body, "body");
 
-  console.log(req.user, "bd")
   try {
-    // Desestructuramos la data completa enviada en el body (según la estructura del cuestionario)
     const {
-      storeInfo,    // { name, address, phone, email, selectedTags } 
-      orderMethod,  // "app" o "web"
-      hours,        // { generalSchedule: [{ open, close }, ...] } o { daysOfWeek: [{ day, slots, closed }, ...] }
-      menu,         // { menuOption, menuLink, menuFile }; en este caso, si es "upload" se espera que menuFile sea la URL del archivo subido
-      bankAccount,  // { routingNumber, accountNumber, legalName, restaurantType, branches, taxId }
-      lat,
-      lng,
-      clientId,
-      category,
-      coordinates      // opcional
+      storeInfo,
+      orderMethod,
+      hours,
+      menu,
+      bankAccount,
+      coordinates
     } = req.body;
-
-    // Verificamos que se reciban los campos obligatorios
-
 
     if (
       !storeInfo ||
@@ -278,57 +276,56 @@ export const addShop = async (req, res) => {
       !storeInfo.phone ||
       !storeInfo.email ||
       !storeInfo.selectedTags ||
-      !coordinates.lat ||
-      !coordinates.lng
-
+      !coordinates?.lat ||
+      !coordinates?.lng
     ) {
-      return res.status(400).json({ message: "Bad Request. Please fill all required fields." });
+      return res
+        .status(400)
+        .json({ message: "Bad Request. Please fill all required fields." });
     }
 
-    // Confirmar que el clientId del body coincida con el obtenido del JWT
-
-
-
-    // Crear la nueva tienda (Local), incluyendo la información del menú:
-    // - Si menu.menuOption es "link" se guarda el link en el campo menuLink
-    // - Si es "upload" se guarda la URL del archivo en el campo menuFileUrl
+    // Crear la nueva tienda (Local)
     const newShop = await Local.create({
       name: storeInfo.name,
       address: storeInfo.address,
       phone: storeInfo.phone,
       lat: coordinates.lat,
       lng: coordinates.lng,
-      clients_id: clientId,
+      clients_id: req.user.clientId,
+      locals_categories_id: storeInfo.locals_categories_id
+        ? storeInfo.locals_categories_id
+        : 1,
       menuLink: menu.menuOption === "link" ? menu.menuLink : null,
       menuFileUrl: menu.menuOption === "upload" ? menu.menuFile : null,
-      clients_id: req.user.clientId
+      einNumber: bankAccount?.taxId || null
     });
 
     // Construir los registros de horarios de atención
-    let openHourRecords = [];
+    const openHourRecords = [];
     if (hours.generalSchedule) {
-      // Se usa el mismo horario para todos los días
-      const weekDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-      weekDays.forEach(day => {
-        hours.generalSchedule.forEach(slot => {
+      const weekDays = [
+        "Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"
+      ];
+      weekDays.forEach((day) => {
+        hours.generalSchedule.forEach((slot) => {
           openHourRecords.push({
             local_id: newShop.id,
             day,
             open_hour: convertTo24Hour(slot.open),
-            close_hour: convertTo24Hour(slot.close),
+            close_hour: convertTo24Hour(slot.close)
           });
         });
       });
     } else if (hours.daysOfWeek) {
-      // Se usan horarios distintos para cada día
-      hours.daysOfWeek.forEach(dayObj => {
+      hours.daysOfWeek.forEach((dayObj) => {
         if (!dayObj.closed) {
-          dayObj.slots.forEach(slot => {
+          dayObj.slots.forEach((slot) => {
             openHourRecords.push({
               local_id: newShop.id,
               day: dayObj.day,
               open_hour: convertTo24Hour(slot.open),
-              close_hour: convertTo24Hour(slot.close),
+              close_hour: convertTo24Hour(slot.close)
             });
           });
         }
@@ -342,20 +339,21 @@ export const addShop = async (req, res) => {
     if (bankAccount) {
       await Client.update(
         {
-          routingNumber: bankAccount.routingNumber,
-          accountNumber: bankAccount.accountNumber,
-          legalName: bankAccount.legalName,
-          restaurantType: bankAccount.restaurantType,
-          branches: bankAccount.branches,
-          taxId: bankAccount.taxId
+          routing_number: bankAccount.routingNumber,
+          account_number: bankAccount.accountNumber,
+          account_holder_name: bankAccount.legalName
         },
-        { where: { id: clientId } }
+        {
+          where: { id: req.user.clientId }
+        }
       );
     }
 
-    // Agregar los tags seleccionados a la tabla LocalTag.
-    // Se asume que storeInfo.selectedTags es un array de objetos con al menos la propiedad id.
-    if (storeInfo.selectedTags && Array.isArray(storeInfo.selectedTags)) {
+    // Agregar los tags seleccionados a LocalTag
+    if (
+      Array.isArray(storeInfo.selectedTags) &&
+      storeInfo.selectedTags.length > 0
+    ) {
       for (const tag of storeInfo.selectedTags) {
         await LocalTag.create({
           tag_id: tag.id,
@@ -364,16 +362,17 @@ export const addShop = async (req, res) => {
       }
     }
 
-    // Opcional: procesar otros datos como orderMethod o category, si fuera necesario.
+    // Opcional: procesar orderMethod o category si hace falta...
 
-    // Obtener la tienda recién creada incluyendo sus horarios y tags para la respuesta
+    // Obtener la tienda recién creada con horarios y tags
     const shop = await Local.findOne({
       where: { id: newShop.id },
       include: [
-        { model: ShopOpenHours, as: 'openingHours' },
-        { model: Tag, as: 'tags', through: { attributes: [] } }
+        { model: ShopOpenHours, as: "openingHours" },
+        { model: Tag, as: "tags", through: { attributes: [] } }
       ]
     });
+
     res.json({
       error: false,
       created: "ok",
@@ -838,34 +837,26 @@ export const syncLocal = async (req, res) => {
 export const getProductsWithSchedule = async (req, res) => {
   try {
     const products = await Product.findAll({
-      where: { AlwaysActive: false },
-      /* ──────────────── INCLUDES ──────────────── */
+      where: {
+        AlwaysActive: false,
+        discountSchedule: { [Op.ne]: null },
+        [Op.and]: literal(
+          'jsonb_array_length("Product"."discountSchedule"::jsonb) > 0'
+        ),
+      },
       include: [
-        /* 1.  Únicamente los que tienen al menos un horario */
         {
-          model: ProductSchedule,
-          as   : 'productSchedules',
-          required: true            // ← hace el INNER JOIN
+          model: Category,
+          as: 'category',
+          include: [{ model: Local, as: 'local' }],
         },
-        /* 2.  Traer categoría Y dentro de ella el local   */
-        {
-          model : Category,
-          as    : 'category',
-          include: [
-            {
-              model: Local,
-              as  : 'local'
-            }
-          ]
-        }
-      ]
+      ],
     });
 
-    /* ── (opcional) aplanar la respuesta para el front ── */
-    const result = products.map(p => {
+    const result = products.map((p) => {
       const plain = p.get({ plain: true });
-      plain.local = plain.category?.local || null;  // subimos el local
-      delete plain.category;                        // si no lo querés enviar
+      plain.local = plain.category?.local || null;
+      delete plain.category;
       return plain;
     });
 

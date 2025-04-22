@@ -91,6 +91,11 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false
     },
+    // Nuevo campo EIN Number
+    einNumber: {
+      type: DataTypes.STRING(45),
+      allowNull: true
+    },
     menuLink: {
       type: DataTypes.STRING(255),
       allowNull: true

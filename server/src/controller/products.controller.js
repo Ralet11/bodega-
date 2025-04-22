@@ -85,13 +85,7 @@ export const addProduct = async (req, res) => {
       discountSchedule: AlwaysActive ? null : discountSchedule
     });
 
-    // Crear ProductSchedule si aplica
-    if (!AlwaysActive && Array.isArray(discountSchedule)) {
-      for (const { start, end } of discountSchedule) {
-        await ProductSchedule.create({ productId: newProduct.id, start, end });
-      }
-    }
-
+    
     // Crear extras
     for (const extra of extras) {
       const { name, options, required, onlyOne } = extra;
@@ -113,8 +107,7 @@ export const addProduct = async (req, res) => {
     const productWithExtras = await Product.findOne({
       where: { id: newProduct.id },
       include: [
-        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }] },
-        { model: ProductSchedule, as: 'productSchedules' }
+        { model: Extra, as: 'extras', include: [{ model: ExtraOption, as: 'options' }] }
       ],
     });
 
