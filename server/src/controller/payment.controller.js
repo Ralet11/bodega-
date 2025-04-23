@@ -7,40 +7,20 @@ import { FRONTEND_URL, SSK } from '../config.js';
 const stripe = new Stripe(SSK);
 
 export const tryIntent = async (req, res) => {
-  const { finalPrice, activeShop } = req.body;
-
-  const shop = await Local.findByPk(activeShop);
-
-
-  const client = await Client.findByPk(shop.clients_id);
- 
-
-  const connectedAccountId = client.stripe_account_id;
-
-  // Calcula la deducción del 2.9% del finalPrice
-  const percentageDeduction = Math.round(finalPrice * 0.029);
-  // Se resta además 0.30 dólares (30 centavos)
-  const fixedDeduction = 30;
-  
-  // Se obtiene el monto base para calcular la comisión
-  const baseAmount = finalPrice - percentageDeduction - fixedDeduction;
-
-  // Se calcula la comisión del 10% sobre el monto base
-  const applicationFee = Math.round(baseAmount * 0.10);
+  const { finalPrice } = req.body;
 
   try {
+    // Creamos el PaymentIntent en nuestra cuenta (sin transferencias)
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: finalPrice, // valor en centavos
+      amount: finalPrice,          // valor en centavos
       currency: 'usd',
       automatic_payment_methods: { enabled: true },
-      transfer_data: { destination: connectedAccountId },
-      application_fee_amount: applicationFee, // comisión calculada, en centavos
     });
 
-    res.json({ clientSecret: paymentIntent.client_secret });
+    return res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    console.log(error.message);
-    res.status(400).json({ error: error.message });
+    console.error('Stripe error:', error);
+    return res.status(400).json({ error: error.message });
   }
 };
 
