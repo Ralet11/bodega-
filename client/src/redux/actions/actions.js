@@ -21,6 +21,7 @@ export const SET_ALL_DIST_PRODUCTS = "SET_ALL_DIST_PRODUCTS"
 export const SET_CLIENT = "SET_CLIENT"
 export const SET_TUTORIAL_SEEN = 'SET_TUTORIAL_SEEN';
 export const SET_TUTORIAL_STEP = 'SET_TUTORIAL_STEP';
+export const SET_CURRENT_SHOP  = 'SET_CURRENT_SHOP'
 
 import { getParamsEnv } from "../../functions/getParamsEnv";
 
@@ -218,5 +219,12 @@ export const setClient = (client) => {
   return {
     type: SET_CLIENT,
     payload: client
+  }
+}
+
+export const setCurrentShop = (shop) => {
+  return {
+    type: SET_CURRENT_SHOP,
+    payload: shop
   }
 }

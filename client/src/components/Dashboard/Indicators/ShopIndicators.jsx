@@ -28,7 +28,13 @@ import EarningsTable from '../EarningsTable';
 import OrdersTable from '../OrdersTable';
 import OrderDetailsModal from '../OrderDetailsModal';
 
-export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', filterOrders = () => { }, shops = [], filteredItemTotals = {} }) {
+export default function ShopIndicators({
+  ordersData = {},
+  filterPeriod = 'day',
+  filterOrders = () => {},
+  shops = [],
+  filteredItemTotals = {}
+}) {
   const [indicators, setIndicators] = useState([]);
   const activeShop = useSelector((state) => state.activeShop);
   const navigate = useNavigate();
@@ -58,92 +64,109 @@ export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', 
   };
 
   const handleSeeDetails = (orderDetails, orderId) => {
-    if (orderDetails && Array.isArray(orderDetails)) {
-      const detailsWithOrderId = orderDetails.map((detail) => ({ ...detail, orderId }));
-      setSelectedOrderDetails(detailsWithOrderId);
-      setIsModalOpen(true);
-    } else {
-      setSelectedOrderDetails([]);
+    let detailsWithOrderId = [];
+    // Validamos que orderDetails sea un arreglo; si es string, intentamos parsearlo
+    if (Array.isArray(orderDetails)) {
+      detailsWithOrderId = orderDetails.map((detail) => ({ ...detail, orderId }));
+    } else if (typeof orderDetails === 'string') {
+      try {
+        const parsed = JSON.parse(orderDetails);
+        if (Array.isArray(parsed)) {
+          detailsWithOrderId = parsed.map((detail) => ({ ...detail, orderId }));
+        }
+      } catch (error) {
+        console.warn('orderDetails string no pudo ser parseado', error);
+      }
     }
+    setSelectedOrderDetails(detailsWithOrderId);
+    setIsModalOpen(true);
   };
 
   const toggleSection = (sectionId) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
       [sectionId]: !prev[sectionId]
     }));
   };
 
-  useEffect(() => {
-    const calculateIndicators = (data) => {
-      return Object.keys(data).map((shopId) => {
-        const shopData = data[shopId];
-        const shopInfo = shops.find((shop) => shop.id === parseInt(shopId));
-        const totalSales = shopData.orders.reduce(
-          (sum, order) => sum + parseFloat(order.total_price),
-          0
-        );
-        const totalQuantity = shopData.orders.reduce((sum, order) => {
-          return (
-            sum +
-            order.order_details.reduce((qSum, item) => qSum + item.quantity, 0)
-          );
-        }, 0);
-        const totalOrders = shopData.orders.length;
-        const avgSalesPerOrder = totalOrders ? totalSales / totalOrders : 0;
+  // Función para calcular los indicadores de cada tienda, validando siempre que order.order_details sea un arreglo
+  const calculateIndicators = (data) => {
+    return Object.keys(data).map((shopId) => {
+      const shopData = data[shopId];
+      const shopInfo = shops.find((shop) => shop.id === parseInt(shopId));
 
-        const hourlySales = {};
-        shopData.orders.forEach((order) => {
-          const hour = new Date(order.date_time).getHours();
-          hourlySales[hour] = (hourlySales[hour] || 0) + parseFloat(order.total_price);
-        });
+      const totalSales = shopData.orders.reduce(
+        (sum, order) => sum + parseFloat(order.total_price || 0),
+        0
+      );
 
-        const hourlySalesData = Array.from({ length: 24 }, (_, i) => ({
-          hour: `${i}:00`,
-          sales: hourlySales[i] || 0,
-        }));
+      const totalQuantity = shopData.orders.reduce((sum, order) => {
+        // Comprobamos que order.order_details sea un arreglo. Si no lo es, usamos [] para evitar errores.
+        const details = Array.isArray(order.order_details) ? order.order_details : [];
+        return sum + details.reduce((qSum, item) => qSum + (item.quantity || 0), 0);
+      }, 0);
 
-        const itemSales = {};
-        shopData.orders.forEach((order) => {
-          order.order_details.forEach((item) => {
-            if (!itemSales[item.name]) {
-              itemSales[item.name] = 0;
-            }
-            itemSales[item.name] += item.quantity;
-          });
-        });
+      const totalOrders = shopData.orders.length;
+      const avgSalesPerOrder = totalOrders ? totalSales / totalOrders : 0;
 
-        const topItemsData = Object.keys(itemSales)
-          .map((name) => ({ name, quantity: itemSales[name] }))
-          .sort((a, b) => b.quantity - a.quantity)
-          .slice(0, 5);
-
-        return {
-          shopId: String(shopId),
-          shopName: shopInfo ? shopInfo.name : 'Unknown Shop',
-          totalSales,
-          totalQuantity,
-          totalOrders,
-          avgSalesPerOrder,
-          isOpen: shopInfo ? isShopOpen(shopInfo) : false,
-          hourlySalesData,
-          topItemsData,
-        };
+      // Calcular ventas por hora
+      const hourlySales = {};
+      shopData.orders.forEach((order) => {
+        const orderTime = order.date_time ? new Date(order.date_time) : new Date();
+        const hour = orderTime.getHours();
+        hourlySales[hour] = (hourlySales[hour] || 0) + parseFloat(order.total_price || 0);
       });
-    };
 
+      const hourlySalesData = Array.from({ length: 24 }, (_, i) => ({
+        hour: `${i}:00`,
+        sales: hourlySales[i] || 0,
+      }));
+
+      // Calcular los productos más vendidos validando que order.order_details sea arreglo
+      const itemSales = {};
+      shopData.orders.forEach((order) => {
+        const details = Array.isArray(order.order_details) ? order.order_details : [];
+        details.forEach((item) => {
+          if (!itemSales[item.name]) {
+            itemSales[item.name] = 0;
+          }
+          itemSales[item.name] += item.quantity || 0;
+        });
+      });
+
+      const topItemsData = Object.keys(itemSales)
+        .map((name) => ({ name, quantity: itemSales[name] }))
+        .sort((a, b) => b.quantity - a.quantity)
+        .slice(0, 5);
+
+      return {
+        shopId: String(shopId),
+        shopName: shopInfo ? shopInfo.name : 'Unknown Shop',
+        totalSales,
+        totalQuantity,
+        totalOrders,
+        avgSalesPerOrder,
+        isOpen: shopInfo ? isShopOpen(shopInfo) : false,
+        hourlySalesData,
+        topItemsData,
+      };
+    });
+  };
+
+  useEffect(() => {
     if (ordersData) {
       const newIndicators = calculateIndicators(ordersData);
       setIndicators(newIndicators);
     }
   }, [ordersData, filterPeriod, shops]);
 
+  // Custom tooltip para los gráficos
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-4 rounded-lg shadow-md border border-gray-200">
           <p className="text-sm font-semibold text-gray-700">{`Hour: ${label}`}</p>
-          <p className="text-sm text-gray-600">{`Sales: $${payload[0].value.toFixed(2)}`}</p>
+          <p className="text-sm text-gray-600">{`Sales: $${parseFloat(payload[0].value).toFixed(2)}`}</p>
         </div>
       );
     }
@@ -159,10 +182,11 @@ export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', 
             <button
               key={period}
               onClick={() => filterOrders(period)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 flex-1 lg:flex-none ${filterPeriod === period
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 hover:scale-105 flex-1 lg:flex-none ${
+                filterPeriod === period
                   ? 'bg-gradient-to-r from-primary/80 to-primary text-primary-foreground shadow-sm'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+              }`}
             >
               {period === 'Historical Data'
                 ? 'All Time'
@@ -188,15 +212,17 @@ export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', 
                         className={`h-6 w-6 ${indicator.isOpen ? 'text-green-500' : 'text-red-500'}`}
                       />
                       <span
-                        className={`absolute -top-1 -right-1 h-2 w-2 rounded-full ${indicator.isOpen ? 'bg-green-500' : 'bg-red-500'
-                          }`}
+                        className={`absolute -top-1 -right-1 h-2 w-2 rounded-full ${
+                          indicator.isOpen ? 'bg-green-500' : 'bg-red-500'
+                        }`}
                       />
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-gray-900">{indicator.shopName}</h3>
                       <span
-                        className={`text-xs font-medium ${indicator.isOpen ? 'text-green-600' : 'text-red-600'
-                          }`}
+                        className={`text-xs font-medium ${
+                          indicator.isOpen ? 'text-green-600' : 'text-red-600'
+                        }`}
                       >
                         {indicator.isOpen ? 'Open' : 'Closed'}
                       </span>
@@ -364,9 +390,7 @@ export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', 
                       className="w-full flex justify-between items-center p-4 text-left"
                       onClick={() => toggleSection('earnings')}
                     >
-                      <h4 className="text-lg font-semibold text-gray-900">
-                        Earnings
-                      </h4>
+                      <h4 className="text-lg font-semibold text-gray-900">Earnings</h4>
                       {expandedSections.earnings ? (
                         <ChevronUpIcon className="h-5 w-5 text-gray-500" />
                       ) : (
@@ -389,9 +413,7 @@ export default function ShopIndicators({ ordersData = {}, filterPeriod = 'day', 
                       className="w-full flex justify-between items-center p-4 text-left"
                       onClick={() => toggleSection('orders')}
                     >
-                      <h4 className="text-lg font-semibold text-gray-900">
-                        Orders
-                      </h4>
+                      <h4 className="text-lg font-semibold text-gray-900">Orders</h4>
                       {expandedSections.orders ? (
                         <ChevronUpIcon className="h-5 w-5 text-gray-500" />
                       ) : (

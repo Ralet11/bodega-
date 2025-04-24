@@ -4,11 +4,10 @@ import axios from "axios";
 import NewOrderCard from "./NeworderCard";
 import AcceptedOrderCard from "./AcceptedOrderCard";
 import SendindOrderCard from "./SendindOrders";
-import socketIOClient from "socket.io-client";
 import { setNewOrder } from "../../redux/actions/actions";
 import { getParamsEnv } from "../../functions/getParamsEnv";
 import { Search } from "lucide-react";
-
+import socket from "../socket";
 const { API_URL_BASE } = getParamsEnv();
 
 const Orders = () => {
@@ -25,7 +24,7 @@ const Orders = () => {
     finished: [],
   });
 
-  const socket = socketIOClient("https://3.137.165.92");
+
 
   useEffect(() => {
     const fetchData = async () => {

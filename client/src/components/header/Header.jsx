@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from "react-redux"
 import { emptyCart, logOutClient } from "../../redux/actions/actions"
+import { ChevronDown, ShoppingBag } from "lucide-react"
 
 export default function Header({ isFirstScreen = false }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -40,73 +41,60 @@ export default function Header({ isFirstScreen = false }) {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-amber-400 to-amber-600 shadow-lg">
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
+    <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-amber-400 to-amber-600 shadow-sm">
+      <div className="max-w-screen-2xl mx-auto">
+        <div className="flex h-12 items-center justify-between px-4">
+          <div className="flex items-center gap-6">
             <a href="/" className="flex-shrink-0">
               <img
-                className="h-10 w-auto rounded-full shadow-md transition-transform duration-300 hover:scale-110"
+                className="h-8 w-auto rounded-full shadow-sm"
                 src="https://res.cloudinary.com/doqyrz0sg/image/upload/v1726357397/logo_oe3idx.jpg"
                 alt="Bodega Logo"
               />
             </a>
 
-            {/* Menú de escritorio */}
-            {!isFirstScreen && (
-              <nav className="hidden ml-6 md:flex space-x-4">
+            {/* Desktop menu */}
+             {/* Desktop menu */}
+             {!isFirstScreen && (
+              <nav className="hidden md:flex">
                 <button
                   onClick={() => navigate("/settings")}
-                  className="text-black bg-amber-500 hover:bg-amber-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                  className="text-gray-700 hover:text-amber-600 flex items-center text-sm font-medium"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 inline-block mr-2"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
-                  </svg>
-                  {shop?.name || "Select Shop"}
+                  <ShoppingBag className="h-4 w-4 mr-1.5" />
+                  <span>{shop?.name || "Select Shop"}</span>
                 </button>
               </nav>
             )}
           </div>
 
-          {/* Menú de usuario (escritorio) */}
+          {/* User menu (desktop) */}
           <div className="hidden md:flex items-center">
             <div className="relative" ref={userMenuRef}>
               <button
                 onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="text-black bg-amber-500 hover:bg-amber-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
+                className="text-white hover:text-amber-100 flex items-center text-sm font-normal"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5 mr-2"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-                {client?.client?.name || "User"}
+                <span>{client?.client?.name || "User"}</span>
+                <ChevronDown className="h-3 w-3 ml-1 text-amber-100" />
               </button>
 
               {isUserMenuOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
+                <div className="absolute right-0 mt-1 w-40 bg-white rounded-md shadow-sm py-1 z-10 border border-gray-100 text-sm">
                   {!isFirstScreen && (
                     <button
                       onClick={() => {
                         setIsUserMenuOpen(false)
                         navigate("/ClientSettings")
                       }}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-100 w-full text-left"
+                      className="flex w-full items-center px-3 py-1.5 text-gray-600 hover:bg-gray-50"
                     >
                       Settings
                     </button>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="block px-4 py-2 text-sm text-red-600 hover:bg-red-100 w-full text-left"
+                    className="flex w-full items-center px-3 py-1.5 text-gray-600 hover:bg-gray-50"
                   >
                     Log out
                   </button>
@@ -115,18 +103,13 @@ export default function Header({ isFirstScreen = false }) {
             </div>
           </div>
 
-          {/* Botón del menú móvil (hamburguesa) */}
+          {/* Mobile menu button */}
           <div className="flex md:hidden">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className={`bg-amber-500 text-white hover:bg-amber-600 p-2 rounded-md transition-colors duration-200 ${
-                isMenuOpen ? "bg-amber-600" : "bg-amber-500"
-              }`}
-            >
+            <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="text-white p-1 rounded-md">
               <span className="sr-only">Open main menu</span>
               {isMenuOpen ? (
                 <svg
-                  className="h-6 w-6"
+                  className="h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -136,7 +119,7 @@ export default function Header({ isFirstScreen = false }) {
                 </svg>
               ) : (
                 <svg
-                  className="h-6 w-6"
+                  className="h-4 w-4"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
@@ -149,16 +132,16 @@ export default function Header({ isFirstScreen = false }) {
           </div>
         </div>
 
-        {/* Menú móvil */}
+        {/* Mobile menu */}
         {isMenuOpen && (
-          <nav className="md:hidden bg-white shadow-lg rounded-md p-4 absolute top-16 left-0 right-0 z-20">
+          <nav className="md:hidden bg-white shadow-sm absolute top-12 left-0 right-0 z-20 border-b border-gray-100">
             {!isFirstScreen && (
               <button
                 onClick={() => {
                   setIsMenuOpen(false)
                   navigate("/settings")
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100 rounded-md transition-colors duration-200"
+                className="flex w-full items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 border-b border-gray-100"
               >
                 {shop?.name || "Select Shop"}
               </button>
@@ -170,7 +153,7 @@ export default function Header({ isFirstScreen = false }) {
                   setIsMenuOpen(false)
                   navigate("/ClientSettings")
                 }}
-                className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-amber-100 rounded-md transition-colors duration-200"
+                className="flex w-full items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50 border-b border-gray-100"
               >
                 Settings
               </button>
@@ -178,7 +161,7 @@ export default function Header({ isFirstScreen = false }) {
 
             <button
               onClick={handleLogout}
-              className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-100 rounded-md transition-colors duration-200"
+              className="flex w-full items-center px-4 py-2.5 text-sm text-gray-600 hover:bg-gray-50"
             >
               Log out
             </button>

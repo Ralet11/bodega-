@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { methods as middleware } from "../middleware.js";
-import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getAllLocalCategories, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate, updateOpeningHours, getOpeningHoursByLocalId, getShopsOrderByCatDiscount, syncLocal, getProductsWithSchedule } from "../controller/local.controller.js"
+import { getShopsByClientId ,getByClientId, getById, changeStatus, updateShop, updateAddress, getAllLocalCategories, getActiveShops, getAllShops, addShop, getLocalCategoriesAndProducts, getShopsOrderByCat, changeRating, addService, removeService, sendCertificate, updateOpeningHours, getOpeningHoursByLocalId, getShopsOrderByCatDiscount, syncLocal, getProductsWithSchedule, uploadMenu, uploadMenuPdf } from "../controller/local.controller.js"
 import multer from 'multer';
 
 const storage = multer.memoryStorage();
@@ -14,7 +14,7 @@ router.put('/update/:id',middleware.auth, updateShop)
 router.post('/update/address/:id',middleware.auth, updateAddress)
 router.get('/activeShops', getActiveShops)
 router.get('/getAllShops', getAllShops)
-router.post('/add', middleware.auth, addShop)
+router.post("/add",middleware.auth,uploadMenuPdf, addShop)
 router.get('/getByClient', getByClientId)
 router.get('/:localId/categories', getLocalCategoriesAndProducts);
 router.get('/app/getShopsOrderByCat', getShopsOrderByCat)

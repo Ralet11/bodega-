@@ -320,15 +320,15 @@ const SellerSettings = () => {
               </Button>
             </div>
           </form>
-          {/* Stripe Button */}
-          <div className="flex justify-center mt-6">
+      
+          {/* <div className="flex justify-center mt-6">
             <Button
               onClick={() => setShowStripeForm(true)}
               className="bg-[#635bff] text-white hover:bg-[#544eea] px-4 py-2 rounded-md"
             >
               Create Stripe Connect Account
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* STRIPE CONNECT FORM (INLINE) */}

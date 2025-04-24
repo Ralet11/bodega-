@@ -23,7 +23,8 @@ import {
   SET_ALL_DIST_PRODUCTS,
   SET_CLIENT,
   SET_TUTORIAL_SEEN,        // New action type
-  SET_TUTORIAL_STEP         // New action type
+  SET_TUTORIAL_STEP,         // New action type
+  SET_CURRENT_SHOP
 } from "../actions/actions";
 
 const initialState = {
@@ -45,6 +46,7 @@ const initialState = {
     seen: false,            // Indicates if the tutorial has been seen
     step: 0,                // Current step of the tutorial
   },
+  currentShop:[]
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -228,6 +230,11 @@ const rootReducer = (state = initialState, action) => {
           step: action.payload,
         },
       };
+      case SET_CURRENT_SHOP:
+        return {
+          ...state,
+          currentShop: action.payload
+        };
 
     default:
       return state;

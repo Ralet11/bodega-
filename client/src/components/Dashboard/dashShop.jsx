@@ -82,31 +82,59 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   const updateFilteredItemTotals = (data) => {
     const newFilteredItemTotals = {};
-
+  
     Object.keys(data).forEach((shopId) => {
       const shopData = data[shopId];
       const itemTotals = {};
-
+      console.log(shopData, "shopdata");
       const orders = shopData.orders || [];
+  
       orders.forEach((order) => {
-        order.order_details.forEach((item) => {
-          if (!itemTotals[item.id]) {
-            itemTotals[item.id] = {
-              name: item.name,
-              total: 0,
-              quantity: 0,
-              ordersCount: 0,
-            };
+        // Inicialmente, definimos details como order.order_details
+        let details = order.order_details;
+  
+        // Si details no es un array, comprobamos si es string y tratamos de parsearlo
+        if (!Array.isArray(details) && typeof details === "string") {
+          try {
+            const parsedDetails = JSON.parse(details);
+            // Si el objeto parseado tiene una propiedad "details" que es un array, la usamos
+            if (parsedDetails && Array.isArray(parsedDetails.details)) {
+              details = parsedDetails.details;
+            } else if (Array.isArray(parsedDetails)) {
+              // En el caso de que el JSON sea directamente un array
+              details = parsedDetails;
+            } else {
+              // Si no es ninguno de los dos casos, asignamos un array vacío
+              details = [];
+            }
+          } catch (error) {
+            console.error("Error parseando order_details:", error);
+            details = [];
           }
-          itemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, '')) * item.quantity;
-          itemTotals[item.id].quantity += item.quantity;
-          itemTotals[item.id].ordersCount += 1;
-        });
+        }
+  
+        // Ahora, verificamos si details es un array antes de iterar
+        if (Array.isArray(details)) {
+          details.forEach((item) => {
+            if (!itemTotals[item.id]) {
+              itemTotals[item.id] = {
+                name: item.name,
+                total: 0,
+                quantity: 0,
+                ordersCount: 0,
+              };
+            }
+            // Convertimos el precio a número, removiendo caracteres que no sean dígitos, puntos o guiones
+            itemTotals[item.id].total += parseFloat(item.price.replace(/[^0-9.-]+/g, '')) * item.quantity;
+            itemTotals[item.id].quantity += item.quantity;
+            itemTotals[item.id].ordersCount += 1;
+          });
+        }
       });
-
+  
       newFilteredItemTotals[String(shopId)] = itemTotals;
     });
-
+  
     setFilteredItemTotals(newFilteredItemTotals);
   };
 
@@ -116,14 +144,14 @@ const ShopsComponent = ({ shops, ordersData }) => {
 
   return (
     <div className="w-full md:py-10 md:px-8 flex flex-col items-stretch md:ml-6">
-      <ShopIndicators
+       <ShopIndicators
         ordersData={filteredOrdersData}
         filterPeriod={filterPeriod}
         filterOrders={filterOrders}
         shops={shops}
         filteredItemTotals={filteredItemTotals}
         selectedShop={selectedShop}
-      />
+      /> 
     </div>
   );
 };

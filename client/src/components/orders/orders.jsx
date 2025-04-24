@@ -4,7 +4,7 @@ import { Search, Utensils, ShoppingBag } from 'lucide-react';
 import axios from 'axios';
 import { getParamsEnv } from '../../functions/getParamsEnv';
 import { useSelector } from 'react-redux';
-import socketIOClient from 'socket.io-client';
+import socket from '../../socket';
 
 const { API_URL_BASE } = getParamsEnv();
 
@@ -68,7 +68,6 @@ export default function OrderDashboard() {
   }, [activeShop, token]);
 
   useEffect(() => {
-    const socket = socketIOClient('https://3.137.165.92');
     const handleNewOrder = async (data) => {
       try {
         await fetchOrders();

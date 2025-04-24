@@ -8,52 +8,7 @@
     }
   }
 
-  a {
-    font-weight: 500;
-    color: #646cff;
-    text-decoration: inherit;
-  }
-  a:hover {
-    color: #535bf2;
-  }
 
-  html, body {
-    background-color: #E5E7EB;
-  }
-
-  h1 {
-    font-size: 3.2em;
-    line-height: 1.1;
-  }
-
-  button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #1a1a1a;
-    cursor: pointer;
-    transition: border-color 0.25s;
-  }
-
-  @media (prefers-color-scheme: light) {
-    :root {
-      color: #213547;
-      background-color: #E5E7EB
-    }
-    a:hover {
-      color: #747bff;
-    }
-    button {
-      background-color: #f9f9f9;
-    }
-  }
-
-  .bg-cards1 {
-    background-color: #fffdfd;
-  }
 
   /* Global scrollbar styles for the body */
   body::-webkit-scrollbar {
@@ -62,7 +17,7 @@
   }
 
   body::-webkit-scrollbar-track {
-    background: #ece8c9; /* Lighter background */
+    background: #F3F4F6; /* Lighter background */
   }
 
   body::-webkit-scrollbar-thumb {
@@ -98,7 +53,7 @@
   /* Styles for Firefox */
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: #d4a207 #ece8c9;
+    scrollbar-color: #d4a207 #F3F4F6;
   }
 
   /* Styles for IE and Edge */
@@ -112,7 +67,7 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #ece8c9;
+    background: #F3F4F6;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {

@@ -3,10 +3,29 @@ import db from '../models/index.js';
 const { Local, Category, Product, Extra, ExtraOption, ShopOpenHours, LocalTag, Tag, LocalCategory, ProductSchedule, Client} = db;
 import nodemailer from 'nodemailer';
 import jwt from "jsonwebtoken";
-
+import multer from "multer"
 import { literal, Op } from 'sequelize';
 
 import { getIo } from '../socket.js';
+
+
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
+import {
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_REGION,
+  AWS_BUCKET_NAME,
+} from "../config.js"
+
+export const uploadMenuPdf = multer({ storage: multer.memoryStorage() }).single("file")
+
+export const s3Client = new S3Client({
+  region: AWS_REGION,
+  credentials: {
+    accessKeyId: AWS_ACCESS_KEY_ID,
+    secretAccessKey: AWS_SECRET_ACCESS_KEY,
+  },
+})
 
 
 export const getByClientId = async (req, res) => {
@@ -256,35 +275,59 @@ const convertTo24Hour = (timeStr) => {
   return `${hoursStr}:${minutesStr}:00`;
 };
 
-export const addShop = async (req, res) => {
-  console.log(req.body, "body");
+/* ---------- multer para archivos de menú ---------- */
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/menus"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_")),
+})
+export const uploadMenu = multer({ storage })
 
+/* ---------- controlador ---------- */
+
+
+
+export const addShop = async (req, res) => {
   try {
-    const {
-      storeInfo,
-      orderMethod,
-      hours,
-      menu,
-      bankAccount,
-      coordinates
-    } = req.body;
+    /* ── JSON en multipart viene en body.data ── */
+    const body = req.file ? JSON.parse(req.body.data) : req.body
+
+    const { storeInfo, orderMethod, hours, menu, bankAccount, coordinates } = body
 
     if (
-      !storeInfo ||
-      !storeInfo.name ||
-      !storeInfo.address ||
-      !storeInfo.phone ||
-      !storeInfo.email ||
-      !storeInfo.selectedTags ||
+      !storeInfo?.name ||
+      !storeInfo?.address ||
+      !storeInfo?.phone ||
+      !storeInfo?.email ||
+      !storeInfo?.selectedTags?.length ||
       !coordinates?.lat ||
       !coordinates?.lng
     ) {
-      return res
-        .status(400)
-        .json({ message: "Bad Request. Please fill all required fields." });
+      return res.status(400).json({ message: "Bad Request. Missing fields." })
     }
 
-    // Crear la nueva tienda (Local)
+    /* ---------- Subir PDF a S3 (si corresponde) ---------- */
+    let menuFileUrl = null
+    if (menu?.menuOption === "upload") {
+      if (!req.file)
+        return res.status(400).json({ message: "PDF menu file missing." })
+
+      const fileName = `${Date.now()}_${req.file.originalname.replace(
+        /\s+/g,
+        "_",
+      )}`
+
+      const params = {
+        Bucket: AWS_BUCKET_NAME,
+        Key: `menus/${fileName}`,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      }
+
+      await s3Client.send(new PutObjectCommand(params))
+      menuFileUrl = `https://${AWS_BUCKET_NAME}.s3.amazonaws.com/menus/${fileName}`
+    }
+
+    /* ---------- Crear Local ---------- */
     const newShop = await Local.create({
       name: storeInfo.name,
       address: storeInfo.address,
@@ -292,98 +335,83 @@ export const addShop = async (req, res) => {
       lat: coordinates.lat,
       lng: coordinates.lng,
       clients_id: req.user.clientId,
-      locals_categories_id: storeInfo.locals_categories_id
-        ? storeInfo.locals_categories_id
-        : 1,
-      menuLink: menu.menuOption === "link" ? menu.menuLink : null,
-      menuFileUrl: menu.menuOption === "upload" ? menu.menuFile : null,
-      einNumber: bankAccount?.taxId || null
-    });
+      locals_categories_id: storeInfo.locals_categories_id ?? 1,
+      menuLink: menu?.menuOption === "link" ? menu.menuLink : null,
+      menuFileUrl,                                // URL S3 o null
+      einNumber: bankAccount?.taxId || null,
+    })
 
-    // Construir los registros de horarios de atención
-    const openHourRecords = [];
-    if (hours.generalSchedule) {
-      const weekDays = [
-        "Monday", "Tuesday", "Wednesday",
-        "Thursday", "Friday", "Saturday", "Sunday"
-      ];
-      weekDays.forEach((day) => {
-        hours.generalSchedule.forEach((slot) => {
+    /* ---------- Horarios ---------- */
+    const openHourRecords = []
+    if (hours?.generalSchedule) {
+      const days = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ]
+      days.forEach((d) =>
+        hours.generalSchedule.forEach((s) =>
           openHourRecords.push({
             local_id: newShop.id,
-            day,
-            open_hour: convertTo24Hour(slot.open),
-            close_hour: convertTo24Hour(slot.close)
-          });
-        });
-      });
-    } else if (hours.daysOfWeek) {
-      hours.daysOfWeek.forEach((dayObj) => {
-        if (!dayObj.closed) {
-          dayObj.slots.forEach((slot) => {
+            day: d,
+            open_hour: convertTo24Hour(s.open),
+            close_hour: convertTo24Hour(s.close),
+          }),
+        ),
+      )
+    } else if (hours?.daysOfWeek) {
+      hours.daysOfWeek.forEach((d) => {
+        if (!d.closed)
+          d.slots.forEach((s) =>
             openHourRecords.push({
               local_id: newShop.id,
-              day: dayObj.day,
-              open_hour: convertTo24Hour(slot.open),
-              close_hour: convertTo24Hour(slot.close)
-            });
-          });
-        }
-      });
+              day: d.day,
+              open_hour: convertTo24Hour(s.open),
+              close_hour: convertTo24Hour(s.close),
+            }),
+          )
+      })
     }
-    if (openHourRecords.length > 0) {
-      await ShopOpenHours.bulkCreate(openHourRecords);
-    }
+    if (openHourRecords.length) await ShopOpenHours.bulkCreate(openHourRecords)
 
-    // Actualizar la información bancaria en el cliente (Client)
+    /* ---------- Datos bancarios ---------- */
     if (bankAccount) {
       await Client.update(
         {
           routing_number: bankAccount.routingNumber,
           account_number: bankAccount.accountNumber,
-          account_holder_name: bankAccount.legalName
+          account_holder_name: bankAccount.legalName,
         },
-        {
-          where: { id: req.user.clientId }
-        }
-      );
+        { where: { id: req.user.clientId } },
+      )
     }
 
-    // Agregar los tags seleccionados a LocalTag
-    if (
-      Array.isArray(storeInfo.selectedTags) &&
-      storeInfo.selectedTags.length > 0
-    ) {
+    /* ---------- Tags ---------- */
+    if (storeInfo.selectedTags?.length) {
       for (const tag of storeInfo.selectedTags) {
-        await LocalTag.create({
-          tag_id: tag.id,
-          local_id: newShop.id
-        });
+        await LocalTag.create({ tag_id: tag.id, local_id: newShop.id })
       }
     }
 
-    // Opcional: procesar orderMethod o category si hace falta...
-
-    // Obtener la tienda recién creada con horarios y tags
+    /* ---------- Respuesta ---------- */
     const shop = await Local.findOne({
       where: { id: newShop.id },
       include: [
         { model: ShopOpenHours, as: "openingHours" },
-        { model: Tag, as: "tags", through: { attributes: [] } }
-      ]
-    });
+        { model: Tag, as: "tags", through: { attributes: [] } },
+      ],
+    })
 
-    res.json({
-      error: false,
-      created: "ok",
-      result: shop,
-      message: "Shop added successfully"
-    });
-  } catch (error) {
-    console.error("Error adding shop:", error);
-    res.status(500).json({ error: true, message: error.message });
+    res.json({ error: false, result: shop, message: "Shop added successfully" })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: true, message: err.message })
   }
-};
+}
 
 
 export const getLocalCategoriesAndProducts = async (req, res) => {

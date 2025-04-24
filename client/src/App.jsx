@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import socketIOClient from "socket.io-client";
 import axios from "axios";
 import "./App.css";
 
@@ -42,14 +41,15 @@ import SellerProtectedRoute from "./components/SellerRout.jsx";
 // Redux actions
 import { setCategories, setNewOrder } from "./redux/actions/actions";
 import { getParamsEnv } from "./functions/getParamsEnv.js";
-
+import socket from "./socket.js";
 // Icons
 import {
   ShoppingCartIcon,
   BellAlertIcon,
   BuildingStorefrontIcon,
   PhoneIcon,
-  ComputerDesktopIcon
+  ComputerDesktopIcon,
+  Cog6ToothIcon
 } from "@heroicons/react/24/solid";
 
 const { API_URL_BASE } = getParamsEnv();
@@ -65,8 +65,7 @@ function App() {
   const client = useSelector((state) => state?.client?.client);
   const userRole = client?.role; // e.g. 0 (owner) or 1 (seller)
 
-  // Socket for real-time updates
-  const socket = socketIOClient("https://3.137.165.92");
+
 
   // Local states
   const [orderNotificationCounts, setOrderNotificationCounts] = useState({});
@@ -167,15 +166,20 @@ function App() {
               onClick={handleOrdersClick}
               link="/orders"
             />
-            <SidebarItem
+        {/*     <SidebarItem
               icon={<BuildingStorefrontIcon className="w-2" />}
               text="Shops"
               link="/shops"
-            />
+            /> */}
             <SidebarItem
               icon={<PhoneIcon className="w-2" />}
               text="Contact"
               link="/contact"
+            />
+            <SidebarItem
+              icon={<Cog6ToothIcon className="w-2" />}
+              text="Shop configuration"
+              link="/settings"
             />
           </Sidebar>
           <Header className="header" />
