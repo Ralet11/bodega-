@@ -42,11 +42,11 @@ app.use(cors(corsOptions));
 app.get(
   '/.well-known/pki-validation/58A390110C5C159F45D926A186EBD354.txt',
   (req, res) => {
-    // Si 'certificados' está directamente bajo src:
     const filePath = path.join(
       __dirname,
-      'certificados',
-      '58A390110C5C159F45D926A186EBD354.txt'
+      '.well-known',
+      'pki-validation',
+      '58A390110C5C159F45D926A186EBD354.txt' // sin espacios extra ni extensión mal escrita
     );
     res.sendFile(filePath, err => {
       if (err) {
