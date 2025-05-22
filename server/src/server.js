@@ -39,8 +39,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-app.get('/.well-known/pki-validation/EA9FD8109D014FF58B165491B4D7381D.txt', (req, res) => {
-  const filePath = path.join(__dirname, 'bodega-', 'certificados', 'EA9FD8109D014FF58B165491B4D7381D.txt');
+app.get('/.well-known/pki-validation/58A390110C5C159F45D926A186EBD354.txt', (req, res) => {
+  const filePath = path.join(__dirname, 'bodega-', 'certificados', '58A390110C5C159F45D926A186EBD354.tx .');
   res.sendFile(filePath);
 });
 
